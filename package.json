@@ -1,9 +1,12 @@
 {
   "name": "ovdpmanager",
   "version": "1.0.0",
+  "packageManager": "yarn@1.22.22",
+  "engines": {
+    "node": "22.19.0"
+  },
   "main": "expo-router/entry",
   "dependencies": {
-    "@expo/ui": "~58.0.20",
     "expo": "~58.0.14",
     "expo-constants": "~58.0.12",
     "expo-device": "~58.0.5",
@@ -29,15 +32,26 @@
   },
   "devDependencies": {
     "@types/react": "~19.3.0",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~58.0.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.7",
+    "husky": "^9.1.7",
+    "prettier": "^3.9.10",
     "typescript": "~6.0.3"
   },
   "scripts": {
     "start": "expo start",
-    "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "lint:fix": "expo lint --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "validate": "yarn format:check && yarn lint && yarn typecheck",
+    "prepare": "husky"
   },
   "private": true
 }

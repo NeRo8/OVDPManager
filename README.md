@@ -4,16 +4,32 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ## Get started
 
-1. Install dependencies
+This project pins its toolchain:
+
+| Tool      | Version   | Source                                            |
+| --------- | --------- | ------------------------------------------------- |
+| Node.js   | `22.19.0` | `.node-version`, `engines.node` in `package.json` |
+| Yarn      | `1.22.22` | `packageManager` in `package.json`                |
+| Ruby      | `3.4.11`  | `.ruby-version`, `ruby` in `Gemfile`              |
+| CocoaPods | `1.16.2`  | `Gemfile` / `Gemfile.lock`                        |
+
+Any version manager that reads `.node-version` / `.ruby-version` picks these up automatically (fnm with `--use-on-cd`, mise, asdf, rbenv, chruby). `yarn install` fails on a different Node version, and Bundler refuses to run on a different Ruby version. When you bump a version, update both places listed in the table.
+
+1. Install the toolchain and dependencies
 
    ```bash
-   npm install
+   fnm install            # or: mise install
+   corepack enable
+   yarn install           # JS dependencies
+   bundle install         # Ruby gems (CocoaPods) for iOS builds
    ```
 
 2. Start the app
 
    ```bash
-   npx expo start
+   yarn start             # dev server
+   yarn expo run:ios      # native iOS build; Expo runs `bundle exec pod install`
+   yarn expo run:android  # native Android build
    ```
 
 In the output, you'll find options to open the app in a
@@ -25,19 +41,20 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
+## Code quality
 
-When you're ready, run:
+Run the checks locally:
 
 ```bash
-npm run reset-project
+yarn format:check
+yarn lint
+yarn typecheck
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+Run `yarn format` to format project files, or `yarn validate` to run all checks together. Husky runs `yarn validate` before each commit.
 
 ### Other setup steps
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
 - If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
 - Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
 
