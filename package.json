@@ -7,6 +7,7 @@
   },
   "main": "expo-router/entry",
   "dependencies": {
+    "@expo/ui": "~58.0.20",
     "expo": "~58.0.14",
     "expo-constants": "~58.0.12",
     "expo-device": "~58.0.5",
@@ -16,6 +17,7 @@
     "expo-linking": "~58.0.13",
     "expo-router": "~58.0.23",
     "expo-splash-screen": "~58.0.10",
+    "expo-sqlite": "~58.0.13",
     "expo-status-bar": "~58.0.3",
     "expo-symbols": "~58.0.4",
     "expo-system-ui": "~58.0.6",
