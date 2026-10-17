@@ -48,6 +48,11 @@ export function removeHolding(id: string) {
   save(load().filter((h) => h.id !== id));
 }
 
+/** Restores the wallet from a backup, replacing everything in it. */
+export function replaceHoldings(next: Holding[]) {
+  save(next);
+}
+
 /** Removes every purchase of the ISIN. */
 export function removePosition(isin: string) {
   save(load().filter((h) => h.isin !== isin));

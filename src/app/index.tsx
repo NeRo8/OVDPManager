@@ -74,7 +74,11 @@ export default function PortfolioScreen() {
 
   const addButton = <HeaderButton title="Додати" onPress={() => router.push('/add')} />;
 
-  const header = <Stack.Screen options={{ headerRight: () => addButton }} />;
+  const backupButton = <HeaderButton title="Копія" onPress={() => router.push('/backup')} />;
+
+  const header = (
+    <Stack.Screen options={{ headerLeft: () => backupButton, headerRight: () => addButton }} />
+  );
 
   if (!bonds && holdings.length > 0) {
     return (
@@ -106,6 +110,12 @@ export default function PortfolioScreen() {
           title="Додати ОВДП"
           onPress={() => router.push('/add')}
           style={styles.emptyButton}
+        />
+        <Button
+          title="Відновити з резервної копії"
+          variant="secondary"
+          onPress={() => router.push('/backup')}
+          style={styles.emptyRestore}
         />
       </View>
     );
@@ -233,6 +243,7 @@ const styles = StyleSheet.create({
   emptyTitle: { fontSize: 22, fontWeight: '700', textAlign: 'center' },
   emptyText: { fontSize: 15, textAlign: 'center', lineHeight: 21, maxWidth: 400 },
   emptyButton: { marginTop: 16, alignSelf: 'center', width: '100%', maxWidth: 400 },
+  emptyRestore: { alignSelf: 'center', width: '100%', maxWidth: 400 },
   inlineError: { fontSize: 13, textAlign: 'center' },
   summary: { borderRadius: 12, borderCurve: 'continuous', padding: 16, gap: 4 },
   summaryLabel: { fontSize: 13, textTransform: 'uppercase', letterSpacing: 0.3 },
