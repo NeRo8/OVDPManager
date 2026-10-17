@@ -20,6 +20,7 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen name="bond/[isin]" options={{ title: 'ОВДП' }} />
+        <Stack.Screen name="schedule" options={{ title: 'Графік виплат' }} />
         <Stack.Screen name="backup" options={{ title: 'Резервна копія' }} />
       </Stack>
     </ThemeProvider>

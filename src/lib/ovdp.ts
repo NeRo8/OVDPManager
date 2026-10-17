@@ -164,6 +164,20 @@ export function positionPayments(lots: Holding[], bond: Bond, today: string): Po
   });
 }
 
+/** Every payment across the wallet, by date. Positions missing from the NBU data are skipped. */
+export function portfolioPayments(
+  holdings: Holding[],
+  byIsin: Map<string, Bond>,
+  today: string,
+): PositionPayment[] {
+  return groupPositions(holdings)
+    .flatMap((position) => {
+      const bond = byIsin.get(position.isin);
+      return bond ? positionPayments(position.lots, bond, today) : [];
+    })
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
 export function nextPayment(payments: PositionPayment[]): PositionPayment | undefined {
   return payments.find((p) => !p.isPaid);
 }

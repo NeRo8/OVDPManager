@@ -9,6 +9,54 @@ export function formatMoney(value: number, currency: string): string {
   return `${numberFormat.format(value)} ${CURRENCY_SIGNS[currency] ?? currency}`;
 }
 
+/** Sums amounts per currency: "10 200,00 ₴ + 5 000,00 $". */
+export function formatTotals(items: { currency: string; value: number }[]): string {
+  const totals = new Map<string, number>();
+  for (const { currency, value } of items) {
+    totals.set(currency, Math.round(((totals.get(currency) ?? 0) + value) * 100) / 100);
+  }
+  return [...totals].map(([currency, value]) => formatMoney(value, currency)).join(' + ');
+}
+
+/** Axis-friendly amount: 950, 1,5 тис, 12,5 тис, 1,2 млн */
+export function formatCompact(value: number): string {
+  const compact = (n: number, unit: string) =>
+    `${new Intl.NumberFormat('uk-UA', { maximumFractionDigits: 1 }).format(n)} ${unit}`;
+  if (value >= 1_000_000) return compact(value / 1_000_000, 'млн');
+  if (value >= 1_000) return compact(value / 1_000, 'тис');
+  return new Intl.NumberFormat('uk-UA', { maximumFractionDigits: 0 }).format(value);
+}
+
+export const MONTHS = [
+  'Січень',
+  'Лютий',
+  'Березень',
+  'Квітень',
+  'Травень',
+  'Червень',
+  'Липень',
+  'Серпень',
+  'Вересень',
+  'Жовтень',
+  'Листопад',
+  'Грудень',
+];
+
+export const MONTHS_SHORT = [
+  'січ',
+  'лют',
+  'бер',
+  'кві',
+  'тра',
+  'чер',
+  'лип',
+  'сер',
+  'вер',
+  'жов',
+  'лис',
+  'гру',
+];
+
 /** YYYY-MM-DD → DD.MM.YYYY */
 export function formatDate(isoDate: string): string {
   const [y, m, d] = isoDate.split('-');

@@ -11,6 +11,9 @@ const light = {
   positive: '#1E8E3E',
   danger: '#D93025',
   muted: '#F2F2F7',
+  // Chart series: categorical slots 1–2, validated (CVD, contrast) against `card` in each mode.
+  seriesCoupon: '#2a78d6',
+  seriesNominal: '#eb6834',
 };
 
 const dark: typeof light = {
@@ -24,6 +27,8 @@ const dark: typeof light = {
   positive: '#4CC26A',
   danger: '#FF6B5E',
   muted: '#2C2C2E',
+  seriesCoupon: '#3987e5',
+  seriesNominal: '#d95926',
 };
 
 export type Colors = typeof light;

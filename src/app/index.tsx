@@ -24,29 +24,16 @@ import {
   formatDate,
   formatDaysLeft,
   formatMoney,
+  formatTotals,
   plural,
   toISODate,
 } from '@/lib/format';
 import { useHoldings } from '@/lib/holdings';
-import {
-  type PositionPayment,
-  groupPositions,
-  nextPayment,
-  positionPayments,
-  round2,
-} from '@/lib/ovdp';
+import { type PositionPayment, groupPositions, nextPayment, positionPayments } from '@/lib/ovdp';
 import { useBonds } from '@/lib/use-bonds';
 import { useColors } from '@/theme/colors';
 
 const UPCOMING_LIMIT = 8;
-
-function sumByCurrency(items: { currency: string; value: number }[]) {
-  const totals = new Map<string, number>();
-  for (const { currency, value } of items) {
-    totals.set(currency, round2((totals.get(currency) ?? 0) + value));
-  }
-  return [...totals].map(([currency, value]) => formatMoney(value, currency)).join(' + ');
-}
 
 export default function PortfolioScreen() {
   const colors = useColors();
@@ -144,7 +131,7 @@ export default function PortfolioScreen() {
         {nextDate ? (
           <>
             <Text style={[styles.summaryValue, { color: colors.positive }]}>
-              {sumByCurrency(nextGroup.map((p) => ({ currency: p.currency, value: p.total })))}
+              {formatTotals(nextGroup.map((p) => ({ currency: p.currency, value: p.total })))}
             </Text>
             <Text style={[styles.summaryDate, { color: colors.text }]}>
               {formatDate(nextDate)} · {formatDaysLeft(daysBetween(today, nextDate))}
@@ -155,7 +142,7 @@ export default function PortfolioScreen() {
         )}
         <Text style={[styles.summaryFoot, { color: colors.secondaryText }]}>
           Вкладено:{' '}
-          {sumByCurrency(
+          {formatTotals(
             rows.map((r) => ({ currency: r.bond?.currency ?? 'UAH', value: r.position.amount })),
           )}
         </Text>
@@ -169,6 +156,17 @@ export default function PortfolioScreen() {
               <PaymentRow payment={payment} showIsin />
             </Fragment>
           ))}
+          <Separator />
+          <Pressable
+            onPress={() => router.push('/schedule')}
+            accessibilityRole="link"
+            style={({ pressed }) => [styles.linkRow, pressed && { backgroundColor: colors.muted }]}
+          >
+            <Text style={[styles.linkText, { color: colors.accent }]}>
+              Графік виплат по місяцях
+            </Text>
+            <Text style={[styles.linkText, { color: colors.secondaryText }]}>›</Text>
+          </Pressable>
         </Section>
       )}
 
@@ -262,4 +260,12 @@ const styles = StyleSheet.create({
   caption: { fontSize: 13 },
   nextLine: { fontSize: 15, marginTop: 2 },
   source: { fontSize: 12, textAlign: 'center' },
+  linkRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  linkText: { fontSize: 16 },
 });
