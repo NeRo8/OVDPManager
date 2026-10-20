@@ -71,6 +71,7 @@ export function usePaymentSchedule() {
   const monthlyPurchases = MONTHS.map((_, month) =>
     sumTotals(yearPurchases.filter(inMonth(month))),
   );
+  const averageMonthlyPurchase = round2(purchasedTotal / MONTHS.length);
   const yearTotal = round2(couponTotal + redemptionTotal);
   const paidTotal = sumTotals([...coupons, ...redemptions].filter((payment) => payment.isPaid));
   const all = [...coupons, ...redemptions].sort((a, b) => a.date.localeCompare(b.date));
@@ -96,6 +97,7 @@ export function usePaymentSchedule() {
     yearPayments,
     yearPurchases,
     purchasedTotal,
+    averageMonthlyPurchase,
     monthlyPurchases,
     monthlyCoupons,
     monthlyRedemptions,
