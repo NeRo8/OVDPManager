@@ -4,4 +4,5 @@ export * from './layout/screenContent';
 export * from './YearNav';
 export * from './chart/MonthChart';
 export * from './form/DateField';
+export * from './form/NumberField';
 export * from './form/SegmentedSelect';
