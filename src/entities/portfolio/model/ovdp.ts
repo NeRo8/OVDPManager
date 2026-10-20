@@ -53,6 +53,24 @@ export type PositionPayment = BondPayment & {
   isPaid: boolean;
 };
 
+/** A purchase on the payment schedule: money paid for bonds, on the purchase date. */
+export type PurchaseEvent = {
+  type: 'purchase';
+  /** Id of the purchase (holding) */
+  id: string;
+  date: string;
+  isin: string;
+  currency: string;
+  quantity: number;
+  /** Amount paid */
+  total: number;
+  /** Bought more of an ISIN already held */
+  isTopUp: boolean;
+};
+
+/** What the schedule lists: payments received and purchases made. */
+export type ScheduleEvent = PositionPayment | PurchaseEvent;
+
 /** Bonds whose ISIN contains the query; active bonds first, then by maturity. */
 export function searchBonds(bonds: Bond[], query: string, today: string, limit = 20): Bond[] {
   const q = query.replace(/\s+/g, '').toUpperCase();
@@ -120,8 +138,26 @@ export function portfolioPayments(
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-/** Sum of the payments' totals, rounded to cents. */
-export function sumTotals(payments: PositionPayment[]): number {
+/** Every purchase in the wallet, by date. The currency comes from the NBU data, UAH if missing. */
+export function purchaseEvents(holdings: Holding[], byIsin: Map<string, Bond>): PurchaseEvent[] {
+  return groupPositions(holdings)
+    .flatMap((position) =>
+      position.lots.map((lot, index): PurchaseEvent => ({
+        type: 'purchase',
+        id: lot.id,
+        date: lot.purchaseDate,
+        isin: lot.isin,
+        currency: byIsin.get(lot.isin)?.currency ?? 'UAH',
+        quantity: lot.quantity,
+        total: lot.amount,
+        isTopUp: index > 0,
+      })),
+    )
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/** Sum of the events' totals, rounded to cents. */
+export function sumTotals(payments: { total: number }[]): number {
   return round2(payments.reduce((sum, payment) => sum + payment.total, 0));
 }
 

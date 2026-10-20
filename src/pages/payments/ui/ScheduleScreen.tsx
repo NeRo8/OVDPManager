@@ -12,7 +12,6 @@ export default function ScheduleScreen() {
   const {
     holdings,
     bonds,
-    payments,
     firstYear,
     lastYear,
     year,
@@ -21,6 +20,9 @@ export default function ScheduleScreen() {
     currency,
     setChosenCurrency,
     yearPayments,
+    yearPurchases,
+    purchasedTotal,
+    monthlyPurchases,
     monthlyCoupons,
     monthlyRedemptions,
     couponTotal,
@@ -37,14 +39,8 @@ export default function ScheduleScreen() {
       <ScheduleHeader year={year} min={firstYear} max={lastYear} onChange={setChosenYear} />
       {!bonds && holdings.length > 0 ? (
         <EmptyState loading />
-      ) : payments.length === 0 ? (
-        <EmptyState
-          message={
-            holdings.length === 0
-              ? 'Додайте ОВДП в гаманець, і тут з’явиться графік виплат.'
-              : 'Для ваших ОВДП немає виплат після дати купівлі.'
-          }
-        />
+      ) : holdings.length === 0 ? (
+        <EmptyState message="Додайте ОВДП в гаманець, і тут з’явиться графік виплат." />
       ) : (
         <PaymentSectionList
           sections={sections}
@@ -58,10 +54,10 @@ export default function ScheduleScreen() {
                 />
               )}
 
-              {yearPayments.length > 0 && (
+              {(yearPayments.length > 0 || yearPurchases.length > 0) && (
                 <Card>
                   <Typography variant="overline" tone="secondary">
-                    Разом за {year} рік
+                    Виплати за {year} рік
                   </Typography>
                   <Typography variant="display" tabular>
                     {formatMoney(yearTotal, currency)}
@@ -72,7 +68,6 @@ export default function ScheduleScreen() {
                       {formatMoney(round2(yearTotal - paidTotal), currency)}
                     </Typography>
                   )}
-
                   {/* Breakdown doubles as the chart legend: swatch + name + amount. */}
                   <View style={styles.legend}>
                     <LegendRow
@@ -85,12 +80,27 @@ export default function ScheduleScreen() {
                       label="Повернення номіналу"
                       value={formatMoney(redemptionTotal, currency)}
                     />
+                    <LegendRow
+                      color={colors.seriesPurchase}
+                      label={`Покупки (${yearPurchases.length})`}
+                      value={formatMoney(purchasedTotal, currency)}
+                    />
                   </View>
 
                   <MonthChart
                     series={[
                       { label: 'купони', color: colors.seriesCoupon, values: monthlyCoupons },
-                      { label: 'номінал', color: colors.seriesNominal, values: monthlyRedemptions },
+                      {
+                        label: 'номінал',
+                        color: colors.seriesNominal,
+                        values: monthlyRedemptions,
+                      },
+                      {
+                        label: 'покупки',
+                        color: colors.seriesPurchase,
+                        values: monthlyPurchases,
+                        direction: 'down',
+                      },
                     ]}
                     currency={currency}
                     selected={selectedMonth}
@@ -110,13 +120,15 @@ export default function ScheduleScreen() {
                           ]
                             .filter(Boolean)
                             .join(' + ')}
+                      {monthlyPurchases[selectedMonth] > 0 &&
+                        ` · куплено на ${formatMoney(monthlyPurchases[selectedMonth], currency)}`}
                     </Typography>
                   )}
                 </Card>
               )}
             </View>
           }
-          emptyMessage={`У ${year} році виплат немає.`}
+          emptyMessage={`У ${year} році виплат і покупок немає.`}
         />
       )}
     </View>

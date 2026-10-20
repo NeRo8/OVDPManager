@@ -9,9 +9,15 @@ export const light = {
   positive: '#1E8E3E',
   danger: '#D93025',
   muted: '#F2F2F7',
-  // Chart series: categorical slots 1–2, validated against `card` in each mode.
-  seriesCoupon: '#2a78d6',
+  // Chart series: blue, orange, aqua; validated all-pairs against `card` in each mode.
+  // Light aqua is 2.8:1 on white, so the chart keeps visible legend values and captions.
+  seriesPurchase: '#2a78d6',
   seriesNominal: '#eb6834',
+  seriesCoupon: '#1baf7a',
+  // The same hues stepped to 4.5:1 on `card`, for amounts written in the series color.
+  seriesPurchaseText: '#2876d4',
+  seriesNominalText: '#cd4d0f',
+  seriesCouponText: '#008856',
 };
 
 export const dark: typeof light = {
@@ -25,6 +31,10 @@ export const dark: typeof light = {
   positive: '#4CC26A',
   danger: '#FF6B5E',
   muted: '#2C2C2E',
-  seriesCoupon: '#3987e5',
+  seriesPurchase: '#3987e5',
   seriesNominal: '#d95926',
+  seriesCoupon: '#199e70',
+  seriesPurchaseText: '#3987e5',
+  seriesNominalText: '#dd5c2a',
+  seriesCouponText: '#199e70',
 };

@@ -1,12 +1,12 @@
 import { SectionList, StyleSheet, View, type SectionListProps } from 'react-native';
 
-import { PaymentRow, type PositionPayment } from '@/entities/portfolio';
+import { PaymentRow, type ScheduleEvent } from '@/entities/portfolio';
 import { themeStyles } from '@/shared/theme';
 import { SectionCell, Typography, screenContent } from '@/shared/ui';
 import type { PaymentSection } from '../model/paymentSections';
 
 type Props = Pick<
-  SectionListProps<PositionPayment, PaymentSection>,
+  SectionListProps<ScheduleEvent, PaymentSection>,
   'ListHeaderComponent' | 'ListFooterComponent' | 'refreshControl'
 > & {
   sections: PaymentSection[];
@@ -14,7 +14,7 @@ type Props = Pick<
   emptyMessage: string;
 };
 
-/** Payments grouped by month: the shared list of the payments and schedule screens. */
+/** Events grouped by month: the shared list of the payments and schedule screens. */
 export function PaymentSectionList({ emptyMessage, ...props }: Props) {
   const theme = themeStyles;
   return (
@@ -24,7 +24,9 @@ export function PaymentSectionList({ emptyMessage, ...props }: Props) {
       contentContainerStyle={[screenContent, styles.content]}
       contentInsetAdjustmentBehavior="automatic"
       stickySectionHeadersEnabled={false}
-      keyExtractor={(payment) => `${payment.isin}-${payment.date}-${payment.type}`}
+      keyExtractor={(event) =>
+        event.type === 'purchase' ? event.id : `${event.isin}-${event.date}-${event.type}`
+      }
       renderSectionHeader={({ section }) => (
         <View style={styles.sectionHeader}>
           <Typography variant="overline" tone="secondary">

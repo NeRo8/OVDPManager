@@ -1,49 +1,74 @@
 import { StyleSheet, View } from 'react-native';
 
 import { formatDate, formatMoney } from '@/shared/lib';
-import { Typography } from '@/shared/ui';
+import { useColors } from '@/shared/theme';
+import { Swatch, Typography } from '@/shared/ui';
 
-import type { PositionPayment } from '../model/ovdp';
+import type { ScheduleEvent } from '../model/ovdp';
 
+const KINDS = {
+  coupon: 'Купон',
+  redemption: 'Погашення номіналу',
+} as const;
+
+/** A payment received, or a purchase (money paid) when the event is one. */
 export function PaymentRow({
   payment,
   showIsin,
   showQuantity,
 }: {
-  payment: PositionPayment;
+  payment: ScheduleEvent;
   showIsin?: boolean;
   /** For positions bought in several purchases, where the quantity differs between payments */
   showQuantity?: boolean;
 }) {
-  const tone = payment.isPaid ? 'secondary' : 'primary';
+  const colors = useColors();
+  // Same colors as the schedule chart; amounts take the text-contrast step of the hue.
+  const series = {
+    coupon: { mark: colors.seriesCoupon, text: colors.seriesCouponText },
+    redemption: { mark: colors.seriesNominal, text: colors.seriesNominalText },
+    purchase: { mark: colors.seriesPurchase, text: colors.seriesPurchaseText },
+  }[payment.type];
+  const isPurchase = payment.type === 'purchase';
+  const isPaid = !isPurchase && payment.isPaid;
+  const tone = isPaid ? 'secondary' : 'primary';
   const kind = [
-    showIsin && payment.isin,
-    payment.type === 'redemption' ? 'Погашення номіналу' : 'Купон',
-    showQuantity && `${payment.quantity} шт`,
-    payment.isPaid && 'виплачено',
+    isPurchase ? (payment.isTopUp ? 'Докупівля' : 'Купівля') : KINDS[payment.type],
+    // A no-break space keeps "10 шт" on one line.
+    (showQuantity || isPurchase) && `${payment.quantity} шт`,
+    isPaid && 'виплачено',
   ]
     .filter(Boolean)
     .join(' · ');
 
   return (
-    <View style={[styles.row, payment.isPaid && styles.paid]}>
+    <View style={[styles.row, isPaid && styles.paid]}>
+      <Swatch color={series.mark} />
       <View style={styles.paymentLeft}>
-        <Typography variant="callout" tone={tone} tabular>
-          {formatDate(payment.date)}
-        </Typography>
+        {showIsin && (
+          <Typography variant="callout" weight="semibold">
+            {payment.isin}
+          </Typography>
+        )}
         <Typography variant="caption1" tone="secondary">
           {kind}
         </Typography>
       </View>
-      <Typography
-        variant="callout"
-        weight="semibold"
-        tabular
-        tone={payment.type === 'coupon' && !payment.isPaid ? 'positive' : tone}
-        style={styles.paymentAmount}
-      >
-        +{formatMoney(payment.total, payment.currency)}
-      </Typography>
+      <View style={styles.paymentRight}>
+        <Typography variant="caption1" tone={tone} tabular align="right">
+          {formatDate(payment.date)}
+        </Typography>
+        <Typography
+          variant="callout"
+          weight="semibold"
+          tabular
+          align="right"
+          style={{ color: series.text }}
+        >
+          {isPurchase ? '−' : '+'}
+          {formatMoney(payment.total, payment.currency)}
+        </Typography>
+      </View>
     </View>
   );
 }
@@ -60,5 +85,5 @@ const styles = StyleSheet.create({
   },
   paid: { opacity: 0.6 },
   paymentLeft: { gap: 2, flex: 1 },
-  paymentAmount: { flexShrink: 0 },
+  paymentRight: { gap: 2, flexShrink: 0 },
 });
