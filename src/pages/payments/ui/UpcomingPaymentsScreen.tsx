@@ -76,8 +76,6 @@ export default function UpcomingPaymentsScreen() {
           </Text>
           <Section title="Переглянути детальніше">
             <NavRow title="Графік виплат по місяцях" href="/schedule" />
-            <Separator />
-            <NavRow title="Прогноз доходу з новими покупками" href="/forecast" />
           </Section>
         </View>
       }
@@ -114,7 +112,7 @@ export default function UpcomingPaymentsScreen() {
   );
 }
 
-function NavRow({ title, href }: { title: string; href: '/schedule' | '/forecast' }) {
+function NavRow({ title, href }: { title: string; href: '/schedule' }) {
   const theme = themeStyles;
   return (
     <Pressable
