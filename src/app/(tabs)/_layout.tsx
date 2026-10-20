@@ -1,7 +1,6 @@
-import { Tabs, router } from 'expo-router';
+import { Tabs } from 'expo-router/js-tabs';
 import { SymbolView } from 'expo-symbols';
 
-import { HeaderButton } from '@/shared/ui';
 import { useColors } from '@/shared/theme';
 
 export default function TabLayout() {
@@ -59,7 +58,6 @@ export default function TabLayout() {
               tintColor={color}
             />
           ),
-          headerRight: () => <HeaderButton title="Додати" onPress={() => router.push('/add')} />,
         }}
       />
       <Tabs.Screen

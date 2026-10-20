@@ -1,4 +1,5 @@
 export * from './button/Button';
+export * from './button/FloatingActionButton';
 export * from './typography/Typography';
 export * from './layout/EmptyState';
 export * from './layout/Section';

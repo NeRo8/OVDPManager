@@ -8,7 +8,15 @@ import {
   View,
 } from 'react-native';
 
-import { Button, SectionCell, SectionTitle, Typography, screenContent } from '@/shared/ui';
+import {
+  Button,
+  FAB_CLEARANCE,
+  FloatingActionButton,
+  SectionCell,
+  SectionTitle,
+  Typography,
+  screenContent,
+} from '@/shared/ui';
 import {
   daysBetween,
   formatDate,
@@ -72,88 +80,91 @@ export default function PortfolioScreen() {
   }
 
   return (
-    <FlatList
-      style={theme.background}
-      contentContainerStyle={[screenContent, styles.listContent]}
-      contentInsetAdjustmentBehavior="automatic"
-      data={rows}
-      keyExtractor={({ position }) => position.isin}
-      refreshControl={<RefreshControl refreshing={isFetching} onRefresh={refresh} />}
-      ListHeaderComponent={
-        <View style={styles.listHeader}>
-          {error && (
-            <Typography variant="caption1" align="center" tone="danger">
-              Не вдалося оновити дані НБУ — показано збережені.
-            </Typography>
-          )}
-
-          <View style={[styles.summary, theme.card]}>
-            <Typography variant="overline" tone="secondary">
-              Наступна виплата
-            </Typography>
-            {nextDate ? (
-              <>
-                <Typography variant="display" tabular tone="positive">
-                  {formatTotals(nextGroup.map((p) => ({ currency: p.currency, value: p.total })))}
-                </Typography>
-                <Typography variant="body" weight="medium">
-                  {formatDate(nextDate)} · {formatDaysLeft(daysBetween(today, nextDate))}
-                </Typography>
-              </>
-            ) : (
-              <Typography variant="body" weight="medium">
-                Усі виплати отримано
+    <View style={styles.screen}>
+      <FlatList
+        style={theme.background}
+        contentContainerStyle={[screenContent, styles.listContent]}
+        contentInsetAdjustmentBehavior="automatic"
+        data={rows}
+        keyExtractor={({ position }) => position.isin}
+        refreshControl={<RefreshControl refreshing={isFetching} onRefresh={refresh} />}
+        ListHeaderComponent={
+          <View style={styles.listHeader}>
+            {error && (
+              <Typography variant="caption1" align="center" tone="danger">
+                Не вдалося оновити дані НБУ — показано збережені.
               </Typography>
             )}
-            <Typography variant="caption1" tone="secondary" style={styles.summaryFoot}>
-              Вкладено:{' '}
-              {formatTotals(
-                rows.map((r) => ({
-                  currency: r.bond?.currency ?? 'UAH',
-                  value: r.position.amount,
-                })),
-              )}
-            </Typography>
-          </View>
 
-          <SectionTitle title="Мої ОВДП" />
-        </View>
-      }
-      renderItem={({ item: { position, bond, next }, index }) => (
-        <SectionCell index={index} count={rows.length}>
-          <Pressable
-            onPress={() =>
-              router.push({ pathname: '/bond/[isin]', params: { isin: position.isin } })
-            }
-            accessibilityRole="link"
-            style={({ pressed }) => [styles.holding, pressed && theme.muted]}
-          >
-            <View style={styles.holdingTop}>
-              <Typography variant="headline" tabular>
-                {position.isin}
+            <View style={[styles.summary, theme.card]}>
+              <Typography variant="overline" tone="secondary">
+                Наступна виплата
               </Typography>
-              {bond && (
-                <Typography variant="caption1" tone="secondary">
-                  {bond.rate}% · до {formatDate(bond.maturityDate)}
+              {nextDate ? (
+                <>
+                  <Typography variant="display" tabular tone="positive">
+                    {formatTotals(nextGroup.map((p) => ({ currency: p.currency, value: p.total })))}
+                  </Typography>
+                  <Typography variant="body" weight="medium">
+                    {formatDate(nextDate)} · {formatDaysLeft(daysBetween(today, nextDate))}
+                  </Typography>
+                </>
+              ) : (
+                <Typography variant="body" weight="medium">
+                  Усі виплати отримано
                 </Typography>
               )}
+              <Typography variant="caption1" tone="secondary" style={styles.summaryFoot}>
+                Вкладено:{' '}
+                {formatTotals(
+                  rows.map((r) => ({
+                    currency: r.bond?.currency ?? 'UAH',
+                    value: r.position.amount,
+                  })),
+                )}
+              </Typography>
             </View>
-            <Typography variant="caption1" tone="secondary">
-              {position.quantity} шт · {formatMoney(position.amount, bond?.currency ?? 'UAH')} ·{' '}
-              {position.lots.length === 1
-                ? `куплено ${formatDate(position.lots[0].purchaseDate)}`
-                : `${position.lots.length} ${plural(position.lots.length, 'покупка', 'покупки', 'покупок')}`}
-            </Typography>
-            <NextPaymentLine next={next} hasBond={!!bond} />
-          </Pressable>
-        </SectionCell>
-      )}
-      ListFooterComponent={
-        <Typography variant="caption2" align="center" tone="secondary" style={styles.source}>
-          Графіки виплат — з депозитарію НБУ. Потягніть донизу, щоб оновити.
-        </Typography>
-      }
-    />
+
+            <SectionTitle title="Мої ОВДП" />
+          </View>
+        }
+        renderItem={({ item: { position, bond, next }, index }) => (
+          <SectionCell index={index} count={rows.length}>
+            <Pressable
+              onPress={() =>
+                router.push({ pathname: '/bond/[isin]', params: { isin: position.isin } })
+              }
+              accessibilityRole="link"
+              style={({ pressed }) => [styles.holding, pressed && theme.muted]}
+            >
+              <View style={styles.holdingTop}>
+                <Typography variant="headline" tabular>
+                  {position.isin}
+                </Typography>
+                {bond && (
+                  <Typography variant="caption1" tone="secondary">
+                    {bond.rate}% · до {formatDate(bond.maturityDate)}
+                  </Typography>
+                )}
+              </View>
+              <Typography variant="caption1" tone="secondary">
+                {position.quantity} шт · {formatMoney(position.amount, bond?.currency ?? 'UAH')} ·{' '}
+                {position.lots.length === 1
+                  ? `куплено ${formatDate(position.lots[0].purchaseDate)}`
+                  : `${position.lots.length} ${plural(position.lots.length, 'покупка', 'покупки', 'покупок')}`}
+              </Typography>
+              <NextPaymentLine next={next} hasBond={!!bond} />
+            </Pressable>
+          </SectionCell>
+        )}
+        ListFooterComponent={
+          <Typography variant="caption2" align="center" tone="secondary" style={styles.source}>
+            Графіки виплат — з депозитарію НБУ. Потягніть донизу, щоб оновити.
+          </Typography>
+        }
+      />
+      <FloatingActionButton accessibilityLabel="Додати ОВДП" onPress={() => router.push('/add')} />
+    </View>
   );
 }
 
@@ -187,7 +198,8 @@ const styles = StyleSheet.create({
   emptyText: { lineHeight: 21, maxWidth: 400 },
   emptyButton: { marginTop: 16, alignSelf: 'center', width: '100%', maxWidth: 400 },
   emptyRestore: { alignSelf: 'center', width: '100%', maxWidth: 400 },
-  listContent: { gap: 0 },
+  screen: { flex: 1 },
+  listContent: { gap: 0, paddingBottom: FAB_CLEARANCE },
   listHeader: { gap: 24, marginBottom: 6 },
   summary: { borderRadius: 12, borderCurve: 'continuous', padding: 16, gap: 4 },
   summaryFoot: { marginTop: 8 },
