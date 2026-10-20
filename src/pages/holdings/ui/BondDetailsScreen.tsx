@@ -150,7 +150,6 @@ export default function PositionScreen() {
       </ScreenScrollView>
       {canTopUp && (
         <FloatingActionButton
-          label="Докупити"
           accessibilityLabel={`Докупити ${position.isin}`}
           onPress={() => router.push({ pathname: '/add', params: { isin: position.isin } })}
         />
