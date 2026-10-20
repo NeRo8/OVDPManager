@@ -16,7 +16,13 @@ export default function RootLayout() {
           options={{
             title: 'Додати ОВДП',
             presentation: 'modal',
-            headerLeft: () => <HeaderButton title="Скасувати" onPress={goBackOrHome} />,
+            headerLeft: () => (
+              <HeaderButton
+                icon={{ ios: 'xmark', android: 'close' }}
+                accessibilityLabel="Скасувати"
+                onPress={goBackOrHome}
+              />
+            ),
           }}
         />
         <Stack.Screen name="bond/[isin]" options={{ title: 'ОВДП' }} />

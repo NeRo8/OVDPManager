@@ -1,19 +1,29 @@
+import { SymbolView, type SymbolViewProps } from 'expo-symbols';
 import { Pressable, StyleSheet, type ViewStyle } from 'react-native';
 
-import { themeStyles } from '@/shared/theme';
+import { themeStyles, useColors } from '@/shared/theme';
 import { Typography } from '../typography/Typography';
 
-export function HeaderButton({ title, onPress }: { title: string; onPress: () => void }) {
+/** Icon-only header action; the label is announced by screen readers instead of shown. */
+export function HeaderButton({
+  icon,
+  accessibilityLabel,
+  onPress,
+}: {
+  icon: SymbolViewProps['name'];
+  accessibilityLabel: string;
+  onPress: () => void;
+}) {
+  const colors = useColors();
   return (
     <Pressable
       onPress={onPress}
       hitSlop={8}
       accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
       style={({ pressed }) => [styles.headerButton, pressed && styles.pressed]}
     >
-      <Typography tone="accent" weight="medium">
-        {title}
-      </Typography>
+      <SymbolView name={icon} size={20} weight="semibold" tintColor={colors.accent} />
     </Pressable>
   );
 }
@@ -58,7 +68,7 @@ export function Button({
 const styles = StyleSheet.create({
   pressed: { opacity: 0.7 },
   disabled: { opacity: 0.4 },
-  headerButton: { paddingHorizontal: 0 },
+  headerButton: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
   button: {
     paddingVertical: 14,
     borderRadius: 12,
