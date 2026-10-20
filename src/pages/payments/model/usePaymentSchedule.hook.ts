@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { useHoldings, useBonds } from '@/entities/portfolio';
 import { type PositionPayment, portfolioPayments } from '@/entities/portfolio';
 import { round2 } from '@/shared/lib/number';
-import { MONTHS, toISODate } from '@/shared/lib';
+import { MONTHS, todayISO } from '@/shared/lib';
 import { groupPaymentsByMonth } from './paymentSections';
 
 const CURRENCY_ORDER = ['UAH', 'USD', 'EUR'];
@@ -15,7 +15,7 @@ function sum(payments: PositionPayment[]) {
 export function usePaymentSchedule() {
   const holdings = useHoldings();
   const { bonds, byIsin } = useBonds();
-  const today = toISODate(new Date());
+  const today = todayISO();
   const currentYear = Number(today.slice(0, 4));
   const payments = useMemo(
     () => portfolioPayments(holdings, byIsin, today),

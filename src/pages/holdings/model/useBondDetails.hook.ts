@@ -4,13 +4,13 @@ import { removeHolding, removePosition, useHoldings, useBonds } from '@/entities
 import { type Holding, groupPositions, positionPayments } from '@/entities/portfolio';
 import { round2 } from '@/shared/lib/number';
 import { confirmDestructive } from '@/shared/lib/confirm';
-import { formatDate, formatMoney, toISODate } from '@/shared/lib';
+import { formatDate, formatMoney, todayISO } from '@/shared/lib';
 import { goBackOrHome } from '@/shared/lib/navigation';
 
 export function useBondDetails(isin: string) {
   const holdings = useHoldings();
   const { byIsin } = useBonds();
-  const today = toISODate(new Date());
+  const today = todayISO();
   const bond = byIsin.get(isin);
   const position = useMemo(
     () => groupPositions(holdings.filter((holding) => holding.isin === isin))[0],

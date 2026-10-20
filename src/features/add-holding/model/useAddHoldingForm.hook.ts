@@ -3,13 +3,13 @@ import { useMemo, useState } from 'react';
 import { addHolding, useHoldings, useBonds } from '@/entities/portfolio';
 import { type Bond, nextPayment, positionPayments, searchBonds } from '@/entities/portfolio';
 import { round2 } from '@/shared/lib/number';
-import { formatDate, formatMoney, parseAmount, toISODate } from '@/shared/lib';
+import { formatDate, formatMoney, parseAmount, todayISO } from '@/shared/lib';
 import { goBackOrHome } from '@/shared/lib/navigation';
 
 export function useAddHoldingForm(topUpIsin?: string) {
   const { bonds, byIsin, error, refresh } = useBonds();
   const holdings = useHoldings();
-  const today = toISODate(new Date());
+  const today = todayISO();
 
   const [query, setQuery] = useState(topUpIsin ?? '');
   const [selected, setSelected] = useState<Bond | null>(null);

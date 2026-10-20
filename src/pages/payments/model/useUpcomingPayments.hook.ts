@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 
 import { useHoldings, useBonds, portfolioPayments } from '@/entities/portfolio';
-import { toISODate } from '@/shared/lib';
+import { todayISO } from '@/shared/lib';
 import { groupPaymentsByMonth } from './paymentSections';
 
 export function useUpcomingPayments() {
   const holdings = useHoldings();
   const { bonds, byIsin, isFetching, error, refresh } = useBonds();
-  const today = toISODate(new Date());
+  const today = todayISO();
 
   const upcoming = useMemo(
     () => portfolioPayments(holdings, byIsin, today).filter((payment) => !payment.isPaid),

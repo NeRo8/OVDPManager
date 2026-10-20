@@ -22,6 +22,7 @@
 
 - Zustand `persist` використовує синхронний адаптер `expo-sqlite/kv-store` із `src/shared/lib/storage.ts`. `src/shared/lib/persistedStorage.ts` читає старий JSON і новий формат Zustand; ключі не змінені.
 - `src/entities/portfolio/model/holdings.store.ts` зберігає покупки під `holdings-v1`.
+- Дати всюди зберігаються й порівнюються як рядки `YYYY-MM-DD`, як їх віддає НБУ. `date-fns` використовується лише в `src/shared/lib/date.ts`: форматування, сьогоднішня дата, різниця в днях. Нову роботу з датами додавайте туди ж, у локальному часі.
 - `src/entities/portfolio/api/` завантажує каталог облігацій і графіки виплат НБУ через спільний Axios-клієнт; локальний кеш зберігається під `nbu-bonds-v1`.
 - `src/features/backup/model/backup.ts` перевіряє та створює JSON-копії; файлові дії — у `api/backupFile.ts`. Особиста копія `src/ovdp-backup-*.json` ігнорується Git та не є частиною коду.
 

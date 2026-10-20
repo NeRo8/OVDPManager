@@ -7,12 +7,12 @@ import {
   nextPayment,
   positionPayments,
 } from '@/entities/portfolio';
-import { toISODate } from '@/shared/lib';
+import { todayISO } from '@/shared/lib';
 
 export function usePortfolio() {
   const holdings = useHoldings();
   const { bonds, byIsin, isFetching, error, refresh } = useBonds();
-  const today = toISODate(new Date());
+  const today = todayISO();
 
   const rows = useMemo(
     () =>

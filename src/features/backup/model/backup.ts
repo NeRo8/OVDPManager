@@ -1,4 +1,4 @@
-import { plural, toISODate } from '@/shared/lib';
+import { plural, todayISO } from '@/shared/lib';
 import type { Holding } from '@/entities/portfolio';
 
 const FORMAT = 'ovdp-manager-backup';
@@ -25,7 +25,7 @@ export function serializeBackup(holdings: Holding[]): string {
 }
 
 export function backupFileName(): string {
-  return `ovdp-backup-${toISODate(new Date())}.json`;
+  return `ovdp-backup-${todayISO()}.json`;
 }
 
 /** Reads a backup file (or a bare array of purchases). Throws an Error with a user-facing message. */
