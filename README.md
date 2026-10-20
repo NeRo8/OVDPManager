@@ -1,6 +1,6 @@
 # OVDP Manager
 
-Mobile Expo app for tracking Ukrainian government bonds, future payments, forecasts, and local backups.
+Mobile Expo app for tracking Ukrainian government bonds, future payments, and local backups.
 
 ## Get started
 
@@ -36,18 +36,18 @@ This app uses Unistyles and other native modules. Run it in a [development build
 
 ## Project structure
 
-| Path                                          | Responsibility                                                               |
-| --------------------------------------------- | ---------------------------------------------------------------------------- |
-| `src/app/`                                    | Thin routes; `_layout.tsx` files define the root stack and bottom tabs.      |
-| `src/pages/`                                  | Screen UI and page-specific model hooks.                                     |
-| `src/features/`                               | User actions: adding a bond, configuring the forecast, and managing backups. |
-| `src/entities/portfolio/`                     | Bond and holding models, local holdings, NBU bond data, and payment UI.      |
-| `src/shared/api/`                             | Shared Axios client and the NBU exchange-rate resource.                      |
-| `src/shared/ui/`, `lib/`, `theme/`, `config/` | Reusable components, utilities, Unistyles theme, and app assets.             |
+| Path                                          | Responsibility                                                          |
+| --------------------------------------------- | ----------------------------------------------------------------------- |
+| `src/app/`                                    | Thin routes; `_layout.tsx` files define the root stack and bottom tabs. |
+| `src/pages/`                                  | Screen UI and page-specific model hooks.                                |
+| `src/features/`                               | User actions: adding a bond and managing backups.                       |
+| `src/entities/portfolio/`                     | Bond and holding models, local holdings, NBU bond data, and payment UI. |
+| `src/shared/api/`                             | Shared Axios client for the NBU API.                                    |
+| `src/shared/ui/`, `lib/`, `theme/`, `config/` | Reusable components, utilities, Unistyles theme, and app assets.        |
 
 Each page, feature, and entity has an `index.ts` public API. Imports point down the stack: pages can use features, entities, and shared code; features can use entities and shared code; entities can use shared code. Imports inside a slice use relative paths. See [CODEBASE.md](CODEBASE.md) for entry points and data flow.
 
-The app targets iOS and Android. Its three bottom tabs show upcoming payments, holdings, and backup actions. Extra detail, schedule, forecast, and editing screens are stack routes.
+The app targets iOS and Android. Its four bottom tabs show upcoming payments, the monthly payment schedule, holdings, and backup actions. Bond details, adding a purchase, and backup screens are stack routes.
 
 ## Code quality
 
@@ -58,7 +58,6 @@ yarn format:check
 yarn lint
 yarn lint:fsd
 yarn typecheck
-yarn test:persistence
 ```
 
 Run `yarn format` to format project files, or `yarn validate` to run all checks together. Husky runs `yarn validate` before each commit.

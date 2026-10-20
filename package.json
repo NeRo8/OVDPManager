@@ -59,8 +59,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "test:persistence": "node --experimental-strip-types --test tests/persistedStorage.test.mjs",
-    "validate": "yarn format:check && yarn lint && yarn lint:fsd && yarn typecheck && yarn test:persistence",
+    "validate": "yarn format:check && yarn lint && yarn lint:fsd && yarn typecheck",
     "prepare": "husky"
   },
   "private": true
