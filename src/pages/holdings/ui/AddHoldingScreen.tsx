@@ -1,6 +1,6 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { Fragment } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 
 import {
   DateField,
@@ -10,11 +10,11 @@ import {
   Section,
   Separator,
   Typography,
-  screenContent,
+  ScreenScrollView,
 } from '@/shared/ui';
-import { round2 } from '@/shared/lib/number';
 import { useAddHoldingForm } from '@/features/add-holding';
 import { themeStyles } from '@/shared/theme';
+import { BondsUnavailable } from '@/entities/portfolio';
 import { formatDate, formatMoney } from '@/shared/lib';
 
 export default function AddHoldingScreen() {
@@ -38,10 +38,8 @@ export default function AddHoldingScreen() {
     setAmountText,
     quantityText,
     setQuantityText,
-    amount,
-    quantity,
-    amountValid,
-    quantityValid,
+    quantityPlaceholder,
+    pricePerBond,
     dateProblem,
     preview,
     canSave,
@@ -54,35 +52,15 @@ export default function AddHoldingScreen() {
 
   if (!bonds) {
     return (
-      <View style={[styles.center, theme.background]}>
+      <>
         {title}
-        {error ? (
-          <>
-            <Typography variant="subhead" align="center">
-              {error}
-            </Typography>
-            <Button title="Спробувати ще раз" onPress={refresh} style={styles.retry} />
-          </>
-        ) : (
-          <>
-            <ActivityIndicator />
-            <Typography variant="subhead" align="center" tone="secondary">
-              Завантажуємо перелік ОВДП з НБУ…
-            </Typography>
-          </>
-        )}
-      </View>
+        <BondsUnavailable error={error} onRetry={refresh} />
+      </>
     );
   }
 
   return (
-    <ScrollView
-      style={theme.background}
-      contentContainerStyle={screenContent}
-      contentInsetAdjustmentBehavior="automatic"
-      keyboardShouldPersistTaps="handled"
-      automaticallyAdjustKeyboardInsets
-    >
+    <ScreenScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
       {title}
       <Section
         title="Номер ОВДП (ISIN)"
@@ -145,8 +123,8 @@ export default function AddHoldingScreen() {
                 <Typography variant="caption1" tone="danger">
                   {dateProblem}
                 </Typography>
-              ) : amountValid && quantityValid ? (
-                `Ціна 1 шт: ${formatMoney(round2(amount / quantity), currency)}`
+              ) : pricePerBond !== null ? (
+                `Ціна 1 шт: ${formatMoney(pricePerBond, currency)}`
               ) : (
                 'Кількість облігацій дивіться у застосунку банку чи брокера — від неї залежить сума купонів.'
               )
@@ -181,9 +159,7 @@ export default function AddHoldingScreen() {
                   type="integer"
                   value={quantityText}
                   onChangeText={setQuantityText}
-                  placeholder={
-                    amountValid ? `≈ ${Math.max(1, Math.round(amount / bond.nominal))}` : '0'
-                  }
+                  placeholder={quantityPlaceholder}
                   style={styles.inlineInput}
                 />
               }
@@ -204,13 +180,10 @@ export default function AddHoldingScreen() {
               <InfoRow label="Купонів попереду" value={String(preview.couponsLeft)} />
               <Separator />
               <InfoRow label="Усього виплат" value={formatMoney(preview.income, currency)} />
-              {amountValid && (
+              {preview.profit !== null && (
                 <>
                   <Separator />
-                  <InfoRow
-                    label="Чистий дохід"
-                    value={formatMoney(round2(preview.income - amount), currency)}
-                  />
+                  <InfoRow label="Чистий дохід" value={formatMoney(preview.profit, currency)} />
                 </>
               )}
             </Section>
@@ -219,13 +192,11 @@ export default function AddHoldingScreen() {
           <Button title="Зберегти" onPress={save} disabled={!canSave} />
         </>
       )}
-    </ScrollView>
+    </ScreenScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 12 },
-  retry: { alignSelf: 'stretch' },
   inlineInput: { minWidth: 120 },
   match: { paddingHorizontal: 16, paddingVertical: 10, gap: 2 },
   hint: { paddingHorizontal: 16, paddingVertical: 12 },

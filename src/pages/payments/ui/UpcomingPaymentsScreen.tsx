@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { RefreshControl, StyleSheet, View } from 'react-native';
 
+import { BondsUnavailable, NbuSourceNote, StaleBondsNotice } from '@/entities/portfolio';
 import { plural } from '@/shared/lib';
 import { Button, EmptyState, Typography } from '@/shared/ui';
 import { useUpcomingPayments } from '../model/useUpcomingPayments.hook';
@@ -26,14 +27,7 @@ export default function UpcomingPaymentsScreen() {
     );
   }
 
-  if (!bonds) {
-    if (!error) return <EmptyState loading />;
-    return (
-      <EmptyState title="Немає зв’язку з НБУ" message={error}>
-        <Button title="Спробувати ще раз" onPress={refresh} />
-      </EmptyState>
-    );
-  }
+  if (!bonds) return <BondsUnavailable error={error} onRetry={refresh} />;
 
   return (
     <PaymentSectionList
@@ -41,33 +35,19 @@ export default function UpcomingPaymentsScreen() {
       refreshControl={<RefreshControl refreshing={isFetching} onRefresh={refresh} />}
       ListHeaderComponent={
         <View style={styles.listHeader}>
-          {error && (
-            <Typography variant="caption1" tone="danger" align="center">
-              Не вдалося оновити дані НБУ — показано збережені.
-            </Typography>
-          )}
+          <StaleBondsNotice error={error} />
           <Typography variant="subhead" tone="secondary" align="center">
             {upcoming.length}{' '}
             {plural(upcoming.length, 'майбутня виплата', 'майбутні виплати', 'майбутніх виплат')}
           </Typography>
         </View>
       }
-      ListEmptyComponent={
-        <Typography variant="subhead" tone="secondary" align="center" style={styles.emptyList}>
-          Майбутніх виплат за вашими ОВДП немає.
-        </Typography>
-      }
-      ListFooterComponent={
-        <Typography variant="caption2" tone="secondary" align="center" style={styles.source}>
-          Графік виплат — з депозитарію НБУ. Потягніть донизу, щоб оновити.
-        </Typography>
-      }
+      emptyMessage="Майбутніх виплат за вашими ОВДП немає."
+      ListFooterComponent={<NbuSourceNote />}
     />
   );
 }
 
 const styles = StyleSheet.create({
   listHeader: { gap: 18, marginBottom: 6 },
-  emptyList: { marginTop: 28 },
-  source: { marginTop: 24 },
 });

@@ -28,5 +28,3 @@ export const dark: typeof light = {
   seriesCoupon: '#3987e5',
   seriesNominal: '#d95926',
 };
-
-export type Colors = typeof light;

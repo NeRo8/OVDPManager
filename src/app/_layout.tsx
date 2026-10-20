@@ -2,7 +2,7 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { useUnistyles } from 'react-native-unistyles';
 
 import { HeaderButton } from '@/shared/ui';
-import { goBackOrHome } from '@/shared/lib/navigation';
+import { goBackOrHome } from '@/shared/lib';
 
 export default function RootLayout() {
   const { rt } = useUnistyles();

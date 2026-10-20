@@ -1,59 +1,31 @@
-import { ScrollView, StyleSheet } from 'react-native';
-
-import { Button, Section, Typography, screenContent } from '@/shared/ui';
 import { useBackupMock } from '@/features/backup';
-import { themeStyles } from '@/shared/theme';
+import { Button, ScreenScrollView, Section, SectionText, Typography } from '@/shared/ui';
+import { StatusMessage } from './StatusMessage';
 
 export default function BackupMockScreen() {
-  const theme = themeStyles;
   const { holdingsCount, status, isBusy, saveMock, loadMock } = useBackupMock();
 
-  return (
-    <ScrollView
-      style={theme.background}
-      contentContainerStyle={screenContent}
-      contentInsetAdjustmentBehavior="automatic"
-    >
-      {__DEV__ ? (
-        <>
-          {status && (
-            <Typography
-              variant="subhead"
-              align="center"
-              tone={status.error ? 'danger' : 'positive'}
-            >
-              {status.text}
-            </Typography>
-          )}
-          <Section
-            title="Мок на пристрої"
-            footer="Мок зберігається у файловому сховищі цього пристрою."
-          >
-            <Typography variant="subhead" style={styles.body}>
-              Зберегти поточні дані як мок, щоб завантажити їх пізніше.
-            </Typography>
-          </Section>
-          <Button
-            title="Зберегти як мок"
-            onPress={saveMock}
-            disabled={isBusy || holdingsCount === 0}
-          />
-          <Button
-            title="Завантажити мок"
-            variant="secondary"
-            onPress={loadMock}
-            disabled={isBusy}
-          />
-        </>
-      ) : (
+  if (!__DEV__) {
+    return (
+      <ScreenScrollView>
         <Typography variant="subhead" align="center" tone="secondary">
           Ця сторінка доступна лише в режимі розробки.
         </Typography>
-      )}
-    </ScrollView>
+      </ScreenScrollView>
+    );
+  }
+
+  return (
+    <ScreenScrollView>
+      <StatusMessage status={status} />
+      <Section
+        title="Мок на пристрої"
+        footer="Мок зберігається у файловому сховищі цього пристрою."
+      >
+        <SectionText>Зберегти поточні дані як мок, щоб завантажити їх пізніше.</SectionText>
+      </Section>
+      <Button title="Зберегти як мок" onPress={saveMock} disabled={isBusy || holdingsCount === 0} />
+      <Button title="Завантажити мок" variant="secondary" onPress={loadMock} disabled={isBusy} />
+    </ScreenScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  body: { paddingHorizontal: 16, paddingVertical: 14 },
-});

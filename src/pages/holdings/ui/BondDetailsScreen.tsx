@@ -1,25 +1,23 @@
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { Fragment } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import {
   Button,
+  EmptyState,
   FAB_CLEARANCE,
   FloatingActionButton,
   InfoRow,
   Section,
   Separator,
   Typography,
-  screenContent,
+  ScreenScrollView,
 } from '@/shared/ui';
-import { formatDate, formatMoney } from '@/shared/lib';
+import { formatDate, formatMoney, round2 } from '@/shared/lib';
 import { PaymentRow } from '@/entities/portfolio';
-import { round2 } from '@/shared/lib/number';
 import { useBondDetails } from '../model/useBondDetails.hook';
-import { themeStyles } from '@/shared/theme';
 
 export default function PositionScreen() {
-  const theme = themeStyles;
   const { isin } = useLocalSearchParams<{ isin: string }>();
   const {
     position,
@@ -35,23 +33,11 @@ export default function PositionScreen() {
     deletePosition,
   } = useBondDetails(isin);
 
-  if (!position) {
-    return (
-      <View style={[styles.center, theme.background]}>
-        <Typography variant="subhead" tone="secondary">
-          У гаманці немає цієї ОВДП
-        </Typography>
-      </View>
-    );
-  }
+  if (!position) return <EmptyState message="У гаманці немає цієї ОВДП" />;
 
   return (
     <View style={styles.screen}>
-      <ScrollView
-        style={theme.background}
-        contentContainerStyle={[screenContent, canTopUp && styles.withFab]}
-        contentInsetAdjustmentBehavior="automatic"
-      >
+      <ScreenScrollView contentContainerStyle={canTopUp && styles.withFab}>
         <Stack.Screen options={{ title: position.isin }} />
 
         <Section title="Підсумок">
@@ -161,7 +147,7 @@ export default function PositionScreen() {
         )}
 
         <Button title="Видалити з гаманця" variant="destructive" onPress={deletePosition} />
-      </ScrollView>
+      </ScreenScrollView>
       {canTopUp && (
         <FloatingActionButton
           label="Докупити"
@@ -176,7 +162,6 @@ export default function PositionScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   withFab: { paddingBottom: FAB_CLEARANCE },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   empty: { padding: 16 },
   lot: {
     flexDirection: 'row',

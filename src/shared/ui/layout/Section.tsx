@@ -27,6 +27,15 @@ export function Section({
   );
 }
 
+/** A paragraph filling a section card. */
+export function SectionText({ children }: { children: ReactNode }) {
+  return (
+    <Typography variant="subhead" style={styles.text}>
+      {children}
+    </Typography>
+  );
+}
+
 export function SectionTitle({ title }: { title: string }) {
   return (
     <Typography variant="overline" tone="secondary" style={styles.sectionTitle}>
@@ -87,6 +96,7 @@ const styles = StyleSheet.create({
   section: { gap: 6 },
   sectionFooter: { lineHeight: 18, marginHorizontal: 16 },
   sectionTitle: { marginHorizontal: 16 },
+  text: { paddingHorizontal: 16, paddingVertical: 14, lineHeight: 21 },
   card: { borderRadius: 12, borderCurve: 'continuous', overflow: 'hidden' },
   cell: { overflow: 'hidden', borderCurve: 'continuous' },
   firstCell: { borderTopLeftRadius: 12, borderTopRightRadius: 12 },

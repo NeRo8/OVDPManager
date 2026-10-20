@@ -1,7 +1,5 @@
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-export type { Colors } from './palette';
-
 /** Used for values passed to navigation and native controls, which cannot take a style. */
 export function useColors() {
   return useUnistyles().theme;
@@ -14,7 +12,6 @@ export const themeStyles = StyleSheet.create((theme) => ({
   muted: { backgroundColor: theme.muted },
   borderBackground: { backgroundColor: theme.border },
   accentBackground: { backgroundColor: theme.accent },
-  tabBar: { backgroundColor: theme.card, borderTopColor: theme.border },
   text: { color: theme.text },
   secondaryText: { color: theme.secondaryText },
   accentText: { color: theme.accent },

@@ -1,26 +1,19 @@
 import { router } from 'expo-router';
-import { ScrollView, StyleSheet } from 'react-native';
 
-import { Button, Section, Typography, screenContent } from '@/shared/ui';
-import { purchaseCount } from '@/features/backup';
 import { useHoldings } from '@/entities/portfolio';
-import { themeStyles } from '@/shared/theme';
+import { purchaseCount } from '@/features/backup';
+import { Button, ScreenScrollView, Section, SectionText } from '@/shared/ui';
 
 export default function BackupScreen() {
-  const theme = themeStyles;
   const holdings = useHoldings();
 
   return (
-    <ScrollView
-      style={theme.background}
-      contentContainerStyle={screenContent}
-      contentInsetAdjustmentBehavior="automatic"
-    >
+    <ScreenScrollView>
       <Section title="Резервна копія">
-        <Typography variant="subhead" style={styles.body}>
+        <SectionText>
           У гаманці {purchaseCount(holdings.length)}. Створіть файл копії або відновіть дані з
           нього.
-        </Typography>
+        </SectionText>
       </Section>
       <Button title="Створити копію" onPress={() => router.push('/backup/export')} />
       <Button
@@ -35,10 +28,6 @@ export default function BackupScreen() {
           onPress={() => router.push('/backup/mock')}
         />
       )}
-    </ScrollView>
+    </ScreenScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  body: { paddingHorizontal: 16, paddingVertical: 14, lineHeight: 21 },
-});

@@ -1,6 +1,6 @@
 /** Government bonds (ОВДП) and portfolio calculations. */
 
-import { round2 } from '@/shared/lib/number';
+import { round2 } from '@/shared/lib';
 
 export type PaymentType = 'coupon' | 'redemption';
 
@@ -20,8 +20,6 @@ export type Bond = {
   currency: string;
   issueDate: string;
   maturityDate: string;
-  /** Days between coupon payments */
-  periodDays: number;
   description: string;
   payments: BondPayment[];
 };
@@ -120,6 +118,11 @@ export function portfolioPayments(
       return bond ? positionPayments(position.lots, bond, today) : [];
     })
     .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/** Sum of the payments' totals, rounded to cents. */
+export function sumTotals(payments: PositionPayment[]): number {
+  return round2(payments.reduce((sum, payment) => sum + payment.total, 0));
 }
 
 export function nextPayment(payments: PositionPayment[]): PositionPayment | undefined {

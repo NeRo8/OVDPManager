@@ -1,16 +1,16 @@
 import { useMemo, useState } from 'react';
 
-import { useHoldings, useBonds } from '@/entities/portfolio';
-import { type PositionPayment, portfolioPayments } from '@/entities/portfolio';
-import { round2 } from '@/shared/lib/number';
-import { MONTHS, todayISO } from '@/shared/lib';
+import {
+  useHoldings,
+  useBonds,
+  type PositionPayment,
+  portfolioPayments,
+  sumTotals,
+} from '@/entities/portfolio';
+import { MONTHS, todayISO, round2 } from '@/shared/lib';
 import { groupPaymentsByMonth } from './paymentSections';
 
 const CURRENCY_ORDER = ['UAH', 'USD', 'EUR'];
-
-function sum(payments: PositionPayment[]) {
-  return round2(payments.reduce((total, payment) => total + payment.total, 0));
-}
 
 export function usePaymentSchedule() {
   const holdings = useHoldings();
@@ -44,13 +44,15 @@ export function usePaymentSchedule() {
   );
   const inMonth = (month: number) => (payment: PositionPayment) =>
     Number(payment.date.slice(5, 7)) - 1 === month;
-  const monthlyCoupons = MONTHS.map((_, month) => sum(coupons.filter(inMonth(month))));
-  const monthlyRedemptions = MONTHS.map((_, month) => sum(redemptions.filter(inMonth(month))));
+  const monthlyCoupons = MONTHS.map((_, month) => sumTotals(coupons.filter(inMonth(month))));
+  const monthlyRedemptions = MONTHS.map((_, month) =>
+    sumTotals(redemptions.filter(inMonth(month))),
+  );
 
-  const couponTotal = sum(coupons);
-  const redemptionTotal = sum(redemptions);
+  const couponTotal = sumTotals(coupons);
+  const redemptionTotal = sumTotals(redemptions);
   const yearTotal = round2(couponTotal + redemptionTotal);
-  const paidTotal = sum([...coupons, ...redemptions].filter((payment) => payment.isPaid));
+  const paidTotal = sumTotals([...coupons, ...redemptions].filter((payment) => payment.isPaid));
   const all = [...coupons, ...redemptions].sort((a, b) => a.date.localeCompare(b.date));
   const upcoming = all.find((payment) => !payment.isPaid) ?? all[0];
   const defaultMonth = upcoming ? Number(upcoming.date.slice(5, 7)) - 1 : null;

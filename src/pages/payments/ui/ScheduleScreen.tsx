@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import {
+  Card,
   EmptyState,
   LegendRow,
   MonthChart,
@@ -8,15 +9,13 @@ import {
   Typography,
   YearNav,
 } from '@/shared/ui';
-import { MONTHS, formatMoney } from '@/shared/lib';
-import { round2 } from '@/shared/lib/number';
+import { MONTHS, formatMoney, round2 } from '@/shared/lib';
 import { usePaymentSchedule } from '../model/usePaymentSchedule.hook';
 import { PaymentSectionList } from './PaymentSectionList';
-import { useColors, themeStyles } from '@/shared/theme';
+import { useColors } from '@/shared/theme';
 
 export default function ScheduleScreen() {
   const colors = useColors();
-  const theme = themeStyles;
   const {
     holdings,
     bonds,
@@ -70,7 +69,7 @@ export default function ScheduleScreen() {
           )}
 
           {yearPayments.length > 0 && (
-            <View style={[styles.card, theme.card]}>
+            <Card>
               <Typography variant="overline" tone="secondary">
                 Разом за {year} рік
               </Typography>
@@ -123,23 +122,17 @@ export default function ScheduleScreen() {
                         .join(' + ')}
                 </Typography>
               )}
-            </View>
+            </Card>
           )}
         </View>
       }
-      ListEmptyComponent={
-        <Typography variant="subhead" tone="secondary" align="center" style={styles.emptyList}>
-          У {year} році виплат немає.
-        </Typography>
-      }
+      emptyMessage={`У ${year} році виплат немає.`}
     />
   );
 }
 
 const styles = StyleSheet.create({
   header: { gap: 24 },
-  emptyList: { marginTop: 28 },
-  card: { borderRadius: 12, borderCurve: 'continuous', padding: 16, gap: 4 },
   legend: { gap: 6, marginTop: 12 },
   selection: { marginTop: 8 },
 });

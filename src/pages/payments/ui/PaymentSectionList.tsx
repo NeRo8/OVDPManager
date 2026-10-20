@@ -7,11 +7,15 @@ import type { PaymentSection } from '../model/paymentSections';
 
 type Props = Pick<
   SectionListProps<PositionPayment, PaymentSection>,
-  'ListHeaderComponent' | 'ListEmptyComponent' | 'ListFooterComponent' | 'refreshControl'
-> & { sections: PaymentSection[] };
+  'ListHeaderComponent' | 'ListFooterComponent' | 'refreshControl'
+> & {
+  sections: PaymentSection[];
+  /** Shown instead of the months when there are no payments */
+  emptyMessage: string;
+};
 
 /** Payments grouped by month: the shared list of the payments and schedule screens. */
-export function PaymentSectionList(props: Props) {
+export function PaymentSectionList({ emptyMessage, ...props }: Props) {
   const theme = themeStyles;
   return (
     <SectionList
@@ -31,6 +35,11 @@ export function PaymentSectionList(props: Props) {
           </Typography>
         </View>
       )}
+      ListEmptyComponent={
+        <Typography variant="subhead" tone="secondary" align="center" style={styles.empty}>
+          {emptyMessage}
+        </Typography>
+      }
       renderItem={({ item, index, section }) => (
         <SectionCell index={index} count={section.data.length}>
           <PaymentRow payment={item} showIsin />
@@ -42,6 +51,7 @@ export function PaymentSectionList(props: Props) {
 
 const styles = StyleSheet.create({
   content: { gap: 0 },
+  empty: { marginTop: 28 },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

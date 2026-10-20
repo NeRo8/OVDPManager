@@ -1,10 +1,43 @@
-import { plural, todayISO } from '@/shared/lib';
-import type { Holding } from '@/entities/portfolio';
+import { type Holding, replaceHoldings } from '@/entities/portfolio';
+import { confirmDestructive, plural, todayISO } from '@/shared/lib';
 
 const FORMAT = 'ovdp-manager-backup';
 
 export function purchaseCount(count: number): string {
   return `${count} ${plural(count, 'покупка', 'покупки', 'покупок')}`;
+}
+
+/** Outcome of a backup action, shown above the screen's content. */
+export type BackupStatus = { error: boolean; text: string };
+
+export function errorStatus(error: unknown): BackupStatus {
+  return { error: true, text: error instanceof Error ? error.message : String(error) };
+}
+
+/**
+ * Replaces the wallet with restored purchases, asking first when that would overwrite some.
+ * `source` completes the messages: "з файлу", "з мока".
+ */
+export function replaceWithBackup(
+  restored: Holding[],
+  currentCount: number,
+  source: string,
+  onReplaced: (status: BackupStatus) => void,
+) {
+  const apply = () => {
+    replaceHoldings(restored);
+    onReplaced({ error: false, text: `Відновлено ${purchaseCount(restored.length)} ${source}.` });
+  };
+  if (currentCount === 0) {
+    apply();
+    return;
+  }
+  confirmDestructive(
+    'Замінити дані гаманця?',
+    `Зараз у гаманці ${purchaseCount(currentCount)}. Їх буде замінено на ${purchaseCount(restored.length)} ${source}.`,
+    'Замінити',
+    apply,
+  );
 }
 
 export type Backup = {

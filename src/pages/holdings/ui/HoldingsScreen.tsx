@@ -1,15 +1,10 @@
 import { router } from 'expo-router';
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 
 import {
   Button,
+  Card,
+  EmptyState,
   FAB_CLEARANCE,
   FloatingActionButton,
   SectionCell,
@@ -25,7 +20,12 @@ import {
   formatTotals,
   plural,
 } from '@/shared/lib';
-import type { PositionPayment } from '@/entities/portfolio';
+import {
+  BondsUnavailable,
+  NbuSourceNote,
+  StaleBondsNotice,
+  type PositionPayment,
+} from '@/entities/portfolio';
 import { usePortfolio } from '../model/usePortfolio.hook';
 import { themeStyles } from '@/shared/theme';
 
@@ -34,48 +34,21 @@ export default function PortfolioScreen() {
   const { holdingsCount, bonds, isFetching, error, refresh, today, rows, nextDate, nextGroup } =
     usePortfolio();
 
-  if (!bonds && holdingsCount > 0) {
-    return (
-      <View style={[styles.center, theme.background]}>
-        {error ? (
-          <>
-            <Typography variant="title2" align="center">
-              Немає зв’язку з НБУ
-            </Typography>
-            <Typography variant="subhead" align="center" tone="secondary" style={styles.emptyText}>
-              {error}
-            </Typography>
-            <Button title="Спробувати ще раз" onPress={refresh} style={styles.emptyButton} />
-          </>
-        ) : (
-          <ActivityIndicator />
-        )}
-      </View>
-    );
-  }
+  if (!bonds && holdingsCount > 0) return <BondsUnavailable error={error} onRetry={refresh} />;
 
   if (holdingsCount === 0) {
     return (
-      <View style={[styles.center, theme.background]}>
-        <Typography variant="title2" align="center">
-          Гаманець порожній
-        </Typography>
-        <Typography variant="subhead" align="center" tone="secondary" style={styles.emptyText}>
-          Додайте ОВДП за її номером (ISIN), датою купівлі та сумою — і побачите графік виплат
-          купонів.
-        </Typography>
-        <Button
-          title="Додати ОВДП"
-          onPress={() => router.push('/add')}
-          style={styles.emptyButton}
-        />
+      <EmptyState
+        title="Гаманець порожній"
+        message="Додайте ОВДП за її номером (ISIN), датою купівлі та сумою — і побачите графік виплат купонів."
+      >
+        <Button title="Додати ОВДП" onPress={() => router.push('/add')} />
         <Button
           title="Відновити з резервної копії"
           variant="secondary"
-          onPress={() => router.push('/backup')}
-          style={styles.emptyRestore}
+          onPress={() => router.navigate('/backup')}
         />
-      </View>
+      </EmptyState>
     );
   }
 
@@ -90,13 +63,9 @@ export default function PortfolioScreen() {
         refreshControl={<RefreshControl refreshing={isFetching} onRefresh={refresh} />}
         ListHeaderComponent={
           <View style={styles.listHeader}>
-            {error && (
-              <Typography variant="caption1" align="center" tone="danger">
-                Не вдалося оновити дані НБУ — показано збережені.
-              </Typography>
-            )}
+            <StaleBondsNotice error={error} />
 
-            <View style={[styles.summary, theme.card]}>
+            <Card>
               <Typography variant="overline" tone="secondary">
                 Наступна виплата
               </Typography>
@@ -123,7 +92,7 @@ export default function PortfolioScreen() {
                   })),
                 )}
               </Typography>
-            </View>
+            </Card>
 
             <SectionTitle title="Мої ОВДП" />
           </View>
@@ -157,11 +126,7 @@ export default function PortfolioScreen() {
             </Pressable>
           </SectionCell>
         )}
-        ListFooterComponent={
-          <Typography variant="caption2" align="center" tone="secondary" style={styles.source}>
-            Графіки виплат — з депозитарію НБУ. Потягніть донизу, щоб оновити.
-          </Typography>
-        }
+        ListFooterComponent={<NbuSourceNote />}
       />
       <FloatingActionButton accessibilityLabel="Додати ОВДП" onPress={() => router.push('/add')} />
     </View>
@@ -194,14 +159,9 @@ function NextPaymentLine({ next, hasBond }: { next?: PositionPayment; hasBond: b
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 8 },
-  emptyText: { lineHeight: 21, maxWidth: 400 },
-  emptyButton: { marginTop: 16, alignSelf: 'center', width: '100%', maxWidth: 400 },
-  emptyRestore: { alignSelf: 'center', width: '100%', maxWidth: 400 },
   screen: { flex: 1 },
   listContent: { gap: 0, paddingBottom: FAB_CLEARANCE },
   listHeader: { gap: 24, marginBottom: 6 },
-  summary: { borderRadius: 12, borderCurve: 'continuous', padding: 16, gap: 4 },
   summaryFoot: { marginTop: 8 },
   holding: { paddingHorizontal: 16, paddingVertical: 12, gap: 4 },
   holdingTop: {
@@ -211,5 +171,4 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   nextLine: { marginTop: 2 },
-  source: { marginTop: 24 },
 });

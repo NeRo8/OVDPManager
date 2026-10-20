@@ -43,8 +43,6 @@ function isBond(value: unknown): value is Bond {
     typeof bond.currency === 'string' &&
     typeof bond.issueDate === 'string' &&
     typeof bond.maturityDate === 'string' &&
-    typeof bond.periodDays === 'number' &&
-    Number.isFinite(bond.periodDays) &&
     typeof bond.description === 'string' &&
     Array.isArray(bond.payments) &&
     bond.payments.every(
@@ -70,7 +68,7 @@ const useBondsRequestStore = create<BondsRequestState>()(() => ({
   error: null,
 }));
 
-export async function refreshBonds(): Promise<void> {
+async function refreshBonds(): Promise<void> {
   if (useBondsRequestStore.getState().isFetching) return;
   useBondsRequestStore.setState({ isFetching: true, error: null });
   try {
@@ -88,7 +86,6 @@ export async function refreshBonds(): Promise<void> {
 
 export function useBonds() {
   const bonds = useBondsCacheStore((state) => state.bonds);
-  const updatedAt = useBondsCacheStore((state) => state.updatedAt);
   const isFetching = useBondsRequestStore((state) => state.isFetching);
   const error = useBondsRequestStore((state) => state.error);
 
@@ -102,5 +99,5 @@ export function useBonds() {
 
   const byIsin = useMemo(() => new Map((bonds ?? []).map((bond) => [bond.isin, bond])), [bonds]);
 
-  return { bonds, updatedAt, isFetching, error, byIsin, refresh: refreshBonds };
+  return { bonds, isFetching, error, byIsin, refresh: refreshBonds };
 }

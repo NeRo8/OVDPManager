@@ -1,10 +1,16 @@
 import { useMemo, useState } from 'react';
 
-import { addHolding, useHoldings, useBonds } from '@/entities/portfolio';
-import { type Bond, nextPayment, positionPayments, searchBonds } from '@/entities/portfolio';
-import { round2 } from '@/shared/lib/number';
-import { formatDate, formatMoney, parseAmount, todayISO } from '@/shared/lib';
-import { goBackOrHome } from '@/shared/lib/navigation';
+import {
+  type Bond,
+  addHolding,
+  nextPayment,
+  positionPayments,
+  searchBonds,
+  sumTotals,
+  useBonds,
+  useHoldings,
+} from '@/entities/portfolio';
+import { formatDate, formatMoney, parseAmount, todayISO, round2, goBackOrHome } from '@/shared/lib';
 
 export function useAddHoldingForm(topUpIsin?: string) {
   const { bonds, byIsin, error, refresh } = useBonds();
@@ -46,13 +52,19 @@ export function useAddHoldingForm(topUpIsin?: string) {
       bond,
       today,
     );
+    const income = sumTotals(payments);
     return {
       next: nextPayment(payments),
       couponsLeft: payments.filter((p) => p.type === 'coupon' && !p.isPaid).length,
-      income: round2(payments.reduce((sum, p) => sum + p.total, 0)),
+      income,
+      profit: amountValid ? round2(income - amount) : null,
     };
-  }, [bond, quantityValid, purchaseDate, quantity, today]);
+  }, [bond, quantityValid, purchaseDate, quantity, today, amountValid, amount]);
 
+  const pricePerBond = amountValid && quantityValid ? round2(amount / quantity) : null;
+  /** Expected quantity at par, as a hint while only the amount is entered. */
+  const quantityPlaceholder =
+    bond && amountValid ? `≈ ${Math.max(1, Math.round(amount / bond.nominal))}` : '0';
   const canSave = !!bond && !dateProblem && amountValid && quantityValid;
   const currency = bond?.currency ?? 'UAH';
   const coupon = bond?.payments.find((p) => p.type === 'coupon');
@@ -91,10 +103,8 @@ export function useAddHoldingForm(topUpIsin?: string) {
     setAmountText,
     quantityText,
     setQuantityText,
-    amount,
-    quantity,
-    amountValid,
-    quantityValid,
+    quantityPlaceholder,
+    pricePerBond,
     dateProblem,
     preview,
     canSave,

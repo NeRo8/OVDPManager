@@ -14,7 +14,6 @@ type NbuSecurity = {
   pgs_date: string;
   razm_date: string;
   cpdescr: string;
-  pay_period: number;
   val_code: string;
   payments?: NbuPayment[];
 };
@@ -35,7 +34,6 @@ function parseSecurity(raw: NbuSecurity): Bond {
     currency: raw.val_code,
     issueDate: raw.razm_date,
     maturityDate: raw.pgs_date,
-    periodDays: raw.pay_period,
     description: raw.cpdescr,
     payments,
   };

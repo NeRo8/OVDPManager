@@ -1,16 +1,22 @@
 import { File, Paths } from 'expo-file-system';
 import { useState } from 'react';
 
-import { replaceHoldings, useHoldings } from '@/entities/portfolio';
-import { parseBackup, purchaseCount, serializeBackup } from './backup';
-import type { Holding } from '@/entities/portfolio';
-import { confirmDestructive } from '@/shared/lib/confirm';
+import { type Holding, useHoldings } from '@/entities/portfolio';
+import { confirmDestructive } from '@/shared/lib';
+import {
+  type BackupStatus,
+  errorStatus,
+  parseBackup,
+  purchaseCount,
+  replaceWithBackup,
+  serializeBackup,
+} from './backup';
 
 const mockFile = () => new File(Paths.document, 'ovdp-dev-mock.json');
 
 export function useBackupMock() {
   const holdings = useHoldings();
-  const [status, setStatus] = useState<{ error: boolean; text: string } | null>(null);
+  const [status, setStatus] = useState<BackupStatus | null>(null);
   const [isBusy, setBusy] = useState(false);
 
   async function writeMock() {
@@ -24,7 +30,7 @@ export function useBackupMock() {
         text: `Мок збережено на пристрої: ${purchaseCount(holdings.length)}.`,
       });
     } catch (error) {
-      setStatus({ error: true, text: (error as Error).message });
+      setStatus(errorStatus(error));
     } finally {
       setBusy(false);
     }
@@ -55,22 +61,9 @@ export function useBackupMock() {
     try {
       const file = mockFile();
       if (!file.exists) throw new Error('Мок ще не збережено на цьому пристрої.');
-      const restored = parseBackup(await file.text());
-      const apply = () => {
-        replaceHoldings(restored);
-        setStatus({ error: false, text: `Відновлено ${purchaseCount(restored.length)} з мока.` });
-      };
-      if (holdings.length === 0) apply();
-      else {
-        confirmDestructive(
-          'Замінити дані гаманця?',
-          `Зараз у гаманці ${purchaseCount(holdings.length)}. Їх буде замінено на ${purchaseCount(restored.length)} з мока.`,
-          'Замінити',
-          apply,
-        );
-      }
+      replaceWithBackup(parseBackup(await file.text()), holdings.length, 'з мока', setStatus);
     } catch (error) {
-      setStatus({ error: true, text: (error as Error).message });
+      setStatus(errorStatus(error));
     } finally {
       setBusy(false);
     }

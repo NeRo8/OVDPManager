@@ -1,11 +1,23 @@
 import { useMemo } from 'react';
 
-import { removeHolding, removePosition, useHoldings, useBonds } from '@/entities/portfolio';
-import { type Holding, groupPositions, positionPayments } from '@/entities/portfolio';
-import { round2 } from '@/shared/lib/number';
-import { confirmDestructive } from '@/shared/lib/confirm';
-import { formatDate, formatMoney, todayISO } from '@/shared/lib';
-import { goBackOrHome } from '@/shared/lib/navigation';
+import {
+  type Holding,
+  groupPositions,
+  positionPayments,
+  removeHolding,
+  removePosition,
+  sumTotals,
+  useBonds,
+  useHoldings,
+} from '@/entities/portfolio';
+import {
+  formatDate,
+  formatMoney,
+  todayISO,
+  round2,
+  confirmDestructive,
+  goBackOrHome,
+} from '@/shared/lib';
 
 export function useBondDetails(isin: string) {
   const holdings = useHoldings();
@@ -22,12 +34,8 @@ export function useBondDetails(isin: string) {
   );
   const currency = bond?.currency ?? 'UAH';
   const hasTopUps = (position?.lots.length ?? 0) > 1;
-  const received = round2(
-    payments.filter((payment) => payment.isPaid).reduce((sum, payment) => sum + payment.total, 0),
-  );
-  const expected = round2(
-    payments.filter((payment) => !payment.isPaid).reduce((sum, payment) => sum + payment.total, 0),
-  );
+  const received = sumTotals(payments.filter((payment) => payment.isPaid));
+  const expected = sumTotals(payments.filter((payment) => !payment.isPaid));
   const profit = round2(received + expected - (position?.amount ?? 0));
   const canTopUp = !bond || bond.maturityDate > today;
 

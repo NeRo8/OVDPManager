@@ -1,26 +1,13 @@
-import { ScrollView } from 'react-native';
-
-import { Button, Input, Section, Typography, screenContent } from '@/shared/ui';
 import { useBackupImport } from '@/features/backup';
-import { themeStyles } from '@/shared/theme';
+import { Button, Input, ScreenScrollView, Section } from '@/shared/ui';
+import { StatusMessage } from './StatusMessage';
 
 export default function BackupImportScreen() {
-  const theme = themeStyles;
   const { pasted, setPasted, status, restoreFromFile, restorePasted } = useBackupImport();
 
   return (
-    <ScrollView
-      style={theme.background}
-      contentContainerStyle={screenContent}
-      contentInsetAdjustmentBehavior="automatic"
-      keyboardShouldPersistTaps="handled"
-      automaticallyAdjustKeyboardInsets
-    >
-      {status && (
-        <Typography variant="subhead" align="center" tone={status.error ? 'danger' : 'positive'}>
-          {status.text}
-        </Typography>
-      )}
+    <ScreenScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
+      <StatusMessage status={status} />
       <Section
         title="Відновити з копії"
         footer="Поточні дані гаманця буде замінено даними з копії."
@@ -43,6 +30,6 @@ export default function BackupImportScreen() {
         onPress={restorePasted}
         disabled={!pasted.trim()}
       />
-    </ScrollView>
+    </ScreenScrollView>
   );
 }
