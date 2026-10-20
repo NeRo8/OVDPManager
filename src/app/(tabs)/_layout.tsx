@@ -35,6 +35,8 @@ export default function TabLayout() {
         options={{
           title: 'Графік виплат',
           tabBarLabel: 'Графік',
+          // ScheduleScreen renders its own header with the year switcher.
+          headerShown: false,
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={{ ios: 'chart.bar', android: 'bar_chart' }}
