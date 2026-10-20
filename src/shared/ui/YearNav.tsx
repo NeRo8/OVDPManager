@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { themeStyles } from '@/shared/theme';
+import { Typography } from './typography/Typography';
 
 /** ‹ 2026 › switcher. */
 export function YearNav({
@@ -14,7 +15,6 @@ export function YearNav({
   max: number;
   onChange: (year: number) => void;
 }) {
-  const theme = themeStyles;
   return (
     <View style={styles.nav}>
       <YearArrow
@@ -23,7 +23,9 @@ export function YearNav({
         disabled={year <= min}
         onPress={() => onChange(year - 1)}
       />
-      <Text style={[styles.year, theme.text]}>{year}</Text>
+      <Typography variant="title2" tabular align="center" style={styles.year}>
+        {year}
+      </Typography>
       <YearArrow
         label="›"
         accessibilityLabel="Наступний рік"
@@ -59,20 +61,16 @@ function YearArrow({
         disabled ? styles.disabled : pressed && styles.pressed,
       ]}
     >
-      <Text style={[styles.arrowText, theme.accentText]}>{label}</Text>
+      <Typography variant="title1" tone="accent" style={styles.arrowText}>
+        {label}
+      </Typography>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   nav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 24 },
-  year: {
-    fontSize: 22,
-    fontWeight: '700',
-    fontVariant: ['tabular-nums'],
-    minWidth: 72,
-    textAlign: 'center',
-  },
+  year: { minWidth: 72 },
   arrow: {
     width: 40,
     height: 40,
@@ -82,5 +80,5 @@ const styles = StyleSheet.create({
   },
   disabled: { opacity: 0.3 },
   pressed: { opacity: 0.6 },
-  arrowText: { fontSize: 24, fontWeight: '500', lineHeight: 28 },
+  arrowText: { lineHeight: 28 },
 });

@@ -4,6 +4,7 @@ import { useHoldings, useBonds } from '@/entities/portfolio';
 import { type PositionPayment, portfolioPayments } from '@/entities/portfolio';
 import { round2 } from '@/shared/lib/number';
 import { MONTHS, toISODate } from '@/shared/lib';
+import { groupPaymentsByMonth } from './paymentSections';
 
 const CURRENCY_ORDER = ['UAH', 'USD', 'EUR'];
 
@@ -54,8 +55,8 @@ export function usePaymentSchedule() {
   const upcoming = all.find((payment) => !payment.isPaid) ?? all[0];
   const defaultMonth = upcoming ? Number(upcoming.date.slice(5, 7)) - 1 : null;
   const selectedMonth = chosenMonth?.year === year ? chosenMonth.month : defaultMonth;
-  const byMonth = MONTHS.map((_, month) =>
-    yearPayments.filter((payment) => payment.currency === currency && inMonth(month)(payment)),
+  const sections = groupPaymentsByMonth(
+    yearPayments.filter((payment) => payment.currency === currency),
   );
 
   return {
@@ -78,6 +79,6 @@ export function usePaymentSchedule() {
     paidTotal,
     selectedMonth,
     setChosenMonth,
-    byMonth,
+    sections,
   };
 }

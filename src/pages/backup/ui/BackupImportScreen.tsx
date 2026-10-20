@@ -1,11 +1,10 @@
-import { ScrollView, StyleSheet, Text, TextInput } from 'react-native';
+import { ScrollView } from 'react-native';
 
-import { Button, Section, screenContent } from '@/shared/ui';
+import { Button, Input, Section, Typography, screenContent } from '@/shared/ui';
 import { useBackupImport } from '@/features/backup';
-import { useColors, themeStyles } from '@/shared/theme';
+import { themeStyles } from '@/shared/theme';
 
 export default function BackupImportScreen() {
-  const colors = useColors();
   const theme = themeStyles;
   const { pasted, setPasted, status, restoreFromFile, restorePasted } = useBackupImport();
 
@@ -18,9 +17,9 @@ export default function BackupImportScreen() {
       automaticallyAdjustKeyboardInsets
     >
       {status && (
-        <Text style={[styles.status, status.error ? theme.dangerText : theme.positiveText]}>
+        <Typography variant="subhead" align="center" tone={status.error ? 'danger' : 'positive'}>
           {status.text}
-        </Text>
+        </Typography>
       )}
       <Section
         title="Відновити з копії"
@@ -29,15 +28,13 @@ export default function BackupImportScreen() {
         <Button title="Вибрати JSON-файл копії…" onPress={restoreFromFile} />
       </Section>
       <Section title="Або вставити JSON вручну">
-        <TextInput
+        <Input
+          variant="area"
           value={pasted}
           onChangeText={setPasted}
           placeholder="Вставте сюди вміст файлу копії"
-          placeholderTextColor={colors.secondaryText}
-          multiline
           autoCapitalize="none"
           autoCorrect={false}
-          style={[styles.textArea, theme.text]}
         />
       </Section>
       <Button
@@ -49,15 +46,3 @@ export default function BackupImportScreen() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  status: { fontSize: 15, textAlign: 'center' },
-  textArea: {
-    fontSize: 13,
-    fontFamily: 'monospace',
-    minHeight: 120,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    textAlignVertical: 'top',
-  },
-});

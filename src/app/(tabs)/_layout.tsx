@@ -32,6 +32,20 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="schedule"
+        options={{
+          title: 'Графік виплат',
+          tabBarLabel: 'Графік',
+          tabBarIcon: ({ color }) => (
+            <SymbolView
+              name={{ ios: 'chart.bar', android: 'bar_chart' }}
+              size={24}
+              tintColor={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="holdings"
         options={{
           title: 'Мої ОВДП',

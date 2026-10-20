@@ -1,8 +1,8 @@
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { Fragment } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { Button, InfoRow, Section, Separator, screenContent } from '@/shared/ui';
+import { Button, InfoRow, Section, Separator, Typography, screenContent } from '@/shared/ui';
 import { formatDate, formatMoney } from '@/shared/lib';
 import { PaymentRow } from '@/entities/portfolio';
 import { round2 } from '@/shared/lib/number';
@@ -29,7 +29,9 @@ export default function PositionScreen() {
   if (!position) {
     return (
       <View style={[styles.center, theme.background]}>
-        <Text style={theme.secondaryText}>У гаманці немає цієї ОВДП</Text>
+        <Typography variant="subhead" tone="secondary">
+          У гаманці немає цієї ОВДП
+        </Typography>
       </View>
     );
   }
@@ -65,9 +67,13 @@ export default function PositionScreen() {
             <InfoRow
               label="Чистий дохід"
               value={
-                <Text style={[styles.profit, profit >= 0 ? theme.positiveText : theme.dangerText]}>
+                <Typography
+                  variant="subhead"
+                  weight="semibold"
+                  tone={profit >= 0 ? 'positive' : 'danger'}
+                >
                   {formatMoney(profit, currency)}
-                </Text>
+                </Typography>
               }
             />
           </>
@@ -82,7 +88,9 @@ export default function PositionScreen() {
           }
         >
           {payments.length === 0 ? (
-            <Text style={[styles.empty, theme.secondaryText]}>Після дати купівлі виплат немає</Text>
+            <Typography variant="subhead" align="center" tone="secondary" style={styles.empty}>
+              Після дати купівлі виплат немає
+            </Typography>
           ) : (
             payments.map((payment, index) => (
               <Fragment key={`${payment.date}-${payment.type}`}>
@@ -93,9 +101,9 @@ export default function PositionScreen() {
           )}
         </Section>
       ) : (
-        <Text style={[styles.empty, theme.dangerText]}>
+        <Typography variant="subhead" align="center" tone="danger" style={styles.empty}>
           Цієї ОВДП немає в даних НБУ — графік виплат недоступний.
-        </Text>
+        </Typography>
       )}
 
       <View style={styles.group}>
@@ -105,13 +113,13 @@ export default function PositionScreen() {
               {index > 0 && <Separator />}
               <View style={styles.lot}>
                 <View style={styles.lotInfo}>
-                  <Text style={[styles.lotDate, theme.text]}>
+                  <Typography variant="callout" tabular>
                     {formatDate(lot.purchaseDate)} · {lot.quantity} шт
-                  </Text>
-                  <Text style={[styles.caption, theme.secondaryText]}>
+                  </Typography>
+                  <Typography variant="caption1" tone="secondary">
                     {formatMoney(lot.amount, currency)} · по{' '}
                     {formatMoney(round2(lot.amount / lot.quantity), currency)}
-                  </Text>
+                  </Typography>
                 </View>
                 <Pressable
                   onPress={() => deleteLot(lot)}
@@ -120,7 +128,9 @@ export default function PositionScreen() {
                   accessibilityLabel={`Видалити покупку від ${formatDate(lot.purchaseDate)}`}
                   style={({ pressed }) => pressed && { opacity: 0.5 }}
                 >
-                  <Text style={[styles.lotDelete, theme.dangerText]}>Видалити</Text>
+                  <Typography variant="subhead" tone="danger">
+                    Видалити
+                  </Typography>
                 </Pressable>
               </View>
             </Fragment>
@@ -156,8 +166,7 @@ export default function PositionScreen() {
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   group: { gap: 12 },
-  profit: { fontSize: 15, fontWeight: '600' },
-  empty: { fontSize: 15, padding: 16, textAlign: 'center' },
+  empty: { padding: 16 },
   lot: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -166,7 +175,4 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   lotInfo: { flex: 1, gap: 2 },
-  lotDate: { fontSize: 16, fontWeight: '500', fontVariant: ['tabular-nums'] },
-  caption: { fontSize: 13 },
-  lotDelete: { fontSize: 15 },
 });

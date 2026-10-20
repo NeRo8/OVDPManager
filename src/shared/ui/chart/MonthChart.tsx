@@ -1,7 +1,8 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { MONTHS, MONTHS_SHORT, formatCompact, formatMoney } from '@/shared/lib';
 import { themeStyles } from '@/shared/theme';
+import { Typography } from '../typography/Typography';
 
 const PLOT_HEIGHT = 160;
 const AXIS_WIDTH = 52;
@@ -63,13 +64,16 @@ export function MonthChart({ series, currency, selected, onSelect }: Props) {
     <View style={styles.chart}>
       <View style={styles.axis}>
         {ticks.map((tick) => (
-          <Text
+          <Typography
             key={tick}
+            variant="caption2"
+            tone="secondary"
+            tabular
             numberOfLines={1}
-            style={[styles.tick, theme.secondaryText, { top: (1 - tick / max) * PLOT_HEIGHT - 7 }]}
+            style={[styles.tick, { top: (1 - tick / max) * PLOT_HEIGHT - 7 }]}
           >
             {formatCompact(tick)}
-          </Text>
+          </Typography>
         ))}
       </View>
 
@@ -134,31 +138,31 @@ export function MonthChart({ series, currency, selected, onSelect }: Props) {
                     : { left: `${((selected + 0.5) / 12) * 100}%`, marginLeft: -VALUE_WIDTH / 2 },
               ]}
             >
-              <Text
+              <Typography
+                variant="caption2"
+                weight="semibold"
+                tabular
                 numberOfLines={1}
-                style={[
-                  styles.value,
-                  theme.text,
-                  selected === 0 ? styles.alignStart : selected === 11 ? styles.alignEnd : null,
-                ]}
+                align={selected === 0 ? 'left' : selected === 11 ? 'right' : 'center'}
               >
                 {formatCompact(totals[selected])}
-              </Text>
+              </Typography>
             </View>
           )}
         </View>
 
         <View style={styles.months}>
           {MONTHS_SHORT.map((name, month) => (
-            <Text
+            <Typography
               key={name}
-              style={[
-                styles.month,
-                selected === month ? [theme.text, styles.selectedMonth] : theme.secondaryText,
-              ]}
+              variant="caption2"
+              tone={selected === month ? 'primary' : 'secondary'}
+              weight={selected === month ? 'semibold' : undefined}
+              align="center"
+              style={styles.month}
             >
               {name}
-            </Text>
+            </Typography>
           ))}
         </View>
       </View>
@@ -176,12 +180,15 @@ export function LegendRow({
   label: string;
   value: string;
 }) {
-  const theme = themeStyles;
   return (
     <View style={styles.legendRow}>
       <View style={[styles.swatch, { backgroundColor: color }]} />
-      <Text style={[styles.legendLabel, theme.secondaryText]}>{label}</Text>
-      <Text style={[styles.legendValue, theme.text]}>{value}</Text>
+      <Typography variant="footnote" tone="secondary" style={styles.legendLabel}>
+        {label}
+      </Typography>
+      <Typography variant="footnote" weight="semibold" tabular>
+        {value}
+      </Typography>
     </View>
   );
 }
@@ -189,12 +196,7 @@ export function LegendRow({
 const styles = StyleSheet.create({
   chart: { flexDirection: 'row', paddingTop: LABEL_SPACE, paddingRight: 4 },
   axis: { width: AXIS_WIDTH, height: PLOT_HEIGHT },
-  tick: {
-    position: 'absolute',
-    right: 6,
-    fontSize: 11,
-    fontVariant: ['tabular-nums'],
-  },
+  tick: { position: 'absolute', right: 6 },
   plotColumn: { flex: 1 },
   plot: { height: PLOT_HEIGHT },
   gridline: { position: 'absolute', left: 0, right: 0, height: StyleSheet.hairlineWidth },
@@ -206,14 +208,9 @@ const styles = StyleSheet.create({
   valueBox: { position: 'absolute', width: VALUE_WIDTH },
   valueStart: { left: 0 },
   valueEnd: { right: 0 },
-  value: { fontSize: 12, fontWeight: '600', fontVariant: ['tabular-nums'], textAlign: 'center' },
-  alignStart: { textAlign: 'left' },
-  alignEnd: { textAlign: 'right' },
   months: { flexDirection: 'row', marginTop: 6 },
-  month: { flex: 1, textAlign: 'center', fontSize: 11 },
-  selectedMonth: { fontWeight: '600' },
+  month: { flex: 1 },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   swatch: { width: 10, height: 10, borderRadius: 3 },
-  legendLabel: { flex: 1, fontSize: 14 },
-  legendValue: { fontSize: 14, fontWeight: '600', fontVariant: ['tabular-nums'] },
+  legendLabel: { flex: 1 },
 });

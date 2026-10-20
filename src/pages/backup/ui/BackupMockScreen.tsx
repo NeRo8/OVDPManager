@@ -1,6 +1,6 @@
-import { ScrollView, StyleSheet, Text } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 
-import { Button, Section, screenContent } from '@/shared/ui';
+import { Button, Section, Typography, screenContent } from '@/shared/ui';
 import { useBackupMock } from '@/features/backup';
 import { themeStyles } from '@/shared/theme';
 
@@ -17,17 +17,21 @@ export default function BackupMockScreen() {
       {__DEV__ ? (
         <>
           {status && (
-            <Text style={[styles.status, status.error ? theme.dangerText : theme.positiveText]}>
+            <Typography
+              variant="subhead"
+              align="center"
+              tone={status.error ? 'danger' : 'positive'}
+            >
               {status.text}
-            </Text>
+            </Typography>
           )}
           <Section
             title="Мок на пристрої"
             footer="Мок зберігається у файловому сховищі цього пристрою."
           >
-            <Text style={[styles.body, theme.text]}>
+            <Typography variant="subhead" style={styles.body}>
               Зберегти поточні дані як мок, щоб завантажити їх пізніше.
-            </Text>
+            </Typography>
           </Section>
           <Button
             title="Зберегти як мок"
@@ -42,15 +46,14 @@ export default function BackupMockScreen() {
           />
         </>
       ) : (
-        <Text style={[styles.status, theme.secondaryText]}>
+        <Typography variant="subhead" align="center" tone="secondary">
           Ця сторінка доступна лише в режимі розробки.
-        </Text>
+        </Typography>
       )}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  status: { fontSize: 15, textAlign: 'center' },
-  body: { fontSize: 15, paddingHorizontal: 16, paddingVertical: 14 },
+  body: { paddingHorizontal: 16, paddingVertical: 14 },
 });

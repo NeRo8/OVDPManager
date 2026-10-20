@@ -1,23 +1,23 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { Fragment } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { DateField, Button, InfoRow, Section, Separator, screenContent } from '@/shared/ui';
+import {
+  DateField,
+  Button,
+  InfoRow,
+  Input,
+  Section,
+  Separator,
+  Typography,
+  screenContent,
+} from '@/shared/ui';
 import { round2 } from '@/shared/lib/number';
 import { useAddHoldingForm } from '@/features/add-holding';
-import { useColors, themeStyles } from '@/shared/theme';
+import { themeStyles } from '@/shared/theme';
 import { formatDate, formatMoney } from '@/shared/lib';
 
 export default function AddHoldingScreen() {
-  const colors = useColors();
   const theme = themeStyles;
   const { isin: topUpIsin } = useLocalSearchParams<{ isin?: string }>();
   const {
@@ -58,22 +58,22 @@ export default function AddHoldingScreen() {
         {title}
         {error ? (
           <>
-            <Text style={[styles.centerText, theme.text]}>{error}</Text>
+            <Typography variant="subhead" align="center">
+              {error}
+            </Typography>
             <Button title="Спробувати ще раз" onPress={refresh} style={styles.retry} />
           </>
         ) : (
           <>
             <ActivityIndicator />
-            <Text style={[styles.centerText, theme.secondaryText]}>
+            <Typography variant="subhead" align="center" tone="secondary">
               Завантажуємо перелік ОВДП з НБУ…
-            </Text>
+            </Typography>
           </>
         )}
       </View>
     );
   }
-
-  const inputStyle = [styles.input, theme.text];
 
   return (
     <ScrollView
@@ -92,15 +92,13 @@ export default function AddHoldingScreen() {
             : undefined
         }
       >
-        <TextInput
+        <Input
           value={bond && selected ? bond.isin : query}
           onChangeText={onChangeQuery}
           placeholder="Напр. UA4000227045 або 227045"
-          placeholderTextColor={colors.secondaryText}
           autoCapitalize="characters"
           autoCorrect={false}
           autoFocus={!topUpIsin}
-          style={inputStyle}
         />
         {matches.map((match) => (
           <Fragment key={match.isin}>
@@ -109,17 +107,21 @@ export default function AddHoldingScreen() {
               onPress={() => setSelected(match)}
               style={({ pressed }) => [styles.match, pressed && theme.muted]}
             >
-              <Text style={[styles.matchIsin, theme.text]}>{match.isin}</Text>
-              <Text style={[styles.matchInfo, theme.secondaryText]}>
+              <Typography variant="callout" tabular>
+                {match.isin}
+              </Typography>
+              <Typography variant="caption1" tone="secondary">
                 {match.rate}% · {match.currency} · до {formatDate(match.maturityDate)}
-              </Text>
+              </Typography>
             </Pressable>
           </Fragment>
         ))}
         {!bond && query.trim().length >= 4 && matches.length === 0 && (
           <>
             <Separator />
-            <Text style={[styles.hint, theme.dangerText]}>ОВДП з таким номером не знайдено</Text>
+            <Typography variant="footnote" tone="danger" style={styles.hint}>
+              ОВДП з таким номером не знайдено
+            </Typography>
           </>
         )}
       </Section>
@@ -140,7 +142,9 @@ export default function AddHoldingScreen() {
             title="Покупка"
             footer={
               dateProblem ? (
-                <Text style={theme.dangerText}>{dateProblem}</Text>
+                <Typography variant="caption1" tone="danger">
+                  {dateProblem}
+                </Typography>
               ) : amountValid && quantityValid ? (
                 `Ціна 1 шт: ${formatMoney(round2(amount / quantity), currency)}`
               ) : (
@@ -158,13 +162,13 @@ export default function AddHoldingScreen() {
             <InfoRow
               label={`Сума, ${currency}`}
               value={
-                <TextInput
+                <Input
+                  variant="inline"
+                  type="decimal"
                   value={amountText}
                   onChangeText={setAmountText}
                   placeholder="0,00"
-                  placeholderTextColor={colors.secondaryText}
-                  keyboardType="decimal-pad"
-                  style={[styles.inlineInput, theme.text]}
+                  style={styles.inlineInput}
                 />
               }
             />
@@ -172,15 +176,15 @@ export default function AddHoldingScreen() {
             <InfoRow
               label="Кількість, шт"
               value={
-                <TextInput
+                <Input
+                  variant="inline"
+                  type="integer"
                   value={quantityText}
-                  onChangeText={(text) => setQuantityText(text.replace(/\D/g, ''))}
+                  onChangeText={setQuantityText}
                   placeholder={
                     amountValid ? `≈ ${Math.max(1, Math.round(amount / bond.nominal))}` : '0'
                   }
-                  placeholderTextColor={colors.secondaryText}
-                  keyboardType="number-pad"
-                  style={[styles.inlineInput, theme.text]}
+                  style={styles.inlineInput}
                 />
               }
             />
@@ -221,23 +225,8 @@ export default function AddHoldingScreen() {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 12 },
-  centerText: { fontSize: 15, textAlign: 'center' },
   retry: { alignSelf: 'stretch' },
-  input: {
-    fontSize: 17,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontVariant: ['tabular-nums'],
-  },
-  inlineInput: {
-    fontSize: 17,
-    textAlign: 'right',
-    minWidth: 120,
-    paddingVertical: 4,
-    fontVariant: ['tabular-nums'],
-  },
+  inlineInput: { minWidth: 120 },
   match: { paddingHorizontal: 16, paddingVertical: 10, gap: 2 },
-  matchIsin: { fontSize: 16, fontWeight: '500', fontVariant: ['tabular-nums'] },
-  matchInfo: { fontSize: 13 },
-  hint: { fontSize: 14, paddingHorizontal: 16, paddingVertical: 12 },
+  hint: { paddingHorizontal: 16, paddingVertical: 12 },
 });

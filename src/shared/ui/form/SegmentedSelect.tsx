@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { themeStyles } from '@/shared/theme';
+import { Typography } from '../typography/Typography';
 
 type Option<T extends string | number> = { label: string; value: T };
 
@@ -31,9 +32,14 @@ export function SegmentedSelect<T extends string | number>({
               pressed && styles.pressed,
             ]}
           >
-            <Text style={[styles.label, selected ? theme.accentText : theme.text]}>
+            <Typography
+              variant="footnote"
+              weight="semibold"
+              align="center"
+              tone={selected ? 'accent' : 'primary'}
+            >
               {option.label}
-            </Text>
+            </Typography>
           </Pressable>
         );
       })}
@@ -53,5 +59,4 @@ const styles = StyleSheet.create({
   },
   selected: { elevation: 1, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 2 },
   pressed: { opacity: 0.7 },
-  label: { fontSize: 14, fontWeight: '600', textAlign: 'center' },
 });

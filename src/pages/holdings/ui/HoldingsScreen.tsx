@@ -1,16 +1,14 @@
 import { router } from 'expo-router';
-import { Fragment } from 'react';
 import {
   ActivityIndicator,
+  FlatList,
   Pressable,
   RefreshControl,
-  ScrollView,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 
-import { Button, Section, Separator, screenContent } from '@/shared/ui';
+import { Button, SectionCell, SectionTitle, Typography, screenContent } from '@/shared/ui';
 import {
   daysBetween,
   formatDate,
@@ -33,8 +31,12 @@ export default function PortfolioScreen() {
       <View style={[styles.center, theme.background]}>
         {error ? (
           <>
-            <Text style={[styles.emptyTitle, theme.text]}>Немає зв’язку з НБУ</Text>
-            <Text style={[styles.emptyText, theme.secondaryText]}>{error}</Text>
+            <Typography variant="title2" align="center">
+              Немає зв’язку з НБУ
+            </Typography>
+            <Typography variant="subhead" align="center" tone="secondary" style={styles.emptyText}>
+              {error}
+            </Typography>
             <Button title="Спробувати ще раз" onPress={refresh} style={styles.emptyButton} />
           </>
         ) : (
@@ -47,11 +49,13 @@ export default function PortfolioScreen() {
   if (holdingsCount === 0) {
     return (
       <View style={[styles.center, theme.background]}>
-        <Text style={[styles.emptyTitle, theme.text]}>Гаманець порожній</Text>
-        <Text style={[styles.emptyText, theme.secondaryText]}>
+        <Typography variant="title2" align="center">
+          Гаманець порожній
+        </Typography>
+        <Typography variant="subhead" align="center" tone="secondary" style={styles.emptyText}>
           Додайте ОВДП за її номером (ISIN), датою купівлі та сумою — і побачите графік виплат
           купонів.
-        </Text>
+        </Typography>
         <Button
           title="Додати ОВДП"
           onPress={() => router.push('/add')}
@@ -68,106 +72,125 @@ export default function PortfolioScreen() {
   }
 
   return (
-    <ScrollView
+    <FlatList
       style={theme.background}
-      contentContainerStyle={screenContent}
+      contentContainerStyle={[screenContent, styles.listContent]}
       contentInsetAdjustmentBehavior="automatic"
+      data={rows}
+      keyExtractor={({ position }) => position.isin}
       refreshControl={<RefreshControl refreshing={isFetching} onRefresh={refresh} />}
-    >
-      {error && (
-        <Text style={[styles.inlineError, theme.dangerText]}>
-          Не вдалося оновити дані НБУ — показано збережені.
-        </Text>
-      )}
-
-      <View style={[styles.summary, theme.card]}>
-        <Text style={[styles.summaryLabel, theme.secondaryText]}>Наступна виплата</Text>
-        {nextDate ? (
-          <>
-            <Text style={[styles.summaryValue, theme.positiveText]}>
-              {formatTotals(nextGroup.map((p) => ({ currency: p.currency, value: p.total })))}
-            </Text>
-            <Text style={[styles.summaryDate, theme.text]}>
-              {formatDate(nextDate)} · {formatDaysLeft(daysBetween(today, nextDate))}
-            </Text>
-          </>
-        ) : (
-          <Text style={[styles.summaryDate, theme.text]}>Усі виплати отримано</Text>
-        )}
-        <Text style={[styles.summaryFoot, theme.secondaryText]}>
-          Вкладено:{' '}
-          {formatTotals(
-            rows.map((r) => ({ currency: r.bond?.currency ?? 'UAH', value: r.position.amount })),
+      ListHeaderComponent={
+        <View style={styles.listHeader}>
+          {error && (
+            <Typography variant="caption1" align="center" tone="danger">
+              Не вдалося оновити дані НБУ — показано збережені.
+            </Typography>
           )}
-        </Text>
-      </View>
 
-      <Section title="Мої ОВДП">
-        {rows.map(({ position, bond, next }, index) => (
-          <Fragment key={position.isin}>
-            {index > 0 && <Separator />}
-            <Pressable
-              onPress={() =>
-                router.push({ pathname: '/bond/[isin]', params: { isin: position.isin } })
-              }
-              accessibilityRole="link"
-              style={({ pressed }) => [styles.holding, pressed && theme.muted]}
-            >
-              <View style={styles.holdingTop}>
-                <Text style={[styles.isin, theme.text]}>{position.isin}</Text>
-                {bond && (
-                  <Text style={[styles.rate, theme.secondaryText]}>
-                    {bond.rate}% · до {formatDate(bond.maturityDate)}
-                  </Text>
-                )}
-              </View>
-              <Text style={[styles.caption, theme.secondaryText]}>
-                {position.quantity} шт · {formatMoney(position.amount, bond?.currency ?? 'UAH')} ·{' '}
-                {position.lots.length === 1
-                  ? `куплено ${formatDate(position.lots[0].purchaseDate)}`
-                  : `${position.lots.length} ${plural(position.lots.length, 'покупка', 'покупки', 'покупок')}`}
-              </Text>
-              <NextPaymentLine next={next} hasBond={!!bond} />
-            </Pressable>
-          </Fragment>
-        ))}
-      </Section>
+          <View style={[styles.summary, theme.card]}>
+            <Typography variant="overline" tone="secondary">
+              Наступна виплата
+            </Typography>
+            {nextDate ? (
+              <>
+                <Typography variant="display" tabular tone="positive">
+                  {formatTotals(nextGroup.map((p) => ({ currency: p.currency, value: p.total })))}
+                </Typography>
+                <Typography variant="body" weight="medium">
+                  {formatDate(nextDate)} · {formatDaysLeft(daysBetween(today, nextDate))}
+                </Typography>
+              </>
+            ) : (
+              <Typography variant="body" weight="medium">
+                Усі виплати отримано
+              </Typography>
+            )}
+            <Typography variant="caption1" tone="secondary" style={styles.summaryFoot}>
+              Вкладено:{' '}
+              {formatTotals(
+                rows.map((r) => ({
+                  currency: r.bond?.currency ?? 'UAH',
+                  value: r.position.amount,
+                })),
+              )}
+            </Typography>
+          </View>
 
-      <Text style={[styles.source, theme.secondaryText]}>
-        Графіки виплат — з депозитарію НБУ. Потягніть донизу, щоб оновити.
-      </Text>
-    </ScrollView>
+          <SectionTitle title="Мої ОВДП" />
+        </View>
+      }
+      renderItem={({ item: { position, bond, next }, index }) => (
+        <SectionCell index={index} count={rows.length}>
+          <Pressable
+            onPress={() =>
+              router.push({ pathname: '/bond/[isin]', params: { isin: position.isin } })
+            }
+            accessibilityRole="link"
+            style={({ pressed }) => [styles.holding, pressed && theme.muted]}
+          >
+            <View style={styles.holdingTop}>
+              <Typography variant="headline" tabular>
+                {position.isin}
+              </Typography>
+              {bond && (
+                <Typography variant="caption1" tone="secondary">
+                  {bond.rate}% · до {formatDate(bond.maturityDate)}
+                </Typography>
+              )}
+            </View>
+            <Typography variant="caption1" tone="secondary">
+              {position.quantity} шт · {formatMoney(position.amount, bond?.currency ?? 'UAH')} ·{' '}
+              {position.lots.length === 1
+                ? `куплено ${formatDate(position.lots[0].purchaseDate)}`
+                : `${position.lots.length} ${plural(position.lots.length, 'покупка', 'покупки', 'покупок')}`}
+            </Typography>
+            <NextPaymentLine next={next} hasBond={!!bond} />
+          </Pressable>
+        </SectionCell>
+      )}
+      ListFooterComponent={
+        <Typography variant="caption2" align="center" tone="secondary" style={styles.source}>
+          Графіки виплат — з депозитарію НБУ. Потягніть донизу, щоб оновити.
+        </Typography>
+      }
+    />
   );
 }
 
 function NextPaymentLine({ next, hasBond }: { next?: PositionPayment; hasBond: boolean }) {
-  const theme = themeStyles;
   if (!hasBond) {
-    return <Text style={[styles.caption, theme.dangerText]}>Не знайдено в реєстрі НБУ</Text>;
+    return (
+      <Typography variant="caption1" tone="danger">
+        Не знайдено в реєстрі НБУ
+      </Typography>
+    );
   }
   if (!next) {
-    return <Text style={[styles.caption, theme.secondaryText]}>Погашено</Text>;
+    return (
+      <Typography variant="caption1" tone="secondary">
+        Погашено
+      </Typography>
+    );
   }
   return (
-    <Text style={[styles.nextLine, theme.text]}>
+    <Typography variant="subhead" style={styles.nextLine}>
       Далі: {formatDate(next.date)} —{' '}
-      <Text style={theme.positiveText}>{formatMoney(next.total, next.currency)}</Text>
-    </Text>
+      <Typography variant="subhead" tone="positive">
+        {formatMoney(next.total, next.currency)}
+      </Typography>
+    </Typography>
   );
 }
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 8 },
-  emptyTitle: { fontSize: 22, fontWeight: '700', textAlign: 'center' },
-  emptyText: { fontSize: 15, textAlign: 'center', lineHeight: 21, maxWidth: 400 },
+  emptyText: { lineHeight: 21, maxWidth: 400 },
   emptyButton: { marginTop: 16, alignSelf: 'center', width: '100%', maxWidth: 400 },
   emptyRestore: { alignSelf: 'center', width: '100%', maxWidth: 400 },
-  inlineError: { fontSize: 13, textAlign: 'center' },
+  listContent: { gap: 0 },
+  listHeader: { gap: 24, marginBottom: 6 },
   summary: { borderRadius: 12, borderCurve: 'continuous', padding: 16, gap: 4 },
-  summaryLabel: { fontSize: 13, textTransform: 'uppercase', letterSpacing: 0.3 },
-  summaryValue: { fontSize: 32, fontWeight: '700', fontVariant: ['tabular-nums'] },
-  summaryDate: { fontSize: 17, fontWeight: '500' },
-  summaryFoot: { fontSize: 13, marginTop: 8 },
+  summaryFoot: { marginTop: 8 },
   holding: { paddingHorizontal: 16, paddingVertical: 12, gap: 4 },
   holdingTop: {
     flexDirection: 'row',
@@ -175,9 +198,6 @@ const styles = StyleSheet.create({
     alignItems: 'baseline',
     gap: 12,
   },
-  isin: { fontSize: 17, fontWeight: '600', fontVariant: ['tabular-nums'] },
-  rate: { fontSize: 13 },
-  caption: { fontSize: 13 },
-  nextLine: { fontSize: 15, marginTop: 2 },
-  source: { fontSize: 12, textAlign: 'center' },
+  nextLine: { marginTop: 2 },
+  source: { marginTop: 24 },
 });

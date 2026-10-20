@@ -1,15 +1,8 @@
 import { useMemo } from 'react';
 
 import { useHoldings, useBonds, portfolioPayments } from '@/entities/portfolio';
-import type { PositionPayment } from '@/entities/portfolio';
-import { MONTHS, formatTotals, toISODate } from '@/shared/lib';
-
-export type PaymentSection = {
-  key: string;
-  title: string;
-  total: string;
-  data: PositionPayment[];
-};
+import { toISODate } from '@/shared/lib';
+import { groupPaymentsByMonth } from './paymentSections';
 
 export function useUpcomingPayments() {
   const holdings = useHoldings();
@@ -20,23 +13,7 @@ export function useUpcomingPayments() {
     () => portfolioPayments(holdings, byIsin, today).filter((payment) => !payment.isPaid),
     [holdings, byIsin, today],
   );
-  const sections = useMemo(() => {
-    const grouped = new Map<string, PositionPayment[]>();
-    for (const payment of upcoming) {
-      const month = payment.date.slice(0, 7);
-      const monthPayments = grouped.get(month);
-      if (monthPayments) monthPayments.push(payment);
-      else grouped.set(month, [payment]);
-    }
-    return [...grouped].map(([key, data]): PaymentSection => ({
-      key,
-      title: `${MONTHS[Number(key.slice(5, 7)) - 1]} ${key.slice(0, 4)}`,
-      total: formatTotals(
-        data.map((payment) => ({ currency: payment.currency, value: payment.total })),
-      ),
-      data,
-    }));
-  }, [upcoming]);
+  const sections = useMemo(() => groupPaymentsByMonth(upcoming), [upcoming]);
 
   return { holdingsCount: holdings.length, bonds, isFetching, error, refresh, upcoming, sections };
 }

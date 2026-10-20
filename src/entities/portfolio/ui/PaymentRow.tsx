@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { formatDate, formatMoney } from '@/shared/lib';
-import { themeStyles } from '@/shared/theme';
+import { Typography } from '@/shared/ui';
 
 import type { PositionPayment } from '../model/ovdp';
 
@@ -15,8 +15,7 @@ export function PaymentRow({
   /** For positions bought in several purchases, where the quantity differs between payments */
   showQuantity?: boolean;
 }) {
-  const theme = themeStyles;
-  const tone = payment.isPaid ? theme.secondaryText : theme.text;
+  const tone = payment.isPaid ? 'secondary' : 'primary';
   const kind = [
     showIsin && payment.isin,
     payment.type === 'redemption' ? 'Погашення номіналу' : 'Купон',
@@ -29,17 +28,22 @@ export function PaymentRow({
   return (
     <View style={[styles.row, payment.isPaid && styles.paid]}>
       <View style={styles.paymentLeft}>
-        <Text style={[styles.paymentDate, tone]}>{formatDate(payment.date)}</Text>
-        <Text style={[styles.caption, theme.secondaryText]}>{kind}</Text>
+        <Typography variant="callout" tone={tone} tabular>
+          {formatDate(payment.date)}
+        </Typography>
+        <Typography variant="caption1" tone="secondary">
+          {kind}
+        </Typography>
       </View>
-      <Text
-        style={[
-          styles.paymentAmount,
-          payment.type === 'coupon' && !payment.isPaid ? theme.positiveText : tone,
-        ]}
+      <Typography
+        variant="callout"
+        weight="semibold"
+        tabular
+        tone={payment.type === 'coupon' && !payment.isPaid ? 'positive' : tone}
+        style={styles.paymentAmount}
       >
         +{formatMoney(payment.total, payment.currency)}
-      </Text>
+      </Typography>
     </View>
   );
 }
@@ -56,7 +60,5 @@ const styles = StyleSheet.create({
   },
   paid: { opacity: 0.6 },
   paymentLeft: { gap: 2, flex: 1 },
-  paymentDate: { fontSize: 16, fontWeight: '500', fontVariant: ['tabular-nums'] },
-  caption: { fontSize: 13 },
-  paymentAmount: { fontSize: 16, fontWeight: '600', fontVariant: ['tabular-nums'], flexShrink: 0 },
+  paymentAmount: { flexShrink: 0 },
 });
