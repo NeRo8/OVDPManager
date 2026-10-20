@@ -1,16 +1,16 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { useUnistyles } from 'react-native-unistyles';
 
-import { HeaderButton } from '@/components/ui';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { goBackOrHome } from '@/lib/navigation';
+import { HeaderButton } from '@/shared/ui';
+import { goBackOrHome } from '@/shared/lib/navigation';
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const { rt } = useUnistyles();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={rt.themeName === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack screenOptions={{ headerBackButtonDisplayMode: 'minimal' }}>
-        <Stack.Screen name="index" options={{ title: 'Мій ОВДП гаманець' }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
           name="add"
           options={{
@@ -21,7 +21,9 @@ export default function RootLayout() {
         />
         <Stack.Screen name="bond/[isin]" options={{ title: 'ОВДП' }} />
         <Stack.Screen name="schedule" options={{ title: 'Графік виплат' }} />
-        <Stack.Screen name="backup" options={{ title: 'Резервна копія' }} />
+        <Stack.Screen name="backup/export" options={{ title: 'Створити копію' }} />
+        <Stack.Screen name="backup/import" options={{ title: 'Відновити з копії' }} />
+        <Stack.Screen name="backup/mock" options={{ title: 'Мок для розробки' }} />
       </Stack>
     </ThemeProvider>
   );

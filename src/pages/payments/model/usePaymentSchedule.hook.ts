@@ -1,0 +1,83 @@
+import { useMemo, useState } from 'react';
+
+import { useHoldings, useBonds } from '@/entities/portfolio';
+import { type PositionPayment, portfolioPayments } from '@/entities/portfolio';
+import { round2 } from '@/shared/lib/number';
+import { MONTHS, toISODate } from '@/shared/lib';
+
+const CURRENCY_ORDER = ['UAH', 'USD', 'EUR'];
+
+function sum(payments: PositionPayment[]) {
+  return round2(payments.reduce((total, payment) => total + payment.total, 0));
+}
+
+export function usePaymentSchedule() {
+  const holdings = useHoldings();
+  const { bonds, byIsin } = useBonds();
+  const today = toISODate(new Date());
+  const currentYear = Number(today.slice(0, 4));
+  const payments = useMemo(
+    () => portfolioPayments(holdings, byIsin, today),
+    [holdings, byIsin, today],
+  );
+  const firstYear = payments.length ? Number(payments[0].date.slice(0, 4)) : currentYear;
+  const lastYear = payments.length ? Number(payments.at(-1)!.date.slice(0, 4)) : currentYear;
+
+  const [chosenYear, setChosenYear] = useState<number | null>(null);
+  const [chosenCurrency, setChosenCurrency] = useState<string | null>(null);
+  const [chosenMonth, setChosenMonth] = useState<{ year: number; month: number } | null>(null);
+
+  const year = chosenYear ?? Math.min(Math.max(currentYear, firstYear), lastYear);
+  const yearPayments = payments.filter((payment) => payment.date.startsWith(`${year}-`));
+  const currencies = [...new Set(yearPayments.map((payment) => payment.currency))].sort(
+    (a, b) => CURRENCY_ORDER.indexOf(a) - CURRENCY_ORDER.indexOf(b),
+  );
+  const currency =
+    chosenCurrency && currencies.includes(chosenCurrency) ? chosenCurrency : currencies[0];
+
+  const coupons = yearPayments.filter(
+    (payment) => payment.type === 'coupon' && payment.currency === currency,
+  );
+  const redemptions = yearPayments.filter(
+    (payment) => payment.type === 'redemption' && payment.currency === currency,
+  );
+  const inMonth = (month: number) => (payment: PositionPayment) =>
+    Number(payment.date.slice(5, 7)) - 1 === month;
+  const monthlyCoupons = MONTHS.map((_, month) => sum(coupons.filter(inMonth(month))));
+  const monthlyRedemptions = MONTHS.map((_, month) => sum(redemptions.filter(inMonth(month))));
+
+  const couponTotal = sum(coupons);
+  const redemptionTotal = sum(redemptions);
+  const yearTotal = round2(couponTotal + redemptionTotal);
+  const paidTotal = sum([...coupons, ...redemptions].filter((payment) => payment.isPaid));
+  const all = [...coupons, ...redemptions].sort((a, b) => a.date.localeCompare(b.date));
+  const upcoming = all.find((payment) => !payment.isPaid) ?? all[0];
+  const defaultMonth = upcoming ? Number(upcoming.date.slice(5, 7)) - 1 : null;
+  const selectedMonth = chosenMonth?.year === year ? chosenMonth.month : defaultMonth;
+  const byMonth = MONTHS.map((_, month) =>
+    yearPayments.filter((payment) => payment.currency === currency && inMonth(month)(payment)),
+  );
+
+  return {
+    holdings,
+    bonds,
+    payments,
+    firstYear,
+    lastYear,
+    year,
+    setChosenYear,
+    currencies,
+    currency,
+    setChosenCurrency,
+    yearPayments,
+    monthlyCoupons,
+    monthlyRedemptions,
+    couponTotal,
+    redemptionTotal,
+    yearTotal,
+    paidTotal,
+    selectedMonth,
+    setChosenMonth,
+    byMonth,
+  };
+}

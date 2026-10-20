@@ -42,3 +42,6 @@ example
 # generated native folders
 /ios
 /android
+
+# Personal portfolio exports
+src/ovdp-backup-*.json
