@@ -1,3 +1,5 @@
+import { round2 } from './number';
+
 const CURRENCY_SIGNS: Record<string, string> = { UAH: '₴', USD: '$', EUR: '€' };
 
 const numberFormat = new Intl.NumberFormat('uk-UA', {
@@ -13,7 +15,7 @@ export function formatMoney(value: number, currency: string): string {
 export function formatTotals(items: { currency: string; value: number }[]): string {
   const totals = new Map<string, number>();
   for (const { currency, value } of items) {
-    totals.set(currency, Math.round(((totals.get(currency) ?? 0) + value) * 100) / 100);
+    totals.set(currency, round2((totals.get(currency) ?? 0) + value));
   }
   return [...totals].map(([currency, value]) => formatMoney(value, currency)).join(' + ');
 }
