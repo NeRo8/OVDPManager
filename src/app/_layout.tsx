@@ -40,9 +40,7 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen name="bond/[isin]" options={{ title: 'ОВДП' }} />
-        <Stack.Screen name="backup/export" options={{ title: 'Створити копію' }} />
         <Stack.Screen name="backup/import" options={{ title: 'Відновити з копії' }} />
-        <Stack.Screen name="backup/mock" options={{ title: 'Мок для розробки' }} />
       </Stack>
     </ThemeProvider>
   );

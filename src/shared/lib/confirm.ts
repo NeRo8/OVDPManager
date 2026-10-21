@@ -12,3 +12,8 @@ export function confirmDestructive(
     { text: action, style: 'destructive', onPress: onConfirm },
   ]);
 }
+
+/** Report the outcome of an action that has no screen of its own to show it on. */
+export function showMessage(title: string, message?: string) {
+  Alert.alert(title, message);
+}

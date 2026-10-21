@@ -1,6 +1,9 @@
 export * from './model/ovdp';
 export * from './model/holdings.store';
 export { HoldingSchema, PurchaseSchema } from './model/holding.schema';
+export { useWallet, type Wallet, type WalletPosition } from './model/useWallet.hook';
 export { useBonds } from './api/bonds.store';
 export { PaymentRow } from './ui/PaymentRow';
 export { BondsUnavailable, NbuSourceNote, StaleBondsNotice } from './ui/BondsStatus';
+export { BondParameters } from './ui/BondParameters';
+export { WalletGate } from './ui/WalletGate';

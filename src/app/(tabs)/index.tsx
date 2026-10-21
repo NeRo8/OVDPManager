@@ -1,5 +1,5 @@
-import { UpcomingPaymentsScreen } from '@/pages/payments';
+import { PaymentsScreen } from '@/pages/payments';
 
 export default function PaymentsRoute() {
-  return <UpcomingPaymentsScreen />;
+  return <PaymentsScreen />;
 }

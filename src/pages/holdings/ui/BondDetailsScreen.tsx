@@ -15,7 +15,7 @@ import {
   ScreenScrollView,
 } from '@/shared/ui';
 import { formatDate, formatMoney, round2 } from '@/shared/lib';
-import { PaymentRow } from '@/entities/portfolio';
+import { BondParameters, PaymentRow } from '@/entities/portfolio';
 import { useBondDetails } from '../model/useBondDetails.hook';
 
 export default function PositionScreen() {
@@ -133,19 +133,7 @@ export default function PositionScreen() {
           ))}
         </Section>
 
-        {bond && (
-          <Section title="Параметри випуску">
-            <InfoRow label="Ставка купону" value={`${bond.rate}% річних`} />
-            <Separator />
-            <InfoRow label="Номінал" value={formatMoney(bond.nominal, bond.currency)} />
-            <Separator />
-            <InfoRow label="Розміщення" value={formatDate(bond.issueDate)} />
-            <Separator />
-            <InfoRow label="Погашення" value={formatDate(bond.maturityDate)} />
-            <Separator />
-            <InfoRow label="Тип" value={bond.description} />
-          </Section>
-        )}
+        {bond && <BondParameters bond={bond} />}
 
         <Button title="Видалити з гаманця" variant="destructive" onPress={deletePosition} />
       </ScreenScrollView>

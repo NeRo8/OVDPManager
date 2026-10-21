@@ -19,7 +19,8 @@ import {
   Separator,
   Typography,
 } from '@/shared/ui';
-import { useUpcomingPayments } from '../model/useUpcomingPayments.hook';
+import { upcomingPayments } from '../model/upcomingPayments';
+import { useFilteredWallet } from '../model/useFilteredWallet.hook';
 
 const KIND_OPTIONS: { label: string; value: PaymentFilters['kind'] }[] = [
   { label: 'Усі', value: 'all' },
@@ -36,8 +37,10 @@ const PERIOD_OPTIONS: { label: string; value: PaymentFilters['period'] }[] = [
 
 /** Narrows the upcoming payments; every change applies at once and is remembered. */
 export default function PaymentFiltersScreen() {
-  const { filters, filterOptions, byIsin, upcoming, allCount, activeFilterCount } =
-    useUpcomingPayments();
+  const filtered = useFilteredWallet();
+  const { filters, options: filterOptions, activeFilterCount } = filtered;
+  const { byIsin } = filtered.wallet;
+  const { upcoming, allCount } = upcomingPayments(filtered);
   const currencyOptions: { label: string; value: PaymentFilters['currency'] }[] = [
     { label: 'Усі', value: 'all' },
     ...filterOptions.currencies.map((currency) => ({ label: currency, value: currency })),
@@ -67,7 +70,10 @@ export default function PaymentFiltersScreen() {
         </View>
       </Section>
 
-      <Section title="Період" footer="Виплати від сьогодні до кінця обраного періоду.">
+      <Section
+        title="Період"
+        footer="Для майбутніх виплат: від сьогодні до кінця періоду. У режимі «За рік» рік обирають на екрані виплат."
+      >
         <View style={styles.picker}>
           <SegmentedSelect
             options={PERIOD_OPTIONS}

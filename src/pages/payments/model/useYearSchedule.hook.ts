@@ -1,17 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
-import {
-  CURRENCIES,
-  type Currency,
-  useHoldings,
-  useBonds,
-  type ScheduleEvent,
-  portfolioPayments,
-  purchaseEvents,
-  sumTotals,
-} from '@/entities/portfolio';
-import { MONTHS, todayISO, round2 } from '@/shared/lib';
+import { CURRENCIES, type Currency, type ScheduleEvent, sumTotals } from '@/entities/portfolio';
+import { filterPayments, filterPurchases } from '@/features/payment-filters';
+import { MONTHS, round2 } from '@/shared/lib';
 import { groupPaymentsByMonth } from './paymentSections';
+import type { FilteredWallet } from './useFilteredWallet.hook';
 
 const yearOf = (event: ScheduleEvent) => Number(event.date.slice(0, 4));
 const monthOf = (event: ScheduleEvent) => Number(event.date.slice(5, 7)) - 1;
@@ -23,16 +16,12 @@ function byDate(a: ScheduleEvent, b: ScheduleEvent) {
   );
 }
 
-export function usePaymentSchedule() {
-  const holdings = useHoldings();
-  const { bonds, byIsin } = useBonds();
-  const today = todayISO();
-  const currentYear = Number(today.slice(0, 4));
-  const payments = useMemo(
-    () => portfolioPayments(holdings, byIsin, today),
-    [holdings, byIsin, today],
-  );
-  const purchases = useMemo(() => purchaseEvents(holdings, byIsin), [holdings, byIsin]);
+/** One year of the filtered wallet: totals, the monthly chart and the list of events. */
+export function useYearSchedule({ wallet, filters }: FilteredWallet) {
+  const currentYear = Number(wallet.today.slice(0, 4));
+  // The year switcher sets the period here, so the period filter does not apply.
+  const payments = filterPayments(wallet.payments, { ...filters, period: 'all' }, wallet.today);
+  const purchases = filterPurchases(wallet.purchases, filters);
   const years = [...payments, ...purchases].map(yearOf);
   const firstYear = years.length ? Math.min(...years) : currentYear;
   const lastYear = years.length ? Math.max(...years) : currentYear;
@@ -47,6 +36,7 @@ export function usePaymentSchedule() {
   const currencies = [...new Set(yearEvents.map((event) => event.currency))].sort(
     (a, b) => CURRENCIES.indexOf(a) - CURRENCIES.indexOf(b),
   );
+  // The chart has one money scale, so a year in several currencies shows one at a time.
   const currency =
     chosenCurrency && currencies.includes(chosenCurrency) ? chosenCurrency : currencies[0];
 
@@ -84,9 +74,6 @@ export function usePaymentSchedule() {
   );
 
   return {
-    holdings,
-    bonds,
-    payments,
     firstYear,
     lastYear,
     year,

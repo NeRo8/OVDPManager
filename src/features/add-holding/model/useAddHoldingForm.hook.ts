@@ -10,7 +10,7 @@ import {
   useBonds,
   useHoldings,
 } from '@/entities/portfolio';
-import { formatDate, formatMoney, parseAmount, todayISO, round2, goBackOrHome } from '@/shared/lib';
+import { formatDate, parseAmount, todayISO, round2, goBackOrHome } from '@/shared/lib';
 
 export function useAddHoldingForm(topUpIsin?: string) {
   const { bonds, byIsin, error, refresh } = useBonds();
@@ -67,12 +67,6 @@ export function useAddHoldingForm(topUpIsin?: string) {
     bond && amountValid ? `≈ ${Math.max(1, Math.round(amount / bond.nominal))}` : '0';
   const canSave = !!bond && !dateProblem && amountValid && quantityValid;
   const currency = bond?.currency ?? 'UAH';
-  const coupon = bond?.payments.find((p) => p.type === 'coupon');
-  const couponPerBond = bond
-    ? coupon
-      ? formatMoney(coupon.amount, bond.currency)
-      : 'без купону'
-    : '';
 
   function save() {
     if (!bond || !canSave) return;
@@ -109,7 +103,6 @@ export function useAddHoldingForm(topUpIsin?: string) {
     preview,
     canSave,
     currency,
-    couponPerBond,
     save,
   };
 }

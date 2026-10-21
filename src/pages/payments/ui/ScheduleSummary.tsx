@@ -12,9 +12,9 @@ import {
   Typography,
   type ChartSeries,
 } from '@/shared/ui';
-import type { usePaymentSchedule } from '../model/usePaymentSchedule.hook';
+import type { useYearSchedule } from '../model/useYearSchedule.hook';
 
-type Schedule = ReturnType<typeof usePaymentSchedule>;
+type Schedule = ReturnType<typeof useYearSchedule>;
 
 type ScheduleProps = {
   schedule: Schedule;

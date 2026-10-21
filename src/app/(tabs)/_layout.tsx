@@ -21,28 +21,11 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Майбутні виплати',
-          tabBarLabel: 'Виплати',
+          title: 'Виплати',
           headerRight: () => <PaymentFiltersButton />,
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={{ ios: 'calendar', android: 'calendar_month' }}
-              size={24}
-              tintColor={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="schedule"
-        options={{
-          title: 'Графік виплат',
-          tabBarLabel: 'Графік',
-          // ScheduleScreen renders its own header with the year switcher.
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{ ios: 'chart.bar', android: 'bar_chart' }}
               size={24}
               tintColor={color}
             />

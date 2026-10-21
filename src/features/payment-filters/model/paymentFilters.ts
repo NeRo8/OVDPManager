@@ -1,13 +1,18 @@
 import { z } from 'zod';
 
-import { CURRENCIES, type Currency, type PositionPayment } from '@/entities/portfolio';
+import {
+  CURRENCIES,
+  type Currency,
+  type PositionPayment,
+  type PurchaseEvent,
+} from '@/entities/portfolio';
 import { addMonthsISO } from '@/shared/lib';
 
 export const PAYMENT_KINDS = ['all', 'coupon', 'redemption'] as const;
 export const PAYMENT_PERIODS = ['all', 3, 6, 12] as const;
 
 export type PaymentKindFilter = (typeof PAYMENT_KINDS)[number];
-/** Months ahead of today, or every future payment */
+/** Months ahead of today, or every future payment. Only the upcoming list uses it: the year view has its own year. */
 export type PaymentPeriodFilter = (typeof PAYMENT_PERIODS)[number];
 
 export const PaymentFiltersSchema = z.object({
@@ -27,7 +32,7 @@ export const DEFAULT_PAYMENT_FILTERS: PaymentFilters = {
   isins: [],
 };
 
-/** What the wallet's upcoming payments can be narrowed to. */
+/** What the wallet's payments can be narrowed to. */
 export type PaymentFilterOptions = {
   isins: string[];
   currencies: Currency[];
@@ -72,5 +77,17 @@ export function filterPayments(
       (lastDate === null || payment.date <= lastDate) &&
       (filters.currency === 'all' || payment.currency === filters.currency) &&
       (filters.isins.length === 0 || filters.isins.includes(payment.isin)),
+  );
+}
+
+/** Purchases of the chosen bonds and currency; payment type and period do not apply to them. */
+export function filterPurchases(
+  purchases: PurchaseEvent[],
+  filters: PaymentFilters,
+): PurchaseEvent[] {
+  return purchases.filter(
+    (purchase) =>
+      (filters.currency === 'all' || purchase.currency === filters.currency) &&
+      (filters.isins.length === 0 || filters.isins.includes(purchase.isin)),
   );
 }

@@ -120,6 +120,29 @@ export function LinkRow({ title, onPress }: LinkRowProps) {
   );
 }
 
+export type ActionRowProps = {
+  title: string;
+  onPress: () => void;
+  disabled?: boolean;
+};
+
+/** A section row that does something in place, unlike LinkRow, which opens another screen. */
+export function ActionRow({ title, onPress, disabled }: ActionRowProps) {
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityState={{ disabled }}
+      style={({ pressed }) => [styles.row, disabled ? styles.disabled : pressed && styles.pressed]}
+    >
+      <Typography variant="body" tone="accent">
+        {title}
+      </Typography>
+    </Pressable>
+  );
+}
+
 export type CheckRowProps = {
   title: string;
   subtitle?: string;
@@ -186,4 +209,5 @@ const styles = StyleSheet.create((theme) => ({
   linkTitle: { flexShrink: 1 },
   checkText: { flexShrink: 1, gap: 2 },
   pressed: { backgroundColor: theme.muted },
+  disabled: { opacity: 0.4 },
 }));

@@ -3,9 +3,7 @@ import { FlatList, Pressable, RefreshControl, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
-  Button,
   Card,
-  EmptyState,
   FAB_CLEARANCE,
   FloatingActionButton,
   SectionCell,
@@ -22,113 +20,102 @@ import {
   plural,
 } from '@/shared/lib';
 import {
-  BondsUnavailable,
   NbuSourceNote,
   StaleBondsNotice,
+  WalletGate,
   type PositionPayment,
 } from '@/entities/portfolio';
 import { usePortfolio } from '../model/usePortfolio.hook';
 
 export default function PortfolioScreen() {
-  const { holdingsCount, bonds, isFetching, error, refresh, today, rows, nextDate, nextGroup } =
-    usePortfolio();
-
-  if (!bonds && holdingsCount > 0) return <BondsUnavailable error={error} onRetry={refresh} />;
-
-  if (holdingsCount === 0) {
-    return (
-      <EmptyState
-        title="Гаманець порожній"
-        message="Додайте ОВДП за її номером (ISIN), датою купівлі та сумою — і побачите графік виплат купонів."
-      >
-        <Button title="Додати ОВДП" onPress={() => router.push('/add')} />
-        <Button
-          title="Відновити з резервної копії"
-          variant="secondary"
-          onPress={() => router.push('/backup/import')}
-        />
-      </EmptyState>
-    );
-  }
+  const portfolio = usePortfolio();
+  const { isFetching, error, refresh, today, positions, nextDate, nextGroup } = portfolio;
 
   return (
-    <View style={styles.screen}>
-      <FlatList
-        style={styles.list}
-        contentContainerStyle={[screenContent, styles.listContent]}
-        contentInsetAdjustmentBehavior="automatic"
-        data={rows}
-        keyExtractor={({ position }) => position.isin}
-        refreshControl={<RefreshControl refreshing={isFetching} onRefresh={refresh} />}
-        ListHeaderComponent={
-          <View style={styles.listHeader}>
-            <StaleBondsNotice error={error} />
+    <WalletGate wallet={portfolio}>
+      <View style={styles.screen}>
+        <FlatList
+          style={styles.list}
+          contentContainerStyle={[screenContent, styles.listContent]}
+          contentInsetAdjustmentBehavior="automatic"
+          data={positions}
+          keyExtractor={({ position }) => position.isin}
+          refreshControl={<RefreshControl refreshing={isFetching} onRefresh={refresh} />}
+          ListHeaderComponent={
+            <View style={styles.listHeader}>
+              <StaleBondsNotice error={error} />
 
-            <Card>
-              <Typography variant="overline" tone="secondary">
-                Наступна виплата
-              </Typography>
-              {nextDate ? (
-                <>
-                  <Typography variant="display" tabular tone="positive">
-                    {formatTotals(nextGroup.map((p) => ({ currency: p.currency, value: p.total })))}
-                  </Typography>
+              <Card>
+                <Typography variant="overline" tone="secondary">
+                  Наступна виплата
+                </Typography>
+                {nextDate ? (
+                  <>
+                    <Typography variant="display" tabular tone="positive">
+                      {formatTotals(
+                        nextGroup.map((p) => ({ currency: p.currency, value: p.total })),
+                      )}
+                    </Typography>
+                    <Typography variant="body" weight="medium">
+                      {formatDate(nextDate)} · {formatDaysLeft(daysBetween(today, nextDate))}
+                    </Typography>
+                  </>
+                ) : (
                   <Typography variant="body" weight="medium">
-                    {formatDate(nextDate)} · {formatDaysLeft(daysBetween(today, nextDate))}
+                    Усі виплати отримано
                   </Typography>
-                </>
-              ) : (
-                <Typography variant="body" weight="medium">
-                  Усі виплати отримано
-                </Typography>
-              )}
-              <Typography variant="caption1" tone="secondary" style={styles.summaryFoot}>
-                Вкладено:{' '}
-                {formatTotals(
-                  rows.map((r) => ({
-                    currency: r.bond?.currency ?? 'UAH',
-                    value: r.position.amount,
-                  })),
                 )}
-              </Typography>
-            </Card>
+                <Typography variant="caption1" tone="secondary" style={styles.summaryFoot}>
+                  Вкладено:{' '}
+                  {formatTotals(
+                    positions.map((r) => ({
+                      currency: r.bond?.currency ?? 'UAH',
+                      value: r.position.amount,
+                    })),
+                  )}
+                </Typography>
+              </Card>
 
-            <SectionTitle title="Мої ОВДП" />
-          </View>
-        }
-        renderItem={({ item: { position, bond, next }, index }) => (
-          <SectionCell index={index} count={rows.length}>
-            <Pressable
-              onPress={() =>
-                router.push({ pathname: '/bond/[isin]', params: { isin: position.isin } })
-              }
-              accessibilityRole="link"
-              style={({ pressed }) => [styles.holding, pressed && styles.pressed]}
-            >
-              <View style={styles.holdingTop}>
-                <Typography variant="headline" tabular>
-                  {position.isin}
-                </Typography>
-                {bond && (
-                  <Typography variant="caption1" tone="secondary">
-                    {bond.rate}% · до {formatDate(bond.maturityDate)}
+              <SectionTitle title="Мої ОВДП" />
+            </View>
+          }
+          renderItem={({ item: { position, bond, next }, index }) => (
+            <SectionCell index={index} count={positions.length}>
+              <Pressable
+                onPress={() =>
+                  router.push({ pathname: '/bond/[isin]', params: { isin: position.isin } })
+                }
+                accessibilityRole="link"
+                style={({ pressed }) => [styles.holding, pressed && styles.pressed]}
+              >
+                <View style={styles.holdingTop}>
+                  <Typography variant="headline" tabular>
+                    {position.isin}
                   </Typography>
-                )}
-              </View>
-              <Typography variant="caption1" tone="secondary">
-                {position.quantity} шт · {formatMoney(position.amount, bond?.currency ?? 'UAH')} ·{' '}
-                {position.lots.length === 1
-                  ? `куплено ${formatDate(position.lots[0].purchaseDate)}`
-                  : `${position.lots.length} ${plural(position.lots.length, 'покупка', 'покупки', 'покупок')}`}
-              </Typography>
-              <NextPaymentLine next={next} hasBond={!!bond} />
-            </Pressable>
-          </SectionCell>
-        )}
-        ListFooterComponent={<NbuSourceNote />}
-      />
-      <FloatingActionButton accessibilityLabel="Додати ОВДП" onPress={() => router.push('/add')} />
-    </View>
+                  {bond && (
+                    <Typography variant="caption1" tone="secondary">
+                      {bond.rate}% · до {formatDate(bond.maturityDate)}
+                    </Typography>
+                  )}
+                </View>
+                <Typography variant="caption1" tone="secondary">
+                  {position.quantity} шт · {formatMoney(position.amount, bond?.currency ?? 'UAH')} ·{' '}
+                  {position.lots.length === 1
+                    ? `куплено ${formatDate(position.lots[0].purchaseDate)}`
+                    : `${position.lots.length} ${plural(position.lots.length, 'покупка', 'покупки', 'покупок')}`}
+                </Typography>
+                <NextPaymentLine next={next} hasBond={!!bond} />
+              </Pressable>
+            </SectionCell>
+          )}
+          ListFooterComponent={<NbuSourceNote />}
+        />
+        <FloatingActionButton
+          accessibilityLabel="Додати ОВДП"
+          onPress={() => router.push('/add')}
+        />
+      </View>
+    </WalletGate>
   );
 }
 

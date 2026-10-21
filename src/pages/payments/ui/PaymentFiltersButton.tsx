@@ -1,11 +1,11 @@
 import { router } from 'expo-router';
 
 import { HeaderButton } from '@/shared/ui';
-import { useUpcomingPayments } from '../model/useUpcomingPayments.hook';
+import { useFilteredWallet } from '../model/useFilteredWallet.hook';
 
 /** Header action of the payments tab; a filled accent icon shows that some filters are on. */
 export function PaymentFiltersButton() {
-  const { activeFilterCount } = useUpcomingPayments();
+  const { activeFilterCount } = useFilteredWallet();
   const isFiltered = activeFilterCount > 0;
 
   return (

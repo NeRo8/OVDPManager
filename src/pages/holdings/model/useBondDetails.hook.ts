@@ -1,37 +1,18 @@
-import { useMemo } from 'react';
-
 import {
   type Holding,
-  groupPositions,
-  positionPayments,
   removeHolding,
   removePosition,
   sumTotals,
-  useBonds,
-  useHoldings,
+  useWallet,
 } from '@/entities/portfolio';
-import {
-  formatDate,
-  formatMoney,
-  todayISO,
-  round2,
-  confirmDestructive,
-  goBackOrHome,
-} from '@/shared/lib';
+import { formatDate, formatMoney, round2, confirmDestructive, goBackOrHome } from '@/shared/lib';
 
 export function useBondDetails(isin: string) {
-  const holdings = useHoldings();
-  const { byIsin } = useBonds();
-  const today = todayISO();
+  const { positions, byIsin, today } = useWallet();
   const bond = byIsin.get(isin);
-  const position = useMemo(
-    () => groupPositions(holdings.filter((holding) => holding.isin === isin))[0],
-    [holdings, isin],
-  );
-  const payments = useMemo(
-    () => (position && bond ? positionPayments(position.lots, bond, today) : []),
-    [position, bond, today],
-  );
+  const walletPosition = positions.find(({ position }) => position.isin === isin);
+  const position = walletPosition?.position;
+  const payments = walletPosition?.payments ?? [];
   const currency = bond?.currency ?? 'UAH';
   const hasTopUps = (position?.lots.length ?? 0) > 1;
   const received = sumTotals(payments.filter((payment) => payment.isPaid));

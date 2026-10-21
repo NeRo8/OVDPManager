@@ -14,7 +14,7 @@ import {
   ScreenScrollView,
 } from '@/shared/ui';
 import { useAddHoldingForm } from '@/features/add-holding';
-import { BondsUnavailable } from '@/entities/portfolio';
+import { BondParameters, BondsUnavailable } from '@/entities/portfolio';
 import { formatDate, formatMoney } from '@/shared/lib';
 
 export default function AddHoldingScreen() {
@@ -43,7 +43,6 @@ export default function AddHoldingScreen() {
     preview,
     canSave,
     currency,
-    couponPerBond,
     save,
   } = useAddHoldingForm(topUpIsin);
 
@@ -105,15 +104,7 @@ export default function AddHoldingScreen() {
 
       {bond && (
         <>
-          <Section title="Параметри випуску">
-            <InfoRow label="Ставка купону" value={`${bond.rate}% річних`} />
-            <Separator />
-            <InfoRow label="Номінал" value={formatMoney(bond.nominal, bond.currency)} />
-            <Separator />
-            <InfoRow label="Купон на 1 шт" value={couponPerBond} />
-            <Separator />
-            <InfoRow label="Погашення" value={formatDate(bond.maturityDate)} />
-          </Section>
+          <BondParameters bond={bond} />
 
           <Section
             title="Покупка"

@@ -41,13 +41,13 @@ This app uses Unistyles and other native modules. Run it in a [development build
 | `src/app/`                                    | Thin routes; `_layout.tsx` files define the root stack and bottom tabs. |
 | `src/pages/`                                  | Screen UI and page-specific model hooks.                                |
 | `src/features/`                               | User actions: adding a bond, managing backups, filtering payments.      |
-| `src/entities/portfolio/`                     | Bond and holding models, local holdings, NBU bond data, and payment UI. |
+| `src/entities/portfolio/`                     | Bond and holding models, the wallet hook, NBU data, and shared blocks.  |
 | `src/shared/api/`                             | Shared Axios client for the NBU API.                                    |
 | `src/shared/ui/`, `lib/`, `theme/`, `config/` | Reusable components, utilities, Unistyles theme, and app assets.        |
 
 Each page, feature, and entity has an `index.ts` public API. Imports point down the stack: pages can use features, entities, and shared code; features can use entities and shared code; entities can use shared code. Imports inside a slice use relative paths. See [CODEBASE.md](CODEBASE.md) for entry points and data flow.
 
-The app targets iOS and Android. Its four bottom tabs show upcoming payments, the monthly payment schedule, holdings, and settings (backups and the app theme). Bond details, adding a purchase, and backup screens are stack routes.
+The app targets iOS and Android. Its three bottom tabs show payments (upcoming, or a year with its chart, both filterable), holdings, and settings (backups and the app theme). Bond details, adding a purchase, payment filters, and restoring a backup are stack routes.
 
 ## Code quality
 

@@ -128,20 +128,6 @@ export function positionPayments(lots: Holding[], bond: Bond, today: string): Po
   });
 }
 
-/** Every payment across the wallet, by date. Positions missing from the NBU data are skipped. */
-export function portfolioPayments(
-  holdings: Holding[],
-  byIsin: Map<string, Bond>,
-  today: string,
-): PositionPayment[] {
-  return groupPositions(holdings)
-    .flatMap((position) => {
-      const bond = byIsin.get(position.isin);
-      return bond ? positionPayments(position.lots, bond, today) : [];
-    })
-    .sort((a, b) => a.date.localeCompare(b.date));
-}
-
 /** Every purchase in the wallet, by date. The currency comes from the NBU data, UAH if missing. */
 export function purchaseEvents(holdings: Holding[], byIsin: Map<string, Bond>): PurchaseEvent[] {
   return groupPositions(holdings)
