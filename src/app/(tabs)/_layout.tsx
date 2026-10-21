@@ -35,13 +35,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="holdings"
         options={{
-          title: 'Мої ОВДП',
+          title: 'Гаманець',
           tabBarIcon: ({ color }) => (
             <SymbolView
-              name={{
-                ios: 'square.stack.3d.up',
-                android: 'account_balance_wallet',
-              }}
+              name={{ ios: 'wallet.bifold', android: 'account_balance_wallet' }}
               size={24}
               tintColor={color}
             />
