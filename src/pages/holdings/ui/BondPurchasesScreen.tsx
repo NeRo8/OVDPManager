@@ -1,15 +1,15 @@
-import { useLocalSearchParams } from 'expo-router';
 import { Fragment } from 'react';
 import { Pressable, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { formatDate, formatMoney, round2 } from '@/shared/lib';
 import { FAB_CLEARANCE, ScreenScrollView, Section, Separator, Typography } from '@/shared/ui';
+import { useBondIsin } from '../model/useBondIsin.hook';
 import { useBondDetails } from '../model/useBondDetails.hook';
 
 /** The purchases that make up the position; each can be deleted on its own. */
 export default function BondPurchasesScreen() {
-  const { isin } = useLocalSearchParams<{ isin: string }>();
+  const isin = useBondIsin();
   const { position, currency, canTopUp, deleteLot } = useBondDetails(isin);
 
   if (!position) return null;

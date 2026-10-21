@@ -1,14 +1,14 @@
-import { useLocalSearchParams } from 'expo-router';
 import { Fragment } from 'react';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { PaymentRow } from '@/entities/portfolio';
 import { FAB_CLEARANCE, ScreenScrollView, Section, Separator, Typography } from '@/shared/ui';
+import { useBondIsin } from '../model/useBondIsin.hook';
 import { useBondDetails } from '../model/useBondDetails.hook';
 
 /** Every payment of the position, each counting only the bonds held on its date. */
 export default function BondPaymentsScreen() {
-  const { isin } = useLocalSearchParams<{ isin: string }>();
+  const isin = useBondIsin();
   const { bond, payments, hasTopUps, canTopUp } = useBondDetails(isin);
 
   return (

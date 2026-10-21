@@ -1,4 +1,3 @@
-import { useLocalSearchParams } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { BondParameters } from '@/entities/portfolio';
@@ -12,11 +11,12 @@ import {
   Separator,
   Typography,
 } from '@/shared/ui';
+import { useBondIsin } from '../model/useBondIsin.hook';
 import { useBondDetails } from '../model/useBondDetails.hook';
 
 /** The issue's terms, then what the position has cost and earned. */
 export default function BondOverviewScreen() {
-  const { isin } = useLocalSearchParams<{ isin: string }>();
+  const isin = useBondIsin();
   const {
     position,
     bond,

@@ -1,11 +1,11 @@
-import BaseTopTabs, { type JSTopTabsProps } from 'expo-router/js-top-tabs';
+import BaseTopTabs, { MaterialTopTabBar, type JSTopTabsProps } from 'expo-router/js-top-tabs';
 import { useUnistyles } from 'react-native-unistyles';
 
 import { typography } from '@/shared/theme';
 
 /**
- * Swipeable tabs under a screen's header, each tab its own route. A tab renders the first time it
- * is opened, and the back action leaves the screen instead of stepping through the tabs.
+ * Swipeable tabs under a screen's header, each tab its own route. The back action leaves the
+ * screen instead of stepping through the tabs.
  */
 function ThemedTopTabs(props: JSTopTabsProps) {
   // Navigator options are props, not styles, so the theme is read here.
@@ -16,7 +16,11 @@ function ThemedTopTabs(props: JSTopTabsProps) {
       backBehavior="none"
       {...props}
       screenOptions={{
-        lazy: true,
+        // Not lazy: expo-router keeps an unopened tab as a placeholder route keyed by its name, and
+        // when the tab is opened the key changes. The pager then remounts that page and reports a
+        // wrong index, so pressing a tab could land on another one. Without `lazy`, every tab
+        // route is created right after the first render, before any tab is pressed.
+        lazy: false,
         tabBarActiveTintColor: theme.accent,
         tabBarInactiveTintColor: theme.secondaryText,
         tabBarIndicatorStyle: { backgroundColor: theme.accent, height: 2 },
@@ -35,3 +39,6 @@ function ThemedTopTabs(props: JSTopTabsProps) {
 }
 
 export const TopTabs = Object.assign(ThemedTopTabs, { Screen: BaseTopTabs.Screen });
+
+/** The default tab bar, for a `tabBar` that puts more content above the tabs. */
+export const TopTabBar = MaterialTopTabBar;
