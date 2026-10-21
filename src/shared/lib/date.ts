@@ -40,5 +40,6 @@ export function daysBetween(fromISO: string, toISO: string): number {
 export function formatDaysLeft(days: number): string {
   if (days === 0) return 'сьогодні';
   if (days === 1) return 'завтра';
-  return `через ${days} ${plural(days, 'день', 'дні', 'днів')}`;
+  // A no-break space keeps "56 днів" on one line.
+  return `через ${days}\u00a0${plural(days, 'день', 'дні', 'днів')}`;
 }

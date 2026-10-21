@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { formatDate, formatMoney } from '@/shared/lib';
+import { daysBetween, formatDate, formatDaysLeft, formatMoney, todayISO } from '@/shared/lib';
 import { SERIES_COLORS, type SeriesColor } from '@/shared/theme';
 import { Swatch, Typography } from '@/shared/ui';
 
@@ -26,17 +26,22 @@ type Props = {
   showQuantity?: boolean;
 };
 
-/** A payment received, or a purchase (money paid) when the event is one. */
+/**
+ * A payment, or a purchase (money paid) when the event is one. A payment still ahead says how
+ * many days are left until it.
+ */
 export function PaymentRow({ payment, showIsin, showQuantity }: Props) {
   const series = SERIES[payment.type];
   const isPurchase = payment.type === 'purchase';
   const isPaid = !isPurchase && payment.isPaid;
+  const isUpcoming = !isPurchase && !payment.isPaid;
   const tone = isPaid ? 'secondary' : 'primary';
   const kind = [
     isPurchase ? (payment.isTopUp ? 'Докупівля' : 'Купівля') : KINDS[payment.type],
     // A no-break space keeps "10 шт" on one line.
     (showQuantity || isPurchase) && `${payment.quantity} шт`,
     isPaid && 'виплачено',
+    isUpcoming && formatDaysLeft(daysBetween(todayISO(), payment.date)),
   ]
     .filter(Boolean)
     .join(' · ');
