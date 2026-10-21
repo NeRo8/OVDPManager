@@ -1,8 +1,8 @@
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-import { Platform, Pressable, StyleSheet } from 'react-native';
+import { Platform, Pressable } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
 import { formatDate, fromISODate, toISODate } from '@/shared/lib';
-import { themeStyles } from '@/shared/theme';
 import { Typography } from '../typography/Typography';
 
 type Props = {
@@ -12,7 +12,6 @@ type Props = {
 };
 
 export function DateField({ value, onChange, maximumDate }: Props) {
-  const theme = themeStyles;
   const date = fromISODate(value);
   const max = maximumDate ? fromISODate(maximumDate) : undefined;
 
@@ -39,7 +38,7 @@ export function DateField({ value, onChange, maximumDate }: Props) {
           onValueChange: (_, selectedDate) => onChange(toISODate(selectedDate)),
         })
       }
-      style={[styles.button, theme.muted]}
+      style={styles.button}
       accessibilityRole="button"
     >
       <Typography tabular>{formatDate(value)}</Typography>
@@ -47,12 +46,13 @@ export function DateField({ value, onChange, maximumDate }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   iosPicker: { alignSelf: 'flex-end' },
   button: {
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
     borderCurve: 'continuous',
+    backgroundColor: theme.muted,
   },
-});
+}));

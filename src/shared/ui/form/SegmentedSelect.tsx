@@ -1,23 +1,23 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
-import { themeStyles } from '@/shared/theme';
 import { Typography } from '../typography/Typography';
 
 type Option<T extends string | number> = { label: string; value: T };
+
+export type SegmentedSelectProps<T extends string | number> = {
+  options: Option<T>[];
+  value: T;
+  onChange: (value: T) => void;
+};
 
 export function SegmentedSelect<T extends string | number>({
   options,
   value,
   onChange,
-}: {
-  options: Option<T>[];
-  value: T;
-  onChange: (value: T) => void;
-}) {
-  const theme = themeStyles;
-
+}: SegmentedSelectProps<T>) {
   return (
-    <View style={[styles.group, theme.muted]} accessibilityRole="radiogroup">
+    <View style={styles.group} accessibilityRole="radiogroup">
       {options.map((option) => {
         const selected = option.value === value;
         return (
@@ -28,7 +28,7 @@ export function SegmentedSelect<T extends string | number>({
             accessibilityState={{ selected }}
             style={({ pressed }) => [
               styles.option,
-              selected && [styles.selected, theme.card],
+              selected && styles.selected,
               pressed && styles.pressed,
             ]}
           >
@@ -47,8 +47,8 @@ export function SegmentedSelect<T extends string | number>({
   );
 }
 
-const styles = StyleSheet.create({
-  group: { flexDirection: 'row', borderRadius: 10, padding: 3 },
+const styles = StyleSheet.create((theme) => ({
+  group: { flexDirection: 'row', borderRadius: 10, padding: 3, backgroundColor: theme.muted },
   option: {
     flex: 1,
     minHeight: 40,
@@ -57,6 +57,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 8,
   },
-  selected: { elevation: 1, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 2 },
+  selected: {
+    backgroundColor: theme.card,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+  },
   pressed: { opacity: 0.7 },
-});
+}));

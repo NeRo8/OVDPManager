@@ -1,39 +1,11 @@
-import {
-  StyleSheet,
-  TextInput,
-  type StyleProp,
-  type TextInputProps,
-  type TextStyle,
-} from 'react-native';
+import { TextInput, type StyleProp, type TextInputProps, type TextStyle } from 'react-native';
+import { StyleSheet, withUnistyles } from 'react-native-unistyles';
 
-import { themeStyles, typography, useColors } from '@/shared/theme';
+import { typography } from '@/shared/theme';
 
-const variants = StyleSheet.create({
-  /** Full-width field filling a section row */
-  field: {
-    ...typography.body,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontVariant: ['tabular-nums'],
-  },
-  /** Right-aligned value inside an InfoRow */
-  inline: {
-    ...typography.body,
-    textAlign: 'right',
-    minWidth: 80,
-    paddingVertical: 4,
-    fontVariant: ['tabular-nums'],
-  },
-  /** Multiline text such as pasted JSON */
-  area: {
-    ...typography.caption1,
-    fontFamily: 'monospace',
-    minHeight: 120,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    textAlignVertical: 'top',
-  },
-});
+const ThemedTextInput = withUnistyles(TextInput, (theme) => ({
+  placeholderTextColor: theme.secondaryText,
+}));
 
 const types = {
   text: { keyboardType: 'default', sanitize: (text: string) => text },
@@ -44,11 +16,17 @@ const types = {
   integer: { keyboardType: 'number-pad', sanitize: (text: string) => text.replace(/\D/g, '') },
 } as const;
 
+/**
+ * `field` fills a section row, `inline` is a right-aligned value inside an InfoRow, `area` is
+ * multiline text such as pasted JSON.
+ */
+export type InputVariant = 'field' | 'inline' | 'area';
+
 export type InputProps = Omit<
   TextInputProps,
   'style' | 'placeholderTextColor' | 'keyboardType' | 'multiline'
 > & {
-  variant?: keyof typeof variants;
+  variant?: InputVariant;
   /** Numeric types pick the matching keypad and drop characters that cannot be typed there */
   type?: keyof typeof types;
   style?: StyleProp<TextStyle>;
@@ -61,17 +39,47 @@ export function Input({
   style,
   ...props
 }: InputProps) {
-  const colors = useColors();
   const { keyboardType, sanitize } = types[type];
+  styles.useVariants({ variant });
 
   return (
-    <TextInput
+    <ThemedTextInput
       {...props}
       onChangeText={onChangeText && ((text) => onChangeText(sanitize(text)))}
       keyboardType={keyboardType}
       multiline={variant === 'area'}
-      placeholderTextColor={colors.secondaryText}
-      style={[variants[variant], themeStyles.text, style]}
+      style={[styles.input, style]}
     />
   );
 }
+
+const styles = StyleSheet.create((theme) => ({
+  input: {
+    color: theme.text,
+    variants: {
+      variant: {
+        field: {
+          ...typography.body,
+          paddingHorizontal: 16,
+          paddingVertical: 14,
+          fontVariant: ['tabular-nums'],
+        },
+        inline: {
+          ...typography.body,
+          textAlign: 'right',
+          minWidth: 80,
+          paddingVertical: 4,
+          fontVariant: ['tabular-nums'],
+        },
+        area: {
+          ...typography.caption1,
+          fontFamily: 'monospace',
+          minHeight: 120,
+          paddingHorizontal: 16,
+          paddingVertical: 12,
+          textAlignVertical: 'top',
+        },
+      },
+    },
+  },
+}));

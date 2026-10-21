@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native-unistyles';
 
 import { dark, light } from './palette';
+import { applyNativeColorScheme, getThemePreference } from './preference';
 
 const themes = { light, dark };
 
@@ -12,4 +13,11 @@ declare module 'react-native-unistyles' {
   export interface UnistylesThemes extends AppThemes {}
 }
 
-StyleSheet.configure({ themes, settings: { adaptiveThemes: true } });
+const preference = getThemePreference();
+
+StyleSheet.configure({
+  themes,
+  // initialTheme and adaptiveThemes are mutually exclusive.
+  settings: preference === 'system' ? { adaptiveThemes: true } : { initialTheme: preference },
+});
+applyNativeColorScheme(preference);

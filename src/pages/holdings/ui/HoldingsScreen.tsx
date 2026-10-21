@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
-import { FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
 import {
   Button,
@@ -27,10 +28,8 @@ import {
   type PositionPayment,
 } from '@/entities/portfolio';
 import { usePortfolio } from '../model/usePortfolio.hook';
-import { themeStyles } from '@/shared/theme';
 
 export default function PortfolioScreen() {
-  const theme = themeStyles;
   const { holdingsCount, bonds, isFetching, error, refresh, today, rows, nextDate, nextGroup } =
     usePortfolio();
 
@@ -46,7 +45,7 @@ export default function PortfolioScreen() {
         <Button
           title="Відновити з резервної копії"
           variant="secondary"
-          onPress={() => router.navigate('/backup')}
+          onPress={() => router.push('/backup/import')}
         />
       </EmptyState>
     );
@@ -55,7 +54,7 @@ export default function PortfolioScreen() {
   return (
     <View style={styles.screen}>
       <FlatList
-        style={theme.background}
+        style={styles.list}
         contentContainerStyle={[screenContent, styles.listContent]}
         contentInsetAdjustmentBehavior="automatic"
         data={rows}
@@ -104,7 +103,7 @@ export default function PortfolioScreen() {
                 router.push({ pathname: '/bond/[isin]', params: { isin: position.isin } })
               }
               accessibilityRole="link"
-              style={({ pressed }) => [styles.holding, pressed && theme.muted]}
+              style={({ pressed }) => [styles.holding, pressed && styles.pressed]}
             >
               <View style={styles.holdingTop}>
                 <Typography variant="headline" tabular>
@@ -133,7 +132,12 @@ export default function PortfolioScreen() {
   );
 }
 
-function NextPaymentLine({ next, hasBond }: { next?: PositionPayment; hasBond: boolean }) {
+type NextPaymentLineProps = {
+  next?: PositionPayment;
+  hasBond: boolean;
+};
+
+function NextPaymentLine({ next, hasBond }: NextPaymentLineProps) {
   if (!hasBond) {
     return (
       <Typography variant="caption1" tone="danger">
@@ -158,12 +162,14 @@ function NextPaymentLine({ next, hasBond }: { next?: PositionPayment; hasBond: b
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   screen: { flex: 1 },
+  list: { backgroundColor: theme.background },
   listContent: { gap: 0, paddingBottom: FAB_CLEARANCE },
   listHeader: { gap: 24, marginBottom: 6 },
   summaryFoot: { marginTop: 8 },
   holding: { paddingHorizontal: 16, paddingVertical: 12, gap: 4 },
+  pressed: { backgroundColor: theme.muted },
   holdingTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -171,4 +177,4 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   nextLine: { marginTop: 2 },
-});
+}));

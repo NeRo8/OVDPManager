@@ -1,7 +1,7 @@
-import { SectionList, StyleSheet, View, type SectionListProps } from 'react-native';
+import { SectionList, View, type SectionListProps } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
 import { PaymentRow, type ScheduleEvent } from '@/entities/portfolio';
-import { themeStyles } from '@/shared/theme';
 import { SectionCell, Typography, screenContent } from '@/shared/ui';
 import type { PaymentSection } from '../model/paymentSections';
 
@@ -16,11 +16,10 @@ type Props = Pick<
 
 /** Events grouped by month: the shared list of the payments and schedule screens. */
 export function PaymentSectionList({ emptyMessage, ...props }: Props) {
-  const theme = themeStyles;
   return (
     <SectionList
       {...props}
-      style={theme.background}
+      style={styles.list}
       contentContainerStyle={[screenContent, styles.content]}
       contentInsetAdjustmentBehavior="automatic"
       stickySectionHeadersEnabled={false}
@@ -51,7 +50,8 @@ export function PaymentSectionList({ emptyMessage, ...props }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
+  list: { backgroundColor: theme.background },
   content: { gap: 0 },
   empty: { marginTop: 28 },
   sectionHeader: {
@@ -62,4 +62,4 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     gap: 2,
   },
-});
+}));

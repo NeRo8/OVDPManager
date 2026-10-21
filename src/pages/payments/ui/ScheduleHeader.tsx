@@ -1,25 +1,22 @@
-import type { ComponentProps } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
-import { themeStyles } from '@/shared/theme';
-import { YearNav } from '@/shared/ui';
+import { YearNav, type YearNavProps } from '@/shared/ui';
 
 /** Tab header of the schedule: the year switcher takes the place of the title. */
-export function ScheduleHeader(props: ComponentProps<typeof YearNav>) {
-  const theme = themeStyles;
-  const insets = useSafeAreaInsets();
+export function ScheduleHeader(props: YearNavProps) {
   return (
-    <View style={[theme.card, { paddingTop: insets.top }]}>
+    <View style={styles.header}>
       <View style={styles.bar}>
         <YearNav {...props} />
       </View>
-      <View style={[styles.border, theme.borderBackground]} />
+      <View style={styles.border} />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme, rt) => ({
+  header: { paddingTop: rt.insets.top, backgroundColor: theme.card },
   bar: { minHeight: 44, paddingVertical: 4, justifyContent: 'center' },
-  border: { height: StyleSheet.hairlineWidth },
-});
+  border: { height: StyleSheet.hairlineWidth, backgroundColor: theme.border },
+}));

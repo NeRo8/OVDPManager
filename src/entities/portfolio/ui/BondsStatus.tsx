@@ -1,16 +1,15 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
-import { Button, EmptyState, Typography } from '@/shared/ui';
+import { Button, EmptyState, LoadingState, Typography } from '@/shared/ui';
 
-/** Full screen while the NBU bond list is loading or could not be loaded at all. */
-export function BondsUnavailable({
-  error,
-  onRetry,
-}: {
+export type BondsUnavailableProps = {
   error: string | null;
   onRetry: () => void;
-}) {
-  if (!error) return <EmptyState loading message="Завантажуємо дані НБУ…" />;
+};
+
+/** Full screen while the NBU bond list is loading or could not be loaded at all. */
+export function BondsUnavailable({ error, onRetry }: BondsUnavailableProps) {
+  if (!error) return <LoadingState message="Завантажуємо дані НБУ…" />;
   return (
     <EmptyState title="Немає зв’язку з НБУ" message={error}>
       <Button title="Спробувати ще раз" onPress={onRetry} />
@@ -18,8 +17,12 @@ export function BondsUnavailable({
   );
 }
 
+export type StaleBondsNoticeProps = {
+  error: string | null;
+};
+
 /** Inline notice when a refresh failed but cached bonds are still shown. */
-export function StaleBondsNotice({ error }: { error: string | null }) {
+export function StaleBondsNotice({ error }: StaleBondsNoticeProps) {
   if (!error) return null;
   return (
     <Typography variant="caption1" tone="danger" align="center">

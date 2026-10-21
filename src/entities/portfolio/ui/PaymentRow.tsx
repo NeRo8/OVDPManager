@@ -1,7 +1,8 @@
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
 import { formatDate, formatMoney } from '@/shared/lib';
-import { useColors } from '@/shared/theme';
+import { SERIES_COLORS, type SeriesColor } from '@/shared/theme';
 import { Swatch, Typography } from '@/shared/ui';
 
 import type { ScheduleEvent } from '../model/ovdp';
@@ -10,6 +11,13 @@ const KINDS = {
   coupon: 'Купон',
   redemption: 'Погашення номіналу',
 } as const;
+
+/** Same colors as the schedule chart. */
+const SERIES = {
+  coupon: 'coupon',
+  redemption: 'nominal',
+  purchase: 'purchase',
+} as const satisfies Record<ScheduleEvent['type'], SeriesColor>;
 
 type Props = {
   payment: ScheduleEvent;
@@ -20,13 +28,7 @@ type Props = {
 
 /** A payment received, or a purchase (money paid) when the event is one. */
 export function PaymentRow({ payment, showIsin, showQuantity }: Props) {
-  const colors = useColors();
-  // Same colors as the schedule chart; amounts take the text-contrast step of the hue.
-  const series = {
-    coupon: { mark: colors.seriesCoupon, text: colors.seriesCouponText },
-    redemption: { mark: colors.seriesNominal, text: colors.seriesNominalText },
-    purchase: { mark: colors.seriesPurchase, text: colors.seriesPurchaseText },
-  }[payment.type];
+  const series = SERIES[payment.type];
   const isPurchase = payment.type === 'purchase';
   const isPaid = !isPurchase && payment.isPaid;
   const tone = isPaid ? 'secondary' : 'primary';
@@ -41,7 +43,7 @@ export function PaymentRow({ payment, showIsin, showQuantity }: Props) {
 
   return (
     <View style={[styles.row, isPaid && styles.paid]}>
-      <Swatch color={series.mark} />
+      <Swatch color={series} />
       <View style={styles.paymentLeft}>
         {showIsin && (
           <Typography variant="callout" weight="semibold">
@@ -61,7 +63,7 @@ export function PaymentRow({ payment, showIsin, showQuantity }: Props) {
           weight="semibold"
           tabular
           align="right"
-          style={{ color: series.text }}
+          style={styles.amount(series)}
         >
           {isPurchase ? '−' : '+'}
           {formatMoney(payment.total, payment.currency)}
@@ -71,7 +73,7 @@ export function PaymentRow({ payment, showIsin, showQuantity }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -84,4 +86,6 @@ const styles = StyleSheet.create({
   paid: { opacity: 0.6 },
   paymentLeft: { gap: 2, flex: 1 },
   paymentRight: { gap: 2, flexShrink: 0 },
-});
+  // Amounts take the text-contrast step of the series hue.
+  amount: (series: SeriesColor) => ({ color: theme[SERIES_COLORS[series].text] }),
+}));

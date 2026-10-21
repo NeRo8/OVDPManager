@@ -1,10 +1,10 @@
 import { Tabs } from 'expo-router/js-tabs';
 import { SymbolView } from 'expo-symbols';
-
-import { useColors } from '@/shared/theme';
+import { useUnistyles } from 'react-native-unistyles';
 
 export default function TabLayout() {
-  const colors = useColors();
+  // Navigator options are props, not styles, so the theme is read here.
+  const { theme: colors } = useUnistyles();
 
   return (
     <Tabs
@@ -63,13 +63,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="backup"
+        name="settings"
         options={{
-          title: 'Резервна копія',
-          tabBarLabel: 'Копія',
+          title: 'Налаштування',
           tabBarIcon: ({ color }) => (
             <SymbolView
-              name={{ ios: 'archivebox', android: 'backup' }}
+              name={{ ios: 'gearshape', android: 'settings' }}
               size={24}
               tintColor={color}
             />

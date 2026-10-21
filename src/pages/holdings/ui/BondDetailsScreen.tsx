@@ -1,6 +1,7 @@
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { Fragment } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
 import {
   Button,
@@ -121,7 +122,7 @@ export default function PositionScreen() {
                   hitSlop={8}
                   accessibilityRole="button"
                   accessibilityLabel={`Видалити покупку від ${formatDate(lot.purchaseDate)}`}
-                  style={({ pressed }) => pressed && { opacity: 0.5 }}
+                  style={({ pressed }) => pressed && styles.pressed}
                 >
                   <Typography variant="subhead" tone="danger">
                     Видалити
@@ -170,4 +171,5 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   lotInfo: { flex: 1, gap: 2 },
+  pressed: { opacity: 0.5 },
 });

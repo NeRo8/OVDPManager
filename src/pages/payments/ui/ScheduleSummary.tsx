@@ -1,15 +1,27 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
 import { MONTHS, formatCompactMoney, formatMoney } from '@/shared/lib';
-import { themeStyles, useColors } from '@/shared/theme';
-import { Card, LegendRow, MonthChart, SectionTitle, Separator, Typography } from '@/shared/ui';
+import {
+  Card,
+  LegendRow,
+  MonthChart,
+  SectionTitle,
+  Separator,
+  Typography,
+  type ChartSeries,
+} from '@/shared/ui';
 import type { usePaymentSchedule } from '../model/usePaymentSchedule.hook';
 
 type Schedule = ReturnType<typeof usePaymentSchedule>;
 
+type ScheduleProps = {
+  schedule: Schedule;
+};
+
 /** The year at a glance: money in and money out, then the same split month by month. */
-export function ScheduleSummary({ schedule }: { schedule: Schedule }) {
+export function ScheduleSummary({ schedule }: ScheduleProps) {
   return (
     <View style={styles.summary}>
       <YearTotals schedule={schedule} />
@@ -19,9 +31,7 @@ export function ScheduleSummary({ schedule }: { schedule: Schedule }) {
 }
 
 /** Two tiles: payments received and money invested. Their legend rows also key the chart. */
-function YearTotals({ schedule }: { schedule: Schedule }) {
-  const colors = useColors();
-  const theme = themeStyles;
+function YearTotals({ schedule }: ScheduleProps) {
   const {
     currency,
     yearTotal,
@@ -41,12 +51,12 @@ function YearTotals({ schedule }: { schedule: Schedule }) {
         {yearTotal > 0 ? (
           <>
             <LegendRow
-              color={colors.seriesCoupon}
+              color="coupon"
               label="Купони"
               value={formatCompactMoney(couponTotal, currency)}
             />
             <LegendRow
-              color={colors.seriesNominal}
+              color="nominal"
               label="Номінал"
               value={formatCompactMoney(redemptionTotal, currency)}
             />
@@ -56,11 +66,9 @@ function YearTotals({ schedule }: { schedule: Schedule }) {
                   accessibilityRole="progressbar"
                   accessibilityLabel="Виплачено"
                   accessibilityValue={{ min: 0, max: 100, now: paidPercent }}
-                  style={[styles.track, theme.borderBackground]}
+                  style={styles.track}
                 >
-                  <View
-                    style={[styles.fill, theme.accentBackground, { width: `${paidPercent}%` }]}
-                  />
+                  <View style={[styles.fill, { width: `${paidPercent}%` }]} />
                 </View>
                 <Typography variant="caption1" tone="secondary">
                   виплачено {paidPercent} %
@@ -78,7 +86,7 @@ function YearTotals({ schedule }: { schedule: Schedule }) {
       <Tile label="Інвестовано" value={formatMoney(purchasedTotal, currency)}>
         {purchaseCount > 0 ? (
           <>
-            <LegendRow color={colors.seriesPurchase} label="Покупки" value={`${purchaseCount}`} />
+            <LegendRow color="purchase" label="Покупки" value={`${purchaseCount}`} />
             <Typography variant="caption1" tone="secondary">
               ≈ {formatCompactMoney(averageMonthlyPurchase, currency)} на місяць
             </Typography>
@@ -93,10 +101,15 @@ function YearTotals({ schedule }: { schedule: Schedule }) {
   );
 }
 
-function Tile({ label, value, children }: { label: string; value: string; children: ReactNode }) {
-  const theme = themeStyles;
+type TileProps = {
+  label: string;
+  value: string;
+  children: ReactNode;
+};
+
+function Tile({ label, value, children }: TileProps) {
   return (
-    <View style={[styles.tile, theme.card]}>
+    <View style={styles.tile}>
       <Typography variant="overline" tone="secondary">
         {label}
       </Typography>
@@ -110,8 +123,7 @@ function Tile({ label, value, children }: { label: string; value: string; childr
 }
 
 /** Chart of the year with the selected month spelled out underneath. */
-function MonthBreakdown({ schedule }: { schedule: Schedule }) {
-  const colors = useColors();
+function MonthBreakdown({ schedule }: ScheduleProps) {
   const {
     year,
     currency,
@@ -121,15 +133,10 @@ function MonthBreakdown({ schedule }: { schedule: Schedule }) {
     selectedMonth,
     setChosenMonth,
   } = schedule;
-  const series = [
-    { label: 'Купони', color: colors.seriesCoupon, values: monthlyCoupons },
-    { label: 'Номінал', color: colors.seriesNominal, values: monthlyRedemptions },
-    {
-      label: 'Покупки',
-      color: colors.seriesPurchase,
-      values: monthlyPurchases,
-      direction: 'down' as const,
-    },
+  const series: ChartSeries[] = [
+    { label: 'Купони', color: 'coupon', values: monthlyCoupons },
+    { label: 'Номінал', color: 'nominal', values: monthlyRedemptions },
+    { label: 'Покупки', color: 'purchase', values: monthlyPurchases, direction: 'down' },
   ];
   const monthRows = selectedMonth === null ? [] : series.filter((s) => s.values[selectedMonth] > 0);
 
@@ -180,16 +187,23 @@ function MonthBreakdown({ schedule }: { schedule: Schedule }) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   summary: { gap: 24 },
   tiles: { flexDirection: 'row', gap: 12 },
-  tile: { flex: 1, borderRadius: 12, borderCurve: 'continuous', padding: 14, gap: 2 },
+  tile: {
+    flex: 1,
+    borderRadius: 12,
+    borderCurve: 'continuous',
+    padding: 14,
+    gap: 2,
+    backgroundColor: theme.card,
+  },
   tileDetails: { gap: 6, marginTop: 8 },
   progress: { gap: 4, marginTop: 2 },
-  track: { height: 4, borderRadius: 2, overflow: 'hidden' },
-  fill: { height: '100%', borderRadius: 2 },
+  track: { height: 4, borderRadius: 2, overflow: 'hidden', backgroundColor: theme.border },
+  fill: { height: '100%', borderRadius: 2, backgroundColor: theme.accent },
   section: { gap: 6 },
   // Separator brings its own list-cell inset; pull it back to the card's padding.
   separator: { marginLeft: -16, marginVertical: 12 },
   monthRows: { gap: 6, marginTop: 6 },
-});
+}));

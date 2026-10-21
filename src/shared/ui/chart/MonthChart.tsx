@@ -1,7 +1,8 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
 import { MONTHS, MONTHS_SHORT, formatCompact, formatMoney } from '@/shared/lib';
-import { themeStyles } from '@/shared/theme';
+import { SERIES_COLORS, type SeriesColor } from '@/shared/theme';
 import { Typography } from '../typography/Typography';
 
 const PLOT_HEIGHT = 160;
@@ -27,7 +28,7 @@ function niceMax(value: number): number {
 export type ChartSeries = {
   /** Lowercase name for the accessibility label: "купони" */
   label: string;
-  color: string;
+  color: SeriesColor;
   /** Twelve monthly totals, January first */
   values: number[];
   /** Money in grows up from the baseline, money out grows down. Defaults to up. */
@@ -47,7 +48,6 @@ type Props = {
  * The legend lives with the totals above the chart; the selected month carries the value labels.
  */
 export function MonthChart({ series, currency, selected, onSelect }: Props) {
-  const theme = themeStyles;
   const up = series.filter((s) => s.direction !== 'down');
   const down = series.filter((s) => s.direction === 'down');
   const sumOf = (group: ChartSeries[]) =>
@@ -100,10 +100,7 @@ export function MonthChart({ series, currency, selected, onSelect }: Props) {
       <View style={styles.plotColumn}>
         <View style={{ height: plotHeight }}>
           {ticks.map((tick) => (
-            <View
-              key={tick}
-              style={[styles.gridline, theme.borderBackground, { top: tickTop(tick) }]}
-            />
+            <View key={tick} style={[styles.gridline, { top: tickTop(tick) }]} />
           ))}
 
           <View style={styles.bars}>
@@ -129,10 +126,7 @@ export function MonthChart({ series, currency, selected, onSelect }: Props) {
                         {upStack.map((s, index) => (
                           <View
                             key={s.label}
-                            style={[
-                              index === 0 && styles.upEnd,
-                              { height: s.height, backgroundColor: s.color },
-                            ]}
+                            style={[styles.segment(s.color, s.height), index === 0 && styles.upEnd]}
                           />
                         ))}
                       </View>
@@ -145,8 +139,8 @@ export function MonthChart({ series, currency, selected, onSelect }: Props) {
                           <View
                             key={s.label}
                             style={[
+                              styles.segment(s.color, s.height),
                               index === downStack.length - 1 && styles.downEnd,
-                              { height: s.height, backgroundColor: s.color },
                             ]}
                           />
                         ))}
@@ -220,21 +214,23 @@ export function MonthChart({ series, currency, selected, onSelect }: Props) {
   );
 }
 
+export type SwatchProps = {
+  color: SeriesColor;
+};
+
 /** Color mark of a chart series, also beside list rows of the same kind. */
-export function Swatch({ color }: { color: string }) {
-  return <View style={[styles.swatch, { backgroundColor: color }]} />;
+export function Swatch({ color }: SwatchProps) {
+  return <View style={styles.swatch(color)} />;
 }
 
-/** Swatch + name + amount: the chart legend doubles as the breakdown of the total. */
-export function LegendRow({
-  color,
-  label,
-  value,
-}: {
-  color: string;
+export type LegendRowProps = {
+  color: SeriesColor;
   label: string;
   value: string;
-}) {
+};
+
+/** Swatch + name + amount: the chart legend doubles as the breakdown of the total. */
+export function LegendRow({ color, label, value }: LegendRowProps) {
   return (
     <View style={styles.legendRow}>
       <Swatch color={color} />
@@ -248,18 +244,28 @@ export function LegendRow({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   chart: { flexDirection: 'row', paddingTop: LABEL_SPACE, paddingRight: 4 },
   axis: { width: AXIS_WIDTH },
   tick: { position: 'absolute', right: 6 },
   plotColumn: { flex: 1 },
-  gridline: { position: 'absolute', left: 0, right: 0, height: StyleSheet.hairlineWidth },
-  bars: { ...StyleSheet.absoluteFill, flexDirection: 'row' },
+  gridline: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: theme.border,
+  },
+  bars: { position: 'absolute', inset: 0, flexDirection: 'row' },
   slot: { flex: 1, height: '100%' },
   half: { alignItems: 'center' },
   upHalf: { justifyContent: 'flex-end' },
   stack: { width: '62%', maxWidth: 24, gap: SEGMENT_GAP },
   belowUp: { marginTop: SEGMENT_GAP },
+  segment: (color: SeriesColor, height: number) => ({
+    height,
+    backgroundColor: theme[SERIES_COLORS[color].mark],
+  }),
   // Rounded data ends away from the baseline; the baseline side stays square.
   upEnd: { borderTopLeftRadius: 4, borderTopRightRadius: 4 },
   downEnd: { borderBottomLeftRadius: 4, borderBottomRightRadius: 4 },
@@ -271,6 +277,11 @@ const styles = StyleSheet.create({
   monthsBelowLabel: { marginTop: LABEL_SPACE },
   month: { flex: 1 },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  swatch: { width: 10, height: 10, borderRadius: 3 },
+  swatch: (color: SeriesColor) => ({
+    width: 10,
+    height: 10,
+    borderRadius: 3,
+    backgroundColor: theme[SERIES_COLORS[color].mark],
+  }),
   legendLabel: { flex: 1 },
-});
+}));

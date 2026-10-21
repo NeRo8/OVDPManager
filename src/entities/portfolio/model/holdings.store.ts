@@ -1,6 +1,8 @@
+import { z } from 'zod';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import { HoldingSchema } from './holding.schema';
 import type { Holding } from './ovdp';
 import { mmkvStorage } from '@/shared/lib';
 
@@ -20,6 +22,25 @@ const initState: HoldingsState = {
   holdings: [],
 };
 
+const StoredStateSchema = z.object({ holdings: z.array(z.unknown()) });
+
+/**
+ * Purchases read back from storage. A damaged record is left out rather than allowed to break the
+ * calculations for the whole wallet.
+ */
+function readStoredHoldings(stored: unknown): Holding[] {
+  const state = StoredStateSchema.safeParse(stored);
+  if (!state.success) return [];
+  return state.data.holdings.flatMap((item) => {
+    const holding = HoldingSchema.safeParse(item);
+    if (!holding.success) {
+      if (__DEV__) console.warn('Skipped a stored purchase', z.prettifyError(holding.error), item);
+      return [];
+    }
+    return [holding.data];
+  });
+}
+
 const useHoldingsStore = create<HoldingsStore>()(
   persist(
     (set) => ({
@@ -34,6 +55,7 @@ const useHoldingsStore = create<HoldingsStore>()(
       version: 1,
       storage: createJSONStorage(() => mmkvStorage),
       partialize: ({ holdings }) => ({ holdings }),
+      merge: (stored, current) => ({ ...current, holdings: readStoredHoldings(stored) }),
     },
   ),
 );

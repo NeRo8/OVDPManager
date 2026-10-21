@@ -1,20 +1,17 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
-import { themeStyles } from '@/shared/theme';
 import { Typography } from './typography/Typography';
 
-/** ‹ 2026 › switcher. */
-export function YearNav({
-  year,
-  min,
-  max,
-  onChange,
-}: {
+export type YearNavProps = {
   year: number;
   min: number;
   max: number;
   onChange: (year: number) => void;
-}) {
+};
+
+/** ‹ 2026 › switcher. */
+export function YearNav({ year, min, max, onChange }: YearNavProps) {
   return (
     <View style={styles.nav}>
       <YearArrow
@@ -36,18 +33,14 @@ export function YearNav({
   );
 }
 
-function YearArrow({
-  label,
-  accessibilityLabel,
-  disabled,
-  onPress,
-}: {
+type YearArrowProps = {
   label: string;
   accessibilityLabel: string;
   disabled: boolean;
   onPress: () => void;
-}) {
-  const theme = themeStyles;
+};
+
+function YearArrow({ label, accessibilityLabel, disabled, onPress }: YearArrowProps) {
   return (
     <Pressable
       onPress={onPress}
@@ -57,7 +50,6 @@ function YearArrow({
       accessibilityLabel={accessibilityLabel}
       style={({ pressed }) => [
         styles.arrow,
-        theme.card,
         disabled ? styles.disabled : pressed && styles.pressed,
       ]}
     >
@@ -68,7 +60,7 @@ function YearArrow({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   nav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 24 },
   year: { minWidth: 72 },
   arrow: {
@@ -77,8 +69,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: theme.card,
   },
   disabled: { opacity: 0.3 },
   pressed: { opacity: 0.6 },
   arrowText: { lineHeight: 28 },
-});
+}));

@@ -83,13 +83,18 @@ function parseSecurity(raw: NbuSecurity): Bond {
  * is skipped, including one with an unknown payment type: better missing than miscounted.
  */
 export async function fetchBonds(): Promise<Bond[]> {
-  // The generic only declares the expected shape: axios does not check it, so the schema does.
-  const { data } = await nbuClient.get<NbuSecurity[]>('/depo_securities?json');
-  if (!Array.isArray(data)) {
+  // Unknown until the schemas below have checked it: axios does not validate the response.
+  const { data } = await nbuClient.get<unknown>('/depo_securities?json');
+  const list = z.array(z.unknown()).safeParse(data);
+  if (!list.success) {
     throw new Error('Неочікуваний формат відповіді НБУ');
   }
-  return data.flatMap((item) => {
+  const bonds = list.data.flatMap((item) => {
     const result = NbuSecuritySchema.safeParse(item);
     return result.success ? [parseSecurity(result.data)] : [];
   });
+  if (__DEV__ && bonds.length < list.data.length) {
+    console.warn(`Skipped ${list.data.length - bonds.length} NBU securities that fail the schema`);
+  }
+  return bonds;
 }

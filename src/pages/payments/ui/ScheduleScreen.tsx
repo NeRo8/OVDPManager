@@ -1,6 +1,7 @@
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
-import { EmptyState, SegmentedSelect } from '@/shared/ui';
+import { EmptyState, LoadingState, SegmentedSelect } from '@/shared/ui';
 import { usePaymentSchedule } from '../model/usePaymentSchedule.hook';
 import { PaymentSectionList } from './PaymentSectionList';
 import { ScheduleHeader } from './ScheduleHeader';
@@ -27,7 +28,7 @@ export default function ScheduleScreen() {
     <View style={styles.screen}>
       <ScheduleHeader year={year} min={firstYear} max={lastYear} onChange={setChosenYear} />
       {!bonds && holdings.length > 0 ? (
-        <EmptyState loading />
+        <LoadingState />
       ) : holdings.length === 0 ? (
         <EmptyState message="Додайте ОВДП в гаманець, і тут з’явиться графік виплат." />
       ) : (

@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
-import { RefreshControl, StyleSheet, View } from 'react-native';
+import { RefreshControl, View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
 import { BondsUnavailable, NbuSourceNote, StaleBondsNotice } from '@/entities/portfolio';
 import { plural } from '@/shared/lib';
@@ -21,7 +22,7 @@ export default function UpcomingPaymentsScreen() {
         <Button
           title="Відновити з копії"
           variant="secondary"
-          onPress={() => router.navigate('/backup')}
+          onPress={() => router.push('/backup/import')}
         />
       </EmptyState>
     );

@@ -1,6 +1,7 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { Fragment } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
 import {
   DateField,
@@ -13,12 +14,10 @@ import {
   ScreenScrollView,
 } from '@/shared/ui';
 import { useAddHoldingForm } from '@/features/add-holding';
-import { themeStyles } from '@/shared/theme';
 import { BondsUnavailable } from '@/entities/portfolio';
 import { formatDate, formatMoney } from '@/shared/lib';
 
 export default function AddHoldingScreen() {
-  const theme = themeStyles;
   const { isin: topUpIsin } = useLocalSearchParams<{ isin?: string }>();
   const {
     bonds,
@@ -83,7 +82,7 @@ export default function AddHoldingScreen() {
             <Separator />
             <Pressable
               onPress={() => setSelected(match)}
-              style={({ pressed }) => [styles.match, pressed && theme.muted]}
+              style={({ pressed }) => [styles.match, pressed && styles.pressed]}
             >
               <Typography variant="callout" tabular>
                 {match.isin}
@@ -196,8 +195,9 @@ export default function AddHoldingScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   inlineInput: { minWidth: 120 },
   match: { paddingHorizontal: 16, paddingVertical: 10, gap: 2 },
+  pressed: { backgroundColor: theme.muted },
   hint: { paddingHorizontal: 16, paddingVertical: 12 },
-});
+}));

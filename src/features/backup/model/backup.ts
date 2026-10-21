@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { type Holding, replaceHoldings } from '@/entities/portfolio';
+import { type Holding, PurchaseSchema, replaceHoldings } from '@/entities/portfolio';
 import { confirmDestructive, plural, todayISO } from '@/shared/lib';
 
 const FORMAT = 'ovdp-manager-backup';
@@ -64,16 +64,8 @@ export function backupFileName(): string {
 }
 
 /** A purchase in a backup file. The file comes from outside the app, so it is checked. */
-const BackupHoldingSchema = z.object({
-  id: z.string().min(1).optional(),
-  isin: z
-    .string()
-    .trim()
-    .toUpperCase()
-    .regex(/^[A-Z]{2}[A-Z0-9]{10}$/),
-  purchaseDate: z.iso.date(),
-  amount: z.number().positive(),
-  quantity: z.number().int().positive(),
+const BackupHoldingSchema = PurchaseSchema.extend({
+  id: z.string().min(1, { error: 'id покупки не може бути порожнім' }).optional(),
 });
 
 /** A backup, or a bare array of purchases. */
@@ -99,7 +91,8 @@ export function parseBackup(text: string): Holding[] {
   return list.data.map((item, index) => {
     const holding = BackupHoldingSchema.safeParse(item);
     if (!holding.success) {
-      throw new Error(`Покупка №${index + 1} має некоректні дані`);
+      const problems = [...new Set(holding.error.issues.map((issue) => issue.message))];
+      throw new Error(`Покупка №${index + 1}: ${problems.join('; ')}`);
     }
     const { id, ...purchase } = holding.data;
     return { ...purchase, id: id ?? `restored-${index}-${Date.now().toString(36)}` };

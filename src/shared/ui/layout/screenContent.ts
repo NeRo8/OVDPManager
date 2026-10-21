@@ -1,6 +1,9 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
-/** Scroll content: phone-width column, centered on tablets. */
+/**
+ * Scroll content: phone-width column, centered on tablets. It has no theme values, so it works in
+ * `contentContainerStyle`, which Unistyles does not update in place.
+ */
 export const screenContent = StyleSheet.create({
   content: {
     width: '100%',

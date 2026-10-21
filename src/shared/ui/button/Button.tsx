@@ -1,20 +1,20 @@
 import { SymbolView, type SymbolViewProps } from 'expo-symbols';
-import { Pressable, StyleSheet, type ViewStyle } from 'react-native';
+import { Pressable, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, withUnistyles } from 'react-native-unistyles';
 
-import { themeStyles, useColors } from '@/shared/theme';
-import { Typography } from '../typography/Typography';
+import { Typography, type TypographyTone } from '../typography/Typography';
 
-/** Icon-only header action; the label is announced by screen readers instead of shown. */
-export function HeaderButton({
-  icon,
-  accessibilityLabel,
-  onPress,
-}: {
+/** SF Symbol / Material icon whose tint follows the theme. */
+export const ThemedSymbolView = withUnistyles(SymbolView);
+
+export type HeaderButtonProps = {
   icon: SymbolViewProps['name'];
   accessibilityLabel: string;
   onPress: () => void;
-}) {
-  const colors = useColors();
+};
+
+/** Icon-only header action; the label is announced by screen readers instead of shown. */
+export function HeaderButton({ icon, accessibilityLabel, onPress }: HeaderButtonProps) {
   return (
     <Pressable
       onPress={onPress}
@@ -23,26 +23,34 @@ export function HeaderButton({
       accessibilityLabel={accessibilityLabel}
       style={({ pressed }) => [styles.headerButton, pressed && styles.pressed]}
     >
-      <SymbolView name={icon} size={20} weight="semibold" tintColor={colors.accent} />
+      <ThemedSymbolView
+        name={icon}
+        size={20}
+        weight="semibold"
+        uniProps={(theme) => ({ tintColor: theme.accent })}
+      />
     </Pressable>
   );
 }
 
-export function Button({
-  title,
-  onPress,
-  variant = 'primary',
-  disabled,
-  style,
-}: {
+export type ButtonVariant = 'primary' | 'secondary' | 'destructive';
+
+const TITLE_TONES = {
+  primary: 'onAccent',
+  secondary: 'accent',
+  destructive: 'danger',
+} as const satisfies Record<ButtonVariant, TypographyTone>;
+
+export type ButtonProps = {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'destructive';
+  variant?: ButtonVariant;
   disabled?: boolean;
-  style?: ViewStyle;
-}) {
-  const theme = themeStyles;
-  const isPrimary = variant === 'primary';
+  style?: StyleProp<ViewStyle>;
+};
+
+export function Button({ title, onPress, variant = 'primary', disabled, style }: ButtonProps) {
+  styles.useVariants({ variant });
   return (
     <Pressable
       onPress={onPress}
@@ -50,22 +58,18 @@ export function Button({
       accessibilityRole="button"
       style={({ pressed }) => [
         styles.button,
-        isPrimary ? theme.accentBackground : theme.card,
         disabled ? styles.disabled : pressed && styles.pressed,
         style,
       ]}
     >
-      <Typography
-        variant="headline"
-        tone={isPrimary ? 'onAccent' : variant === 'destructive' ? 'danger' : 'accent'}
-      >
+      <Typography variant="headline" tone={TITLE_TONES[variant]}>
         {title}
       </Typography>
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   pressed: { opacity: 0.7 },
   disabled: { opacity: 0.4 },
   headerButton: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
@@ -74,5 +78,12 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderCurve: 'continuous',
     alignItems: 'center',
+    variants: {
+      variant: {
+        primary: { backgroundColor: theme.accent },
+        secondary: { backgroundColor: theme.card },
+        destructive: { backgroundColor: theme.card },
+      },
+    },
   },
-});
+}));

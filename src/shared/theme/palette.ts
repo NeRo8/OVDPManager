@@ -20,7 +20,9 @@ export const light = {
   seriesCouponText: '#008856',
 };
 
-export const dark: typeof light = {
+export type AppTheme = typeof light;
+
+export const dark: AppTheme = {
   background: '#000000',
   card: '#1C1C1E',
   text: '#F5F5F7',
