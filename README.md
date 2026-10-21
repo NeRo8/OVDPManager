@@ -47,7 +47,7 @@ This app uses Unistyles and other native modules. Run it in a [development build
 
 Each page, feature, and entity has an `index.ts` public API. Imports point down the stack: pages can use features, entities, and shared code; features can use entities and shared code; entities can use shared code. Imports inside a slice use relative paths. See [CODEBASE.md](CODEBASE.md) for entry points and data flow.
 
-The app targets iOS and Android. Its three bottom tabs show payments (upcoming, or a year with its chart, both filterable), holdings, and settings (backups and the app theme). Bond details, adding a purchase, payment filters, and restoring a backup are stack routes.
+The app targets iOS and Android. Its three bottom tabs show payments (upcoming, or a year with its chart, as swipeable top tabs; both filterable), the wallet, and settings (backups and the app theme). Bond details have Overview, Payments and Purchases top tabs. Bond details, adding a purchase, payment filters, and restoring a backup are stack routes.
 
 ## Code quality
 

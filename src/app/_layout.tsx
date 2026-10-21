@@ -40,7 +40,17 @@ export default function RootLayout() {
             ),
           }}
         />
-        <Stack.Screen name="bond/[isin]" options={{ title: 'ОВДП' }} />
+        <Stack.Screen
+          name="bond/[isin]"
+          // The top tabs continue the header: an opaque one in the same color, so the tab bar is
+          // not drawn under it (iOS 26 headers are transparent), and the line goes under the tabs.
+          options={{
+            title: 'ОВДП',
+            headerTransparent: false,
+            headerStyle: { backgroundColor: theme.card },
+            headerShadowVisible: false,
+          }}
+        />
         <Stack.Screen name="backup/import" options={{ title: 'Відновити з копії' }} />
       </Stack>
     </ThemeProvider>
