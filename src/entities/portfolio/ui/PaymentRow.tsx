@@ -1,9 +1,16 @@
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { daysBetween, formatDate, formatDaysLeft, formatMoney, todayISO } from '@/shared/lib';
+import {
+  currencySign,
+  daysBetween,
+  formatDate,
+  formatDaysLeft,
+  formatMoney,
+  todayISO,
+} from '@/shared/lib';
 import { SERIES_COLORS, type SeriesColor } from '@/shared/theme';
-import { Swatch, Typography } from '@/shared/ui';
+import { Avatar, Typography } from '@/shared/ui';
 
 import type { ScheduleEvent } from '../model/ovdp';
 
@@ -48,7 +55,7 @@ export function PaymentRow({ payment, showIsin, showQuantity }: Props) {
 
   return (
     <View style={[styles.row, isPaid && styles.paid]}>
-      <Swatch color={series} />
+      <Avatar label={currencySign(payment.currency)} color={series} />
       <View style={styles.paymentLeft}>
         {showIsin && (
           <Typography variant="callout" weight="semibold">

@@ -1,6 +1,7 @@
 export * from './button/Button';
 export * from './button/FloatingActionButton';
 export * from './typography/Typography';
+export * from './avatar/Avatar';
 export * from './layout/Card';
 export * from './layout/EmptyState';
 export * from './layout/Section';

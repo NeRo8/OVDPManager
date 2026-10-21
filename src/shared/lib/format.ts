@@ -7,13 +7,18 @@ const numberFormat = new Intl.NumberFormat('uk-UA', {
   maximumFractionDigits: 2,
 });
 
+/** ₴, $, €; the code itself for any other currency. */
+export function currencySign(currency: string): string {
+  return CURRENCY_SIGNS[currency] ?? currency;
+}
+
 export function formatMoney(value: number, currency: string): string {
-  return `${numberFormat.format(value)} ${CURRENCY_SIGNS[currency] ?? currency}`;
+  return `${numberFormat.format(value)} ${currencySign(currency)}`;
 }
 
 /** Short amount with the currency sign, for tight spots: 12,5 тис ₴ */
 export function formatCompactMoney(value: number, currency: string): string {
-  return `${formatCompact(value)} ${CURRENCY_SIGNS[currency] ?? currency}`;
+  return `${formatCompact(value)} ${currencySign(currency)}`;
 }
 
 /** Sums amounts per currency: "10 200,00 ₴ + 5 000,00 $". */
