@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import { RefreshControl, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -6,17 +5,12 @@ import { NbuSourceNote, StaleBondsNotice } from '@/entities/portfolio';
 import { plural } from '@/shared/lib';
 import { Typography } from '@/shared/ui';
 import { upcomingPayments } from '../model/upcomingPayments';
-import type { FilteredWallet } from '../model/useFilteredWallet.hook';
+import { useFilteredWallet } from '../model/useFilteredWallet.hook';
 import { PaymentSectionList } from './PaymentSectionList';
 
-type Props = {
-  filtered: FilteredWallet;
-  /** Rendered above the list content: the mode switch of the payments screen */
-  header: ReactNode;
-};
-
 /** Payments still ahead, month by month. */
-export function UpcomingPaymentsList({ filtered, header }: Props) {
+export default function UpcomingPaymentsScreen() {
+  const filtered = useFilteredWallet();
   const { wallet, activeFilterCount } = filtered;
   const { upcoming, allCount, sections } = upcomingPayments(filtered);
 
@@ -26,7 +20,6 @@ export function UpcomingPaymentsList({ filtered, header }: Props) {
       refreshControl={<RefreshControl refreshing={wallet.isFetching} onRefresh={wallet.refresh} />}
       ListHeaderComponent={
         <View style={styles.listHeader}>
-          {header}
           <StaleBondsNotice error={wallet.error} />
           <Typography variant="subhead" tone="secondary" align="center">
             {activeFilterCount > 0

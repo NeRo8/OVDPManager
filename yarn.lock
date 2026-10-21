@@ -5064,6 +5064,11 @@ react-native-nitro-modules@0.37.1:
   resolved "https://registry.yarnpkg.com/react-native-nitro-modules/-/react-native-nitro-modules-0.37.1.tgz#368bda3038ebe796b219d98e0a364f9166e2cc7c"
   integrity sha512-KpW6EQVQ/bfegpCGxN9Be+ndvsfj56t4IESEvCASu9gWpJa/NDfHpIeIwCOvZQ3eXmLEj6YD4wCLqcC1FJPr2w==
 
+react-native-pager-view@9.0.7:
+  version "9.0.7"
+  resolved "https://registry.yarnpkg.com/react-native-pager-view/-/react-native-pager-view-9.0.7.tgz#2190e3341e4fcec72139009550bb3ed9687b9493"
+  integrity sha512-71kLSrjZy8onJTXkoAWF/0UtInkF+xqmqudiV/axZe8PVGG+CK6jVdh8NYFJLKetQ6UQ9ScPNliagpvLBp1xkQ==
+
 react-native-reanimated@4.7.1:
   version "4.7.1"
   resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-4.7.1.tgz#22a4e95241fe54a5cb05bed4d30b63af4d79a4f7"
@@ -5084,6 +5089,13 @@ react-native-safe-area-context@~5.10.1:
   dependencies:
     react-freeze "^1.0.0"
     warn-once "^0.1.0"
+
+react-native-tab-view@^4.3.4:
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/react-native-tab-view/-/react-native-tab-view-4.3.4.tgz#2e14d7d9d7ae0f496d3e0624eb35556092edb656"
+  integrity sha512-z8eXgVmfLx2aSMeppQkuZPbb2N00H76T7OwtGcZYua5g2h9AYBbkYrYN4rKY0wSl1g0YRQ+NS6LLVkxppGr68g==
+  dependencies:
+    use-latest-callback "^0.2.4"
 
 react-native-unistyles@^3.5.3:
   version "3.5.3"

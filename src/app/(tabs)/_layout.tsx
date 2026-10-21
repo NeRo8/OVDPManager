@@ -19,9 +19,11 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="(payments)"
         options={{
           title: 'Виплати',
+          // The top tabs continue the header, so the line goes under them instead.
+          headerShadowVisible: false,
           headerRight: () => <PaymentFiltersButton />,
           tabBarIcon: ({ color }) => (
             <SymbolView

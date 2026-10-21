@@ -1,22 +1,16 @@
-import type { ReactNode } from 'react';
 import { RefreshControl, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { NbuSourceNote, StaleBondsNotice } from '@/entities/portfolio';
 import { SegmentedSelect, YearNav } from '@/shared/ui';
-import type { FilteredWallet } from '../model/useFilteredWallet.hook';
+import { useFilteredWallet } from '../model/useFilteredWallet.hook';
 import { useYearSchedule } from '../model/useYearSchedule.hook';
 import { PaymentSectionList } from './PaymentSectionList';
 import { ScheduleSummary } from './ScheduleSummary';
 
-type Props = {
-  filtered: FilteredWallet;
-  /** Rendered above the list content: the mode switch of the payments screen */
-  header: ReactNode;
-};
-
 /** One year: money in and out, the monthly chart, then every payment and purchase. */
-export function YearScheduleList({ filtered, header }: Props) {
+export default function YearScheduleScreen() {
+  const filtered = useFilteredWallet();
   const { wallet } = filtered;
   const schedule = useYearSchedule(filtered);
   const {
@@ -38,7 +32,6 @@ export function YearScheduleList({ filtered, header }: Props) {
       refreshControl={<RefreshControl refreshing={wallet.isFetching} onRefresh={wallet.refresh} />}
       ListHeaderComponent={
         <View style={styles.listHeader}>
-          {header}
           <StaleBondsNotice error={wallet.error} />
           <YearNav year={year} min={firstYear} max={lastYear} onChange={setChosenYear} />
           {currencies.length > 1 && (
