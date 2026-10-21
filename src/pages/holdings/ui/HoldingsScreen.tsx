@@ -3,7 +3,6 @@ import { FlatList, Pressable, RefreshControl, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
-  Card,
   FAB_CLEARANCE,
   FloatingActionButton,
   SectionCell,
@@ -11,28 +10,21 @@ import {
   Typography,
   screenContent,
 } from '@/shared/ui';
-import {
-  daysBetween,
-  formatDate,
-  formatDaysLeft,
-  formatMoney,
-  formatTotals,
-  plural,
-} from '@/shared/lib';
+import { formatDate, formatMoney, plural } from '@/shared/lib';
 import {
   NbuSourceNote,
   StaleBondsNotice,
   WalletGate,
   type PositionPayment,
+  useWallet,
 } from '@/entities/portfolio';
-import { usePortfolio } from '../model/usePortfolio.hook';
 
 export default function PortfolioScreen() {
-  const portfolio = usePortfolio();
-  const { isFetching, error, refresh, today, positions, nextDate, nextGroup } = portfolio;
+  const wallet = useWallet();
+  const { isFetching, error, refresh, positions } = wallet;
 
   return (
-    <WalletGate wallet={portfolio}>
+    <WalletGate wallet={wallet}>
       <View style={styles.screen}>
         <FlatList
           style={styles.list}
@@ -44,38 +36,6 @@ export default function PortfolioScreen() {
           ListHeaderComponent={
             <View style={styles.listHeader}>
               <StaleBondsNotice error={error} />
-
-              <Card>
-                <Typography variant="overline" tone="secondary">
-                  Наступна виплата
-                </Typography>
-                {nextDate ? (
-                  <>
-                    <Typography variant="display" tabular tone="positive">
-                      {formatTotals(
-                        nextGroup.map((p) => ({ currency: p.currency, value: p.total })),
-                      )}
-                    </Typography>
-                    <Typography variant="body" weight="medium">
-                      {formatDate(nextDate)} · {formatDaysLeft(daysBetween(today, nextDate))}
-                    </Typography>
-                  </>
-                ) : (
-                  <Typography variant="body" weight="medium">
-                    Усі виплати отримано
-                  </Typography>
-                )}
-                <Typography variant="caption1" tone="secondary" style={styles.summaryFoot}>
-                  Вкладено:{' '}
-                  {formatTotals(
-                    positions.map((r) => ({
-                      currency: r.bond?.currency ?? 'UAH',
-                      value: r.position.amount,
-                    })),
-                  )}
-                </Typography>
-              </Card>
-
               <SectionTitle title="Мої ОВДП" />
             </View>
           }
@@ -154,7 +114,6 @@ const styles = StyleSheet.create((theme) => ({
   list: { backgroundColor: theme.background },
   listContent: { gap: 0, paddingBottom: FAB_CLEARANCE },
   listHeader: { gap: 24, marginBottom: 6 },
-  summaryFoot: { marginTop: 8 },
   holding: { paddingHorizontal: 16, paddingVertical: 12, gap: 4 },
   pressed: { backgroundColor: theme.muted },
   holdingTop: {
