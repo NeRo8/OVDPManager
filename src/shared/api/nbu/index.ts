@@ -1,1 +1,1 @@
-export { nbuClient, nbuErrorMessage } from './client';
+export { NbuError, nbuClient } from './client';

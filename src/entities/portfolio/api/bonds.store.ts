@@ -4,7 +4,6 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import type { Bond } from '../model/ovdp';
 import { fetchBonds } from './nbuBonds';
-import { nbuErrorMessage } from '@/shared/api';
 import { mmkvStorage } from '@/shared/lib';
 
 const CACHE_KEY = 'nbu-bonds-v1';
@@ -45,7 +44,8 @@ async function refreshBonds(): Promise<void> {
   } catch (error) {
     useBondsRequestStore.setState({
       isFetching: false,
-      error: nbuErrorMessage(error),
+      // NbuError from the client, or a malformed response from fetchBonds: both carry a ready message.
+      error: error instanceof Error ? error.message : 'Не вдалося завантажити дані НБУ',
     });
   }
 }
