@@ -2,6 +2,10 @@
 
 import { round2 } from '@/shared/lib';
 
+/** Currencies of the NBU bonds, in the order the schedule lists them. */
+export const CURRENCIES = ['UAH', 'USD', 'EUR'] as const;
+export type Currency = (typeof CURRENCIES)[number];
+
 export type PaymentType = 'coupon' | 'redemption';
 
 export type BondPayment = {
@@ -17,7 +21,7 @@ export type Bond = {
   nominal: number;
   /** Annual coupon rate, % */
   rate: number;
-  currency: string;
+  currency: Currency;
   issueDate: string;
   maturityDate: string;
   description: string;
@@ -45,7 +49,7 @@ export type Position = {
 
 export type PositionPayment = BondPayment & {
   isin: string;
-  currency: string;
+  currency: Currency;
   /** Bonds held on the payment date */
   quantity: number;
   /** Per-bond amount × quantity */
@@ -60,7 +64,7 @@ export type PurchaseEvent = {
   id: string;
   date: string;
   isin: string;
-  currency: string;
+  currency: Currency;
   quantity: number;
   /** Amount paid */
   total: number;

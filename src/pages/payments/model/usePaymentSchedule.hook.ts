@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 
 import {
+  CURRENCIES,
+  type Currency,
   useHoldings,
   useBonds,
   type ScheduleEvent,
@@ -10,8 +12,6 @@ import {
 } from '@/entities/portfolio';
 import { MONTHS, todayISO, round2 } from '@/shared/lib';
 import { groupPaymentsByMonth } from './paymentSections';
-
-const CURRENCY_ORDER = ['UAH', 'USD', 'EUR'];
 
 const yearOf = (event: ScheduleEvent) => Number(event.date.slice(0, 4));
 const monthOf = (event: ScheduleEvent) => Number(event.date.slice(5, 7)) - 1;
@@ -38,14 +38,14 @@ export function usePaymentSchedule() {
   const lastYear = years.length ? Math.max(...years) : currentYear;
 
   const [chosenYear, setChosenYear] = useState<number | null>(null);
-  const [chosenCurrency, setChosenCurrency] = useState<string | null>(null);
+  const [chosenCurrency, setChosenCurrency] = useState<Currency | null>(null);
   const [chosenMonth, setChosenMonth] = useState<{ year: number; month: number } | null>(null);
 
   const year = chosenYear ?? Math.min(Math.max(currentYear, firstYear), lastYear);
   const yearPayments = payments.filter((payment) => yearOf(payment) === year);
   const yearEvents = [...yearPayments, ...purchases.filter((p) => yearOf(p) === year)];
   const currencies = [...new Set(yearEvents.map((event) => event.currency))].sort(
-    (a, b) => CURRENCY_ORDER.indexOf(a) - CURRENCY_ORDER.indexOf(b),
+    (a, b) => CURRENCIES.indexOf(a) - CURRENCIES.indexOf(b),
   );
   const currency =
     chosenCurrency && currencies.includes(chosenCurrency) ? chosenCurrency : currencies[0];

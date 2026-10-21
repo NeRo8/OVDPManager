@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import { type Holding, replaceHoldings } from '@/entities/portfolio';
 import { confirmDestructive, plural, todayISO } from '@/shared/lib';
 
@@ -61,6 +63,25 @@ export function backupFileName(): string {
   return `ovdp-backup-${todayISO()}.json`;
 }
 
+/** A purchase in a backup file. The file comes from outside the app, so it is checked. */
+const BackupHoldingSchema = z.object({
+  id: z.string().min(1).optional(),
+  isin: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(/^[A-Z]{2}[A-Z0-9]{10}$/),
+  purchaseDate: z.iso.date(),
+  amount: z.number().positive(),
+  quantity: z.number().int().positive(),
+});
+
+/** A backup, or a bare array of purchases. */
+const BackupListSchema = z.union([
+  z.array(z.unknown()),
+  z.object({ holdings: z.array(z.unknown()) }).transform((backup) => backup.holdings),
+]);
+
 /** Reads a backup file (or a bare array of purchases). Throws an Error with a user-facing message. */
 export function parseBackup(text: string): Holding[] {
   let data: unknown;
@@ -70,31 +91,17 @@ export function parseBackup(text: string): Holding[] {
     throw new Error('Це не схоже на файл резервної копії (некоректний JSON)');
   }
 
-  const list = Array.isArray(data) ? data : (data as Partial<Backup> | null)?.holdings;
-  if (!Array.isArray(list)) {
+  const list = BackupListSchema.safeParse(data);
+  if (!list.success) {
     throw new Error('У файлі немає списку покупок');
   }
 
-  return list.map((item, index) => {
-    const h = item as Partial<Holding>;
-    const isin = typeof h.isin === 'string' ? h.isin.trim().toUpperCase() : '';
-    const valid =
-      /^[A-Z]{2}[A-Z0-9]{10}$/.test(isin) &&
-      typeof h.purchaseDate === 'string' &&
-      /^\d{4}-\d{2}-\d{2}$/.test(h.purchaseDate) &&
-      typeof h.amount === 'number' &&
-      h.amount > 0 &&
-      Number.isInteger(h.quantity) &&
-      (h.quantity ?? 0) > 0;
-    if (!valid) {
+  return list.data.map((item, index) => {
+    const holding = BackupHoldingSchema.safeParse(item);
+    if (!holding.success) {
       throw new Error(`Покупка №${index + 1} має некоректні дані`);
     }
-    return {
-      id: typeof h.id === 'string' && h.id ? h.id : `restored-${index}-${Date.now().toString(36)}`,
-      isin,
-      purchaseDate: h.purchaseDate!,
-      amount: h.amount!,
-      quantity: h.quantity!,
-    };
+    const { id, ...purchase } = holding.data;
+    return { ...purchase, id: id ?? `restored-${index}-${Date.now().toString(36)}` };
   });
 }
