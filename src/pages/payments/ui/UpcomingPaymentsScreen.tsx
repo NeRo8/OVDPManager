@@ -9,8 +9,18 @@ import { useUpcomingPayments } from '../model/useUpcomingPayments.hook';
 import { PaymentSectionList } from './PaymentSectionList';
 
 export default function UpcomingPaymentsScreen() {
-  const { holdingsCount, bonds, isFetching, error, refresh, upcoming, sections } =
-    useUpcomingPayments();
+  const {
+    holdingsCount,
+    bonds,
+    isFetching,
+    error,
+    refresh,
+    upcoming,
+    allCount,
+    sections,
+    activeFilterCount,
+  } = useUpcomingPayments();
+  const isFiltered = activeFilterCount > 0;
 
   if (holdingsCount === 0) {
     return (
@@ -38,12 +48,15 @@ export default function UpcomingPaymentsScreen() {
         <View style={styles.listHeader}>
           <StaleBondsNotice error={error} />
           <Typography variant="subhead" tone="secondary" align="center">
-            {upcoming.length}{' '}
-            {plural(upcoming.length, 'майбутня виплата', 'майбутні виплати', 'майбутніх виплат')}
+            {isFiltered
+              ? `Показано виплат: ${upcoming.length} із ${allCount}`
+              : `${upcoming.length} ${plural(upcoming.length, 'майбутня виплата', 'майбутні виплати', 'майбутніх виплат')}`}
           </Typography>
         </View>
       }
-      emptyMessage="Майбутніх виплат за вашими ОВДП немає."
+      emptyMessage={
+        isFiltered ? 'За цими фільтрами виплат немає.' : 'Майбутніх виплат за вашими ОВДП немає.'
+      }
       ListFooterComponent={<NbuSourceNote />}
     />
   );

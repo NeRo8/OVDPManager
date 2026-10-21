@@ -1,4 +1,4 @@
-import { differenceInCalendarDays, format, parseISO } from 'date-fns';
+import { addMonths, differenceInCalendarDays, format, parseISO } from 'date-fns';
 
 import { plural } from './format';
 
@@ -26,6 +26,11 @@ export function todayISO(): string {
 /** Local midnight of the calendar date. */
 export function fromISODate(isoDate: string): Date {
   return parseISO(isoDate);
+}
+
+/** The same day `months` later, clamped to the month's last day (31.01 + 1 → 28.02). */
+export function addMonthsISO(isoDate: string, months: number): string {
+  return toISODate(addMonths(parseISO(isoDate), months));
 }
 
 export function daysBetween(fromISO: string, toISO: string): number {

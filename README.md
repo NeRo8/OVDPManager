@@ -40,7 +40,7 @@ This app uses Unistyles and other native modules. Run it in a [development build
 | --------------------------------------------- | ----------------------------------------------------------------------- |
 | `src/app/`                                    | Thin routes; `_layout.tsx` files define the root stack and bottom tabs. |
 | `src/pages/`                                  | Screen UI and page-specific model hooks.                                |
-| `src/features/`                               | User actions: adding a bond and managing backups.                       |
+| `src/features/`                               | User actions: adding a bond, managing backups, filtering payments.      |
 | `src/entities/portfolio/`                     | Bond and holding models, local holdings, NBU bond data, and payment UI. |
 | `src/shared/api/`                             | Shared Axios client for the NBU API.                                    |
 | `src/shared/ui/`, `lib/`, `theme/`, `config/` | Reusable components, utilities, Unistyles theme, and app assets.        |

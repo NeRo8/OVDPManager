@@ -2,6 +2,8 @@ import { Tabs } from 'expo-router/js-tabs';
 import { SymbolView } from 'expo-symbols';
 import { useUnistyles } from 'react-native-unistyles';
 
+import { PaymentFiltersButton } from '@/pages/payments';
+
 export default function TabLayout() {
   // Navigator options are props, not styles, so the theme is read here.
   const { theme: colors } = useUnistyles();
@@ -21,6 +23,7 @@ export default function TabLayout() {
         options={{
           title: 'Майбутні виплати',
           tabBarLabel: 'Виплати',
+          headerRight: () => <PaymentFiltersButton />,
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={{ ios: 'calendar', android: 'calendar_month' }}

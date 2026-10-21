@@ -25,6 +25,20 @@ export default function RootLayout() {
             ),
           }}
         />
+        <Stack.Screen
+          name="payment-filters"
+          options={{
+            title: 'Фільтри виплат',
+            presentation: 'modal',
+            headerLeft: () => (
+              <HeaderButton
+                icon={{ ios: 'xmark', android: 'close' }}
+                accessibilityLabel="Закрити"
+                onPress={goBackOrHome}
+              />
+            ),
+          }}
+        />
         <Stack.Screen name="bond/[isin]" options={{ title: 'ОВДП' }} />
         <Stack.Screen name="backup/export" options={{ title: 'Створити копію' }} />
         <Stack.Screen name="backup/import" options={{ title: 'Відновити з копії' }} />
