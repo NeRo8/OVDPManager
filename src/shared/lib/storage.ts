@@ -1,14 +1,15 @@
-import Storage from 'expo-sqlite/kv-store';
+import { createMMKV } from 'react-native-mmkv';
+import type { StateStorage } from 'zustand/middleware';
 
-import type { SyncStringStorage } from './persistedStorage';
+const mmkv = createMMKV();
 
 /** Synchronous storage lets Zustand hydrate before the first screen renders. */
-export const sqliteStorage: SyncStringStorage = {
-  getItem: (key) => Storage.getItemSync(key),
+export const mmkvStorage: StateStorage = {
+  getItem: (key) => mmkv.getString(key) ?? null,
   setItem: (key, value) => {
-    Storage.setItemSync(key, value);
+    mmkv.set(key, value);
   },
   removeItem: (key) => {
-    Storage.removeItemSync(key);
+    mmkv.remove(key);
   },
 };

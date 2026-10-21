@@ -1,6 +1,6 @@
 # Кодова база OVDP Manager
 
-Це карта коду для мобільного застосунку Expo SDK 58 на iOS та Android. Маршрути працюють через Expo Router, тема — через Unistyles 3, HTTP-запити до НБУ — через Axios, а локальний стан — через Zustand з `persist`. Веб-платформу не налаштовано.
+Це карта коду для мобільного застосунку Expo SDK 58 на iOS та Android. Маршрути працюють через Expo Router, тема — через Unistyles 3, HTTP-запити до НБУ — через Axios, а локальний стан — через Zustand з `persist` поверх MMKV. Веб-платформу не налаштовано.
 
 ## Шари
 
@@ -20,7 +20,7 @@
 
 ## Дані та зберігання
 
-- Zustand `persist` використовує синхронний адаптер `expo-sqlite/kv-store` із `src/shared/lib/storage.ts`. `src/shared/lib/persistedStorage.ts` читає старий JSON і новий формат Zustand; ключі не змінені.
+- Zustand `persist` зберігає дані в `react-native-mmkv` через синхронний адаптер із `src/shared/lib/storage.ts`, обгорнутий у `createJSONStorage`. Міграцій зі старих сховищ немає: дані переносяться через резервну копію.
 - `src/entities/portfolio/model/holdings.store.ts` зберігає покупки під `holdings-v1`.
 - Дати всюди зберігаються й порівнюються як рядки `YYYY-MM-DD`, як їх віддає НБУ. `date-fns` використовується лише в `src/shared/lib/date.ts`: форматування, сьогоднішня дата, різниця в днях. Нову роботу з датами додавайте туди ж, у локальному часі.
 - `src/entities/portfolio/api/` завантажує каталог облігацій і графіки виплат НБУ через спільний Axios-клієнт; локальний кеш зберігається під `nbu-bonds-v1`.

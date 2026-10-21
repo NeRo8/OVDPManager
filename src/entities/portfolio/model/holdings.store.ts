@@ -1,44 +1,29 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 import type { Holding } from './ovdp';
-import { createPersistStorage, sqliteStorage } from '@/shared/lib';
+import { mmkvStorage } from '@/shared/lib';
 
 const STORAGE_KEY = 'holdings-v1';
 
 type HoldingsState = {
   holdings: Holding[];
+};
+
+type HoldingsActions = {
   setHoldings: (next: Holding[] | ((current: Holding[]) => Holding[])) => void;
 };
 
-function isHolding(value: unknown): value is Holding {
-  if (typeof value !== 'object' || value === null) return false;
-  const holding = value as Partial<Holding>;
-  return (
-    typeof holding.id === 'string' &&
-    typeof holding.isin === 'string' &&
-    typeof holding.purchaseDate === 'string' &&
-    typeof holding.amount === 'number' &&
-    Number.isFinite(holding.amount) &&
-    typeof holding.quantity === 'number' &&
-    Number.isFinite(holding.quantity)
-  );
-}
+type HoldingsStore = HoldingsState & HoldingsActions;
 
-function decodeHoldings(value: unknown): { holdings: Holding[] } | null {
-  if (typeof value !== 'object' || value === null || !('holdings' in value)) return null;
-  const { holdings } = value;
-  return Array.isArray(holdings) && holdings.every(isHolding) ? { holdings } : null;
-}
+const initState: HoldingsState = {
+  holdings: [],
+};
 
-function decodeLegacyHoldings(value: unknown): { holdings: Holding[] } | null {
-  return Array.isArray(value) && value.every(isHolding) ? { holdings: value } : null;
-}
-
-const useHoldingsStore = create<HoldingsState>()(
+const useHoldingsStore = create<HoldingsStore>()(
   persist(
     (set) => ({
-      holdings: [],
+      ...initState,
       setHoldings: (next) =>
         set((state) => ({
           holdings: typeof next === 'function' ? next(state.holdings) : next,
@@ -47,7 +32,7 @@ const useHoldingsStore = create<HoldingsState>()(
     {
       name: STORAGE_KEY,
       version: 1,
-      storage: createPersistStorage(sqliteStorage, decodeHoldings, decodeLegacyHoldings),
+      storage: createJSONStorage(() => mmkvStorage),
       partialize: ({ holdings }) => ({ holdings }),
     },
   ),
