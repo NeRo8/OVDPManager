@@ -11,17 +11,15 @@ const KINDS = {
   redemption: 'Погашення номіналу',
 } as const;
 
-/** A payment received, or a purchase (money paid) when the event is one. */
-export function PaymentRow({
-  payment,
-  showIsin,
-  showQuantity,
-}: {
+type Props = {
   payment: ScheduleEvent;
   showIsin?: boolean;
   /** For positions bought in several purchases, where the quantity differs between payments */
   showQuantity?: boolean;
-}) {
+};
+
+/** A payment received, or a purchase (money paid) when the event is one. */
+export function PaymentRow({ payment, showIsin, showQuantity }: Props) {
   const colors = useColors();
   // Same colors as the schedule chart; amounts take the text-contrast step of the hue.
   const series = {
