@@ -3,6 +3,7 @@ import { FlatList, Pressable, RefreshControl, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
+  Avatar,
   FAB_CLEARANCE,
   FloatingActionButton,
   SectionCell,
@@ -10,7 +11,7 @@ import {
   Typography,
   screenContent,
 } from '@/shared/ui';
-import { formatDate, formatMoney, plural } from '@/shared/lib';
+import { currencySign, formatDate, formatMoney, plural } from '@/shared/lib';
 import {
   NbuSourceNote,
   StaleBondsNotice,
@@ -48,23 +49,28 @@ export default function PortfolioScreen() {
                 accessibilityRole="link"
                 style={({ pressed }) => [styles.holding, pressed && styles.pressed]}
               >
-                <View style={styles.holdingTop}>
-                  <Typography variant="headline" tabular>
-                    {position.isin}
-                  </Typography>
-                  {bond && (
-                    <Typography variant="caption1" tone="secondary">
-                      {bond.rate}% · до {formatDate(bond.maturityDate)}
+                {/* Money invested: the purchase color of the schedule chart. */}
+                <Avatar label={currencySign(bond?.currency ?? 'UAH')} color="purchase" />
+                <View style={styles.holdingInfo}>
+                  <View style={styles.holdingTop}>
+                    <Typography variant="headline" tabular>
+                      {position.isin}
                     </Typography>
-                  )}
+                    {bond && (
+                      <Typography variant="caption1" tone="secondary">
+                        {bond.rate}% · до {formatDate(bond.maturityDate)}
+                      </Typography>
+                    )}
+                  </View>
+                  <Typography variant="caption1" tone="secondary">
+                    {position.quantity} шт · {formatMoney(position.amount, bond?.currency ?? 'UAH')}{' '}
+                    ·{' '}
+                    {position.lots.length === 1
+                      ? `куплено ${formatDate(position.lots[0].purchaseDate)}`
+                      : `${position.lots.length} ${plural(position.lots.length, 'покупка', 'покупки', 'покупок')}`}
+                  </Typography>
+                  <NextPaymentLine next={next} hasBond={!!bond} />
                 </View>
-                <Typography variant="caption1" tone="secondary">
-                  {position.quantity} шт · {formatMoney(position.amount, bond?.currency ?? 'UAH')} ·{' '}
-                  {position.lots.length === 1
-                    ? `куплено ${formatDate(position.lots[0].purchaseDate)}`
-                    : `${position.lots.length} ${plural(position.lots.length, 'покупка', 'покупки', 'покупок')}`}
-                </Typography>
-                <NextPaymentLine next={next} hasBond={!!bond} />
               </Pressable>
             </SectionCell>
           )}
@@ -114,7 +120,14 @@ const styles = StyleSheet.create((theme) => ({
   list: { backgroundColor: theme.background },
   listContent: { gap: 0, paddingBottom: FAB_CLEARANCE },
   listHeader: { gap: 24, marginBottom: 6 },
-  holding: { paddingHorizontal: 16, paddingVertical: 12, gap: 4 },
+  holding: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  holdingInfo: { flex: 1, gap: 4 },
   pressed: { backgroundColor: theme.muted },
   holdingTop: {
     flexDirection: 'row',
