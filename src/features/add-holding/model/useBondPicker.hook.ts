@@ -1,29 +1,81 @@
 import { useState } from 'react';
 
-import { CURRENCIES, type Bond, bondChoices, useWallet } from '@/entities/portfolio';
+import { CURRENCIES, type Bond, type Currency, bondChoices, useWallet } from '@/entities/portfolio';
+import { addMonthsISO } from '@/shared/lib';
 
-export type BondChoiceSection = {
-  key: string;
-  title: string;
-  data: Bond[];
-};
+/** Time left until maturity: up to a year, one to three years, longer. */
+export type BondTerm = 'all' | 'short' | 'medium' | 'long';
+export type BondSort = 'maturity' | 'rate';
 
-const CURRENCY_TITLES = { UAH: 'Гривневі', USD: 'Доларові', EUR: 'Євро' } as const;
+type FilterOption<T> = { value: T; count: number };
 
-/** The first step of adding a purchase: bonds to choose from, by currency, narrowed by ISIN. */
+function termOf(bond: Bond, today: string): Exclude<BondTerm, 'all'> {
+  if (bond.maturityDate <= addMonthsISO(today, 12)) return 'short';
+  if (bond.maturityDate <= addMonthsISO(today, 36)) return 'medium';
+  return 'long';
+}
+
+/**
+ * The first step of adding a purchase. Bonds in circulation are narrowed by currency and term and
+ * sorted by maturity or rate; a search by ISIN looks through every bond and sets the filters aside.
+ */
 export function useBondPicker() {
   const { bonds, error, refresh, today, positions } = useWallet();
   const [query, setQuery] = useState('');
+  const [chosenCurrency, setCurrency] = useState<Currency | null>(null);
+  const [term, setTerm] = useState<BondTerm>('all');
+  const [sort, setSort] = useState<BondSort>('maturity');
 
-  const choices = bonds ? bondChoices(bonds, query, today) : [];
-  const sections: BondChoiceSection[] = CURRENCIES.map((currency) => ({
-    key: currency,
-    title: CURRENCY_TITLES[currency],
-    data: choices.filter((bond) => bond.currency === currency),
-  })).filter((section) => section.data.length > 0);
+  const isSearching = query.trim().length > 0;
+  const inCirculation = bonds ? bondChoices(bonds, '', today) : [];
+  const currencies: FilterOption<Currency>[] = CURRENCIES.map((value) => ({
+    value,
+    count: inCirculation.filter((bond) => bond.currency === value).length,
+  })).filter((option) => option.count > 0);
+  const currency =
+    chosenCurrency && currencies.some((option) => option.value === chosenCurrency)
+      ? chosenCurrency
+      : (currencies[0]?.value ?? 'UAH');
+  const ofCurrency = inCirculation.filter((bond) => bond.currency === currency);
+  const terms: FilterOption<BondTerm>[] = (['all', 'short', 'medium', 'long'] as const).map(
+    (value) => ({
+      value,
+      count:
+        value === 'all'
+          ? ofCurrency.length
+          : ofCurrency.filter((bond) => termOf(bond, today) === value).length,
+    }),
+  );
+
+  const filtered = ofCurrency.filter((bond) => term === 'all' || termOf(bond, today) === term);
+  const sorted =
+    sort === 'rate'
+      ? [...filtered].sort(
+          (a, b) => b.rate - a.rate || a.maturityDate.localeCompare(b.maturityDate),
+        )
+      : filtered;
+  const choices = isSearching && bonds ? bondChoices(bonds, query, today) : sorted;
   const ownedQuantity = new Map(
     positions.map(({ position }) => [position.isin, position.quantity]),
   );
 
-  return { bonds, error, refresh, today, query, setQuery, sections, ownedQuantity };
+  return {
+    bonds,
+    error,
+    refresh,
+    today,
+    query,
+    setQuery,
+    isSearching,
+    currencies,
+    currency,
+    setCurrency,
+    terms,
+    term,
+    setTerm,
+    sort,
+    setSort,
+    choices,
+    ownedQuantity,
+  };
 }

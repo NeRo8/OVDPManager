@@ -12,4 +12,5 @@ export * from './chart/MonthChart';
 export * from './form/DateField';
 export * from './form/Input';
 export * from './form/SegmentedSelect';
+export * from './form/ChipSelect';
 export * from './navigation/TopTabs';

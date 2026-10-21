@@ -1,4 +1,10 @@
-import { addMonths, differenceInCalendarDays, format, parseISO } from 'date-fns';
+import {
+  addMonths,
+  differenceInCalendarDays,
+  differenceInMonths,
+  format,
+  parseISO,
+} from 'date-fns';
 
 import { plural } from './format';
 
@@ -42,4 +48,16 @@ export function formatDaysLeft(days: number): string {
   if (days === 1) return 'завтра';
   // A no-break space keeps "56 днів" on one line.
   return `через ${days}\u00a0${plural(days, 'день', 'дні', 'днів')}`;
+}
+
+/** How long until a date, in whole months: "2 р 3 міс", "8 міс", "12 днів" under a month. */
+export function formatTimeLeft(fromISO: string, toISO: string): string {
+  const months = differenceInMonths(parseISO(toISO), parseISO(fromISO));
+  if (months < 1) {
+    const days = daysBetween(fromISO, toISO);
+    return `${days}\u00a0${plural(days, 'день', 'дні', 'днів')}`;
+  }
+  const years = Math.floor(months / 12);
+  const rest = months % 12;
+  return [years > 0 && `${years}\u00a0р`, rest > 0 && `${rest}\u00a0міс`].filter(Boolean).join(' ');
 }

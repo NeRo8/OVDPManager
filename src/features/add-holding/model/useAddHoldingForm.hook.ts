@@ -1,4 +1,3 @@
-import { useNavigation } from 'expo-router';
 import { useMemo, useState } from 'react';
 
 import {
@@ -13,7 +12,6 @@ import { formatDate, parseAmount, round2 } from '@/shared/lib';
 /** The second step of adding a purchase: what was paid for the chosen bond, and when. */
 export function useAddHoldingForm(isin: string) {
   const { bonds, byIsin, error, refresh, today, positions } = useWallet();
-  const navigation = useNavigation();
 
   const [purchaseDate, setPurchaseDate] = useState(today);
   const [amountText, setAmountText] = useState('');
@@ -58,11 +56,11 @@ export function useAddHoldingForm(isin: string) {
   const canSave = !!bond && !dateProblem && amountValid && quantityValid;
   const currency = bond?.currency ?? 'UAH';
 
-  function save() {
-    if (!bond || !canSave) return;
+  /** Adds the purchase; false when the form cannot be saved yet. */
+  function save(): boolean {
+    if (!bond || !canSave) return false;
     addHolding({ isin: bond.isin, purchaseDate, amount: round2(amount), quantity });
-    // Closes the whole add flow, the bond list included, back to where it was opened.
-    navigation.getParent()?.goBack();
+    return true;
   }
 
   return {

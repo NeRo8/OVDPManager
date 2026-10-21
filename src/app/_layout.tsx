@@ -24,8 +24,9 @@ export default function RootLayout() {
     <ThemeProvider value={navigationTheme}>
       <Stack screenOptions={{ headerBackButtonDisplayMode: 'minimal' }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        {/* The add flow has its own stack and headers: bond list, then the purchase form. */}
-        <Stack.Screen name="add" options={{ presentation: 'modal', headerShown: false }} />
+        {/* Adding a purchase: choose a bond, then enter the purchase. */}
+        <Stack.Screen name="add/index" options={{ title: 'Оберіть ОВДП' }} />
+        <Stack.Screen name="add/[isin]" options={{ title: 'Додати ОВДП' }} />
         <Stack.Screen
           name="payment-filters"
           options={{

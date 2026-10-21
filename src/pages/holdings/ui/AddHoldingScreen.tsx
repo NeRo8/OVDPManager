@@ -1,11 +1,10 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
   DateField,
   Button,
   EmptyState,
-  HeaderButton,
   InfoRow,
   Input,
   Section,
@@ -15,11 +14,11 @@ import {
 } from '@/shared/ui';
 import { useAddHoldingForm } from '@/features/add-holding';
 import { BondParameters, BondsUnavailable } from '@/entities/portfolio';
-import { formatDate, formatMoney, goBackOrHome } from '@/shared/lib';
+import { formatDate, formatMoney } from '@/shared/lib';
 
 /**
  * Second step of adding a purchase: the date, amount and quantity for the chosen bond. A top-up
- * from the bond's screen opens here directly, so it brings its own close button.
+ * from the bond's screen opens here directly, without the bond list before it.
  */
 export default function AddHoldingScreen() {
   const { isin, topUp } = useLocalSearchParams<{ isin: string; topUp?: string }>();
@@ -49,15 +48,6 @@ export default function AddHoldingScreen() {
     <Stack.Screen
       options={{
         title: ownedQuantity > 0 ? 'Докупити ОВДП' : 'Додати ОВДП',
-        headerLeft: topUp
-          ? () => (
-              <HeaderButton
-                icon={{ ios: 'xmark', android: 'close' }}
-                accessibilityLabel="Скасувати"
-                onPress={goBackOrHome}
-              />
-            )
-          : undefined,
       }}
     />
   );
@@ -167,7 +157,14 @@ export default function AddHoldingScreen() {
         </Section>
       )}
 
-      <Button title="Зберегти" onPress={save} disabled={!canSave} />
+      <Button
+        title="Зберегти"
+        onPress={() => {
+          // Back to where adding started: past the bond list, or straight back for a top-up.
+          if (save()) router.dismiss(topUp ? 1 : 2);
+        }}
+        disabled={!canSave}
+      />
     </ScreenScrollView>
   );
 }
