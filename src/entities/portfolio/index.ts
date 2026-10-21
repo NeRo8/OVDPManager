@@ -6,4 +6,5 @@ export { useBonds } from './api/bonds.store';
 export { PaymentRow } from './ui/PaymentRow';
 export { BondsUnavailable, NbuSourceNote, StaleBondsNotice } from './ui/BondsStatus';
 export { BondParameters } from './ui/BondParameters';
+export { BondTerms } from './ui/BondTerms';
 export { WalletGate } from './ui/WalletGate';

@@ -1,6 +1,5 @@
 import { StyleSheet } from 'react-native-unistyles';
 
-import { BondParameters } from '@/entities/portfolio';
 import { formatMoney, round2 } from '@/shared/lib';
 import {
   Button,
@@ -14,7 +13,7 @@ import {
 import { useBondIsin } from '../model/useBondIsin.hook';
 import { useBondDetails } from '../model/useBondDetails.hook';
 
-/** The issue's terms, then what the position has cost and earned. */
+/** What the position has cost and earned; the issue's terms are in the screen's head. */
 export default function BondOverviewScreen() {
   const isin = useBondIsin();
   const {
@@ -33,14 +32,6 @@ export default function BondOverviewScreen() {
 
   return (
     <ScreenScrollView contentContainerStyle={canTopUp && styles.withFab}>
-      {bond ? (
-        <BondParameters bond={bond} />
-      ) : (
-        <Typography variant="subhead" align="center" tone="danger">
-          Цієї ОВДП немає в даних НБУ — параметри випуску й графік виплат недоступні.
-        </Typography>
-      )}
-
       <Section title="Підсумок">
         <InfoRow label="Кількість" value={`${position.quantity} шт`} />
         <Separator />
