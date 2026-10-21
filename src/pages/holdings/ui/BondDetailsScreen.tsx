@@ -140,7 +140,12 @@ export default function PositionScreen() {
       {canTopUp && (
         <FloatingActionButton
           accessibilityLabel={`Докупити ${position.isin}`}
-          onPress={() => router.push({ pathname: '/add', params: { isin: position.isin } })}
+          onPress={() =>
+            router.push({
+              pathname: '/add/[isin]',
+              params: { isin: position.isin, topUp: '1' },
+            })
+          }
         />
       )}
     </View>

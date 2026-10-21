@@ -11,20 +11,8 @@ export default function RootLayout() {
     <ThemeProvider value={rt.themeName === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack screenOptions={{ headerBackButtonDisplayMode: 'minimal' }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="add"
-          options={{
-            title: 'Додати ОВДП',
-            presentation: 'modal',
-            headerLeft: () => (
-              <HeaderButton
-                icon={{ ios: 'xmark', android: 'close' }}
-                accessibilityLabel="Скасувати"
-                onPress={goBackOrHome}
-              />
-            ),
-          }}
-        />
+        {/* The add flow has its own stack and headers: bond list, then the purchase form. */}
+        <Stack.Screen name="add" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen
           name="payment-filters"
           options={{

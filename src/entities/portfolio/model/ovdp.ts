@@ -75,19 +75,21 @@ export type PurchaseEvent = {
 /** What the schedule lists: payments received and purchases made. */
 export type ScheduleEvent = PositionPayment | PurchaseEvent;
 
-/** Bonds whose ISIN contains the query; active bonds first, then by maturity. */
-export function searchBonds(bonds: Bond[], query: string, today: string, limit = 20): Bond[] {
+/**
+ * Bonds to pick a purchase from. Without a query: those still in circulation. With one: every bond
+ * whose ISIN contains it, so a past purchase of a redeemed bond can be added too. Active bonds
+ * first, then by maturity.
+ */
+export function bondChoices(bonds: Bond[], query: string, today: string): Bond[] {
   const q = query.replace(/\s+/g, '').toUpperCase();
-  if (!q) return [];
   return bonds
-    .filter((b) => b.isin.includes(q))
+    .filter((b) => (q ? b.isin.includes(q) : b.maturityDate > today))
     .sort((a, b) => {
       const aActive = a.maturityDate >= today;
       const bActive = b.maturityDate >= today;
       if (aActive !== bActive) return aActive ? -1 : 1;
       return a.maturityDate.localeCompare(b.maturityDate);
-    })
-    .slice(0, limit);
+    });
 }
 
 /** Groups purchases by ISIN, keeping the order in which each ISIN was first added. */

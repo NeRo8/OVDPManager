@@ -1,37 +1,27 @@
+import { useNavigation } from 'expo-router';
 import { useMemo, useState } from 'react';
 
 import {
-  type Bond,
   addHolding,
   nextPayment,
   positionPayments,
-  searchBonds,
   sumTotals,
-  useBonds,
-  useHoldings,
+  useWallet,
 } from '@/entities/portfolio';
-import { formatDate, parseAmount, todayISO, round2, goBackOrHome } from '@/shared/lib';
+import { formatDate, parseAmount, round2 } from '@/shared/lib';
 
-export function useAddHoldingForm(topUpIsin?: string) {
-  const { bonds, byIsin, error, refresh } = useBonds();
-  const holdings = useHoldings();
-  const today = todayISO();
+/** The second step of adding a purchase: what was paid for the chosen bond, and when. */
+export function useAddHoldingForm(isin: string) {
+  const { bonds, byIsin, error, refresh, today, positions } = useWallet();
+  const navigation = useNavigation();
 
-  const [query, setQuery] = useState(topUpIsin ?? '');
-  const [selected, setSelected] = useState<Bond | null>(null);
   const [purchaseDate, setPurchaseDate] = useState(today);
   const [amountText, setAmountText] = useState('');
   const [quantityText, setQuantityText] = useState('');
 
-  const bond = selected ?? byIsin.get(query.trim().toUpperCase()) ?? null;
-  const matches = useMemo(
-    () => (bond || !bonds ? [] : searchBonds(bonds, query, today, 8)),
-    [bond, bonds, query, today],
-  );
-
-  const ownedQuantity = bond
-    ? holdings.filter((h) => h.isin === bond.isin).reduce((sum, h) => sum + h.quantity, 0)
-    : 0;
+  const bond = byIsin.get(isin) ?? null;
+  const ownedQuantity =
+    positions.find(({ position }) => position.isin === isin)?.position.quantity ?? 0;
   const amount = parseAmount(amountText);
   const quantity = Number(quantityText);
   const amountValid = Number.isFinite(amount) && amount > 0;
@@ -71,12 +61,8 @@ export function useAddHoldingForm(topUpIsin?: string) {
   function save() {
     if (!bond || !canSave) return;
     addHolding({ isin: bond.isin, purchaseDate, amount: round2(amount), quantity });
-    goBackOrHome();
-  }
-
-  function onChangeQuery(text: string) {
-    setQuery(text);
-    setSelected(null);
+    // Closes the whole add flow, the bond list included, back to where it was opened.
+    navigation.getParent()?.goBack();
   }
 
   return {
@@ -84,12 +70,7 @@ export function useAddHoldingForm(topUpIsin?: string) {
     error,
     refresh,
     today,
-    query,
-    selected,
-    setSelected,
-    onChangeQuery,
     bond,
-    matches,
     ownedQuantity,
     purchaseDate,
     setPurchaseDate,

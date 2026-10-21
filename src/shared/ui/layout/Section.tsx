@@ -96,20 +96,28 @@ export function InfoRow({ label, value }: InfoRowProps) {
 
 export type LinkRowProps = {
   title: string;
+  subtitle?: string;
   onPress: () => void;
 };
 
 /** A section row that opens another screen. */
-export function LinkRow({ title, onPress }: LinkRowProps) {
+export function LinkRow({ title, subtitle, onPress }: LinkRowProps) {
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="link"
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}
     >
-      <Typography variant="body" style={styles.linkTitle}>
-        {title}
-      </Typography>
+      <View style={styles.rowText}>
+        <Typography variant="body" tabular>
+          {title}
+        </Typography>
+        {subtitle && (
+          <Typography variant="caption1" tone="secondary">
+            {subtitle}
+          </Typography>
+        )}
+      </View>
       <ThemedSymbolView
         name={{ ios: 'chevron.right', android: 'chevron_right' }}
         size={14}
@@ -159,7 +167,7 @@ export function CheckRow({ title, subtitle, checked, onPress }: CheckRowProps) {
       accessibilityState={{ checked }}
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}
     >
-      <View style={styles.checkText}>
+      <View style={styles.rowText}>
         <Typography variant="body" tabular>
           {title}
         </Typography>
@@ -206,8 +214,7 @@ const styles = StyleSheet.create((theme) => ({
     minHeight: 48,
   },
   value: { flexShrink: 1, textAlign: 'right' },
-  linkTitle: { flexShrink: 1 },
-  checkText: { flexShrink: 1, gap: 2 },
+  rowText: { flexShrink: 1, gap: 2 },
   pressed: { backgroundColor: theme.muted },
   disabled: { opacity: 0.4 },
 }));
