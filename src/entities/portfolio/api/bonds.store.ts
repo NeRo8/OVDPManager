@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import type { Bond } from '../model/portfolio';
 import { fetchBonds } from './nbuBonds';
-import { mmkvStorage } from '@/shared/lib';
+import { mmkvStorage, showToast } from '@/shared/lib';
 
 const CACHE_KEY = 'nbu-bonds-v1';
 /** The NBU list changes only when new bonds are issued, so a few hours of staleness is fine. */
@@ -42,11 +42,18 @@ async function refreshBonds(): Promise<void> {
     useBondsCacheStore.setState({ bonds, updatedAt });
     useBondsRequestStore.setState({ isFetching: false });
   } catch (error) {
-    useBondsRequestStore.setState({
-      isFetching: false,
-      // NbuError from the client, or a malformed response from fetchBonds: both carry a ready message.
-      error: error instanceof Error ? error.message : 'Не вдалося завантажити дані НБУ',
-    });
+    // NbuError from the client, or a malformed response from fetchBonds: both carry a ready message.
+    const message = error instanceof Error ? error.message : 'Не вдалося завантажити дані НБУ';
+    useBondsRequestStore.setState({ isFetching: false, error: message });
+    // Without cached bonds the screens show the error full-screen with a retry, so no toast then.
+    if (useBondsCacheStore.getState().bonds) {
+      showToast({
+        tone: 'error',
+        title: 'Не вдалося оновити дані НБУ',
+        message: `${message}. Показано збережені дані.`,
+        action: { label: 'Повторити', onPress: () => void refreshBonds() },
+      });
+    }
   }
 }
 
