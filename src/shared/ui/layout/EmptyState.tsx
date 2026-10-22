@@ -31,9 +31,9 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 32,
-    gap: 8,
+    padding: theme.space.xxl,
+    gap: theme.space.sm,
     backgroundColor: theme.background,
   },
-  actions: { width: '100%', maxWidth: 400, gap: 8, marginTop: 8 },
+  actions: { width: '100%', maxWidth: 400, gap: theme.space.sm, marginTop: theme.space.sm },
 }));

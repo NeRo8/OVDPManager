@@ -26,7 +26,7 @@ export function LegendRow({ color, label, value }: LegendRowProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  legendRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+const styles = StyleSheet.create((theme) => ({
+  legendRow: { flexDirection: 'row', alignItems: 'center', gap: theme.space.sm },
   legendLabel: { flex: 1 },
-});
+}));

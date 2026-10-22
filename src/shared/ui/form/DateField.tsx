@@ -49,9 +49,9 @@ export function DateField({ value, onChange, maximumDate }: Props) {
 const styles = StyleSheet.create((theme) => ({
   iosPicker: { alignSelf: 'flex-end' },
   button: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingHorizontal: theme.space.md,
+    paddingVertical: theme.space.sm,
+    borderRadius: theme.radius.sm,
     borderCurve: 'continuous',
     backgroundColor: theme.muted,
   },

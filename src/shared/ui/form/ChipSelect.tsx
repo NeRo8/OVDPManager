@@ -41,8 +41,8 @@ export function ChipSelect<T extends string | number>({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   // Out to the screen edges, so chips scroll under them instead of being cut at the padding.
-  row: { marginHorizontal: -16, flexGrow: 0 },
-  rowContent: { paddingHorizontal: 16, gap: 8 },
-});
+  row: { marginHorizontal: -theme.space.lg, flexGrow: 0 },
+  rowContent: { paddingHorizontal: theme.space.lg, gap: theme.space.sm },
+}));

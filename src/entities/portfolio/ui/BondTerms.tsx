@@ -48,7 +48,7 @@ export function BondTerms({ bond }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  grid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 10 },
-  term: { width: '33.33%', gap: 2, paddingRight: 8 },
-});
+const styles = StyleSheet.create((theme) => ({
+  grid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: theme.space.md },
+  term: { width: '33.33%', gap: theme.space.xxs, paddingRight: theme.space.sm },
+}));

@@ -38,6 +38,6 @@ export default function UpcomingPaymentsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  listHeader: { gap: 18, marginBottom: 6 },
-});
+const styles = StyleSheet.create((theme) => ({
+  listHeader: { gap: theme.space.lg, marginBottom: theme.space.sm },
+}));

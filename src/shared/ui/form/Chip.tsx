@@ -43,15 +43,14 @@ const styles = StyleSheet.create((theme) => ({
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: theme.space.xs,
     height: 34,
-    paddingHorizontal: 14,
-    borderRadius: 17,
-    borderCurve: 'continuous',
+    paddingHorizontal: theme.space.md,
+    borderRadius: theme.radius.full,
     variants: {
       selected: {
         true: { backgroundColor: theme.accent },
-        false: { backgroundColor: theme.card },
+        false: { backgroundColor: theme.card, boxShadow: theme.shadowCard },
       },
     },
   },

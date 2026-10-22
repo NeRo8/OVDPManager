@@ -22,8 +22,8 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 32,
-    gap: 8,
+    padding: theme.space.xxl,
+    gap: theme.space.sm,
     backgroundColor: theme.background,
   },
 }));

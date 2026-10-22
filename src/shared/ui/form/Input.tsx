@@ -57,23 +57,23 @@ const styles = StyleSheet.create((theme) => ({
       variant: {
         field: {
           ...typography.body,
-          paddingHorizontal: 16,
-          paddingVertical: 14,
+          paddingHorizontal: theme.space.lg,
+          paddingVertical: theme.space.md,
           fontVariant: ['tabular-nums'],
         },
         inline: {
           ...typography.body,
           textAlign: 'right',
           minWidth: 80,
-          paddingVertical: 4,
+          paddingVertical: theme.space.xs,
           fontVariant: ['tabular-nums'],
         },
         area: {
           ...typography.caption1,
           fontFamily: 'monospace',
           minHeight: 120,
-          paddingHorizontal: 16,
-          paddingVertical: 12,
+          paddingHorizontal: theme.space.lg,
+          paddingVertical: theme.space.md,
           textAlignVertical: 'top',
         },
       },

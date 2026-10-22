@@ -4,11 +4,12 @@ import { use } from 'react';
 import { Pressable, type StyleProp, type ViewStyle } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
+import { space } from '@/shared/theme';
 import { Typography } from '../typography/Typography';
 import { ThemedSymbolView } from './ThemedSymbolView';
 
 const SIZE = 56;
-const MARGIN = 16;
+const MARGIN = space.lg;
 
 /** Bottom padding a scrolling screen needs so the button never covers its last row. */
 export const FAB_CLEARANCE = SIZE + MARGIN * 2;
@@ -47,10 +48,10 @@ export function FloatingActionButton({
       <ThemedSymbolView
         name={icon}
         size={24}
-        uniProps={(theme) => ({ tintColor: theme.accentText })}
+        uniProps={(theme) => ({ tintColor: theme.fabText })}
       />
       {label && (
-        <Typography variant="headline" tone="onAccent">
+        <Typography variant="headline" style={styles.label}>
           {label}
         </Typography>
       )}
@@ -63,23 +64,25 @@ const styles = StyleSheet.create((theme, rt) => ({
     position: 'absolute',
     right: MARGIN + rt.insets.right,
     height: SIZE,
-    borderRadius: SIZE / 2,
+    borderRadius: theme.radius.full,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    backgroundColor: theme.accent,
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+    gap: theme.space.sm,
+    backgroundColor: theme.fab,
+    boxShadow: theme.shadowRaised,
     variants: {
       aboveTabBar: {
         true: { bottom: MARGIN },
         false: { bottom: MARGIN + rt.insets.bottom },
       },
       extended: {
-        true: { paddingLeft: 16, paddingRight: 20 },
+        // The extra right padding balances the glyph's optical weight on the left.
+        true: { paddingLeft: theme.space.lg, paddingRight: theme.space.lg + theme.space.xs },
         false: { width: SIZE },
       },
     },
   },
+  label: { color: theme.fabText },
   pressed: { opacity: 0.8 },
 }));

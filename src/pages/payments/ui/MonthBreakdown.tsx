@@ -79,8 +79,9 @@ export function MonthBreakdown({ schedule }: ScheduleProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  section: { gap: 6 },
-  separator: { marginLeft: -16, marginVertical: 12 },
-  monthRows: { gap: 6, marginTop: 6 },
-});
+const styles = StyleSheet.create((theme) => ({
+  section: { gap: theme.space.sm },
+  // Cancels the separator's own inset, so the line runs the card's full width.
+  separator: { marginLeft: -theme.space.lg, marginVertical: theme.space.md },
+  monthRows: { gap: theme.space.sm, marginTop: theme.space.sm },
+}));

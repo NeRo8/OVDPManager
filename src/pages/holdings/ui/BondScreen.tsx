@@ -160,17 +160,17 @@ export default function BondScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   screen: { flex: 1 },
   withFab: { paddingBottom: FAB_CLEARANCE },
   purchase: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    gap: theme.space.md,
+    paddingHorizontal: theme.space.lg,
+    paddingVertical: theme.space.md,
   },
-  purchaseInfo: { flex: 1, gap: 2 },
+  purchaseInfo: { flex: 1, gap: theme.space.xxs },
   pressed: { opacity: 0.5 },
-  empty: { padding: 16 },
-});
+  empty: { padding: theme.space.lg },
+}));

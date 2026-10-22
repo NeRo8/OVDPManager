@@ -15,7 +15,9 @@ export function Section({ title, footer, children }: SectionProps) {
   return (
     <View style={styles.section}>
       {title && <SectionTitle title={title} />}
-      <View style={styles.card}>{children}</View>
+      <View style={styles.card}>
+        <View style={styles.clip}>{children}</View>
+      </View>
       {footer && (
         <Typography variant="caption1" tone="secondary" style={styles.sectionFooter}>
           {footer}
@@ -26,12 +28,14 @@ export function Section({ title, footer, children }: SectionProps) {
 }
 
 const styles = StyleSheet.create((theme) => ({
-  section: { gap: 6 },
-  sectionFooter: { lineHeight: 18, marginHorizontal: 16 },
+  section: { gap: theme.space.sm },
+  sectionFooter: { lineHeight: 18, marginHorizontal: theme.space.lg },
+  // The shadow and the clipping sit on separate views, so the clip cannot cut the shadow off.
   card: {
-    borderRadius: 12,
+    borderRadius: theme.radius.md,
     borderCurve: 'continuous',
-    overflow: 'hidden',
     backgroundColor: theme.card,
+    boxShadow: theme.shadowCard,
   },
+  clip: { borderRadius: theme.radius.md, borderCurve: 'continuous', overflow: 'hidden' },
 }));

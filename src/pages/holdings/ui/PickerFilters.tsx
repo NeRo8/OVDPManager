@@ -43,6 +43,6 @@ export function PickerFilters({ picker }: PickerFiltersProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  filters: { gap: 10 },
-});
+const styles = StyleSheet.create((theme) => ({
+  filters: { gap: theme.space.sm },
+}));

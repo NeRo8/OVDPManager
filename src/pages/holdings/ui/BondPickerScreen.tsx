@@ -82,12 +82,12 @@ export default function BondPickerScreen() {
 const styles = StyleSheet.create((theme) => ({
   list: { backgroundColor: theme.background },
   content: { gap: 0 },
-  header: { gap: 14, marginBottom: 12 },
+  header: { gap: theme.space.md, marginBottom: theme.space.md },
   summary: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    paddingHorizontal: theme.space.lg,
   },
-  empty: { marginTop: 28 },
+  empty: { marginTop: theme.space.xl },
 }));

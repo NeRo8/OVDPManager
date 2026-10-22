@@ -28,11 +28,12 @@ export function Tile({ label, value, children }: TileProps) {
 const styles = StyleSheet.create((theme) => ({
   tile: {
     flex: 1,
-    borderRadius: 12,
+    borderRadius: theme.radius.md,
     borderCurve: 'continuous',
-    padding: 14,
-    gap: 2,
+    boxShadow: theme.shadowCard,
+    padding: theme.space.lg,
+    gap: theme.space.xxs,
     backgroundColor: theme.card,
   },
-  tileDetails: { gap: 6, marginTop: 8 },
+  tileDetails: { gap: theme.space.sm, marginTop: theme.space.sm },
 }));

@@ -16,7 +16,7 @@ const styles = StyleSheet.create((theme) => ({
   swatch: (color: SeriesColor) => ({
     width: 10,
     height: 10,
-    borderRadius: 3,
+    borderRadius: theme.radius.xs,
     backgroundColor: theme[SERIES_COLORS[color].mark],
   }),
 }));

@@ -89,6 +89,6 @@ export default function PlanNameScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  intro: { marginHorizontal: 16 },
-});
+const styles = StyleSheet.create((theme) => ({
+  intro: { marginHorizontal: theme.space.lg },
+}));

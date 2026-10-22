@@ -37,14 +37,14 @@ export function PlanEventRow({ event }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   row: {
     flexDirection: 'row',
-    gap: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    gap: theme.space.md,
+    paddingHorizontal: theme.space.lg,
+    paddingVertical: theme.space.md,
     alignItems: 'center',
   },
-  details: { flex: 1, gap: 2 },
-  amount: { gap: 2 },
-});
+  details: { flex: 1, gap: theme.space.xxs },
+  amount: { gap: theme.space.xxs },
+}));

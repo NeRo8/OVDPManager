@@ -215,9 +215,9 @@ export function MonthChart({ series, currency, selected, onSelect }: Props) {
 }
 
 const styles = StyleSheet.create((theme) => ({
-  chart: { flexDirection: 'row', paddingTop: LABEL_SPACE, paddingRight: 4 },
+  chart: { flexDirection: 'row', paddingTop: LABEL_SPACE, paddingRight: theme.space.xs },
   axis: { width: AXIS_WIDTH },
-  tick: { position: 'absolute', right: 6 },
+  tick: { position: 'absolute', right: theme.space.xs },
   plotColumn: { flex: 1 },
   gridline: {
     position: 'absolute',
@@ -237,12 +237,12 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme[SERIES_COLORS[color].mark],
   }),
   // Rounded data ends away from the baseline; the baseline side stays square.
-  upEnd: { borderTopLeftRadius: 4, borderTopRightRadius: 4 },
-  downEnd: { borderBottomLeftRadius: 4, borderBottomRightRadius: 4 },
+  upEnd: { borderTopLeftRadius: theme.radius.xs, borderTopRightRadius: theme.radius.xs },
+  downEnd: { borderBottomLeftRadius: theme.radius.xs, borderBottomRightRadius: theme.radius.xs },
   valueBox: { position: 'absolute', width: VALUE_WIDTH },
   valueStart: { left: 0 },
   valueEnd: { right: 0 },
-  months: { flexDirection: 'row', marginTop: 6 },
+  months: { flexDirection: 'row', marginTop: theme.space.sm },
   // Room for the selected month's money-out label under the lowest column.
   monthsBelowLabel: { marginTop: LABEL_SPACE },
   month: { flex: 1 },

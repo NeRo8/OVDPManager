@@ -6,5 +6,9 @@ export function Separator() {
 }
 
 const styles = StyleSheet.create((theme) => ({
-  separator: { height: StyleSheet.hairlineWidth, marginLeft: 16, backgroundColor: theme.border },
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    marginLeft: theme.space.lg,
+    backgroundColor: theme.border,
+  },
 }));

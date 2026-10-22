@@ -126,6 +126,6 @@ export default function PaymentFiltersScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  picker: { padding: 12 },
-});
+const styles = StyleSheet.create((theme) => ({
+  picker: { padding: theme.space.md },
+}));

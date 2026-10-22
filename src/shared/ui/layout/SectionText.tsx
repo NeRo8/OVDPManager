@@ -16,6 +16,6 @@ export function SectionText({ children }: SectionTextProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  text: { paddingHorizontal: 16, paddingVertical: 14, lineHeight: 21 },
-});
+const styles = StyleSheet.create((theme) => ({
+  text: { paddingHorizontal: theme.space.lg, paddingVertical: theme.space.md, lineHeight: 21 },
+}));

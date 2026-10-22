@@ -43,15 +43,18 @@ const styles = StyleSheet.create((theme) => ({
   pressed: { opacity: 0.7 },
   disabled: { opacity: 0.4 },
   button: {
-    paddingVertical: 14,
-    borderRadius: 12,
+    minHeight: 50,
+    paddingVertical: theme.space.md,
+    borderRadius: theme.radius.md,
     borderCurve: 'continuous',
     alignItems: 'center',
+    justifyContent: 'center',
     variants: {
       variant: {
         primary: { backgroundColor: theme.accent },
-        secondary: { backgroundColor: theme.card },
-        destructive: { backgroundColor: theme.card },
+        // Card-colored buttons lift off the background like the cards around them.
+        secondary: { backgroundColor: theme.card, boxShadow: theme.shadowCard },
+        destructive: { backgroundColor: theme.card, boxShadow: theme.shadowCard },
       },
     },
   },

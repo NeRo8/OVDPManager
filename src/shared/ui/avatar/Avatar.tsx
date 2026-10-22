@@ -31,7 +31,7 @@ const styles = StyleSheet.create((theme) => ({
   avatar: (color: SeriesColor) => ({
     width: SIZE,
     height: SIZE,
-    borderRadius: SIZE / 2,
+    borderRadius: theme.radius.full,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: theme[SERIES_COLORS[color].text],

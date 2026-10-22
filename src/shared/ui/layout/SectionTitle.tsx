@@ -13,6 +13,6 @@ export function SectionTitle({ title }: SectionTitleProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  sectionTitle: { marginHorizontal: 16 },
-});
+const styles = StyleSheet.create((theme) => ({
+  sectionTitle: { marginHorizontal: theme.space.lg },
+}));

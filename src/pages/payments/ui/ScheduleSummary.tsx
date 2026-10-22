@@ -15,6 +15,6 @@ export function ScheduleSummary({ schedule }: ScheduleProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  summary: { gap: 24 },
-});
+const styles = StyleSheet.create((theme) => ({
+  summary: { gap: theme.space.xl },
+}));

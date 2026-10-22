@@ -34,6 +34,6 @@ export function NextPaymentLine({ nextPayment, hasBond }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  nextLine: { marginTop: 2 },
-});
+const styles = StyleSheet.create((theme) => ({
+  nextLine: { marginTop: theme.space.xxs },
+}));

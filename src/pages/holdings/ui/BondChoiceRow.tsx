@@ -60,11 +60,11 @@ const styles = StyleSheet.create((theme) => ({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    gap: theme.space.md,
+    paddingHorizontal: theme.space.lg,
+    paddingVertical: theme.space.md,
     minHeight: 56,
   },
-  rowText: { flex: 1, gap: 2 },
+  rowText: { flex: 1, gap: theme.space.xxs },
   pressed: { backgroundColor: theme.muted },
 }));

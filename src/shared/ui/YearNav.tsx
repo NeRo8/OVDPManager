@@ -34,7 +34,12 @@ export function YearNav({ year, min, max, onChange }: YearNavProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  nav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 24 },
+const styles = StyleSheet.create((theme) => ({
+  nav: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.space.xl,
+  },
   year: { minWidth: 72 },
-});
+}));

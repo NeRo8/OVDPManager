@@ -53,13 +53,13 @@ export function ScheduleSectionList({ emptyMessage, ...props }: Props) {
 const styles = StyleSheet.create((theme) => ({
   list: { backgroundColor: theme.background },
   content: { gap: 0 },
-  empty: { marginTop: 28 },
+  empty: { marginTop: theme.space.xl },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginHorizontal: 16,
-    marginTop: 24,
-    marginBottom: 6,
-    gap: 2,
+    marginHorizontal: theme.space.lg,
+    marginTop: theme.space.xl,
+    marginBottom: theme.space.sm,
+    gap: theme.space.xxs,
   },
 }));

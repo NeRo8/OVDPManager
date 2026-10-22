@@ -79,8 +79,13 @@ export function YearTotals({ schedule }: ScheduleProps) {
 }
 
 const styles = StyleSheet.create((theme) => ({
-  tiles: { flexDirection: 'row', gap: 12 },
-  progress: { gap: 4, marginTop: 2 },
-  track: { height: 4, borderRadius: 2, overflow: 'hidden', backgroundColor: theme.border },
-  fill: { height: '100%', borderRadius: 2, backgroundColor: theme.accent },
+  tiles: { flexDirection: 'row', gap: theme.space.md },
+  progress: { gap: theme.space.xs, marginTop: theme.space.xxs },
+  track: {
+    height: 4,
+    borderRadius: theme.radius.full,
+    overflow: 'hidden',
+    backgroundColor: theme.border,
+  },
+  fill: { height: '100%', borderRadius: theme.radius.full, backgroundColor: theme.accent },
 }));

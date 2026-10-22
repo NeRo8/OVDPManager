@@ -206,7 +206,7 @@ export default function PlanFormScreen({ mode }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   input: { minWidth: 110 },
-  message: { marginHorizontal: 16 },
-});
+  message: { marginHorizontal: theme.space.lg },
+}));

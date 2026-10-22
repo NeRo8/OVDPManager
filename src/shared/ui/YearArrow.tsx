@@ -34,7 +34,7 @@ const styles = StyleSheet.create((theme) => ({
   arrow: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: theme.radius.full,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: theme.card,

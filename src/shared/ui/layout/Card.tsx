@@ -13,10 +13,11 @@ export function Card({ children }: Props) {
 
 const styles = StyleSheet.create((theme) => ({
   card: {
-    borderRadius: 12,
+    borderRadius: theme.radius.md,
     borderCurve: 'continuous',
-    padding: 16,
-    gap: 4,
+    boxShadow: theme.shadowCard,
+    padding: theme.space.lg,
+    gap: theme.space.xs,
     backgroundColor: theme.card,
   },
 }));

@@ -11,6 +11,6 @@ export function NbuSourceNote() {
   );
 }
 
-const styles = StyleSheet.create({
-  source: { marginTop: 24 },
-});
+const styles = StyleSheet.create((theme) => ({
+  source: { marginTop: theme.space.xl },
+}));

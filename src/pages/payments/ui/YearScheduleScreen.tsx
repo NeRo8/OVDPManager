@@ -52,6 +52,6 @@ export default function YearScheduleScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  listHeader: { gap: 24 },
-});
+const styles = StyleSheet.create((theme) => ({
+  listHeader: { gap: theme.space.xl },
+}));

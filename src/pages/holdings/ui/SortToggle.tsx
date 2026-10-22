@@ -37,7 +37,7 @@ export function SortToggle({ sort, onChange }: SortToggleProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  sort: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+const styles = StyleSheet.create((theme) => ({
+  sort: { flexDirection: 'row', alignItems: 'center', gap: theme.space.xs },
   sortPressed: { opacity: 0.6 },
-});
+}));

@@ -74,6 +74,6 @@ export default function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  themePicker: { padding: 12 },
-});
+const styles = StyleSheet.create((theme) => ({
+  themePicker: { padding: theme.space.md },
+}));

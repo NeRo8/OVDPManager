@@ -48,21 +48,25 @@ export function SegmentedSelect<T extends string | number>({
 }
 
 const styles = StyleSheet.create((theme) => ({
-  group: { flexDirection: 'row', borderRadius: 10, padding: 3, backgroundColor: theme.muted },
+  // Track and thumb radii stay concentric: md = sm + the track's xs padding.
+  group: {
+    flexDirection: 'row',
+    borderRadius: theme.radius.md,
+    padding: theme.space.xs,
+    backgroundColor: theme.muted,
+  },
   option: {
     flex: 1,
     minHeight: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 8,
-    paddingHorizontal: 8,
+    borderRadius: theme.radius.sm,
+    borderCurve: 'continuous',
+    paddingHorizontal: theme.space.sm,
   },
   selected: {
     backgroundColor: theme.card,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
+    boxShadow: theme.shadowCard,
   },
   pressed: { opacity: 0.7 },
 }));

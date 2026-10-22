@@ -306,17 +306,17 @@ export default function PlanScreen() {
 
 const styles = StyleSheet.create((theme) => ({
   screen: { flex: 1 },
-  content: { gap: 20, paddingBottom: FAB_CLEARANCE },
-  intro: { marginHorizontal: 16 },
+  content: { gap: theme.space.xl, paddingBottom: FAB_CLEARANCE },
+  intro: { marginHorizontal: theme.space.lg },
   purchase: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    gap: theme.space.md,
+    paddingHorizontal: theme.space.lg,
+    paddingVertical: theme.space.md,
   },
-  purchaseText: { flex: 1, gap: 2 },
+  purchaseText: { flex: 1, gap: theme.space.xxs },
   pressed: { backgroundColor: theme.muted },
-  chartSection: { gap: 12 },
-  monthDetails: { gap: 8, marginTop: 12 },
+  chartSection: { gap: theme.space.md },
+  monthDetails: { gap: theme.space.sm, marginTop: theme.space.md },
 }));
