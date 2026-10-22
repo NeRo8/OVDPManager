@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { purchaseCount, useBackupActions } from '@/features/backup';
+import { planCount, purchaseCount, useBackupActions } from '@/features/backup';
 import { setThemePreference, useThemePreference, type ThemePreference } from '@/shared/theme';
 import {
   ActionRow,
@@ -20,19 +20,20 @@ const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
 ];
 
 export default function SettingsScreen() {
-  const { numberOfPurchases, isBusy, exportBackup, saveMock, loadMock } = useBackupActions();
+  const { numberOfPurchases, numberOfPlans, isBusy, exportBackup, saveMock, loadMock } =
+    useBackupActions();
   const themePreference = useThemePreference();
 
   return (
     <ScreenScrollView>
       <Section
         title="Дані"
-        footer={`У гаманці ${purchaseCount(numberOfPurchases)}. Дані зберігаються на цьому пристрої; копія у JSON-файлі дає змогу відновити їх тут чи на іншому пристрої.`}
+        footer={`У гаманці ${purchaseCount(numberOfPurchases)}, створено ${planCount(numberOfPlans)}. Дані зберігаються на цьому пристрої; копія у JSON-файлі дає змогу відновити їх тут чи на іншому пристрої.`}
       >
         <ActionRow
           title="Створити копію"
           onPress={exportBackup}
-          disabled={isBusy || numberOfPurchases === 0}
+          disabled={isBusy || (numberOfPurchases === 0 && numberOfPlans === 0)}
         />
         <Separator />
         <LinkRow title="Відновити з копії" onPress={() => router.push('/backup/import')} />
@@ -43,7 +44,7 @@ export default function SettingsScreen() {
           <ActionRow
             title="Зберегти дані як мок"
             onPress={saveMock}
-            disabled={isBusy || numberOfPurchases === 0}
+            disabled={isBusy || (numberOfPurchases === 0 && numberOfPlans === 0)}
           />
           <Separator />
           <ActionRow title="Завантажити мок" onPress={loadMock} disabled={isBusy} />

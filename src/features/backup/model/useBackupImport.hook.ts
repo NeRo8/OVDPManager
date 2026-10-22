@@ -1,17 +1,18 @@
 import { useState } from 'react';
 
-import { usePurchases } from '@/entities/portfolio';
+import { useInvestmentPlans, usePurchases } from '@/entities/portfolio';
 import { pickBackupFile } from '../api/backupFile';
 import { type BackupStatus, errorStatus, parseBackup, replaceWithBackup } from './backup';
 
 export function useBackupImport() {
   const purchases = usePurchases();
+  const plans = useInvestmentPlans();
   const [pasted, setPasted] = useState('');
   const [status, setStatus] = useState<BackupStatus | null>(null);
 
   function restore(text: string, source: string) {
     try {
-      replaceWithBackup(parseBackup(text), purchases.length, source, (replaced) => {
+      replaceWithBackup(parseBackup(text), purchases.length, plans.length, source, (replaced) => {
         setPasted('');
         setStatus(replaced);
       });

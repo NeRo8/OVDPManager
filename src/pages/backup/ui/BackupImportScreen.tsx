@@ -10,7 +10,7 @@ export default function BackupImportScreen() {
       <StatusMessage status={status} />
       <Section
         title="Відновити з копії"
-        footer="Поточні дані гаманця буде замінено даними з копії."
+        footer="Поточні дані гаманця буде замінено даними з копії. Якщо копія містить плани, вони теж будуть замінені."
       >
         <Button title="Вибрати JSON-файл копії…" onPress={restoreFromFile} />
       </Section>
