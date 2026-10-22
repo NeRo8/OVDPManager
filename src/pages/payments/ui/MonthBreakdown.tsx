@@ -24,6 +24,7 @@ export function MonthBreakdown({ schedule }: ScheduleProps) {
     selectedMonth,
     setChosenMonth,
   } = schedule;
+  if (!currency) return null;
   const series: ChartSeries[] = [
     { label: 'Купони', color: 'coupon', values: monthlyCoupons },
     { label: 'Номінал', color: 'nominal', values: monthlyRedemptions },

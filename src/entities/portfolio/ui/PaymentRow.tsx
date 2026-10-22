@@ -55,7 +55,7 @@ export function PaymentRow({ payment, showIsin, showQuantity }: Props) {
 
   return (
     <View style={[styles.row, isPaid && styles.paid]}>
-      <Avatar label={currencySign(payment.currency)} color={series} />
+      <Avatar label={payment.currency ? currencySign(payment.currency) : '?'} color={series} />
       <View style={styles.paymentLeft}>
         {showIsin && (
           <Typography variant="callout" weight="semibold">

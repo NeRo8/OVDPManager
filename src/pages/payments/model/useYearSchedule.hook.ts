@@ -33,9 +33,9 @@ export function useYearSchedule({ wallet, filters }: FilteredWallet) {
   const year = chosenYear ?? Math.min(Math.max(currentYear, firstYear), lastYear);
   const yearPayments = payments.filter((payment) => yearOf(payment) === year);
   const yearEvents = [...yearPayments, ...purchases.filter((p) => yearOf(p) === year)];
-  const currencies = [...new Set(yearEvents.map((event) => event.currency))].sort(
-    (a, b) => CURRENCIES.indexOf(a) - CURRENCIES.indexOf(b),
-  );
+  const currencies = [...new Set(yearEvents.map((event) => event.currency))]
+    .filter((currency): currency is Currency => currency !== null)
+    .sort((a, b) => CURRENCIES.indexOf(a) - CURRENCIES.indexOf(b));
   // The chart has one money scale, so a year in several currencies shows one at a time.
   const currency =
     chosenCurrency && currencies.includes(chosenCurrency) ? chosenCurrency : currencies[0];
@@ -48,6 +48,9 @@ export function useYearSchedule({ wallet, filters }: FilteredWallet) {
   );
   const yearPurchases = purchases.filter(
     (purchase) => yearOf(purchase) === year && purchase.currency === currency,
+  );
+  const unknownPurchases = purchases.filter(
+    (purchase) => yearOf(purchase) === year && purchase.currency === null,
   );
   const inMonth = (month: number) => (event: ScheduleEvent) => monthOf(event) === month;
   const monthlyCoupons = MONTHS.map((_, month) => sumTotals(coupons.filter(inMonth(month))));
@@ -70,7 +73,7 @@ export function useYearSchedule({ wallet, filters }: FilteredWallet) {
   const defaultMonth = upcoming ? monthOf(upcoming) : lastPurchase ? monthOf(lastPurchase) : null;
   const selectedMonth = chosenMonth?.year === year ? chosenMonth.month : defaultMonth;
   const sections = groupPaymentsByMonth(
-    [...coupons, ...redemptions, ...yearPurchases].sort(byDate),
+    [...coupons, ...redemptions, ...yearPurchases, ...unknownPurchases].sort(byDate),
   );
 
   return {

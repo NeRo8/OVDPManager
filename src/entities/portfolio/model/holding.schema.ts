@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import type { Holding } from './ovdp';
+import { CURRENCIES, type Holding } from './ovdp';
 
 /**
  * What the user enters for a purchase. Messages finish the sentence "Покупка №N: …", so a
@@ -20,6 +20,7 @@ export const PurchaseSchema = z.object({
     .number({ error: 'кількість має бути числом' })
     .int({ error: 'кількість має бути цілим числом' })
     .positive({ error: 'кількість має бути більшою за нуль' }),
+  currency: z.enum(CURRENCIES, { error: 'валюта має бути UAH, USD або EUR' }).optional(),
 });
 
 /** A purchase in the wallet. */

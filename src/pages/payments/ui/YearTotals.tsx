@@ -18,6 +18,7 @@ export function YearTotals({ schedule }: ScheduleProps) {
     averageMonthlyPurchase,
     yearPurchases,
   } = schedule;
+  if (!currency) return null;
   const paidPercent = yearTotal > 0 ? Math.round((paidTotal / yearTotal) * 100) : 0;
   const purchaseCount = yearPurchases.length;
 

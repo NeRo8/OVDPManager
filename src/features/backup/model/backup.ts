@@ -88,6 +88,7 @@ export function parseBackup(text: string): Holding[] {
     throw new Error('У файлі немає списку покупок');
   }
 
+  const ids = new Set<string>();
   return list.data.map((item, index) => {
     const holding = BackupHoldingSchema.safeParse(item);
     if (!holding.success) {
@@ -95,6 +96,11 @@ export function parseBackup(text: string): Holding[] {
       throw new Error(`Покупка №${index + 1}: ${problems.join('; ')}`);
     }
     const { id, ...purchase } = holding.data;
-    return { ...purchase, id: id ?? `restored-${index}-${Date.now().toString(36)}` };
+    const restoredId = id ?? `restored-${index}-${Date.now().toString(36)}`;
+    if (ids.has(restoredId)) {
+      throw new Error(`Покупка №${index + 1}: id покупки повторюється`);
+    }
+    ids.add(restoredId);
+    return { ...purchase, id: restoredId };
   });
 }

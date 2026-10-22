@@ -35,7 +35,7 @@ export default function PortfolioScreen() {
               <SectionTitle title="Мої ОВДП" />
             </View>
           }
-          renderItem={({ item: { position, bond, next }, index }) => (
+          renderItem={({ item: { position, bond, currency, next }, index }) => (
             <SectionCell index={index} count={positions.length}>
               <Pressable
                 onPress={() =>
@@ -45,7 +45,7 @@ export default function PortfolioScreen() {
                 style={({ pressed }) => [styles.holding, pressed && styles.pressed]}
               >
                 {/* Money invested: the purchase color of the schedule chart. */}
-                <Avatar label={currencySign(bond?.currency ?? 'UAH')} color="purchase" />
+                <Avatar label={currency ? currencySign(currency) : '?'} color="purchase" />
                 <View style={styles.holdingInfo}>
                   <View style={styles.holdingTop}>
                     <Typography variant="headline" tabular>
@@ -58,8 +58,7 @@ export default function PortfolioScreen() {
                     )}
                   </View>
                   <Typography variant="caption1" tone="secondary">
-                    {position.quantity} шт · {formatMoney(position.amount, bond?.currency ?? 'UAH')}{' '}
-                    ·{' '}
+                    {position.quantity} шт · {formatMoney(position.amount, currency)} ·{' '}
                     {position.lots.length === 1
                       ? `куплено ${formatDate(position.lots[0].purchaseDate)}`
                       : `${position.lots.length} ${plural(position.lots.length, 'покупка', 'покупки', 'покупок')}`}

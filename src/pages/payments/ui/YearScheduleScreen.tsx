@@ -41,7 +41,7 @@ export default function YearScheduleScreen() {
               onChange={setChosenCurrency}
             />
           )}
-          {(yearPayments.length > 0 || yearPurchases.length > 0) && (
+          {currency && (yearPayments.length > 0 || yearPurchases.length > 0) && (
             <ScheduleSummary schedule={schedule} />
           )}
         </View>

@@ -12,8 +12,8 @@ export function currencySign(currency: string): string {
   return CURRENCY_SIGNS[currency] ?? currency;
 }
 
-export function formatMoney(value: number, currency: string): string {
-  return `${numberFormat.format(value)} ${currencySign(currency)}`;
+export function formatMoney(value: number, currency: string | null): string {
+  return `${numberFormat.format(value)} ${currency ? currencySign(currency) : '(валюта невідома)'}`;
 }
 
 /** Short amount with the currency sign, for tight spots: 12,5 тис ₴ */

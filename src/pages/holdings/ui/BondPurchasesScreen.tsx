@@ -2,6 +2,7 @@ import { Fragment } from 'react';
 import { Pressable, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
+import { holdingCurrency } from '@/entities/portfolio';
 import { formatDate, formatMoney, round2 } from '@/shared/lib';
 import { FAB_CLEARANCE, ScreenScrollView, Section, Separator, Typography } from '@/shared/ui';
 import { useBondIsin } from '../model/useBondIsin.hook';
@@ -10,7 +11,7 @@ import { useBondDetails } from '../model/useBondDetails.hook';
 /** The purchases that make up the position; each can be deleted on its own. */
 export default function BondPurchasesScreen() {
   const isin = useBondIsin();
-  const { position, currency, canTopUp, deleteLot } = useBondDetails(isin);
+  const { position, bond, canTopUp, deleteLot } = useBondDetails(isin);
 
   if (!position) return null;
 
@@ -26,8 +27,8 @@ export default function BondPurchasesScreen() {
                   {formatDate(lot.purchaseDate)} · {lot.quantity} шт
                 </Typography>
                 <Typography variant="caption1" tone="secondary">
-                  {formatMoney(lot.amount, currency)} · по{' '}
-                  {formatMoney(round2(lot.amount / lot.quantity), currency)}
+                  {formatMoney(lot.amount, holdingCurrency(lot, bond))} · по{' '}
+                  {formatMoney(round2(lot.amount / lot.quantity), holdingCurrency(lot, bond))}
                 </Typography>
               </View>
               <Pressable

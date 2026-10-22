@@ -3,10 +3,12 @@ import { useBonds } from '../api/bonds.store';
 import { useHoldings } from './holdings.store';
 import {
   type Bond,
+  type Currency,
   type Position,
   type PositionPayment,
   groupPositions,
   nextPayment,
+  positionCurrency,
   positionPayments,
   purchaseEvents,
 } from './ovdp';
@@ -15,6 +17,7 @@ export type WalletPosition = {
   position: Position;
   /** Missing when the NBU data has no such bond */
   bond?: Bond;
+  currency: Currency | null;
   payments: PositionPayment[];
   next?: PositionPayment;
 };
@@ -31,7 +34,13 @@ export function useWallet() {
   const positions = groupPositions(holdings).map((position): WalletPosition => {
     const bond = byIsin.get(position.isin);
     const payments = bond ? positionPayments(position.lots, bond, today) : [];
-    return { position, bond, payments, next: nextPayment(payments) };
+    return {
+      position,
+      bond,
+      currency: positionCurrency(position, bond),
+      payments,
+      next: nextPayment(payments),
+    };
   });
   const payments = positions
     .flatMap(({ payments }) => payments)

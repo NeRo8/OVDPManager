@@ -36,6 +36,8 @@ export type Holding = {
   /** Total amount paid for the bonds, in the bond currency */
   amount: number;
   quantity: number;
+  /** Older purchases may lack this; the NBU bond can still supply it. */
+  currency?: Currency;
 };
 
 /** All purchases of one ISIN. */
@@ -64,7 +66,8 @@ export type PurchaseEvent = {
   id: string;
   date: string;
   isin: string;
-  currency: Currency;
+  /** Unknown when neither the purchase nor NBU data supplies it. */
+  currency: Currency | null;
   quantity: number;
   /** Amount paid */
   total: number;
@@ -106,6 +109,19 @@ export function groupPositions(holdings: Holding[]): Position[] {
   }));
 }
 
+/** Use the bond's currency when available, including for purchases saved before currency was stored. */
+export function holdingCurrency(holding: Holding, bond?: Bond): Currency | null {
+  return bond?.currency ?? holding.currency ?? null;
+}
+
+/** A position can have one currency only when every purchase's currency is known and agrees. */
+export function positionCurrency(position: Position, bond?: Bond): Currency | null {
+  const currency = holdingCurrency(position.lots[0], bond);
+  return currency && position.lots.every((lot) => holdingCurrency(lot, bond) === currency)
+    ? currency
+    : null;
+}
+
 /**
  * Payments the holder is entitled to. Each payment counts only the bonds bought before its date:
  * a payment on the purchase day itself goes to the previous owner (the register closes before it),
@@ -130,7 +146,7 @@ export function positionPayments(lots: Holding[], bond: Bond, today: string): Po
   });
 }
 
-/** Every purchase in the wallet, by date. The currency comes from the NBU data, UAH if missing. */
+/** Every purchase in the wallet, by date, including purchases with an unknown currency. */
 export function purchaseEvents(holdings: Holding[], byIsin: Map<string, Bond>): PurchaseEvent[] {
   return groupPositions(holdings)
     .flatMap((position) =>
@@ -139,7 +155,7 @@ export function purchaseEvents(holdings: Holding[], byIsin: Map<string, Bond>): 
         id: lot.id,
         date: lot.purchaseDate,
         isin: lot.isin,
-        currency: byIsin.get(lot.isin)?.currency ?? 'UAH',
+        currency: holdingCurrency(lot, byIsin.get(lot.isin)),
         quantity: lot.quantity,
         total: lot.amount,
         isTopUp: index > 0,

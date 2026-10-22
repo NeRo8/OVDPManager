@@ -59,7 +59,13 @@ export function useAddHoldingForm(isin: string) {
   /** Adds the purchase; false when the form cannot be saved yet. */
   function save(): boolean {
     if (!bond || !canSave) return false;
-    addHolding({ isin: bond.isin, purchaseDate, amount: round2(amount), quantity });
+    addHolding({
+      isin: bond.isin,
+      purchaseDate,
+      amount: round2(amount),
+      quantity,
+      currency: bond.currency,
+    });
     return true;
   }
 

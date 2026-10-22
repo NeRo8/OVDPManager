@@ -25,19 +25,27 @@ const initState: HoldingsState = {
 const StoredStateSchema = z.object({ holdings: z.array(z.unknown()) });
 
 /**
- * Purchases read back from storage. A damaged record is left out rather than allowed to break the
- * calculations for the whole wallet.
+ * Purchases read back from storage. Damaged records are left out, and duplicate IDs are repaired
+ * so deleting one purchase cannot delete another.
  */
 function readStoredHoldings(stored: unknown): Holding[] {
   const state = StoredStateSchema.safeParse(stored);
   if (!state.success) return [];
+  const ids = new Set<string>();
   return state.data.holdings.flatMap((item) => {
     const holding = HoldingSchema.safeParse(item);
     if (!holding.success) {
       if (__DEV__) console.warn('Skipped a stored purchase', z.prettifyError(holding.error), item);
       return [];
     }
-    return [holding.data];
+    let { id } = holding.data;
+    if (ids.has(id)) {
+      let suffix = 1;
+      while (ids.has(`${id}-${suffix}`)) suffix += 1;
+      id = `${id}-${suffix}`;
+    }
+    ids.add(id);
+    return [{ ...holding.data, id }];
   });
 }
 
@@ -52,9 +60,10 @@ const useHoldingsStore = create<HoldingsStore>()(
     }),
     {
       name: STORAGE_KEY,
-      version: 1,
+      version: 2,
       storage: createJSONStorage(() => mmkvStorage),
       partialize: ({ holdings }) => ({ holdings }),
+      migrate: (stored) => ({ holdings: readStoredHoldings(stored) }),
       merge: (stored, current) => ({ ...current, holdings: readStoredHoldings(stored) }),
     },
   ),
@@ -74,9 +83,10 @@ export function addHolding(holding: Omit<Holding, 'id'>): Holding {
 }
 
 export function removeHolding(id: string) {
-  useHoldingsStore
-    .getState()
-    .setHoldings((current) => current.filter((holding) => holding.id !== id));
+  useHoldingsStore.getState().setHoldings((current) => {
+    const index = current.findIndex((holding) => holding.id === id);
+    return index < 0 ? current : current.filter((_, itemIndex) => itemIndex !== index);
+  });
 }
 
 /** Restores the wallet from a backup, replacing everything in it. */

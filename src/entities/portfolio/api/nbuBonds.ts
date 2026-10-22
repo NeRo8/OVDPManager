@@ -14,8 +14,8 @@ const NbuPaymentSchema = z.object({
 });
 
 /**
- * One security of `/depo_securities?json`. The descriptive fields are optional: they are not
- * needed to build a Bond, so a change in them should not drop the bond.
+ * Fields used to build a Bond from `/depo_securities?json`. Other response fields are ignored,
+ * so a change to an unused field cannot drop the bond.
  */
 const NbuSecuritySchema = z.object({
   /** ISIN: UA4000… for domestic bonds, XS… for OZDP */
@@ -34,19 +34,6 @@ const NbuSecuritySchema = z.object({
   val_code: z.enum(CURRENCIES),
   /** Ordered by date; may still lack the far rows (e.g. a recently placed OZDP has no redemption yet) */
   payments: z.array(NbuPaymentSchema),
-  /** DCP — domestic bond (ОВДП), OZDP — bond issued for the external debt restructuring (ОЗДП) */
-  cptype: z.string().optional(),
-  /** Days between coupons: 182 (semiannual), 364 or 365 (annual) */
-  pay_period: z.number().optional(),
-  /** Issuer's ЄДРПОУ code; 00013480 is the Ministry of Finance */
-  emit_okpo: z.string().optional(),
-  emit_name: z.string().optional(),
-  /** Security type code of the НКЦПФР classifier */
-  cptype_nkcpfr: z.string().optional(),
-  /** ISO 10962 CFI code */
-  cpcode_cfi: z.string().optional(),
-  /** Bonds in circulation; null for OZDP */
-  total_bonds: z.number().nullable().optional(),
 });
 
 type NbuPayment = z.infer<typeof NbuPaymentSchema>;
