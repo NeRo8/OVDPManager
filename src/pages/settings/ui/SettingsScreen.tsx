@@ -2,7 +2,6 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { useActivePlan } from '@/entities/portfolio';
 import { planCount, purchaseCount, useBackupActions } from '@/features/backup';
 import { setThemePreference, useThemePreference, type ThemePreference } from '@/shared/theme';
 import {
@@ -24,18 +23,9 @@ export default function SettingsScreen() {
   const { numberOfPurchases, numberOfPlans, isBusy, exportBackup, saveMock, loadMock } =
     useBackupActions();
   const themePreference = useThemePreference();
-  const activePlan = useActivePlan();
 
   return (
     <ScreenScrollView>
-      <Section title="План" footer="Виплати, гаманець і прогноз показують покупки вибраного плану.">
-        <LinkRow
-          title="Активний план"
-          subtitle={activePlan?.name}
-          onPress={() => router.push('/plan/list')}
-        />
-      </Section>
-
       <Section
         title="Дані"
         footer={`У гаманці ${purchaseCount(numberOfPurchases)}, створено ${planCount(numberOfPlans)}. Дані зберігаються на цьому пристрої; копія у JSON-файлі дає змогу відновити їх тут чи на іншому пристрої.`}
