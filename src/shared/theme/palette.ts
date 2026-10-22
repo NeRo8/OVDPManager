@@ -34,6 +34,8 @@ export const light = {
   seriesPurchaseText: '#C23300',
   shadowCard: '0 1px 2px rgba(4, 48, 46, 0.08), 0 4px 8px -2px rgba(4, 48, 46, 0.08)',
   shadowRaised: '0 8px 20px rgba(229, 61, 0, 0.32)',
+  /** Floating layers above the screen, such as toasts */
+  shadowOverlay: '0 8px 24px rgba(4, 48, 46, 0.18)',
 };
 
 export type AppTheme = typeof light;
@@ -64,4 +66,5 @@ export const dark: AppTheme = {
   // A drop shadow does not read on black; the lighter card surface sets cards apart instead.
   shadowCard: '0 0 0 0 transparent',
   shadowRaised: '0 8px 24px rgba(229, 61, 0, 0.35)',
+  shadowOverlay: '0 8px 24px rgba(0, 0, 0, 0.6)',
 };

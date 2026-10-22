@@ -2,7 +2,7 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { useUnistyles } from 'react-native-unistyles';
 
 import { useInvestmentPlans } from '@/entities/portfolio';
-import { HeaderButton } from '@/shared/ui';
+import { HeaderButton, ToastHost } from '@/shared/ui';
 import { goBackOrHome } from '@/shared/lib';
 
 export default function RootLayout() {
@@ -53,6 +53,7 @@ export default function RootLayout() {
         {/* Reachable without plans too: a backup brings its plans along. */}
         <Stack.Screen name="backup/import" options={{ title: 'Відновити з копії' }} />
       </Stack>
+      <ToastHost />
     </ThemeProvider>
   );
 }
