@@ -11,6 +11,7 @@ import {
   setActivePlan,
   useInvestmentPlans,
 } from '@/entities/portfolio';
+import { showToast } from '@/shared/lib';
 import { Button, EmptyState, Input, ScreenScrollView, Section, Typography } from '@/shared/ui';
 
 /**
@@ -64,9 +65,15 @@ export default function PlanNameScreen() {
       </Section>
       <Button
         title={existing ? 'Зберегти назву' : 'Створити план'}
-        disabled={!canSave}
         onPress={() => {
-          if (!canSave) return;
+          if (!canSave) {
+            showToast({
+              tone: 'error',
+              title: 'План не збережено',
+              message: 'Вкажіть назву плану',
+            });
+            return;
+          }
           if (existing) {
             renameInvestmentPlan(existing.id, trimmed);
             router.back();

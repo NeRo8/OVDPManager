@@ -53,7 +53,18 @@ export function useAddPurchaseForm(isin: string) {
   /** Expected quantity at par, as a hint while only the amount is entered. */
   const quantityPlaceholder =
     bond && amountValid ? `≈ ${Math.max(1, Math.round(amount / bond.nominal))}` : '0';
-  const canSave = !!plan && !!bond && !dateProblem && amountValid && quantityValid;
+  /** Why the purchase cannot be saved yet, or null when it can. */
+  const problem = !plan
+    ? 'Немає активного плану'
+    : !bond
+      ? 'Немає даних НБУ про цю ОВДП'
+      : (dateProblem ??
+        (!amountValid
+          ? 'Вкажіть суму покупки — більше нуля'
+          : !quantityValid
+            ? 'Вкажіть кількість облігацій — ціле число, більше нуля'
+            : null));
+  const canSave = problem === null;
   const currency = bond?.currency ?? 'UAH';
 
   /** Adds the purchase; false when the form cannot be saved yet. */
@@ -87,7 +98,7 @@ export function useAddPurchaseForm(isin: string) {
     pricePerBond,
     dateProblem,
     preview,
-    canSave,
+    problem,
     currency,
     save,
   };

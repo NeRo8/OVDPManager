@@ -14,7 +14,7 @@ import {
 } from '@/shared/ui';
 import { useAddPurchaseForm } from '@/features/add-purchase';
 import { BondParameters, BondsUnavailable } from '@/entities/portfolio';
-import { formatDate, formatMoney } from '@/shared/lib';
+import { formatDate, formatMoney, showToast } from '@/shared/lib';
 
 /**
  * Second step of adding a purchase: the date, amount and quantity for the chosen bond. A top-up
@@ -39,7 +39,7 @@ export default function AddPurchaseScreen() {
     pricePerBond,
     dateProblem,
     preview,
-    canSave,
+    problem,
     currency,
     save,
   } = useAddPurchaseForm(isin);
@@ -160,10 +160,13 @@ export default function AddPurchaseScreen() {
       <Button
         title="Зберегти"
         onPress={() => {
+          if (problem) {
+            showToast({ tone: 'error', title: 'Покупку не збережено', message: problem });
+            return;
+          }
           // Back to where adding started: past the bond list, or straight back for a top-up.
           if (save()) router.dismiss(topUp ? 1 : 2);
         }}
-        disabled={!canSave}
       />
     </ScreenScrollView>
   );

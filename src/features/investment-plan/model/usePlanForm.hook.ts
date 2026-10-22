@@ -40,7 +40,18 @@ export function usePlanForm(planId: string, isin?: string, id?: string) {
         : date >= bond.maturityDate
           ? `ОВДП погашається ${formatDate(bond.maturityDate)} — купівля має бути раніше`
           : null;
-  const canSave = !!plan && !!bond && !dateProblem && quantityValid && priceValid;
+  /** Why the planned purchase cannot be saved yet, or null when it can. */
+  const problem = !plan
+    ? 'План не знайдено'
+    : !bond
+      ? 'Немає даних НБУ про цю ОВДП'
+      : (dateProblem ??
+        (!quantityValid
+          ? 'Вкажіть кількість облігацій — ціле число, більше нуля'
+          : !priceValid
+            ? 'Вкажіть ціну однієї облігації — більше нуля'
+            : null));
+  const canSave = problem === null;
   const draft: PlannedPurchase | null =
     bond && quantityValid && priceValid
       ? {
@@ -80,7 +91,7 @@ export function usePlanForm(planId: string, isin?: string, id?: string) {
     priceText,
     setPriceText,
     dateProblem,
-    canSave,
+    problem,
     amount: draft ? plannedAmount(draft) : null,
     total,
     nextPayment: forecast?.payments[0],

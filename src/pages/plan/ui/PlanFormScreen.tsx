@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { BondParameters, BondsUnavailable, removePlannedPurchase } from '@/entities/portfolio';
 import { usePlanForm } from '@/features/investment-plan';
-import { confirmDestructive, formatDate, formatMoney } from '@/shared/lib';
+import { confirmDestructive, formatDate, formatMoney, showToast } from '@/shared/lib';
 import {
   ActionRow,
   Button,
@@ -192,8 +192,11 @@ export default function PlanFormScreen({ mode }: Props) {
 
       <Button
         title="Зберегти покупку"
-        disabled={!form.canSave}
         onPress={() => {
+          if (form.problem) {
+            showToast({ tone: 'error', title: 'Покупку не збережено', message: form.problem });
+            return;
+          }
           if (form.save()) router.dismiss(mode === 'edit' ? 1 : 2);
         }}
       />
