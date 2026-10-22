@@ -44,7 +44,7 @@ export function FloatingActionButton({
       accessibilityLabel={accessibilityLabel}
       style={({ pressed }) => [styles.button, pressed && styles.pressed, style]}
     >
-      <ThemedIcon name={icon} size={28} uniProps={(theme) => ({ color: theme.fabText })} />
+      <ThemedIcon name={icon} size={28} uniProps={(theme) => ({ color: theme.fabIcon })} />
       {label && (
         <Typography variant="headline" style={styles.label}>
           {label}

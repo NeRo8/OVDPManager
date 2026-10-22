@@ -16,8 +16,12 @@ export const light = {
   muted: '#E4EBE5',
   /** A surface raised above `muted`, such as the segmented control's thumb */
   raised: '#FCFFF7',
-  /** The floating add button: vermilion with a black glyph (5:1) */
+  /**
+   * The floating add button. Its light glyph is 4.2:1 on vermilion, above the 3:1 that icons need;
+   * a text label would need 4.5:1, so it stays black (5:1).
+   */
   fab: '#E53D00',
+  fabIcon: '#FCFFF7',
   fabText: '#000000',
   // Chart series: teal, blue, vermilion; checked with the dataviz palette validator against
   // `card` (lightness, chroma, CVD and normal-vision separation). Two teals did not separate.
@@ -49,6 +53,7 @@ export const dark: AppTheme = {
   // Lighter than the track: in the dark a raised surface is lighter, not shadowed.
   raised: '#33413E',
   fab: '#E53D00',
+  fabIcon: '#FCFFF7',
   fabText: '#000000',
   seriesCoupon: '#21A0A0',
   seriesNominal: '#5C6CE6',
