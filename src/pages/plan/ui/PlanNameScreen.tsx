@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
-  LEGACY_PLAN_NAME,
+  DEFAULT_PLAN_NAME,
   PLAN_NAME_MAX_LENGTH,
   PlanNameSchema,
   createInvestmentPlan,
@@ -24,7 +24,7 @@ export default function PlanNameScreen() {
   const isFirst = plans.length === 0;
   const existing = plans.find((plan) => plan.id === planId);
   const [name, setName] = useState(
-    existing?.name ?? (isFirst ? LEGACY_PLAN_NAME : `План ${plans.length + 1}`),
+    existing?.name ?? (isFirst ? DEFAULT_PLAN_NAME : `План ${plans.length + 1}`),
   );
   const trimmed = name.trim();
   const canSave = PlanNameSchema.safeParse(name).success;

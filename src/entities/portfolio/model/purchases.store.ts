@@ -25,33 +25,13 @@ const initialState: PurchasesState = {
   purchases: [],
 };
 
-const StoredStateSchema = z.union([
-  z.object({ purchases: z.array(z.unknown()) }).transform((state) => state.purchases),
-  z.object({ holdings: z.array(z.unknown()) }).transform((state) => state.holdings),
-]);
-
-/**
- * Purchases read back from storage. Damaged records are left out, and duplicate IDs are repaired
- * so deleting one purchase cannot delete another.
- */
+/** Purchases read back from storage. A damaged record is left out rather than break the wallet. */
 function readStoredPurchases(stored: unknown): WalletPurchase[] {
-  const savedPurchases = StoredStateSchema.safeParse(stored);
-  if (!savedPurchases.success) return [];
-  const ids = new Set<string>();
-  return savedPurchases.data.flatMap((item) => {
+  const saved = z.object({ purchases: z.array(z.unknown()) }).safeParse(stored);
+  if (!saved.success) return [];
+  return saved.data.purchases.flatMap((item) => {
     const purchase = PurchaseSchema.safeParse(item);
-    if (!purchase.success) {
-      if (__DEV__) console.warn('Skipped a stored purchase', z.prettifyError(purchase.error), item);
-      return [];
-    }
-    let { id } = purchase.data;
-    if (ids.has(id)) {
-      let suffix = 1;
-      while (ids.has(`${id}-${suffix}`)) suffix += 1;
-      id = `${id}-${suffix}`;
-    }
-    ids.add(id);
-    return [{ ...purchase.data, id }];
+    return purchase.success ? [purchase.data] : [];
   });
 }
 
@@ -66,10 +46,8 @@ const usePurchasesStore = create<PurchasesStore>()(
     }),
     {
       name: STORAGE_KEY,
-      version: 3,
       storage: createJSONStorage(() => mmkvStorage),
       partialize: ({ purchases }) => ({ purchases }),
-      migrate: (stored) => ({ purchases: readStoredPurchases(stored) }),
       merge: (stored, current) => ({ ...current, purchases: readStoredPurchases(stored) }),
     },
   ),

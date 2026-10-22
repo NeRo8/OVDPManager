@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { mmkvStorage } from '@/shared/lib';
-import { LEGACY_PLAN_NAME, type InvestmentPlan } from './plan';
+import type { InvestmentPlan } from './plan';
 import type { WalletPurchase } from './portfolio';
 import { removePlanPurchases, replacePurchases } from './purchases.store';
 
@@ -17,24 +17,11 @@ export const InvestmentPlanSchema = z.object({
 }) satisfies z.ZodType<InvestmentPlan>;
 
 const STORAGE_KEY = 'investment-plan-v1';
-const VERSION = 2;
 
 type PlansStore = {
   plans: InvestmentPlan[];
   setPlans: (update: (current: InvestmentPlan[]) => InvestmentPlan[]) => void;
 };
-
-/**
- * Every wallet purchase belongs to a plan. Purchases from backups made before plans held them point
- * at the legacy plan, which is created here when it is missing.
- */
-function withPurchasePlans(plans: InvestmentPlan[], purchases: WalletPurchase[]): InvestmentPlan[] {
-  const known = new Set(plans.map((plan) => plan.id));
-  const missing = new Set(
-    purchases.map((purchase) => purchase.planId).filter((id) => !known.has(id)),
-  );
-  return [...plans, ...[...missing].map((id) => ({ id, name: LEGACY_PLAN_NAME }))];
-}
 
 function readStoredPlans(stored: unknown): InvestmentPlan[] {
   const saved = z.object({ plans: z.array(z.unknown()) }).safeParse(stored);
@@ -56,10 +43,8 @@ const usePlansStore = create<PlansStore>()(
     }),
     {
       name: STORAGE_KEY,
-      version: VERSION,
       storage: createJSONStorage(() => mmkvStorage),
       partialize: ({ plans }) => ({ plans }),
-      migrate: (stored) => ({ plans: readStoredPlans(stored) }),
       merge: (stored, current) => ({ ...current, plans: readStoredPlans(stored) }),
     },
   ),
@@ -92,8 +77,8 @@ export function removeInvestmentPlan(id: string): void {
   usePlansStore.getState().setPlans((plans) => plans.filter((plan) => plan.id !== id));
 }
 
-/** Restores from a backup. Without `plans` (an older backup) the current plans are kept. */
-export function restorePortfolio(purchases: WalletPurchase[], plans?: InvestmentPlan[]): void {
+/** Restores from a backup: its plans and their purchases replace everything. */
+export function restorePortfolio(purchases: WalletPurchase[], plans: InvestmentPlan[]): void {
   replacePurchases(purchases);
-  usePlansStore.getState().setPlans((current) => withPurchasePlans(plans ?? current, purchases));
+  usePlansStore.getState().setPlans(() => plans);
 }

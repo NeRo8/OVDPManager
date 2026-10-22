@@ -8,12 +8,8 @@ import {
 } from './portfolio';
 import type { WalletPosition } from './useWallet.hook';
 
-/**
- * The plan that older backups restore into: their wallet purchases, which had no plan, and their
- * flat list of planned purchases.
- */
-export const LEGACY_PLAN_ID = 'original-plan';
-export const LEGACY_PLAN_NAME = 'Мій план';
+/** The suggested name of the first plan. */
+export const DEFAULT_PLAN_NAME = 'Мій план';
 
 /**
  * An investment plan: the basis of the app. Its purchases (past or planned) are the wallet

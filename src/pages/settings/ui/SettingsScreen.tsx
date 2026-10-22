@@ -20,15 +20,14 @@ const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
 ];
 
 export default function SettingsScreen() {
-  const { numberOfPurchases, numberOfPlans, isBusy, exportBackup, saveMock, loadMock } =
-    useBackupActions();
+  const { numberOfPurchases, numberOfPlans, isBusy, exportBackup } = useBackupActions();
   const themePreference = useThemePreference();
 
   return (
     <ScreenScrollView>
       <Section
         title="Дані"
-        footer={`У гаманці ${purchaseCount(numberOfPurchases)}, створено ${planCount(numberOfPlans)}. Дані зберігаються на цьому пристрої; копія у JSON-файлі дає змогу відновити їх тут чи на іншому пристрої.`}
+        footer={`Створено ${planCount(numberOfPlans)}, у них ${purchaseCount(numberOfPurchases)}. Дані зберігаються на цьому пристрої; копія у JSON-файлі дає змогу відновити їх тут чи на іншому пристрої.`}
       >
         <ActionRow
           title="Створити копію"
@@ -38,18 +37,6 @@ export default function SettingsScreen() {
         <Separator />
         <LinkRow title="Відновити з копії" onPress={() => router.push('/backup/import')} />
       </Section>
-
-      {__DEV__ && (
-        <Section title="Розробка" footer="Мок зберігається у файловому сховищі цього пристрою.">
-          <ActionRow
-            title="Зберегти дані як мок"
-            onPress={saveMock}
-            disabled={isBusy || (numberOfPurchases === 0 && numberOfPlans === 0)}
-          />
-          <Separator />
-          <ActionRow title="Завантажити мок" onPress={loadMock} disabled={isBusy} />
-        </Section>
-      )}
 
       <Section title="Оформлення" footer="Системна тема повторює світлий чи темний режим пристрою.">
         <View style={styles.themePicker}>

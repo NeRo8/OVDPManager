@@ -80,8 +80,5 @@ export async function fetchBonds(): Promise<Bond[]> {
     const result = NbuSecuritySchema.safeParse(item);
     return result.success ? [mapNbuSecurityToBond(result.data)] : [];
   });
-  if (__DEV__ && bonds.length < list.data.length) {
-    console.warn(`Skipped ${list.data.length - bonds.length} NBU securities that fail the schema`);
-  }
   return bonds;
 }

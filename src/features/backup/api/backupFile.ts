@@ -17,17 +17,3 @@ export async function pickBackupFile(): Promise<string | null> {
   if (picked.canceled) return null;
   return new File(picked.assets[0].uri).text();
 }
-
-/** Development fixture kept in the app's documents, so it survives reinstalls of a dev build. */
-const mockFile = () => new File(Paths.document, 'ovdp-dev-mock.json');
-
-export async function readMockFile(): Promise<string | null> {
-  const file = mockFile();
-  return file.exists ? file.text() : null;
-}
-
-export async function writeMockFile(json: string): Promise<void> {
-  const file = mockFile();
-  file.create({ overwrite: true });
-  await file.write(json);
-}
