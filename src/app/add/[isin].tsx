@@ -1,5 +1,5 @@
-import { AddHoldingScreen } from '@/pages/holdings';
+import { AddPurchaseScreen } from '@/pages/holdings';
 
-export default function AddHoldingRoute() {
-  return <AddHoldingScreen />;
+export default function AddPurchaseRoute() {
+  return <AddPurchaseScreen />;
 }

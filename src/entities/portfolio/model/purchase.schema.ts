@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
-import { CURRENCIES, type Holding } from './ovdp';
+import { CURRENCIES, type Purchase } from './portfolio';
 
 /**
  * What the user enters for a purchase. Messages finish the sentence "Покупка №N: …", so a
  * rejected backup says which field is wrong.
  */
-export const PurchaseSchema = z.object({
+export const PurchaseInputSchema = z.object({
   isin: z
     .string({ error: 'немає номера ОВДП (ISIN)' })
     .trim()
@@ -24,6 +24,6 @@ export const PurchaseSchema = z.object({
 });
 
 /** A purchase in the wallet. */
-export const HoldingSchema = PurchaseSchema.extend({
+export const PurchaseSchema = PurchaseInputSchema.extend({
   id: z.string().min(1),
-}) satisfies z.ZodType<Holding>;
+}) satisfies z.ZodType<Purchase>;

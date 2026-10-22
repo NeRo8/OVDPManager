@@ -6,7 +6,7 @@ import { plural } from '@/shared/lib';
 import { Typography } from '@/shared/ui';
 import { upcomingPayments } from '../model/upcomingPayments';
 import { useFilteredWallet } from '../model/useFilteredWallet.hook';
-import { PaymentSectionList } from './PaymentSectionList';
+import { ScheduleSectionList } from './ScheduleSectionList';
 
 /** Payments still ahead, month by month. */
 export default function UpcomingPaymentsScreen() {
@@ -15,7 +15,7 @@ export default function UpcomingPaymentsScreen() {
   const { upcoming, allCount, sections } = upcomingPayments(filtered);
 
   return (
-    <PaymentSectionList
+    <ScheduleSectionList
       sections={sections}
       refreshControl={<RefreshControl refreshing={wallet.isFetching} onRefresh={wallet.refresh} />}
       ListHeaderComponent={

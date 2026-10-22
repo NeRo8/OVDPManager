@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { useHoldings } from '@/entities/portfolio';
+import { usePurchases } from '@/entities/portfolio';
 import { confirmDestructive, showMessage } from '@/shared/lib';
 import { exportBackupFile, readMockFile, writeMockFile } from '../api/backupFile';
 import {
@@ -14,7 +14,7 @@ import {
 
 /** Backup actions that run in place: no screen of their own, outcomes come as alerts. */
 export function useBackupActions() {
-  const holdings = useHoldings();
+  const purchases = usePurchases();
   const [isBusy, setBusy] = useState(false);
 
   async function run(task: () => Promise<void>) {
@@ -30,12 +30,12 @@ export function useBackupActions() {
 
   /** The share sheet is the outcome: the user saves or sends the file from there. */
   const exportBackup = () =>
-    run(() => exportBackupFile(serializeBackup(holdings), backupFileName()));
+    run(() => exportBackupFile(serializeBackup(purchases), backupFileName()));
 
   const writeMock = () =>
     run(async () => {
-      await writeMockFile(serializeBackup(holdings));
-      showMessage('Мок збережено', `На пристрої: ${purchaseCount(holdings.length)}.`);
+      await writeMockFile(serializeBackup(purchases));
+      showMessage('Мок збережено', `На пристрої: ${purchaseCount(purchases.length)}.`);
     });
 
   async function saveMock() {
@@ -52,7 +52,7 @@ export function useBackupActions() {
     }
     confirmDestructive(
       'Перезаписати мок?',
-      `На пристрої вже є мок: ${purchaseCount(existing)}. Його буде замінено поточними даними (${purchaseCount(holdings.length)}).`,
+      `На пристрої вже є мок: ${purchaseCount(existing)}. Його буде замінено поточними даними (${purchaseCount(purchases.length)}).`,
       'Перезаписати',
       () => void writeMock(),
     );
@@ -62,10 +62,10 @@ export function useBackupActions() {
     run(async () => {
       const text = await readMockFile();
       if (!text) throw new Error('Мок ще не збережено на цьому пристрої.');
-      replaceWithBackup(parseBackup(text), holdings.length, 'з мока', (status) =>
+      replaceWithBackup(parseBackup(text), purchases.length, 'з мока', (status) =>
         showMessage(status.text),
       );
     });
 
-  return { holdingsCount: holdings.length, isBusy, exportBackup, saveMock, loadMock };
+  return { numberOfPurchases: purchases.length, isBusy, exportBackup, saveMock, loadMock };
 }

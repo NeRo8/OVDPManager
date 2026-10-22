@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { type Bond, type BondPayment, CURRENCIES, type PaymentType } from '../model/ovdp';
+import { type Bond, type BondPayment, CURRENCIES, type PaymentType } from '../model/portfolio';
 import { nbuClient } from '@/shared/api';
 
 /** One row of a bond's payment schedule, as `/depo_securities?json` returns it. */
@@ -44,23 +44,23 @@ const PAYMENT_TYPES = {
   '2': 'redemption',
 } as const satisfies Record<NbuPayment['pay_type'], PaymentType>;
 
-function parseSecurity(raw: NbuSecurity): Bond {
-  const payments = raw.payments
-    .map((p): BondPayment => ({
-      date: p.pay_date,
-      type: PAYMENT_TYPES[p.pay_type],
-      amount: p.pay_val,
+function mapNbuSecurityToBond(security: NbuSecurity): Bond {
+  const payments = security.payments
+    .map((payment): BondPayment => ({
+      date: payment.pay_date,
+      type: PAYMENT_TYPES[payment.pay_type],
+      amount: payment.pay_val,
     }))
     .sort((a, b) => a.date.localeCompare(b.date) || a.type.localeCompare(b.type));
 
   return {
-    isin: raw.cpcode,
-    nominal: raw.nominal,
-    rate: raw.auk_proc,
-    currency: raw.val_code,
-    issueDate: raw.razm_date,
-    maturityDate: raw.pgs_date,
-    description: raw.cpdescr,
+    isin: security.cpcode,
+    nominal: security.nominal,
+    rate: security.auk_proc,
+    currency: security.val_code,
+    issueDate: security.razm_date,
+    maturityDate: security.pgs_date,
+    description: security.cpdescr,
     payments,
   };
 }
@@ -78,7 +78,7 @@ export async function fetchBonds(): Promise<Bond[]> {
   }
   const bonds = list.data.flatMap((item) => {
     const result = NbuSecuritySchema.safeParse(item);
-    return result.success ? [parseSecurity(result.data)] : [];
+    return result.success ? [mapNbuSecurityToBond(result.data)] : [];
   });
   if (__DEV__ && bonds.length < list.data.length) {
     console.warn(`Skipped ${list.data.length - bonds.length} NBU securities that fail the schema`);

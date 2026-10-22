@@ -5,7 +5,7 @@ import { BondsUnavailable } from './BondsUnavailable';
 import { EmptyWallet } from './EmptyWallet';
 
 type Props = {
-  wallet: Pick<Wallet, 'holdingsCount' | 'bonds' | 'error' | 'refresh'>;
+  wallet: Pick<Wallet, 'numberOfPurchases' | 'bonds' | 'error' | 'refresh'>;
   children: ReactNode;
 };
 
@@ -14,7 +14,7 @@ type Props = {
  * without the NBU data the screen waits for it or offers a retry.
  */
 export function WalletGate({ wallet, children }: Props) {
-  if (wallet.holdingsCount === 0) return <EmptyWallet />;
+  if (wallet.numberOfPurchases === 0) return <EmptyWallet />;
   if (!wallet.bonds) return <BondsUnavailable error={wallet.error} onRetry={wallet.refresh} />;
   return children;
 }

@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { PaymentRow } from '@/entities/portfolio';
+import { ScheduleEventRow } from '@/entities/portfolio';
 import { FAB_CLEARANCE, ScreenScrollView, Section, Separator, Typography } from '@/shared/ui';
 import { useBondIsin } from '../model/useBondIsin.hook';
 import { useBondDetails } from '../model/useBondDetails.hook';
@@ -31,7 +31,7 @@ export default function BondPaymentsScreen() {
             payments.map((payment, index) => (
               <Fragment key={`${payment.date}-${payment.type}`}>
                 {index > 0 && <Separator />}
-                <PaymentRow payment={payment} showQuantity={hasTopUps} />
+                <ScheduleEventRow event={payment} showQuantity={hasTopUps} />
               </Fragment>
             ))
           )}

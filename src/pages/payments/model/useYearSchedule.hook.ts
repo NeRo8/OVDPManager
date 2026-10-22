@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { CURRENCIES, type Currency, type ScheduleEvent, sumTotals } from '@/entities/portfolio';
 import { filterPayments, filterPurchases } from '@/features/payment-filters';
 import { MONTHS, round2 } from '@/shared/lib';
-import { groupPaymentsByMonth } from './paymentSections';
+import { groupScheduleEventsByMonth } from './scheduleSections';
 import type { FilteredWallet } from './useFilteredWallet.hook';
 
 const yearOf = (event: ScheduleEvent) => Number(event.date.slice(0, 4));
@@ -21,7 +21,7 @@ export function useYearSchedule({ wallet, filters }: FilteredWallet) {
   const currentYear = Number(wallet.today.slice(0, 4));
   // The year switcher sets the period here, so the period filter does not apply.
   const payments = filterPayments(wallet.payments, { ...filters, period: 'all' }, wallet.today);
-  const purchases = filterPurchases(wallet.purchases, filters);
+  const purchases = filterPurchases(wallet.purchaseEvents, filters);
   const years = [...payments, ...purchases].map(yearOf);
   const firstYear = years.length ? Math.min(...years) : currentYear;
   const lastYear = years.length ? Math.max(...years) : currentYear;
@@ -72,7 +72,7 @@ export function useYearSchedule({ wallet, filters }: FilteredWallet) {
   const lastPurchase = yearPurchases.at(-1);
   const defaultMonth = upcoming ? monthOf(upcoming) : lastPurchase ? monthOf(lastPurchase) : null;
   const selectedMonth = chosenMonth?.year === year ? chosenMonth.month : defaultMonth;
-  const sections = groupPaymentsByMonth(
+  const sections = groupScheduleEventsByMonth(
     [...coupons, ...redemptions, ...yearPurchases, ...unknownPurchases].sort(byDate),
   );
 

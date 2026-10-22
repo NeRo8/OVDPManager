@@ -12,7 +12,7 @@ import {
   Typography,
   ScreenScrollView,
 } from '@/shared/ui';
-import { useAddHoldingForm } from '@/features/add-holding';
+import { useAddPurchaseForm } from '@/features/add-purchase';
 import { BondParameters, BondsUnavailable } from '@/entities/portfolio';
 import { formatDate, formatMoney } from '@/shared/lib';
 
@@ -20,7 +20,7 @@ import { formatDate, formatMoney } from '@/shared/lib';
  * Second step of adding a purchase: the date, amount and quantity for the chosen bond. A top-up
  * from the bond's screen opens here directly, without the bond list before it.
  */
-export default function AddHoldingScreen() {
+export default function AddPurchaseScreen() {
   const { isin, topUp } = useLocalSearchParams<{ isin: string; topUp?: string }>();
   const {
     bonds,
@@ -42,7 +42,7 @@ export default function AddHoldingScreen() {
     canSave,
     currency,
     save,
-  } = useAddHoldingForm(isin);
+  } = useAddPurchaseForm(isin);
 
   const header = (
     <Stack.Screen
@@ -139,8 +139,8 @@ export default function AddHoldingScreen() {
           <InfoRow
             label="Наступна виплата"
             value={
-              preview.next
-                ? `${formatDate(preview.next.date)} · ${formatMoney(preview.next.total, currency)}`
+              preview.nextPayment
+                ? `${formatDate(preview.nextPayment.date)} · ${formatMoney(preview.nextPayment.total, currency)}`
                 : '—'
             }
           />

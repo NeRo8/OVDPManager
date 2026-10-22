@@ -1,6 +1,6 @@
 import { formatDate, formatMoney } from '@/shared/lib';
 import { InfoRow, Section, Separator } from '@/shared/ui';
-import type { Bond } from '../model/ovdp';
+import type { Bond } from '../model/portfolio';
 
 type Props = {
   bond: Bond;

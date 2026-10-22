@@ -1,9 +1,9 @@
-export * from './model/ovdp';
-export * from './model/holdings.store';
-export { HoldingSchema, PurchaseSchema } from './model/holding.schema';
+export * from './model/portfolio';
+export * from './model/purchases.store';
+export { PurchaseSchema, PurchaseInputSchema } from './model/purchase.schema';
 export { useWallet, type Wallet, type WalletPosition } from './model/useWallet.hook';
 export { useBonds } from './api/bonds.store';
-export { PaymentRow } from './ui/PaymentRow';
+export { ScheduleEventRow } from './ui/ScheduleEventRow';
 export { BondsUnavailable } from './ui/BondsUnavailable';
 export { NbuSourceNote } from './ui/NbuSourceNote';
 export { StaleBondsNotice } from './ui/StaleBondsNotice';

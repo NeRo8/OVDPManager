@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import type { Bond } from '../model/ovdp';
+import type { Bond } from '../model/portfolio';
 import { fetchBonds } from './nbuBonds';
 import { mmkvStorage } from '@/shared/lib';
 

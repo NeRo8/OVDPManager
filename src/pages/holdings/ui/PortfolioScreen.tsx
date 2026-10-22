@@ -35,19 +35,19 @@ export default function PortfolioScreen() {
               <SectionTitle title="Мої ОВДП" />
             </View>
           }
-          renderItem={({ item: { position, bond, currency, next }, index }) => (
+          renderItem={({ item: { position, bond, currency, nextPayment }, index }) => (
             <SectionCell index={index} count={positions.length}>
               <Pressable
                 onPress={() =>
                   router.push({ pathname: '/bond/[isin]', params: { isin: position.isin } })
                 }
                 accessibilityRole="link"
-                style={({ pressed }) => [styles.holding, pressed && styles.pressed]}
+                style={({ pressed }) => [styles.position, pressed && styles.pressed]}
               >
                 {/* Money invested: the purchase color of the schedule chart. */}
                 <Avatar label={currency ? currencySign(currency) : '?'} color="purchase" />
-                <View style={styles.holdingInfo}>
-                  <View style={styles.holdingTop}>
+                <View style={styles.positionInfo}>
+                  <View style={styles.positionTop}>
                     <Typography variant="headline" tabular>
                       {position.isin}
                     </Typography>
@@ -58,12 +58,12 @@ export default function PortfolioScreen() {
                     )}
                   </View>
                   <Typography variant="caption1" tone="secondary">
-                    {position.quantity} шт · {formatMoney(position.amount, currency)} ·{' '}
-                    {position.lots.length === 1
-                      ? `куплено ${formatDate(position.lots[0].purchaseDate)}`
-                      : `${position.lots.length} ${plural(position.lots.length, 'покупка', 'покупки', 'покупок')}`}
+                    {position.quantity} шт · {formatMoney(position.investedAmount, currency)} ·{' '}
+                    {position.purchases.length === 1
+                      ? `куплено ${formatDate(position.purchases[0].purchaseDate)}`
+                      : `${position.purchases.length} ${plural(position.purchases.length, 'покупка', 'покупки', 'покупок')}`}
                   </Typography>
-                  <NextPaymentLine next={next} hasBond={!!bond} />
+                  <NextPaymentLine nextPayment={nextPayment} hasBond={!!bond} />
                 </View>
               </Pressable>
             </SectionCell>
@@ -84,16 +84,16 @@ const styles = StyleSheet.create((theme) => ({
   list: { backgroundColor: theme.background },
   listContent: { gap: 0, paddingBottom: FAB_CLEARANCE },
   listHeader: { gap: 24, marginBottom: 6 },
-  holding: {
+  position: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  holdingInfo: { flex: 1, gap: 4 },
+  positionInfo: { flex: 1, gap: 4 },
   pressed: { backgroundColor: theme.muted },
-  holdingTop: {
+  positionTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'baseline',

@@ -35,13 +35,13 @@ export default function BondOverviewScreen() {
       <Section title="Підсумок">
         <InfoRow label="Кількість" value={`${position.quantity} шт`} />
         <Separator />
-        <InfoRow label="Вкладено" value={formatMoney(position.amount, currency)} />
+        <InfoRow label="Вкладено" value={formatMoney(position.investedAmount, currency)} />
         {hasTopUps && (
           <>
             <Separator />
             <InfoRow
               label="Середня ціна 1 шт"
-              value={formatMoney(round2(position.amount / position.quantity), currency)}
+              value={formatMoney(round2(position.investedAmount / position.quantity), currency)}
             />
           </>
         )}

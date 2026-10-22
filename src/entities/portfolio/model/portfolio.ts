@@ -28,8 +28,8 @@ export type Bond = {
   payments: BondPayment[];
 };
 
-/** One purchase (lot). Several purchases of the same ISIN form a position. */
-export type Holding = {
+/** One purchase. Several purchases of the same ISIN form a position. */
+export type Purchase = {
   id: string;
   isin: string;
   purchaseDate: string;
@@ -44,9 +44,9 @@ export type Holding = {
 export type Position = {
   isin: string;
   /** Sorted by purchase date */
-  lots: Holding[];
+  purchases: Purchase[];
   quantity: number;
-  amount: number;
+  investedAmount: number;
 };
 
 export type PositionPayment = BondPayment & {
@@ -62,7 +62,7 @@ export type PositionPayment = BondPayment & {
 /** A purchase on the payment schedule: money paid for bonds, on the purchase date. */
 export type PurchaseEvent = {
   type: 'purchase';
-  /** Id of the purchase (holding) */
+  /** Id of the purchase */
   id: string;
   date: string;
   isin: string;
@@ -84,40 +84,45 @@ export type ScheduleEvent = PositionPayment | PurchaseEvent;
  * first, then by maturity.
  */
 export function bondChoices(bonds: Bond[], query: string, today: string): Bond[] {
-  const q = query.replace(/\s+/g, '').toUpperCase();
+  const normalizedQuery = query.replace(/\s+/g, '').toUpperCase();
   return bonds
-    .filter((b) => (q ? b.isin.includes(q) : b.maturityDate > today))
-    .sort((a, b) => {
-      const aActive = a.maturityDate >= today;
-      const bActive = b.maturityDate >= today;
-      if (aActive !== bActive) return aActive ? -1 : 1;
-      return a.maturityDate.localeCompare(b.maturityDate);
+    .filter((bond) =>
+      normalizedQuery ? bond.isin.includes(normalizedQuery) : bond.maturityDate > today,
+    )
+    .sort((first, second) => {
+      const firstActive = first.maturityDate >= today;
+      const secondActive = second.maturityDate >= today;
+      if (firstActive !== secondActive) return firstActive ? -1 : 1;
+      return first.maturityDate.localeCompare(second.maturityDate);
     });
 }
 
 /** Groups purchases by ISIN, keeping the order in which each ISIN was first added. */
-export function groupPositions(holdings: Holding[]): Position[] {
-  const byIsin = new Map<string, Holding[]>();
-  for (const holding of holdings) {
-    byIsin.set(holding.isin, [...(byIsin.get(holding.isin) ?? []), holding]);
+export function groupPositions(purchases: Purchase[]): Position[] {
+  const byIsin = new Map<string, Purchase[]>();
+  for (const purchase of purchases) {
+    byIsin.set(purchase.isin, [...(byIsin.get(purchase.isin) ?? []), purchase]);
   }
-  return [...byIsin].map(([isin, lots]) => ({
+  return [...byIsin].map(([isin, isinPurchases]) => ({
     isin,
-    lots: lots.sort((a, b) => a.purchaseDate.localeCompare(b.purchaseDate)),
-    quantity: lots.reduce((sum, lot) => sum + lot.quantity, 0),
-    amount: round2(lots.reduce((sum, lot) => sum + lot.amount, 0)),
+    purchases: isinPurchases.sort((first, second) =>
+      first.purchaseDate.localeCompare(second.purchaseDate),
+    ),
+    quantity: isinPurchases.reduce((total, purchase) => total + purchase.quantity, 0),
+    investedAmount: round2(isinPurchases.reduce((total, purchase) => total + purchase.amount, 0)),
   }));
 }
 
 /** Use the bond's currency when available, including for purchases saved before currency was stored. */
-export function holdingCurrency(holding: Holding, bond?: Bond): Currency | null {
-  return bond?.currency ?? holding.currency ?? null;
+export function purchaseCurrency(purchase: Purchase, bond?: Bond): Currency | null {
+  return bond?.currency ?? purchase.currency ?? null;
 }
 
 /** A position can have one currency only when every purchase's currency is known and agrees. */
 export function positionCurrency(position: Position, bond?: Bond): Currency | null {
-  const currency = holdingCurrency(position.lots[0], bond);
-  return currency && position.lots.every((lot) => holdingCurrency(lot, bond) === currency)
+  const currency = purchaseCurrency(position.purchases[0], bond);
+  return currency &&
+    position.purchases.every((purchase) => purchaseCurrency(purchase, bond) === currency)
     ? currency
     : null;
 }
@@ -127,37 +132,41 @@ export function positionCurrency(position: Position, bond?: Bond): Currency | nu
  * a payment on the purchase day itself goes to the previous owner (the register closes before it),
  * so a top-up starts earning from the next payment.
  */
-export function positionPayments(lots: Holding[], bond: Bond, today: string): PositionPayment[] {
-  return bond.payments.flatMap((p) => {
-    const quantity = lots
-      .filter((lot) => lot.purchaseDate < p.date)
-      .reduce((sum, lot) => sum + lot.quantity, 0);
+export function positionPayments(
+  purchases: Purchase[],
+  bond: Bond,
+  today: string,
+): PositionPayment[] {
+  return bond.payments.flatMap((payment) => {
+    const quantity = purchases
+      .filter((purchase) => purchase.purchaseDate < payment.date)
+      .reduce((total, purchase) => total + purchase.quantity, 0);
     if (quantity === 0) return [];
     return [
       {
-        ...p,
+        ...payment,
         isin: bond.isin,
         currency: bond.currency,
         quantity,
-        total: round2(p.amount * quantity),
-        isPaid: p.date < today,
+        total: round2(payment.amount * quantity),
+        isPaid: payment.date < today,
       },
     ];
   });
 }
 
 /** Every purchase in the wallet, by date, including purchases with an unknown currency. */
-export function purchaseEvents(holdings: Holding[], byIsin: Map<string, Bond>): PurchaseEvent[] {
-  return groupPositions(holdings)
+export function purchaseEvents(purchases: Purchase[], byIsin: Map<string, Bond>): PurchaseEvent[] {
+  return groupPositions(purchases)
     .flatMap((position) =>
-      position.lots.map((lot, index): PurchaseEvent => ({
+      position.purchases.map((purchase, index): PurchaseEvent => ({
         type: 'purchase',
-        id: lot.id,
-        date: lot.purchaseDate,
-        isin: lot.isin,
-        currency: holdingCurrency(lot, byIsin.get(lot.isin)),
-        quantity: lot.quantity,
-        total: lot.amount,
+        id: purchase.id,
+        date: purchase.purchaseDate,
+        isin: purchase.isin,
+        currency: purchaseCurrency(purchase, byIsin.get(purchase.isin)),
+        quantity: purchase.quantity,
+        total: purchase.amount,
         isTopUp: index > 0,
       })),
     )
@@ -165,10 +174,10 @@ export function purchaseEvents(holdings: Holding[], byIsin: Map<string, Bond>): 
 }
 
 /** Sum of the events' totals, rounded to cents. */
-export function sumTotals(payments: { total: number }[]): number {
-  return round2(payments.reduce((sum, payment) => sum + payment.total, 0));
+export function sumTotals(events: { total: number }[]): number {
+  return round2(events.reduce((total, event) => total + event.total, 0));
 }
 
 export function nextPayment(payments: PositionPayment[]): PositionPayment | undefined {
-  return payments.find((p) => !p.isPaid);
+  return payments.find((payment) => !payment.isPaid);
 }

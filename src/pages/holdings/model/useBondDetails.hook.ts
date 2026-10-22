@@ -1,7 +1,7 @@
 import {
-  type Holding,
-  holdingCurrency,
-  removeHolding,
+  type Purchase,
+  purchaseCurrency,
+  removePurchase,
   removePosition,
   sumTotals,
   useWallet,
@@ -15,21 +15,21 @@ export function useBondDetails(isin: string) {
   const position = walletPosition?.position;
   const payments = walletPosition?.payments ?? [];
   const currency = walletPosition?.currency ?? null;
-  const hasTopUps = (position?.lots.length ?? 0) > 1;
+  const hasTopUps = (position?.purchases.length ?? 0) > 1;
   const received = sumTotals(payments.filter((payment) => payment.isPaid));
   const expected = sumTotals(payments.filter((payment) => !payment.isPaid));
-  const profit = round2(received + expected - (position?.amount ?? 0));
+  const profit = round2(received + expected - (position?.investedAmount ?? 0));
   const canTopUp = !!bond && bond.maturityDate > today;
 
-  function deleteLot(lot: Holding) {
+  function deletePurchase(purchase: Purchase) {
     if (!position) return;
     confirmDestructive(
       'Видалити покупку?',
-      `${formatDate(lot.purchaseDate)} · ${lot.quantity} шт · ${formatMoney(lot.amount, holdingCurrency(lot, bond))}`,
+      `${formatDate(purchase.purchaseDate)} · ${purchase.quantity} шт · ${formatMoney(purchase.amount, purchaseCurrency(purchase, bond))}`,
       'Видалити',
       () => {
-        if (position.lots.length === 1) goBackOrHome();
-        removeHolding(lot.id);
+        if (position.purchases.length === 1) goBackOrHome();
+        removePurchase(purchase.id);
       },
     );
   }
@@ -38,7 +38,7 @@ export function useBondDetails(isin: string) {
     if (!position) return;
     confirmDestructive(
       'Видалити ОВДП?',
-      `${position.isin} і всі покупки (${position.lots.length}) буде видалено з гаманця.`,
+      `${position.isin} і всі покупки (${position.purchases.length}) буде видалено з гаманця.`,
       'Видалити',
       () => {
         goBackOrHome();
@@ -57,7 +57,7 @@ export function useBondDetails(isin: string) {
     expected,
     profit,
     canTopUp,
-    deleteLot,
+    deletePurchase,
     deletePosition,
   };
 }

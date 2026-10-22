@@ -3,7 +3,7 @@ import { FlatList, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { BondsUnavailable } from '@/entities/portfolio';
-import { useBondPicker } from '@/features/add-holding';
+import { useBondPicker } from '@/features/add-purchase';
 import { SectionCell, Typography, screenContent } from '@/shared/ui';
 import { BondChoiceRow } from './BondChoiceRow';
 import { PickerFilters } from './PickerFilters';

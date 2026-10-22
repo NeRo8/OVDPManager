@@ -1,21 +1,21 @@
 import { SectionList, View, type SectionListProps } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { PaymentRow, type ScheduleEvent } from '@/entities/portfolio';
+import { ScheduleEventRow, type ScheduleEvent } from '@/entities/portfolio';
 import { SectionCell, Typography, screenContent } from '@/shared/ui';
-import type { PaymentSection } from '../model/paymentSections';
+import type { ScheduleSection } from '../model/scheduleSections';
 
 type Props = Pick<
-  SectionListProps<ScheduleEvent, PaymentSection>,
+  SectionListProps<ScheduleEvent, ScheduleSection>,
   'ListHeaderComponent' | 'ListFooterComponent' | 'refreshControl'
 > & {
-  sections: PaymentSection[];
+  sections: ScheduleSection[];
   /** Shown instead of the months when there are no payments */
   emptyMessage: string;
 };
 
 /** Events grouped by month: the shared list of the payments and schedule screens. */
-export function PaymentSectionList({ emptyMessage, ...props }: Props) {
+export function ScheduleSectionList({ emptyMessage, ...props }: Props) {
   return (
     <SectionList
       {...props}
@@ -32,7 +32,7 @@ export function PaymentSectionList({ emptyMessage, ...props }: Props) {
             {section.title}
           </Typography>
           <Typography variant="caption1" tone="secondary">
-            {section.total}
+            {section.paymentTotal}
           </Typography>
         </View>
       )}
@@ -43,7 +43,7 @@ export function PaymentSectionList({ emptyMessage, ...props }: Props) {
       }
       renderItem={({ item, index, section }) => (
         <SectionCell index={index} count={section.data.length}>
-          <PaymentRow payment={item} showIsin />
+          <ScheduleEventRow event={item} showIsin />
         </SectionCell>
       )}
     />

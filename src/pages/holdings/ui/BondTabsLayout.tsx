@@ -40,7 +40,10 @@ export function BondTabsLayout() {
           name="payments"
           options={{ title: bond ? `Виплати (${payments.length})` : 'Виплати' }}
         />
-        <TopTabs.Screen name="purchases" options={{ title: `Покупки (${position.lots.length})` }} />
+        <TopTabs.Screen
+          name="purchases"
+          options={{ title: `Покупки (${position.purchases.length})` }}
+        />
       </TopTabs>
       {canTopUp && (
         <FloatingActionButton

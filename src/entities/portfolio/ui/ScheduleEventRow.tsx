@@ -12,7 +12,7 @@ import {
 import { SERIES_COLORS, type SeriesColor } from '@/shared/theme';
 import { Avatar, Typography } from '@/shared/ui';
 
-import type { ScheduleEvent } from '../model/ovdp';
+import type { ScheduleEvent } from '../model/portfolio';
 
 const KINDS = {
   coupon: 'Купон',
@@ -27,7 +27,7 @@ const SERIES = {
 } as const satisfies Record<ScheduleEvent['type'], SeriesColor>;
 
 type Props = {
-  payment: ScheduleEvent;
+  event: ScheduleEvent;
   showIsin?: boolean;
   /** For positions bought in several purchases, where the quantity differs between payments */
   showQuantity?: boolean;
@@ -37,38 +37,38 @@ type Props = {
  * A payment, or a purchase (money paid) when the event is one. A payment still ahead says how
  * many days are left until it.
  */
-export function PaymentRow({ payment, showIsin, showQuantity }: Props) {
-  const series = SERIES[payment.type];
-  const isPurchase = payment.type === 'purchase';
-  const isPaid = !isPurchase && payment.isPaid;
-  const isUpcoming = !isPurchase && !payment.isPaid;
+export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
+  const series = SERIES[event.type];
+  const isPurchase = event.type === 'purchase';
+  const isPaid = !isPurchase && event.isPaid;
+  const isUpcoming = !isPurchase && !event.isPaid;
   const tone = isPaid ? 'secondary' : 'primary';
   const kind = [
-    isPurchase ? (payment.isTopUp ? 'Докупівля' : 'Купівля') : KINDS[payment.type],
+    isPurchase ? (event.isTopUp ? 'Докупівля' : 'Купівля') : KINDS[event.type],
     // A no-break space keeps "10 шт" on one line.
-    (showQuantity || isPurchase) && `${payment.quantity} шт`,
+    (showQuantity || isPurchase) && `${event.quantity} шт`,
     isPaid && 'виплачено',
-    isUpcoming && formatDaysLeft(daysBetween(todayISO(), payment.date)),
+    isUpcoming && formatDaysLeft(daysBetween(todayISO(), event.date)),
   ]
     .filter(Boolean)
     .join(' · ');
 
   return (
     <View style={[styles.row, isPaid && styles.paid]}>
-      <Avatar label={payment.currency ? currencySign(payment.currency) : '?'} color={series} />
-      <View style={styles.paymentLeft}>
+      <Avatar label={event.currency ? currencySign(event.currency) : '?'} color={series} />
+      <View style={styles.eventDetails}>
         {showIsin && (
           <Typography variant="callout" weight="semibold">
-            {payment.isin}
+            {event.isin}
           </Typography>
         )}
         <Typography variant="caption1" tone="secondary">
           {kind}
         </Typography>
       </View>
-      <View style={styles.paymentRight}>
+      <View style={styles.eventAmount}>
         <Typography variant="caption1" tone={tone} tabular align="right">
-          {formatDate(payment.date)}
+          {formatDate(event.date)}
         </Typography>
         <Typography
           variant="callout"
@@ -78,7 +78,7 @@ export function PaymentRow({ payment, showIsin, showQuantity }: Props) {
           style={styles.amount(series)}
         >
           {isPurchase ? '−' : '+'}
-          {formatMoney(payment.total, payment.currency)}
+          {formatMoney(event.total, event.currency)}
         </Typography>
       </View>
     </View>
@@ -96,8 +96,8 @@ const styles = StyleSheet.create((theme) => ({
     minHeight: 48,
   },
   paid: { opacity: 0.6 },
-  paymentLeft: { gap: 2, flex: 1 },
-  paymentRight: { gap: 2, flexShrink: 0 },
+  eventDetails: { gap: 2, flex: 1 },
+  eventAmount: { gap: 2, flexShrink: 0 },
   // Amounts take the text-contrast step of the series hue.
   amount: (series: SeriesColor) => ({ color: theme[SERIES_COLORS[series].text] }),
 }));

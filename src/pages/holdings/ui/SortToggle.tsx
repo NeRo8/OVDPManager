@@ -1,7 +1,7 @@
 import { Pressable } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import type { BondSort } from '@/features/add-holding';
+import type { BondSort } from '@/features/add-purchase';
 import { ThemedSymbolView, Typography } from '@/shared/ui';
 
 const SORT_LABELS: Record<BondSort, string> = {

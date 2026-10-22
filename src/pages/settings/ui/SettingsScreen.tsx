@@ -20,19 +20,19 @@ const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
 ];
 
 export default function SettingsScreen() {
-  const { holdingsCount, isBusy, exportBackup, saveMock, loadMock } = useBackupActions();
+  const { numberOfPurchases, isBusy, exportBackup, saveMock, loadMock } = useBackupActions();
   const themePreference = useThemePreference();
 
   return (
     <ScreenScrollView>
       <Section
         title="Дані"
-        footer={`У гаманці ${purchaseCount(holdingsCount)}. Дані зберігаються на цьому пристрої; копія у JSON-файлі дає змогу відновити їх тут чи на іншому пристрої.`}
+        footer={`У гаманці ${purchaseCount(numberOfPurchases)}. Дані зберігаються на цьому пристрої; копія у JSON-файлі дає змогу відновити їх тут чи на іншому пристрої.`}
       >
         <ActionRow
           title="Створити копію"
           onPress={exportBackup}
-          disabled={isBusy || holdingsCount === 0}
+          disabled={isBusy || numberOfPurchases === 0}
         />
         <Separator />
         <LinkRow title="Відновити з копії" onPress={() => router.push('/backup/import')} />
@@ -43,7 +43,7 @@ export default function SettingsScreen() {
           <ActionRow
             title="Зберегти дані як мок"
             onPress={saveMock}
-            disabled={isBusy || holdingsCount === 0}
+            disabled={isBusy || numberOfPurchases === 0}
           />
           <Separator />
           <ActionRow title="Завантажити мок" onPress={loadMock} disabled={isBusy} />

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { type Holding, PurchaseSchema, replaceHoldings } from '@/entities/portfolio';
+import { type Purchase, PurchaseInputSchema, replacePurchases } from '@/entities/portfolio';
 import { confirmDestructive, plural, todayISO } from '@/shared/lib';
 
 const FORMAT = 'ovdp-manager-backup';
@@ -21,13 +21,13 @@ export function errorStatus(error: unknown): BackupStatus {
  * `source` completes the messages: "з файлу", "з мока".
  */
 export function replaceWithBackup(
-  restored: Holding[],
+  restored: Purchase[],
   currentCount: number,
   source: string,
   onReplaced: (status: BackupStatus) => void,
 ) {
   const apply = () => {
-    replaceHoldings(restored);
+    replacePurchases(restored);
     onReplaced({ error: false, text: `Відновлено ${purchaseCount(restored.length)} ${source}.` });
   };
   if (currentCount === 0) {
@@ -46,15 +46,16 @@ export type Backup = {
   format: typeof FORMAT;
   version: 1;
   exportedAt: string;
-  holdings: Holding[];
+  /** Kept for compatibility with existing exported JSON files. */
+  holdings: Purchase[];
 };
 
-export function serializeBackup(holdings: Holding[]): string {
+export function serializeBackup(purchases: Purchase[]): string {
   const backup: Backup = {
     format: FORMAT,
     version: 1,
     exportedAt: new Date().toISOString(),
-    holdings,
+    holdings: purchases,
   };
   return JSON.stringify(backup, null, 2);
 }
@@ -64,7 +65,7 @@ export function backupFileName(): string {
 }
 
 /** A purchase in a backup file. The file comes from outside the app, so it is checked. */
-const BackupHoldingSchema = PurchaseSchema.extend({
+const BackupPurchaseSchema = PurchaseInputSchema.extend({
   id: z.string().min(1, { error: 'id покупки не може бути порожнім' }).optional(),
 });
 
@@ -75,7 +76,7 @@ const BackupListSchema = z.union([
 ]);
 
 /** Reads a backup file (or a bare array of purchases). Throws an Error with a user-facing message. */
-export function parseBackup(text: string): Holding[] {
+export function parseBackup(text: string): Purchase[] {
   let data: unknown;
   try {
     data = JSON.parse(text);
@@ -90,17 +91,17 @@ export function parseBackup(text: string): Holding[] {
 
   const ids = new Set<string>();
   return list.data.map((item, index) => {
-    const holding = BackupHoldingSchema.safeParse(item);
-    if (!holding.success) {
-      const problems = [...new Set(holding.error.issues.map((issue) => issue.message))];
+    const purchase = BackupPurchaseSchema.safeParse(item);
+    if (!purchase.success) {
+      const problems = [...new Set(purchase.error.issues.map((issue) => issue.message))];
       throw new Error(`Покупка №${index + 1}: ${problems.join('; ')}`);
     }
-    const { id, ...purchase } = holding.data;
+    const { id, ...purchaseData } = purchase.data;
     const restoredId = id ?? `restored-${index}-${Date.now().toString(36)}`;
     if (ids.has(restoredId)) {
       throw new Error(`Покупка №${index + 1}: id покупки повторюється`);
     }
     ids.add(restoredId);
-    return { ...purchase, id: restoredId };
+    return { ...purchaseData, id: restoredId };
   });
 }

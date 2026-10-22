@@ -17,7 +17,7 @@ export function useFilteredWallet() {
       .map(({ position }) => position.isin)
       .sort(),
     currencies: CURRENCIES.filter((currency) =>
-      [...wallet.payments, ...wallet.purchases].some((event) => event.currency === currency),
+      [...wallet.payments, ...wallet.purchaseEvents].some((event) => event.currency === currency),
     ),
   };
   const filters = effectiveFilters(savedFilters, options);

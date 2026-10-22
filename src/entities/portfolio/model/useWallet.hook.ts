@@ -1,6 +1,6 @@
 import { todayISO } from '@/shared/lib';
 import { useBonds } from '../api/bonds.store';
-import { useHoldings } from './holdings.store';
+import { usePurchases } from './purchases.store';
 import {
   type Bond,
   type Currency,
@@ -11,7 +11,7 @@ import {
   positionCurrency,
   positionPayments,
   purchaseEvents,
-} from './ovdp';
+} from './portfolio';
 
 export type WalletPosition = {
   position: Position;
@@ -19,7 +19,7 @@ export type WalletPosition = {
   bond?: Bond;
   currency: Currency | null;
   payments: PositionPayment[];
-  next?: PositionPayment;
+  nextPayment?: PositionPayment;
 };
 
 /**
@@ -27,19 +27,19 @@ export type WalletPosition = {
  * from. Payments of positions missing from the NBU data are left out.
  */
 export function useWallet() {
-  const holdings = useHoldings();
+  const purchases = usePurchases();
   const { bonds, byIsin, isFetching, error, refresh } = useBonds();
   const today = todayISO();
 
-  const positions = groupPositions(holdings).map((position): WalletPosition => {
+  const positions = groupPositions(purchases).map((position): WalletPosition => {
     const bond = byIsin.get(position.isin);
-    const payments = bond ? positionPayments(position.lots, bond, today) : [];
+    const payments = bond ? positionPayments(position.purchases, bond, today) : [];
     return {
       position,
       bond,
       currency: positionCurrency(position, bond),
       payments,
-      next: nextPayment(payments),
+      nextPayment: nextPayment(payments),
     };
   });
   const payments = positions
@@ -47,7 +47,7 @@ export function useWallet() {
     .sort((a, b) => a.date.localeCompare(b.date));
 
   return {
-    holdingsCount: holdings.length,
+    numberOfPurchases: purchases.length,
     bonds,
     byIsin,
     isFetching,
@@ -56,7 +56,7 @@ export function useWallet() {
     today,
     positions,
     payments,
-    purchases: purchaseEvents(holdings, byIsin),
+    purchaseEvents: purchaseEvents(purchases, byIsin),
   };
 }
 

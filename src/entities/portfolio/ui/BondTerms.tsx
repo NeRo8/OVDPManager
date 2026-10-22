@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { formatDate, formatMoney } from '@/shared/lib';
 import { Typography } from '@/shared/ui';
-import type { Bond } from '../model/ovdp';
+import type { Bond } from '../model/portfolio';
 
 type Props = {
   bond: Bond;

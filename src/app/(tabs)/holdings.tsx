@@ -1,5 +1,5 @@
-import { HoldingsScreen } from '@/pages/holdings';
+import { PortfolioScreen } from '@/pages/holdings';
 
 export default function HoldingsRoute() {
-  return <HoldingsScreen />;
+  return <PortfolioScreen />;
 }

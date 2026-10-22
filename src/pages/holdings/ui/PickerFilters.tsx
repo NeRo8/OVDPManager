@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { type BondTerm, useBondPicker } from '@/features/add-holding';
+import { type BondTerm, useBondPicker } from '@/features/add-purchase';
 import { currencySign } from '@/shared/lib';
 import { ChipSelect } from '@/shared/ui';
 

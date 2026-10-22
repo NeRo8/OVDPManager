@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import {
-  addHolding,
+  addPurchase,
   nextPayment,
   positionPayments,
   sumTotals,
@@ -10,7 +10,7 @@ import {
 import { formatDate, parseAmount, round2 } from '@/shared/lib';
 
 /** The second step of adding a purchase: what was paid for the chosen bond, and when. */
-export function useAddHoldingForm(isin: string) {
+export function useAddPurchaseForm(isin: string) {
   const { bonds, byIsin, error, refresh, today, positions } = useWallet();
 
   const [purchaseDate, setPurchaseDate] = useState(today);
@@ -42,7 +42,7 @@ export function useAddHoldingForm(isin: string) {
     );
     const income = sumTotals(payments);
     return {
-      next: nextPayment(payments),
+      nextPayment: nextPayment(payments),
       couponsLeft: payments.filter((p) => p.type === 'coupon' && !p.isPaid).length,
       income,
       profit: amountValid ? round2(income - amount) : null,
@@ -59,7 +59,7 @@ export function useAddHoldingForm(isin: string) {
   /** Adds the purchase; false when the form cannot be saved yet. */
   function save(): boolean {
     if (!bond || !canSave) return false;
-    addHolding({
+    addPurchase({
       isin: bond.isin,
       purchaseDate,
       amount: round2(amount),

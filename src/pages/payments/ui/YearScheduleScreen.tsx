@@ -5,7 +5,7 @@ import { NbuSourceNote, StaleBondsNotice } from '@/entities/portfolio';
 import { SegmentedSelect, YearNav } from '@/shared/ui';
 import { useFilteredWallet } from '../model/useFilteredWallet.hook';
 import { useYearSchedule } from '../model/useYearSchedule.hook';
-import { PaymentSectionList } from './PaymentSectionList';
+import { ScheduleSectionList } from './ScheduleSectionList';
 import { ScheduleSummary } from './ScheduleSummary';
 
 /** One year: money in and out, the monthly chart, then every payment and purchase. */
@@ -27,7 +27,7 @@ export default function YearScheduleScreen() {
   } = schedule;
 
   return (
-    <PaymentSectionList
+    <ScheduleSectionList
       sections={sections}
       refreshControl={<RefreshControl refreshing={wallet.isFetching} onRefresh={wallet.refresh} />}
       ListHeaderComponent={

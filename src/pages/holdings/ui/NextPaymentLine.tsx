@@ -5,11 +5,11 @@ import { formatDate, formatMoney } from '@/shared/lib';
 import { Typography } from '@/shared/ui';
 
 type Props = {
-  next?: PositionPayment;
+  nextPayment?: PositionPayment;
   hasBond: boolean;
 };
 
-export function NextPaymentLine({ next, hasBond }: Props) {
+export function NextPaymentLine({ nextPayment, hasBond }: Props) {
   if (!hasBond) {
     return (
       <Typography variant="caption1" tone="danger">
@@ -17,7 +17,7 @@ export function NextPaymentLine({ next, hasBond }: Props) {
       </Typography>
     );
   }
-  if (!next) {
+  if (!nextPayment) {
     return (
       <Typography variant="caption1" tone="secondary">
         Погашено
@@ -26,9 +26,9 @@ export function NextPaymentLine({ next, hasBond }: Props) {
   }
   return (
     <Typography variant="subhead" style={styles.nextLine}>
-      Далі: {formatDate(next.date)} —{' '}
+      Далі: {formatDate(nextPayment.date)} —{' '}
       <Typography variant="subhead" tone="positive">
-        {formatMoney(next.total, next.currency)}
+        {formatMoney(nextPayment.total, nextPayment.currency)}
       </Typography>
     </Typography>
   );
