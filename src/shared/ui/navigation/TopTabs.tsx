@@ -1,5 +1,5 @@
 import BaseTopTabs, { type JSTopTabsProps } from 'expo-router/js-top-tabs';
-import { useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { typography } from '@/shared/theme';
 
@@ -30,7 +30,8 @@ function ThemedTopTabs(props: Props) {
           backgroundColor: theme.card,
           elevation: 0,
           shadowOpacity: 0,
-          borderBottomWidth: 0.5,
+          // The same line as under the tab headers, so the payments tab ends like the others.
+          borderBottomWidth: StyleSheet.hairlineWidth,
           borderBottomColor: theme.border,
         },
         tabBarLabelStyle: { ...typography.subhead, fontWeight: '600', textTransform: 'none' },

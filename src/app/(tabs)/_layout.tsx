@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router/js-tabs';
 import { Ionicons } from '@react-native-vector-icons/ionicons/static';
-import { useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { PaymentFiltersButton } from '@/pages/payments';
 import { PlanListButton } from '@/pages/plan';
@@ -16,7 +16,14 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.secondaryText,
         tabBarStyle: { backgroundColor: colors.card, borderTopColor: colors.border },
-        headerStyle: { backgroundColor: colors.card },
+        // Every tab header ends in the same hairline in the theme's border color, instead of the
+        // platform shadow (a grey line on iOS, an elevation shadow on Android).
+        headerShadowVisible: false,
+        headerStyle: {
+          backgroundColor: colors.card,
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: colors.border,
+        },
         headerTintColor: colors.text,
       }}
     >
@@ -24,8 +31,8 @@ export default function TabLayout() {
         name="(payments)"
         options={{
           title: 'Виплати',
-          // The top tabs continue the header, so the line goes under them instead.
-          headerShadowVisible: false,
+          // The top tabs continue the header, so the same line goes under them instead.
+          headerStyle: { backgroundColor: colors.card },
           headerRight: () => <PaymentFiltersButton />,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={24} color={color} />
