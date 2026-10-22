@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -13,10 +12,11 @@ type BondChoiceRowProps = {
   owned?: number;
   /** Search results mix currencies; the filtered list is all in one */
   showCurrency: boolean;
+  onPress: () => void;
 };
 
 /** A bond to choose: what it pays on the right, when it matures and what is owned on the left. */
-export function BondChoiceRow({ bond, today, owned, showCurrency }: BondChoiceRowProps) {
+export function BondChoiceRow({ bond, today, owned, showCurrency, onPress }: BondChoiceRowProps) {
   const isActive = bond.maturityDate > today;
   const details = [
     showCurrency && bond.currency,
@@ -30,7 +30,7 @@ export function BondChoiceRow({ bond, today, owned, showCurrency }: BondChoiceRo
 
   return (
     <Pressable
-      onPress={() => router.push({ pathname: '/add/[isin]', params: { isin: bond.isin } })}
+      onPress={onPress}
       accessibilityRole="link"
       accessibilityLabel={`${bond.isin}, ${bond.rate}% річних, ${details}`}
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}

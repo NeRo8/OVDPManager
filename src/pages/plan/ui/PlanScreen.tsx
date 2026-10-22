@@ -298,7 +298,7 @@ export default function PlanScreen() {
       </ScreenScrollView>
       <FloatingActionButton
         accessibilityLabel="Додати покупку до плану"
-        onPress={() => router.push({ pathname: '/plan/choose', params: { planId } })}
+        onPress={() => router.push({ pathname: '/add', params: { planId } })}
       />
     </View>
   );
