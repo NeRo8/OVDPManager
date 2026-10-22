@@ -1,12 +1,11 @@
 import { BottomTabBarHeightContext } from 'expo-router/js-tabs';
-import type { SymbolViewProps } from 'expo-symbols';
 import { use } from 'react';
 import { Pressable, type StyleProp, type ViewStyle } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { space } from '@/shared/theme';
 import { Typography } from '../typography/Typography';
-import { ThemedSymbolView } from './ThemedSymbolView';
+import { type IconName, ThemedIcon } from '../icon/ThemedIcon';
 
 const SIZE = 56;
 const MARGIN = space.lg;
@@ -17,7 +16,7 @@ export const FAB_CLEARANCE = SIZE + MARGIN * 2;
 export type FloatingActionButtonProps = {
   label?: string;
   accessibilityLabel: string;
-  icon?: SymbolViewProps['name'];
+  icon?: IconName;
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
 };
@@ -30,7 +29,7 @@ export type FloatingActionButtonProps = {
 export function FloatingActionButton({
   label,
   accessibilityLabel,
-  icon = { ios: 'plus', android: 'add' },
+  icon = 'add',
   onPress,
   style,
 }: FloatingActionButtonProps) {
@@ -45,11 +44,7 @@ export function FloatingActionButton({
       accessibilityLabel={accessibilityLabel}
       style={({ pressed }) => [styles.button, pressed && styles.pressed, style]}
     >
-      <ThemedSymbolView
-        name={icon}
-        size={24}
-        uniProps={(theme) => ({ tintColor: theme.fabText })}
-      />
+      <ThemedIcon name={icon} size={28} uniProps={(theme) => ({ color: theme.fabText })} />
       {label && (
         <Typography variant="headline" style={styles.label}>
           {label}

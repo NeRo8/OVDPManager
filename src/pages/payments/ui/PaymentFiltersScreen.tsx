@@ -52,7 +52,7 @@ export default function PaymentFiltersScreen() {
         options={{
           headerRight: () => (
             <HeaderButton
-              icon={{ ios: 'arrow.counterclockwise', android: 'restart_alt' }}
+              icon="refresh"
               accessibilityLabel="Скинути фільтри"
               onPress={resetPaymentFilters}
               disabled={activeFilterCount === 0}

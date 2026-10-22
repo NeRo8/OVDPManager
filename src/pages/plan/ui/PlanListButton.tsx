@@ -6,7 +6,7 @@ import { HeaderButton } from '@/shared/ui';
 export function PlanListButton() {
   return (
     <HeaderButton
-      icon={{ ios: 'list.bullet', android: 'format_list_bulleted' }}
+      icon="list"
       accessibilityLabel="Мої плани"
       onPress={() => router.push('/plan/list')}
     />

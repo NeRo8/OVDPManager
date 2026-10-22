@@ -1,17 +1,16 @@
-import type { SymbolViewProps } from 'expo-symbols';
 import { Pressable } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { ThemedSymbolView } from './ThemedSymbolView';
+import { type IconName, ThemedIcon } from '../icon/ThemedIcon';
 
 export type HeaderButtonProps = {
-  icon: SymbolViewProps['name'];
+  icon: IconName;
   accessibilityLabel: string;
   onPress: () => void;
   disabled?: boolean;
   /** `neutral` for a toggle that is off, so the accent color marks it as on */
   tone?: 'accent' | 'neutral';
-  /** Glyph size; circled symbols need more than the default to match plain ones */
+  /** Glyph size; circled icons need more than the default to match plain ones */
   size?: number;
 };
 
@@ -22,7 +21,7 @@ export function HeaderButton({
   onPress,
   disabled,
   tone = 'accent',
-  size = 20,
+  size = 24,
 }: HeaderButtonProps) {
   return (
     <Pressable
@@ -37,11 +36,10 @@ export function HeaderButton({
         disabled ? styles.disabled : pressed && styles.pressed,
       ]}
     >
-      <ThemedSymbolView
+      <ThemedIcon
         name={icon}
         size={size}
-        weight="semibold"
-        uniProps={(theme) => ({ tintColor: tone === 'accent' ? theme.accent : theme.text })}
+        uniProps={(theme) => ({ color: tone === 'accent' ? theme.accent : theme.text })}
       />
     </Pressable>
   );

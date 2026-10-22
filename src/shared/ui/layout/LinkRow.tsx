@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { ThemedSymbolView } from '../button/ThemedSymbolView';
+import { ThemedIcon } from '../icon/ThemedIcon';
 import { Typography } from '../typography/Typography';
 
 export type LinkRowProps = {
@@ -28,11 +28,10 @@ export function LinkRow({ title, subtitle, onPress }: LinkRowProps) {
           </Typography>
         )}
       </View>
-      <ThemedSymbolView
-        name={{ ios: 'chevron.right', android: 'chevron_right' }}
-        size={14}
-        weight="semibold"
-        uniProps={(theme) => ({ tintColor: theme.secondaryText })}
+      <ThemedIcon
+        name="chevron-forward"
+        size={16}
+        uniProps={(theme) => ({ color: theme.secondaryText })}
       />
     </Pressable>
   );

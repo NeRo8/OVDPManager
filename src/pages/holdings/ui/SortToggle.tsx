@@ -2,7 +2,7 @@ import { Pressable } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import type { BondSort } from '@/features/add-purchase';
-import { ThemedSymbolView, Typography } from '@/shared/ui';
+import { ThemedIcon, Typography } from '@/shared/ui';
 
 const SORT_LABELS: Record<BondSort, string> = {
   maturity: 'За погашенням',
@@ -24,12 +24,7 @@ export function SortToggle({ sort, onChange }: SortToggleProps) {
       accessibilityLabel={`Сортування: ${SORT_LABELS[sort].toLowerCase()}. Змінити`}
       style={({ pressed }) => [styles.sort, pressed && styles.sortPressed]}
     >
-      <ThemedSymbolView
-        name={{ ios: 'arrow.up.arrow.down', android: 'swap_vert' }}
-        size={13}
-        weight="semibold"
-        uniProps={(theme) => ({ tintColor: theme.accent })}
-      />
+      <ThemedIcon name="swap-vertical" size={14} uniProps={(theme) => ({ color: theme.accent })} />
       <Typography variant="footnote" weight="semibold" tone="accent">
         {SORT_LABELS[sort]}
       </Typography>

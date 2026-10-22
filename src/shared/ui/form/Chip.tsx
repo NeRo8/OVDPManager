@@ -1,14 +1,13 @@
-import type { SymbolViewProps } from 'expo-symbols';
 import { Pressable } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { ThemedSymbolView } from '../button/ThemedSymbolView';
+import { type IconName, ThemedIcon } from '../icon/ThemedIcon';
 import { Typography } from '../typography/Typography';
 
 export type ChipProps = {
   label: string;
   selected?: boolean;
-  icon?: SymbolViewProps['name'];
+  icon?: IconName;
   onPress: () => void;
   accessibilityLabel?: string;
 };
@@ -25,11 +24,10 @@ export function Chip({ label, selected = false, icon, onPress, accessibilityLabe
       style={({ pressed }) => [styles.chip, pressed && styles.pressed]}
     >
       {icon && (
-        <ThemedSymbolView
+        <ThemedIcon
           name={icon}
-          size={13}
-          weight="semibold"
-          uniProps={(theme) => ({ tintColor: selected ? theme.accentText : theme.text })}
+          size={14}
+          uniProps={(theme) => ({ color: selected ? theme.accentText : theme.text })}
         />
       )}
       <Typography variant="footnote" weight="semibold" tone={selected ? 'onAccent' : 'primary'}>

@@ -10,13 +10,8 @@ export function PaymentFiltersButton() {
 
   return (
     <HeaderButton
-      icon={
-        isFiltered
-          ? { ios: 'line.3.horizontal.decrease.circle.fill', android: 'filter_alt' }
-          : { ios: 'line.3.horizontal.decrease.circle', android: 'filter_list' }
-      }
+      icon={isFiltered ? 'options' : 'options-outline'}
       tone={isFiltered ? 'accent' : 'neutral'}
-      size={26}
       accessibilityLabel={isFiltered ? `Фільтри, увімкнено: ${activeFilterCount}` : 'Фільтри'}
       onPress={() => router.push('/payment-filters')}
     />

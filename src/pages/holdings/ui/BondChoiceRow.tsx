@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import type { Bond } from '@/entities/portfolio';
 import { formatDate, formatTimeLeft } from '@/shared/lib';
-import { ThemedSymbolView, Typography } from '@/shared/ui';
+import { ThemedIcon, Typography } from '@/shared/ui';
 
 type BondChoiceRowProps = {
   bond: Bond;
@@ -46,11 +46,10 @@ export function BondChoiceRow({ bond, today, owned, showCurrency, onPress }: Bon
       <Typography variant="headline" tabular tone={isActive ? 'primary' : 'secondary'}>
         {bond.rate}%
       </Typography>
-      <ThemedSymbolView
-        name={{ ios: 'chevron.right', android: 'chevron_right' }}
-        size={14}
-        weight="semibold"
-        uniProps={(theme) => ({ tintColor: theme.secondaryText })}
+      <ThemedIcon
+        name="chevron-forward"
+        size={16}
+        uniProps={(theme) => ({ color: theme.secondaryText })}
       />
     </Pressable>
   );

@@ -41,11 +41,7 @@ export default function RootLayout() {
               title: 'Фільтри виплат',
               presentation: 'modal',
               headerLeft: () => (
-                <HeaderButton
-                  icon={{ ios: 'xmark', android: 'close' }}
-                  accessibilityLabel="Закрити"
-                  onPress={goBackOrHome}
-                />
+                <HeaderButton icon="close" accessibilityLabel="Закрити" onPress={goBackOrHome} />
               ),
             }}
           />

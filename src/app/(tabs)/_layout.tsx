@@ -1,12 +1,13 @@
 import { Tabs } from 'expo-router/js-tabs';
-import { SymbolView } from 'expo-symbols';
+import { Ionicons } from '@react-native-vector-icons/ionicons/static';
 import { useUnistyles } from 'react-native-unistyles';
 
 import { PaymentFiltersButton } from '@/pages/payments';
 import { PlanListButton } from '@/pages/plan';
 
 export default function TabLayout() {
-  // Navigator options are props, not styles, so the theme is read here.
+  // Navigator options are props, not styles, so the theme is read here. Tab icons are filled when
+  // the tab is selected and outlined otherwise.
   const { theme: colors } = useUnistyles();
 
   return (
@@ -26,12 +27,8 @@ export default function TabLayout() {
           // The top tabs continue the header, so the line goes under them instead.
           headerShadowVisible: false,
           headerRight: () => <PaymentFiltersButton />,
-          tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{ ios: 'calendar', android: 'calendar_month' }}
-              size={24}
-              tintColor={color}
-            />
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={24} color={color} />
           ),
         }}
       />
@@ -39,12 +36,8 @@ export default function TabLayout() {
         name="holdings"
         options={{
           title: 'Гаманець',
-          tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{ ios: 'wallet.bifold', android: 'account_balance_wallet' }}
-              size={24}
-              tintColor={color}
-            />
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'wallet' : 'wallet-outline'} size={24} color={color} />
           ),
         }}
       />
@@ -53,12 +46,8 @@ export default function TabLayout() {
         options={{
           title: 'Плани',
           headerRight: () => <PlanListButton />,
-          tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{ ios: 'chart.bar.xaxis', android: 'bar_chart' }}
-              size={24}
-              tintColor={color}
-            />
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'bar-chart' : 'bar-chart-outline'} size={24} color={color} />
           ),
         }}
       />
@@ -66,12 +55,8 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: 'Налаштування',
-          tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{ ios: 'gearshape', android: 'settings' }}
-              size={24}
-              tintColor={color}
-            />
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'settings' : 'settings-outline'} size={24} color={color} />
           ),
         }}
       />

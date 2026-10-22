@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { ThemedSymbolView } from '../button/ThemedSymbolView';
+import { ThemedIcon } from '../icon/ThemedIcon';
 import { Typography } from '../typography/Typography';
 
 export type CheckRowProps = {
@@ -31,12 +31,7 @@ export function CheckRow({ title, subtitle, checked, onPress }: CheckRowProps) {
         )}
       </View>
       {checked && (
-        <ThemedSymbolView
-          name={{ ios: 'checkmark', android: 'check' }}
-          size={17}
-          weight="semibold"
-          uniProps={(theme) => ({ tintColor: theme.accent })}
-        />
+        <ThemedIcon name="checkmark" size={20} uniProps={(theme) => ({ color: theme.accent })} />
       )}
     </Pressable>
   );

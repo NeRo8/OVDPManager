@@ -36,7 +36,7 @@ export default function PlanListScreen() {
         options={{
           headerRight: () => (
             <HeaderButton
-              icon={{ ios: 'plus', android: 'add' }}
+              icon="add"
               accessibilityLabel="Створити план"
               onPress={() => router.push('/plan/name')}
             />
