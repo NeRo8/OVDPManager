@@ -48,6 +48,7 @@ export function useBondDetails(isin: string) {
   }
 
   return {
+    today,
     position,
     bond,
     payments,

@@ -15,9 +15,22 @@ import { currencySign, formatDate, formatMoney, plural } from '@/shared/lib';
 import { NbuSourceNote, StaleBondsNotice, WalletGate, useWallet } from '@/entities/portfolio';
 import { NextPaymentLine } from './NextPaymentLine';
 
+/** When the bonds were bought, or how many purchases there are, with the planned ones named. */
+function purchaseSummary(purchases: { purchaseDate: string }[], today: string): string {
+  if (purchases.length === 1) {
+    const [{ purchaseDate }] = purchases;
+    return purchaseDate > today
+      ? `заплановано на ${formatDate(purchaseDate)}`
+      : `куплено ${formatDate(purchaseDate)}`;
+  }
+  const planned = purchases.filter((purchase) => purchase.purchaseDate > today).length;
+  const count = `${purchases.length} ${plural(purchases.length, 'покупка', 'покупки', 'покупок')}`;
+  return planned ? `${count}, ${planned} заплановано` : count;
+}
+
 export default function PortfolioScreen() {
   const wallet = useWallet();
-  const { isFetching, error, refresh, positions } = wallet;
+  const { isFetching, error, refresh, positions, today } = wallet;
 
   return (
     <WalletGate wallet={wallet}>
@@ -59,9 +72,7 @@ export default function PortfolioScreen() {
                   </View>
                   <Typography variant="caption1" tone="secondary">
                     {position.quantity} шт · {formatMoney(position.investedAmount, currency)} ·{' '}
-                    {position.purchases.length === 1
-                      ? `куплено ${formatDate(position.purchases[0].purchaseDate)}`
-                      : `${position.purchases.length} ${plural(position.purchases.length, 'покупка', 'покупки', 'покупок')}`}
+                    {purchaseSummary(position.purchases, today)}
                   </Typography>
                   <NextPaymentLine nextPayment={nextPayment} hasBond={!!bond} />
                 </View>

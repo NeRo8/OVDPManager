@@ -8,7 +8,7 @@ import {
   usePurchases,
   type InvestmentPlan,
 } from '@/entities/portfolio';
-import { plural } from '@/shared/lib';
+import { plural, todayISO } from '@/shared/lib';
 import { CheckRow, HeaderButton, ScreenScrollView, Section, Separator } from '@/shared/ui';
 
 /** All plans; the checked one is what the app shows, now and on the next launch. */
@@ -16,15 +16,17 @@ export default function PlanListScreen() {
   const plans = useInvestmentPlans();
   const purchases = usePurchases();
   const activePlan = useActivePlan();
+  const today = todayISO();
 
   function subtitle(plan: InvestmentPlan) {
-    const owned = purchases.filter((purchase) => purchase.planId === plan.id).length;
-    const planned = plan.items.length;
+    const planPurchases = purchases.filter((purchase) => purchase.planId === plan.id);
+    const planned = planPurchases.filter((purchase) => purchase.purchaseDate > today).length;
     return [
-      owned
-        ? `${owned} ${plural(owned, 'покупка', 'покупки', 'покупок')} у гаманці`
-        : 'Гаманець порожній',
-      planned > 0 && `${planned} ${plural(planned, 'запланована', 'заплановані', 'запланованих')}`,
+      planPurchases.length
+        ? `${planPurchases.length} ${plural(planPurchases.length, 'покупка', 'покупки', 'покупок')}`
+        : 'Покупок ще немає',
+      planned > 0 &&
+        `з них ${planned} ${plural(planned, 'запланована', 'заплановані', 'запланованих')}`,
     ]
       .filter(Boolean)
       .join(' · ');

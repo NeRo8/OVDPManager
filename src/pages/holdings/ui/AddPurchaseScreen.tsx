@@ -17,8 +17,9 @@ import { BondParameters, BondsUnavailable } from '@/entities/portfolio';
 import { formatDate, formatMoney, showToast } from '@/shared/lib';
 
 /**
- * Second step of adding a purchase: the date, amount and quantity for the chosen bond. A top-up
- * from the bond's screen opens here directly, without the bond list before it.
+ * Second step of adding a purchase to the active plan: the date, quantity and price for the chosen
+ * bond. The date may lie ahead for a planned purchase. A top-up from the bond's screen opens here
+ * directly, without the bond list before it.
  */
 export default function AddPurchaseScreen() {
   const { isin, topUp } = useLocalSearchParams<{ isin: string; topUp?: string }>();
@@ -26,17 +27,16 @@ export default function AddPurchaseScreen() {
     bonds,
     error,
     refresh,
-    today,
     bond,
     ownedQuantity,
     purchaseDate,
     setPurchaseDate,
-    amountText,
-    setAmountText,
     quantityText,
     setQuantityText,
-    quantityPlaceholder,
-    pricePerBond,
+    priceText,
+    setPriceText,
+    amount,
+    isPlanned,
     dateProblem,
     preview,
     problem,
@@ -77,7 +77,7 @@ export default function AddPurchaseScreen() {
         title="ОВДП"
         footer={
           ownedQuantity > 0
-            ? `У гаманці вже є ${ownedQuantity} шт — ця покупка додасться до них.`
+            ? `У плані вже є ${ownedQuantity} шт — ця покупка додасться до них.`
             : undefined
         }
       >
@@ -87,36 +87,22 @@ export default function AddPurchaseScreen() {
       <BondParameters bond={bond} />
 
       <Section
-        title="Покупка"
+        title={isPlanned ? 'Запланована покупка' : 'Покупка'}
         footer={
           dateProblem ? (
             <Typography variant="caption1" tone="danger">
               {dateProblem}
             </Typography>
-          ) : pricePerBond !== null ? (
-            `Ціна 1 шт: ${formatMoney(pricePerBond, currency)}`
+          ) : isPlanned ? (
+            `Дата ще попереду: покупка буде в плані як запланована й почне приносити виплати після ${formatDate(purchaseDate)}.`
           ) : (
-            'Кількість облігацій дивіться у застосунку банку чи брокера — від неї залежить сума купонів.'
+            'Початкова ціна — номінал НБУ; змініть її на ціну з застосунку банку чи брокера.'
           )
         }
       >
         <InfoRow
           label="Дата купівлі"
-          value={<DateField value={purchaseDate} onChange={setPurchaseDate} maximumDate={today} />}
-        />
-        <Separator />
-        <InfoRow
-          label={`Сума, ${currency}`}
-          value={
-            <Input
-              variant="inline"
-              type="decimal"
-              value={amountText}
-              onChangeText={setAmountText}
-              placeholder="0,00"
-              style={styles.inlineInput}
-            />
-          }
+          value={<DateField value={purchaseDate} onChange={setPurchaseDate} />}
         />
         <Separator />
         <InfoRow
@@ -127,11 +113,27 @@ export default function AddPurchaseScreen() {
               type="integer"
               value={quantityText}
               onChangeText={setQuantityText}
-              placeholder={quantityPlaceholder}
+              placeholder="0"
               style={styles.inlineInput}
             />
           }
         />
+        <Separator />
+        <InfoRow
+          label={`Ціна 1 шт, ${currency}`}
+          value={
+            <Input
+              variant="inline"
+              type="decimal"
+              value={priceText}
+              onChangeText={setPriceText}
+              placeholder="0,00"
+              style={styles.inlineInput}
+            />
+          }
+        />
+        <Separator />
+        <InfoRow label="Сума" value={amount === null ? '—' : formatMoney(amount, currency)} />
       </Section>
 
       {preview && !dateProblem && (

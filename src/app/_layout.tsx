@@ -28,12 +28,10 @@ export default function RootLayout() {
         {/* Purchases live in plans, so the app opens only once there is one. */}
         <Stack.Protected guard={hasPlans} redirectTo="/welcome">
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          {/* Adding a purchase: choose a bond, then enter the purchase (or plan it, with `planId`). */}
+          {/* Adding a purchase to the active plan: choose a bond, then enter the purchase. */}
           <Stack.Screen name="add/index" options={{ title: 'Оберіть ОВДП' }} />
           <Stack.Screen name="add/[isin]" options={{ title: 'Додати ОВДП' }} />
           <Stack.Screen name="plan/name" options={{ title: 'Новий план' }} />
-          <Stack.Screen name="plan/new/[isin]" options={{ title: 'План покупки' }} />
-          <Stack.Screen name="plan/edit/[id]" options={{ title: 'Змінити план' }} />
           <Stack.Screen name="plan/list" options={{ title: 'Мої плани' }} />
           <Stack.Screen
             name="payment-filters"

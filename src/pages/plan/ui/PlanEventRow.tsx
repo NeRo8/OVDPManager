@@ -5,12 +5,17 @@ import type { ScheduleEvent } from '@/entities/portfolio';
 import { formatDate, formatMoney } from '@/shared/lib';
 import { Typography } from '@/shared/ui';
 
-type Props = { event: ScheduleEvent };
+type Props = {
+  event: ScheduleEvent;
+  today: string;
+};
 
-export function PlanEventRow({ event }: Props) {
+export function PlanEventRow({ event, today }: Props) {
   const isPurchase = event.type === 'purchase';
   const label = isPurchase
-    ? 'Запланована купівля'
+    ? event.date > today
+      ? 'Запланована купівля'
+      : 'Купівля'
     : event.type === 'coupon'
       ? 'Купон'
       : 'Погашення номіналу';

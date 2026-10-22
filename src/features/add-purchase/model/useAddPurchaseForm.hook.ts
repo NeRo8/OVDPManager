@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import {
   addPurchase,
@@ -9,32 +9,40 @@ import {
 } from '@/entities/portfolio';
 import { formatDate, parseAmount, round2 } from '@/shared/lib';
 
-/** The second step of adding a purchase: what was paid for the chosen bond, and when. */
+/**
+ * The second step of adding a purchase to the active plan: when, how many and at what price. The
+ * date may lie ahead: a planned purchase earns from its date on, like any other.
+ */
 export function useAddPurchaseForm(isin: string) {
   const { plan, bonds, byIsin, error, refresh, today, positions } = useWallet();
+  const bond = byIsin.get(isin) ?? null;
 
   const [purchaseDate, setPurchaseDate] = useState(today);
-  const [amountText, setAmountText] = useState('');
   const [quantityText, setQuantityText] = useState('');
+  const [enteredPrice, setPriceText] = useState<string | null>(null);
+  // NBU gives the nominal, not the price paid: it is only an editable starting value.
+  const priceText = enteredPrice ?? (bond ? String(bond.nominal) : '');
 
-  const bond = byIsin.get(isin) ?? null;
   const ownedQuantity =
     positions.find(({ position }) => position.isin === isin)?.position.quantity ?? 0;
-  const amount = parseAmount(amountText);
   const quantity = Number(quantityText);
-  const amountValid = Number.isFinite(amount) && amount > 0;
-  const quantityValid = Number.isInteger(quantity) && quantity > 0;
+  const price = round2(parseAmount(priceText));
+  const quantityValid = Number.isSafeInteger(quantity) && quantity > 0;
+  const priceValid =
+    Number.isFinite(price) && price > 0 && price * quantity <= Number.MAX_SAFE_INTEGER;
+  const amount = quantityValid && priceValid ? round2(price * quantity) : null;
+  const isPlanned = purchaseDate > today;
 
   const dateProblem = !bond
     ? null
     : purchaseDate < bond.issueDate
       ? `ОВДП розміщена ${formatDate(bond.issueDate)} — дата купівлі не може бути раніше`
       : purchaseDate >= bond.maturityDate
-        ? `ОВДП погашена ${formatDate(bond.maturityDate)}`
+        ? `ОВДП погашається ${formatDate(bond.maturityDate)} — купівля має бути раніше`
         : null;
 
-  const preview = useMemo(() => {
-    if (!bond || !quantityValid) return null;
+  const preview = (() => {
+    if (!bond || !quantityValid || dateProblem) return null;
     const payments = positionPayments(
       [{ id: 'preview', isin: bond.isin, purchaseDate, amount: 0, quantity }],
       bond,
@@ -45,36 +53,31 @@ export function useAddPurchaseForm(isin: string) {
       nextPayment: nextPayment(payments),
       couponsLeft: payments.filter((p) => p.type === 'coupon' && !p.isPaid).length,
       income,
-      profit: amountValid ? round2(income - amount) : null,
+      profit: amount === null ? null : round2(income - amount),
     };
-  }, [bond, quantityValid, purchaseDate, quantity, today, amountValid, amount]);
+  })();
 
-  const pricePerBond = amountValid && quantityValid ? round2(amount / quantity) : null;
-  /** Expected quantity at par, as a hint while only the amount is entered. */
-  const quantityPlaceholder =
-    bond && amountValid ? `≈ ${Math.max(1, Math.round(amount / bond.nominal))}` : '0';
   /** Why the purchase cannot be saved yet, or null when it can. */
   const problem = !plan
     ? 'Немає активного плану'
     : !bond
       ? 'Немає даних НБУ про цю ОВДП'
       : (dateProblem ??
-        (!amountValid
-          ? 'Вкажіть суму покупки — більше нуля'
-          : !quantityValid
-            ? 'Вкажіть кількість облігацій — ціле число, більше нуля'
+        (!quantityValid
+          ? 'Вкажіть кількість облігацій — ціле число, більше нуля'
+          : !priceValid
+            ? 'Вкажіть ціну однієї облігації — більше нуля'
             : null));
-  const canSave = problem === null;
   const currency = bond?.currency ?? 'UAH';
 
-  /** Adds the purchase; false when the form cannot be saved yet. */
+  /** Adds the purchase to the active plan; false when the form cannot be saved yet. */
   function save(): boolean {
-    if (!plan || !bond || !canSave) return false;
+    if (problem || !plan || !bond || amount === null) return false;
     addPurchase({
       planId: plan.id,
       isin: bond.isin,
       purchaseDate,
-      amount: round2(amount),
+      amount,
       quantity,
       currency: bond.currency,
     });
@@ -90,12 +93,12 @@ export function useAddPurchaseForm(isin: string) {
     ownedQuantity,
     purchaseDate,
     setPurchaseDate,
-    amountText,
-    setAmountText,
     quantityText,
     setQuantityText,
-    quantityPlaceholder,
-    pricePerBond,
+    priceText,
+    setPriceText,
+    amount,
+    isPlanned,
     dateProblem,
     preview,
     problem,

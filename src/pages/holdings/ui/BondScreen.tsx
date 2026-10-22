@@ -23,6 +23,7 @@ import { useBondDetails } from '../model/useBondDetails.hook';
 export default function BondScreen() {
   const { isin } = useLocalSearchParams<{ isin: string }>();
   const {
+    today,
     position,
     bond,
     payments,
@@ -97,6 +98,11 @@ export default function BondScreen() {
                   <Typography variant="callout" tabular>
                     {formatDate(purchase.purchaseDate)} · {purchase.quantity} шт
                   </Typography>
+                  {purchase.purchaseDate > today && (
+                    <Typography variant="caption1" tone="accent">
+                      Заплановано — виплати після цієї дати
+                    </Typography>
+                  )}
                   <Typography variant="caption1" tone="secondary">
                     {formatMoney(purchase.amount, purchaseCurrency(purchase, bond))} · по{' '}
                     {formatMoney(

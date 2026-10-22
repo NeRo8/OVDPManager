@@ -1,4 +1,4 @@
-import { Stack, router, useLocalSearchParams } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { FlatList, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -10,17 +10,13 @@ import { PickerFilters } from './PickerFilters';
 import { SortToggle } from './SortToggle';
 
 /**
- * First step of adding a purchase: bonds in circulation narrowed by currency and term, sorted by
- * maturity or rate. The header search finds any bond by ISIN. With `planId` the bond goes to a
- * planned purchase of that plan instead of the wallet, so matured bonds are left out.
+ * First step of adding a purchase to the active plan: bonds in circulation narrowed by currency
+ * and term, sorted by maturity or rate. The header search finds any bond by ISIN.
  */
 export default function BondPickerScreen() {
-  const { planId } = useLocalSearchParams<{ planId?: string }>();
   const picker = useBondPicker();
-  const { bonds, error, refresh, today, query, setQuery, isSearching, ownedQuantity } = picker;
-  const choices = planId
-    ? picker.choices.filter((bond) => bond.maturityDate > today)
-    : picker.choices;
+  const { bonds, error, refresh, today, query, setQuery, isSearching, choices, ownedQuantity } =
+    picker;
 
   if (!bonds) return <BondsUnavailable error={error} onRetry={refresh} />;
 
@@ -58,14 +54,7 @@ export default function BondPickerScreen() {
               today={today}
               owned={ownedQuantity.get(bond.isin)}
               showCurrency={isSearching}
-              onPress={() =>
-                planId
-                  ? router.push({
-                      pathname: '/plan/new/[isin]',
-                      params: { isin: bond.isin, planId },
-                    })
-                  : router.push({ pathname: '/add/[isin]', params: { isin: bond.isin } })
-              }
+              onPress={() => router.push({ pathname: '/add/[isin]', params: { isin: bond.isin } })}
             />
           </SectionCell>
         )}

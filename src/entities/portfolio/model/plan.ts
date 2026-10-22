@@ -1,38 +1,27 @@
 import { round2 } from '@/shared/lib';
 import {
   CURRENCIES,
-  type Bond,
   type Currency,
   type PositionPayment,
-  type Purchase,
   type PurchaseEvent,
-  positionPayments,
-  purchaseEvents,
   sumTotals,
 } from './portfolio';
+import type { WalletPosition } from './useWallet.hook';
 
 /**
- * The plan that older backups restore into: their flat list of planned purchases and their wallet
- * purchases, which had no plan.
+ * The plan that older backups restore into: their wallet purchases, which had no plan, and their
+ * flat list of planned purchases.
  */
 export const LEGACY_PLAN_ID = 'original-plan';
 export const LEGACY_PLAN_NAME = 'Мій план';
 
-/** A proposed purchase. The price is an estimate entered by the user, not a market quote. */
-export type PlannedPurchase = {
-  id: string;
-  isin: string;
-  currency: Currency;
-  date: string;
-  quantity: number;
-  pricePerBond: number;
-};
-
-/** An independent investment scenario with its own bonds and cash-flow forecast. */
+/**
+ * An investment plan: the basis of the app. Its purchases (past or planned) are the wallet
+ * purchases with its id; the wallet and the payments show the active plan.
+ */
 export type InvestmentPlan = {
   id: string;
   name: string;
-  items: PlannedPurchase[];
 };
 
 export type PlanTotals = {
@@ -47,50 +36,32 @@ export type PlanTotals = {
   returnPercent: number;
 };
 
-export function plannedAmount(purchase: PlannedPurchase): number {
-  return round2(purchase.quantity * purchase.pricePerBond);
-}
-
-/** Only future, still possible purchases contribute to the forecast. */
-export function projectPlan(planned: PlannedPurchase[], byIsin: Map<string, Bond>, today: string) {
-  const valid = planned.filter((item) => {
-    const bond = byIsin.get(item.isin);
-    return (
-      bond && item.date >= today && item.date >= bond.issueDate && item.date < bond.maturityDate
+/**
+ * What the whole plan costs and earns, per currency: every purchase against every payment it is
+ * entitled to, received or still ahead. Bonds missing from the NBU data have no payments and are
+ * left out of the totals.
+ */
+export function planTotals(
+  positions: WalletPosition[],
+  payments: PositionPayment[],
+  investments: PurchaseEvent[],
+): PlanTotals[] {
+  return CURRENCIES.flatMap((currency) => {
+    const known = positions.filter((item) => item.bond && item.currency === currency);
+    if (!known.length) return [];
+    const knownIsins = new Set(known.map((item) => item.position.isin));
+    const invested = sumTotals(
+      investments.filter((item) => item.currency === currency && knownIsins.has(item.isin)),
     );
-  });
-  const purchases: Purchase[] = valid.map((item) => ({
-    id: item.id,
-    isin: item.isin,
-    purchaseDate: item.date,
-    amount: plannedAmount(item),
-    quantity: item.quantity,
-    currency: byIsin.get(item.isin)!.currency,
-  }));
-  const byBond = new Map<string, Purchase[]>();
-  for (const purchase of purchases) {
-    byBond.set(purchase.isin, [...(byBond.get(purchase.isin) ?? []), purchase]);
-  }
-  const payments: PositionPayment[] = [...byBond].flatMap(([isin, items]) =>
-    positionPayments(items, byIsin.get(isin)!, today),
-  );
-  const investments: PurchaseEvent[] = purchaseEvents(purchases, byIsin);
-  const totals: PlanTotals[] = CURRENCIES.flatMap((currency) => {
-    const invested = sumTotals(investments.filter((item) => item.currency === currency));
-    if (!invested) return [];
     const coupons = sumTotals(
       payments.filter((item) => item.currency === currency && item.type === 'coupon'),
     );
     const redemption = sumTotals(
       payments.filter((item) => item.currency === currency && item.type === 'redemption'),
     );
-    const complete = valid
-      .filter((item) => byIsin.get(item.isin)?.currency === currency)
-      .every((item) =>
-        byIsin
-          .get(item.isin)!
-          .payments.some((payment) => payment.type === 'redemption' && payment.date > item.date),
-      );
+    const complete = known.every(
+      ({ bond }) => !!bond?.payments.some((payment) => payment.type === 'redemption'),
+    );
     const proceeds = round2(coupons + redemption);
     const profit = round2(proceeds - invested);
     return [
@@ -102,14 +73,8 @@ export function projectPlan(planned: PlannedPurchase[], byIsin: Map<string, Bond
         redemption,
         proceeds,
         profit,
-        returnPercent: round2((profit / invested) * 100),
+        returnPercent: invested ? round2((profit / invested) * 100) : 0,
       },
     ];
   });
-  return {
-    investments,
-    payments: payments.sort((a, b) => a.date.localeCompare(b.date)),
-    totals,
-    excluded: planned.length - valid.length,
-  };
 }
