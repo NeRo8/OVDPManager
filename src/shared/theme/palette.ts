@@ -14,6 +14,8 @@ export const light = {
   danger: '#C23300',
   /** Fields, the segmented control's track and pressed rows */
   muted: '#E4EBE5',
+  /** A surface raised above `muted`, such as the segmented control's thumb */
+  raised: '#FCFFF7',
   /** The floating add button: vermilion with a black glyph (5:1) */
   fab: '#E53D00',
   fabText: '#000000',
@@ -44,6 +46,8 @@ export const dark: AppTheme = {
   positive: '#3CC9C3',
   danger: '#FF6A33',
   muted: '#18211F',
+  // Lighter than the track: in the dark a raised surface is lighter, not shadowed.
+  raised: '#33413E',
   fab: '#E53D00',
   fabText: '#000000',
   seriesCoupon: '#21A0A0',
