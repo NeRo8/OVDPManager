@@ -12,13 +12,8 @@ import {
   screenContent,
 } from '@/shared/ui';
 import { currencySign, formatDate, formatMoney, plural } from '@/shared/lib';
-import {
-  NbuSourceNote,
-  StaleBondsNotice,
-  WalletGate,
-  type PositionPayment,
-  useWallet,
-} from '@/entities/portfolio';
+import { NbuSourceNote, StaleBondsNotice, WalletGate, useWallet } from '@/entities/portfolio';
+import { NextPaymentLine } from './NextPaymentLine';
 
 export default function PortfolioScreen() {
   const wallet = useWallet();
@@ -85,36 +80,6 @@ export default function PortfolioScreen() {
   );
 }
 
-type NextPaymentLineProps = {
-  next?: PositionPayment;
-  hasBond: boolean;
-};
-
-function NextPaymentLine({ next, hasBond }: NextPaymentLineProps) {
-  if (!hasBond) {
-    return (
-      <Typography variant="caption1" tone="danger">
-        Не знайдено в реєстрі НБУ
-      </Typography>
-    );
-  }
-  if (!next) {
-    return (
-      <Typography variant="caption1" tone="secondary">
-        Погашено
-      </Typography>
-    );
-  }
-  return (
-    <Typography variant="subhead" style={styles.nextLine}>
-      Далі: {formatDate(next.date)} —{' '}
-      <Typography variant="subhead" tone="positive">
-        {formatMoney(next.total, next.currency)}
-      </Typography>
-    </Typography>
-  );
-}
-
 const styles = StyleSheet.create((theme) => ({
   screen: { flex: 1 },
   list: { backgroundColor: theme.background },
@@ -135,5 +100,4 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'baseline',
     gap: 12,
   },
-  nextLine: { marginTop: 2 },
 }));
