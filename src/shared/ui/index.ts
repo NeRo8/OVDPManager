@@ -28,4 +28,3 @@ export * from './form/SegmentedSelect';
 export * from './form/ChipSelect';
 export * from './form/Chip';
 export * from './navigation/TopTabs';
-export * from './navigation/TopTabBar';
