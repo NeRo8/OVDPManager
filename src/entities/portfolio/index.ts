@@ -3,6 +3,8 @@ export * from './model/purchases.store';
 export { PurchaseSchema, PurchaseInputSchema } from './model/purchase.schema';
 export { useWallet, type Wallet, type WalletPosition } from './model/useWallet.hook';
 export { useBonds } from './api/bonds.store';
+export * from './model/plan';
+export * from './model/plan.store';
 export { ScheduleEventRow } from './ui/ScheduleEventRow';
 export { BondsUnavailable } from './ui/BondsUnavailable';
 export { NbuSourceNote } from './ui/NbuSourceNote';

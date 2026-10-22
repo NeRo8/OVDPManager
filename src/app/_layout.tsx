@@ -27,6 +27,11 @@ export default function RootLayout() {
         {/* Adding a purchase: choose a bond, then enter the purchase. */}
         <Stack.Screen name="add/index" options={{ title: 'Оберіть ОВДП' }} />
         <Stack.Screen name="add/[isin]" options={{ title: 'Додати ОВДП' }} />
+        <Stack.Screen name="plan/choose" options={{ title: 'Оберіть ОВДП' }} />
+        <Stack.Screen name="plan/name" options={{ title: 'Новий план' }} />
+        <Stack.Screen name="plan/detail/[planId]" options={{ title: 'План' }} />
+        <Stack.Screen name="plan/new/[isin]" options={{ title: 'План покупки' }} />
+        <Stack.Screen name="plan/edit/[id]" options={{ title: 'Змінити план' }} />
         <Stack.Screen
           name="payment-filters"
           options={{
