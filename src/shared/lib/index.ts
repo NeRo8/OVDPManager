@@ -1,4 +1,4 @@
-export { confirmDestructive, showMessage } from './confirm';
+export { confirmDestructive } from './confirm';
 export * from './date';
 export * from './format';
 export { goBackOrHome } from './navigation';

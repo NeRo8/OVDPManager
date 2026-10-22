@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useInvestmentPlans, usePurchases } from '@/entities/portfolio';
-import { confirmDestructive, showMessage } from '@/shared/lib';
+import { confirmDestructive, showToast } from '@/shared/lib';
 import { exportBackupFile, readMockFile, writeMockFile } from '../api/backupFile';
 import {
   backupFileName,
@@ -24,7 +24,7 @@ export function useBackupActions() {
     try {
       await task();
     } catch (error) {
-      showMessage('Не вдалося', errorStatus(error).text);
+      showToast({ tone: 'error', title: 'Не вдалося', message: errorStatus(error).text });
     } finally {
       setBusy(false);
     }
@@ -37,10 +37,11 @@ export function useBackupActions() {
   const writeMock = () =>
     run(async () => {
       await writeMockFile(serializeBackup(purchases, plans));
-      showMessage(
-        'Мок збережено',
-        `На пристрої: ${purchaseCount(purchases.length)} в гаманці, ${planCount(plans.length)}.`,
-      );
+      showToast({
+        tone: 'success',
+        title: 'Мок збережено',
+        message: `На пристрої: ${purchaseCount(purchases.length)} в гаманці, ${planCount(plans.length)}.`,
+      });
     });
 
   async function saveMock() {
@@ -71,7 +72,7 @@ export function useBackupActions() {
       const text = await readMockFile();
       if (!text) throw new Error('Мок ще не збережено на цьому пристрої.');
       replaceWithBackup(parseBackup(text), purchases.length, plans.length, 'з мока', (status) =>
-        showMessage(status.text),
+        showToast({ tone: 'success', title: status.text }),
       );
     });
 
