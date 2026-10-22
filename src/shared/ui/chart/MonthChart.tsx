@@ -214,36 +214,6 @@ export function MonthChart({ series, currency, selected, onSelect }: Props) {
   );
 }
 
-export type SwatchProps = {
-  color: SeriesColor;
-};
-
-/** Color mark of a chart series, also beside list rows of the same kind. */
-export function Swatch({ color }: SwatchProps) {
-  return <View style={styles.swatch(color)} />;
-}
-
-export type LegendRowProps = {
-  color: SeriesColor;
-  label: string;
-  value: string;
-};
-
-/** Swatch + name + amount: the chart legend doubles as the breakdown of the total. */
-export function LegendRow({ color, label, value }: LegendRowProps) {
-  return (
-    <View style={styles.legendRow}>
-      <Swatch color={color} />
-      <Typography variant="footnote" tone="secondary" style={styles.legendLabel}>
-        {label}
-      </Typography>
-      <Typography variant="footnote" weight="semibold" tabular>
-        {value}
-      </Typography>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create((theme) => ({
   chart: { flexDirection: 'row', paddingTop: LABEL_SPACE, paddingRight: 4 },
   axis: { width: AXIS_WIDTH },
@@ -276,12 +246,4 @@ const styles = StyleSheet.create((theme) => ({
   // Room for the selected month's money-out label under the lowest column.
   monthsBelowLabel: { marginTop: LABEL_SPACE },
   month: { flex: 1 },
-  legendRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  swatch: (color: SeriesColor) => ({
-    width: 10,
-    height: 10,
-    borderRadius: 3,
-    backgroundColor: theme[SERIES_COLORS[color].mark],
-  }),
-  legendLabel: { flex: 1 },
 }));

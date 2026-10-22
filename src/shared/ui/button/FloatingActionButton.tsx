@@ -5,7 +5,7 @@ import { Pressable, type StyleProp, type ViewStyle } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { Typography } from '../typography/Typography';
-import { ThemedSymbolView } from './Button';
+import { ThemedSymbolView } from './ThemedSymbolView';
 
 const SIZE = 56;
 const MARGIN = 16;

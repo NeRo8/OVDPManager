@@ -1,11 +1,8 @@
-import { TextInput, type StyleProp, type TextInputProps, type TextStyle } from 'react-native';
-import { StyleSheet, withUnistyles } from 'react-native-unistyles';
+import { type StyleProp, type TextInputProps, type TextStyle } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
 import { typography } from '@/shared/theme';
-
-const ThemedTextInput = withUnistyles(TextInput, (theme) => ({
-  placeholderTextColor: theme.secondaryText,
-}));
+import { ThemedTextInput } from './ThemedTextInput';
 
 const types = {
   text: { keyboardType: 'default', sanitize: (text: string) => text },

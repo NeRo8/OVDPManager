@@ -1,13 +1,15 @@
-import BaseTopTabs, { MaterialTopTabBar, type JSTopTabsProps } from 'expo-router/js-top-tabs';
+import BaseTopTabs, { type JSTopTabsProps } from 'expo-router/js-top-tabs';
 import { useUnistyles } from 'react-native-unistyles';
 
 import { typography } from '@/shared/theme';
+
+type Props = JSTopTabsProps;
 
 /**
  * Swipeable tabs under a screen's header, each tab its own route. The back action leaves the
  * screen instead of stepping through the tabs.
  */
-function ThemedTopTabs(props: JSTopTabsProps) {
+function ThemedTopTabs(props: Props) {
   // Navigator options are props, not styles, so the theme is read here.
   const { theme } = useUnistyles();
 
@@ -39,6 +41,3 @@ function ThemedTopTabs(props: JSTopTabsProps) {
 }
 
 export const TopTabs = Object.assign(ThemedTopTabs, { Screen: BaseTopTabs.Screen });
-
-/** The default tab bar, for a `tabBar` that puts more content above the tabs. */
-export const TopTabBar = MaterialTopTabBar;
