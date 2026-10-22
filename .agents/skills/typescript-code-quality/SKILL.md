@@ -5,11 +5,11 @@ description: Apply KISS, DRY, YAGNI, and clean code when implementing, refactori
 
 # TypeScript code quality
 
-Use this skill to make the smallest maintainable change that satisfies the user's request. Read the affected code, its callers, and local project instructions before choosing a design. Preserve existing behavior and public contracts unless the task calls for a change. Treat the [Clean Code TypeScript guide](https://github.com/labs42io/clean-code-typescript) as a source of judgment, not a checklist; project conventions and concrete requirements take precedence.
+Use this skill to make the smallest maintainable change that satisfies the user's request. Read the affected code, its callers, and local project instructions before choosing a design. Preserve existing behavior and public contracts unless the task calls for a change. Treat the [Clean Code TypeScript guide](https://github.com/labs42io/clean-code-typescript) and [KISS in TypeScript article](https://thiraphat-ps-dev.medium.com/the-kiss-principle-in-typescript-keep-it-simple-stupid-86a49d77f069) as sources of judgment, not checklists; project conventions and concrete requirements take precedence.
 
 ## Make design choices
 
-- **KISS:** Prefer direct control flow and a small number of concepts. Add layers, classes, factories, or generic types only when they make a concrete requirement easier to express or verify. Clarity matters more than fewer lines.
+- **KISS:** Start with readable names, direct control flow, and a small number of concepts. Use built-in JavaScript or TypeScript operations when they make intent clearer; a straightforward loop may be clearer than a chain of array methods. Use early returns or named intermediate values to simplify deeply nested branches. Keep functions focused, and extract helpers when they make a task easier to follow. Add layers, classes, factories, or generic types only when they help express or verify a concrete requirement. Optimize for a measured bottleneck or a known constraint, and preserve clarity elsewhere.
 - **DRY:** Share a rule when multiple places must stay in sync, such as the same domain calculation or validation. Do not extract an abstraction just because two blocks look alike. Keep code local when the cases have different meanings or are likely to change independently.
 - **YAGNI:** Implement current requirements. Avoid speculative options, extension points, compatibility paths, and dependencies. If a future need is uncertain, leave the code simple enough to change later.
 
