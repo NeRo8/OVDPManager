@@ -3,6 +3,7 @@ import { SymbolView } from 'expo-symbols';
 import { useUnistyles } from 'react-native-unistyles';
 
 import { PaymentFiltersButton } from '@/pages/payments';
+import { PlanListButton } from '@/pages/plan';
 
 export default function TabLayout() {
   // Navigator options are props, not styles, so the theme is read here.
@@ -51,6 +52,7 @@ export default function TabLayout() {
         name="plan"
         options={{
           title: 'Плани',
+          headerRight: () => <PlanListButton />,
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={{ ios: 'chart.bar.xaxis', android: 'bar_chart' }}
