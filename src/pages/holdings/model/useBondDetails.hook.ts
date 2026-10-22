@@ -9,7 +9,7 @@ import {
 import { formatDate, formatMoney, round2, confirmDestructive, goBackOrHome } from '@/shared/lib';
 
 export function useBondDetails(isin: string) {
-  const { positions, byIsin, today } = useWallet();
+  const { plan, positions, byIsin, today } = useWallet();
   const bond = byIsin.get(isin);
   const walletPosition = positions.find(({ position }) => position.isin === isin);
   const position = walletPosition?.position;
@@ -35,14 +35,14 @@ export function useBondDetails(isin: string) {
   }
 
   function deletePosition() {
-    if (!position) return;
+    if (!plan || !position) return;
     confirmDestructive(
       'Видалити ОВДП?',
       `${position.isin} і всі покупки (${position.purchases.length}) буде видалено з гаманця.`,
       'Видалити',
       () => {
         goBackOrHome();
-        removePosition(position.isin);
+        removePosition(plan.id, position.isin);
       },
     );
   }

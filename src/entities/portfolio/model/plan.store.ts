@@ -3,8 +3,14 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { mmkvStorage } from '@/shared/lib';
-import type { InvestmentPlan, PlannedPurchase } from './plan';
-import { CURRENCIES } from './portfolio';
+import {
+  LEGACY_PLAN_ID,
+  LEGACY_PLAN_NAME,
+  type InvestmentPlan,
+  type PlannedPurchase,
+} from './plan';
+import { CURRENCIES, type WalletPurchase } from './portfolio';
+import { removePlanPurchases, replacePurchases } from './purchases.store';
 
 export const PLAN_NAME_MAX_LENGTH = 80;
 export const PlanNameSchema = z.string().trim().min(1).max(PLAN_NAME_MAX_LENGTH);
@@ -54,7 +60,19 @@ function readLegacyItems(stored: unknown): PlannedPurchase[] {
 
 /** The earlier single list becomes one named plan; empty lists stay empty. */
 export function legacyPlan(items: PlannedPurchase[]): InvestmentPlan[] {
-  return items.length ? [{ id: 'original-plan', name: 'Мій план', items }] : [];
+  return items.length ? [{ id: LEGACY_PLAN_ID, name: LEGACY_PLAN_NAME, items }] : [];
+}
+
+/**
+ * Every wallet purchase belongs to a plan. Purchases from backups made before plans held them point
+ * at the legacy plan, which is created here when it is missing.
+ */
+function withPurchasePlans(plans: InvestmentPlan[], purchases: WalletPurchase[]): InvestmentPlan[] {
+  const known = new Set(plans.map((plan) => plan.id));
+  const missing = new Set(
+    purchases.map((purchase) => purchase.planId).filter((id) => !known.has(id)),
+  );
+  return [...plans, ...[...missing].map((id) => ({ id, name: LEGACY_PLAN_NAME, items: [] }))];
 }
 
 function readStoredPlans(stored: unknown): InvestmentPlan[] {
@@ -109,7 +127,9 @@ export function renameInvestmentPlan(id: string, name: string): void {
     .setPlans((plans) => plans.map((plan) => (plan.id === id ? { ...plan, name: trimmed } : plan)));
 }
 
+/** Removes the plan with its planned purchases and its purchases in the wallet. */
 export function removeInvestmentPlan(id: string): void {
+  removePlanPurchases(id);
   usePlansStore.getState().setPlans((plans) => plans.filter((plan) => plan.id !== id));
 }
 
@@ -143,6 +163,8 @@ export function removePlannedPurchase(planId: string, id: string): void {
     );
 }
 
-export function replaceInvestmentPlans(plans: InvestmentPlan[]): void {
-  usePlansStore.getState().setPlans(() => plans);
+/** Restores from a backup. Without `plans` (an older backup) the current plans are kept. */
+export function restorePortfolio(purchases: WalletPurchase[], plans?: InvestmentPlan[]): void {
+  replacePurchases(purchases);
+  usePlansStore.getState().setPlans((current) => withPurchasePlans(plans ?? current, purchases));
 }

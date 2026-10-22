@@ -11,6 +11,13 @@ import {
   sumTotals,
 } from './portfolio';
 
+/**
+ * The plan that older backups restore into: their flat list of planned purchases and their wallet
+ * purchases, which had no plan.
+ */
+export const LEGACY_PLAN_ID = 'original-plan';
+export const LEGACY_PLAN_NAME = 'Мій план';
+
 /** A proposed purchase. The price is an estimate entered by the user, not a market quote. */
 export type PlannedPurchase = {
   id: string;

@@ -3,18 +3,20 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { PurchaseSchema } from './purchase.schema';
-import type { Purchase } from './portfolio';
+import type { WalletPurchase } from './portfolio';
 import { mmkvStorage } from '@/shared/lib';
 
 // Keep the existing MMKV key so installed apps can read their saved purchases.
 const STORAGE_KEY = 'holdings-v1';
 
 type PurchasesState = {
-  purchases: Purchase[];
+  purchases: WalletPurchase[];
 };
 
 type PurchasesActions = {
-  setPurchases: (next: Purchase[] | ((current: Purchase[]) => Purchase[])) => void;
+  setPurchases: (
+    next: WalletPurchase[] | ((current: WalletPurchase[]) => WalletPurchase[]),
+  ) => void;
 };
 
 type PurchasesStore = PurchasesState & PurchasesActions;
@@ -32,7 +34,7 @@ const StoredStateSchema = z.union([
  * Purchases read back from storage. Damaged records are left out, and duplicate IDs are repaired
  * so deleting one purchase cannot delete another.
  */
-function readStoredPurchases(stored: unknown): Purchase[] {
+function readStoredPurchases(stored: unknown): WalletPurchase[] {
   const savedPurchases = StoredStateSchema.safeParse(stored);
   if (!savedPurchases.success) return [];
   const ids = new Set<string>();
@@ -73,11 +75,12 @@ const usePurchasesStore = create<PurchasesStore>()(
   ),
 );
 
-export function usePurchases(): Purchase[] {
+/** Purchases of every plan. */
+export function usePurchases(): WalletPurchase[] {
   return usePurchasesStore((state) => state.purchases);
 }
 
-export function addPurchase(purchase: Omit<Purchase, 'id'>): Purchase {
+export function addPurchase(purchase: Omit<WalletPurchase, 'id'>): WalletPurchase {
   const created = {
     ...purchase,
     id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
@@ -94,13 +97,21 @@ export function removePurchase(id: string) {
 }
 
 /** Restores the wallet from a backup, replacing everything in it. */
-export function replacePurchases(next: Purchase[]) {
+export function replacePurchases(next: WalletPurchase[]) {
   usePurchasesStore.getState().setPurchases(next);
 }
 
-/** Removes every purchase of the ISIN. */
-export function removePosition(isin: string) {
+/** Removes every purchase of the ISIN in the plan. */
+export function removePosition(planId: string, isin: string) {
   usePurchasesStore
     .getState()
-    .setPurchases((current) => current.filter((purchase) => purchase.isin !== isin));
+    .setPurchases((current) =>
+      current.filter((purchase) => purchase.planId !== planId || purchase.isin !== isin),
+    );
+}
+
+export function removePlanPurchases(planId: string) {
+  usePurchasesStore
+    .getState()
+    .setPurchases((current) => current.filter((purchase) => purchase.planId !== planId));
 }

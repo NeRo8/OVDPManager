@@ -11,7 +11,7 @@ import { formatDate, parseAmount, round2 } from '@/shared/lib';
 
 /** The second step of adding a purchase: what was paid for the chosen bond, and when. */
 export function useAddPurchaseForm(isin: string) {
-  const { bonds, byIsin, error, refresh, today, positions } = useWallet();
+  const { plan, bonds, byIsin, error, refresh, today, positions } = useWallet();
 
   const [purchaseDate, setPurchaseDate] = useState(today);
   const [amountText, setAmountText] = useState('');
@@ -53,13 +53,14 @@ export function useAddPurchaseForm(isin: string) {
   /** Expected quantity at par, as a hint while only the amount is entered. */
   const quantityPlaceholder =
     bond && amountValid ? `≈ ${Math.max(1, Math.round(amount / bond.nominal))}` : '0';
-  const canSave = !!bond && !dateProblem && amountValid && quantityValid;
+  const canSave = !!plan && !!bond && !dateProblem && amountValid && quantityValid;
   const currency = bond?.currency ?? 'UAH';
 
   /** Adds the purchase; false when the form cannot be saved yet. */
   function save(): boolean {
-    if (!bond || !canSave) return false;
+    if (!plan || !bond || !canSave) return false;
     addPurchase({
+      planId: plan.id,
       isin: bond.isin,
       purchaseDate,
       amount: round2(amount),

@@ -1,5 +1,6 @@
 import { todayISO } from '@/shared/lib';
 import { useBonds } from '../api/bonds.store';
+import { useActivePlan } from './activePlan.store';
 import { usePurchases } from './purchases.store';
 import {
   type Bond,
@@ -22,12 +23,19 @@ export type WalletPosition = {
   nextPayment?: PositionPayment;
 };
 
+/** Purchases in the wallet of the active plan. */
+export function useActivePurchases() {
+  const plan = useActivePlan();
+  const purchases = usePurchases().filter((purchase) => purchase.planId === plan?.id);
+  return { plan, purchases };
+}
+
 /**
- * The wallet joined with the NBU data: what every screen built on positions and payments starts
+ * The wallet of the active plan joined with the NBU data: what every screen built on positions and payments starts
  * from. Payments of positions missing from the NBU data are left out.
  */
 export function useWallet() {
-  const purchases = usePurchases();
+  const { plan, purchases } = useActivePurchases();
   const { bonds, byIsin, isFetching, error, refresh } = useBonds();
   const today = todayISO();
 
@@ -47,6 +55,7 @@ export function useWallet() {
     .sort((a, b) => a.date.localeCompare(b.date));
 
   return {
+    plan,
     numberOfPurchases: purchases.length,
     bonds,
     byIsin,

@@ -40,6 +40,9 @@ export type Purchase = {
   currency?: Currency;
 };
 
+/** A purchase kept in the wallet. Each one belongs to an investment plan. */
+export type WalletPurchase = Purchase & { planId: string };
+
 /** All purchases of one ISIN. */
 export type Position = {
   isin: string;

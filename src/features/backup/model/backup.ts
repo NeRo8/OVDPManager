@@ -5,11 +5,11 @@ import {
   PlanItemSchema,
   type InvestmentPlan,
   type PlannedPurchase,
-  type Purchase,
+  type WalletPurchase,
+  LEGACY_PLAN_ID,
   PurchaseInputSchema,
   legacyPlan,
-  replaceInvestmentPlans,
-  replacePurchases,
+  restorePortfolio,
 } from '@/entities/portfolio';
 import { confirmDestructive, plural, todayISO } from '@/shared/lib';
 
@@ -42,8 +42,7 @@ export function replaceWithBackup(
   onReplaced: (status: BackupStatus) => void,
 ) {
   const apply = () => {
-    replacePurchases(restored.purchases);
-    if (restored.plans) replaceInvestmentPlans(restored.plans);
+    restorePortfolio(restored.purchases, restored.plans);
     onReplaced({
       error: false,
       text: `Відновлено ${purchaseCount(restored.purchases.length)} ${source}${restored.plans ? ` і ${planCount(restored.plans.length)}` : ''}.`,
@@ -63,19 +62,20 @@ export function replaceWithBackup(
 
 export type Backup = {
   format: typeof FORMAT;
-  version: 3;
+  /** Version 4 adds the plan of each purchase; older purchases are restored into «Мій план». */
+  version: 4;
   exportedAt: string;
   /** Kept for compatibility with existing exported JSON files. */
-  holdings: Purchase[];
+  holdings: WalletPurchase[];
   plans: InvestmentPlan[];
 };
 
-export type BackupData = { purchases: Purchase[]; plans?: InvestmentPlan[] };
+export type BackupData = { purchases: WalletPurchase[]; plans?: InvestmentPlan[] };
 
-export function serializeBackup(purchases: Purchase[], plans: InvestmentPlan[]): string {
+export function serializeBackup(purchases: WalletPurchase[], plans: InvestmentPlan[]): string {
   const backup: Backup = {
     format: FORMAT,
-    version: 3,
+    version: 4,
     exportedAt: new Date().toISOString(),
     holdings: purchases,
     plans,
@@ -90,6 +90,10 @@ export function backupFileName(): string {
 /** A purchase in a backup file. The file comes from outside the app, so it is checked. */
 const BackupPurchaseSchema = PurchaseInputSchema.extend({
   id: z.string().min(1, { error: 'id покупки не може бути порожнім' }).optional(),
+  planId: z
+    .string({ error: 'id плану має бути рядком' })
+    .min(1, { error: 'id плану не може бути порожнім' })
+    .default(LEGACY_PLAN_ID),
 });
 
 /** A backup, or a bare array of purchases. */

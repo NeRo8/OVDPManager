@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { CURRENCIES, type Purchase } from './portfolio';
+import { CURRENCIES, type WalletPurchase } from './portfolio';
 
 /**
  * What the user enters for a purchase. Messages finish the sentence "Покупка №N: …", so a
@@ -26,4 +26,5 @@ export const PurchaseInputSchema = z.object({
 /** A purchase in the wallet. */
 export const PurchaseSchema = PurchaseInputSchema.extend({
   id: z.string().min(1),
-}) satisfies z.ZodType<Purchase>;
+  planId: z.string().min(1),
+}) satisfies z.ZodType<WalletPurchase>;

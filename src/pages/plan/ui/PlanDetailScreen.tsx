@@ -12,6 +12,7 @@ import {
   removeInvestmentPlan,
   useBonds,
   useInvestmentPlans,
+  usePurchases,
   type Currency,
   type ScheduleEvent,
 } from '@/entities/portfolio';
@@ -20,6 +21,7 @@ import {
   confirmDestructive,
   formatDate,
   formatMoney,
+  plural,
   round2,
   todayISO,
 } from '@/shared/lib';
@@ -54,6 +56,7 @@ export default function PlanDetailScreen() {
   const plans = useInvestmentPlans();
   const plan = plans.find((item) => item.id === planId);
   const planned = plan?.items ?? [];
+  const ownedCount = usePurchases().filter((purchase) => purchase.planId === planId).length;
   const { bonds, byIsin, isFetching, error, refresh } = useBonds();
   const today = todayISO();
   const projection = projectPlan(planned, byIsin, today);
@@ -279,7 +282,9 @@ export default function PlanDetailScreen() {
             onPress={() =>
               confirmDestructive(
                 'Видалити план?',
-                `План «${plan.name}» і всі його заплановані покупки буде видалено.`,
+                ownedCount
+                  ? `План «${plan.name}», його заплановані покупки та ${ownedCount} ${plural(ownedCount, 'покупку', 'покупки', 'покупок')} у гаманці буде видалено.`
+                  : `План «${plan.name}» і всі його заплановані покупки буде видалено.`,
                 'Видалити',
                 () => {
                   removeInvestmentPlan(planId);
