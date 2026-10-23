@@ -27,7 +27,7 @@ export const light = {
   dangerSurface: '#FCE6DC',
   /** Fields, the segmented control's track and pressed rows */
   muted: '#E4EBE5',
-  /** A surface raised above `muted`, such as the segmented control's thumb */
+  /** A surface raised above `muted` */
   raised: '#FCFFF7',
   /**
    * The floating add button. Its light glyph is 4.2:1 on vermilion, above the 3:1 that icons need;

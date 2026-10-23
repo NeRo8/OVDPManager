@@ -74,7 +74,7 @@ export function SegmentedSelect<T extends string | number>({
               variant="footnote"
               weight={selected ? 'semibold' : 'medium'}
               align="center"
-              tone={selected ? 'primary' : 'secondary'}
+              tone={selected ? 'onAccent' : 'secondary'}
               numberOfLines={1}
             >
               {option.label}
@@ -92,8 +92,8 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     borderRadius: theme.radius.md,
     borderCurve: 'continuous',
-    padding: TRACK_PADDING,
-    backgroundColor: theme.muted,
+    //padding: TRACK_PADDING,
+    //backgroundColor: theme.muted,
   },
   // Out of the flow and childless, so moving it re-lays-out nothing.
   thumb: (width: number) => ({
@@ -104,7 +104,7 @@ const styles = StyleSheet.create((theme) => ({
     width,
     borderRadius: theme.radius.sm,
     borderCurve: 'continuous',
-    backgroundColor: theme.raised,
+    backgroundColor: theme.accent,
     boxShadow: theme.shadowCard,
   }),
   option: {
@@ -112,7 +112,6 @@ const styles = StyleSheet.create((theme) => ({
     minHeight: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: theme.space.sm,
   },
   pressed: { opacity: 0.6 },
 }));
