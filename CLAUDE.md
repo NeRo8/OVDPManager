@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 @AGENTS.md
 
-OVDP Manager is an Expo SDK 58 app (iOS and Android only, no web) for tracking Ukrainian government bonds (ОВДП), their future payments, investment plans and local backups. UI strings are hardcoded in Ukrainian (no i18n layer); code comments are in English. `CODEBASE.md` is the detailed map (in Ukrainian) — read it before changing data flow or storage.
+ОВДП Портфель (repo `OVDPManager`, bundle ID and package `com.nero.mobile.dev.ovdpmanager`) is an Expo SDK 58 app (iOS and Android only, no web) for tracking Ukrainian government bonds (ОВДП), their future payments, investment plans and local backups. UI strings are hardcoded in Ukrainian (no i18n layer); code comments are in English. `CODEBASE.md` is the detailed map (in Ukrainian) — read it before changing data flow or storage.
 
 ## Commands
 

@@ -1,4 +1,4 @@
-# OVDP Manager
+# ОВДП Портфель
 
 Tracking Ukrainian government bonds (ОВДП): what was bought or is planned to be bought, and what those bonds pay back. Each term gives the Ukrainian word the app shows for it.
 

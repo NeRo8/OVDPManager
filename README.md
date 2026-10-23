@@ -1,4 +1,4 @@
-# OVDP Manager
+# ОВДП Портфель
 
 Mobile Expo app for tracking Ukrainian government bonds, future payments, and local backups.
 

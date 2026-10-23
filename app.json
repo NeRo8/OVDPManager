@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "OVDPManager",
+    "name": "ОВДП Портфель",
     "slug": "OVDPManager",
     "version": "1.0.0",
     "platforms": ["ios", "android"],
@@ -11,7 +11,7 @@
     "backgroundColor": "#046865",
     "ios": {
       "icon": "./src/shared/config/app-icon/icon.png",
-      "bundleIdentifier": "com.arturduchenkoomnitelecom.OVDPManager",
+      "bundleIdentifier": "com.nero.mobile.dev.ovdpmanager",
       "infoPlist": {
         "CFBundleDevelopmentRegion": "uk",
         "CFBundleLocalizations": ["uk"]
@@ -23,7 +23,7 @@
         "foregroundImage": "./src/shared/config/app-icon/android-icon-foreground.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.arturduchenkoomnitelecom.OVDPManager"
+      "package": "com.nero.mobile.dev.ovdpmanager"
     },
     "plugins": [
       "expo-router",

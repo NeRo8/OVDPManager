@@ -60,7 +60,7 @@ function parseJson<T>(text: string): T {
  */
 export async function parseBackup(text: string, key: string): Promise<BackupData> {
   const backup = parseJson<Backup>(text);
-  if (backup.format !== FORMAT) throw new Error('Це не резервна копія OVDP Manager');
+  if (backup.format !== FORMAT) throw new Error('Це не резервна копія ОВДП Портфеля');
   if (backup.version !== VERSION) {
     throw new Error(
       'Ця версія копії не підтримується: створіть нову копію в актуальній версії застосунку',
