@@ -31,7 +31,7 @@ export default function BondScreen() {
     hasTopUps,
     received,
     expected,
-    profit,
+    netIncome,
     canTopUp,
     deletePurchase,
     deletePosition,
@@ -82,9 +82,9 @@ export default function BondScreen() {
                   <Typography
                     variant="subhead"
                     weight="semibold"
-                    tone={profit >= 0 ? 'positive' : 'danger'}
+                    tone={netIncome >= 0 ? 'positive' : 'danger'}
                   >
-                    {formatMoney(profit, currency)}
+                    {formatMoney(netIncome, currency)}
                   </Typography>
                 }
               />

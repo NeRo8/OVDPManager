@@ -22,7 +22,7 @@ const KINDS = {
 /** Same colors as the schedule chart. */
 const SERIES = {
   coupon: 'coupon',
-  redemption: 'nominal',
+  redemption: 'redemption',
   purchase: 'purchase',
 } as const satisfies Record<ScheduleEvent['type'], SeriesColor>;
 

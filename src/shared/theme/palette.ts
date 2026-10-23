@@ -39,11 +39,11 @@ export const light = {
   // Chart series: teal, blue, vermilion; checked with the dataviz palette validator against
   // `card` (lightness, chroma, CVD and normal-vision separation). Two teals did not separate.
   seriesCoupon: '#21A0A0',
-  seriesNominal: '#4A5FD0',
+  seriesRedemption: '#4A5FD0',
   seriesPurchase: '#E53D00',
   // The same hues stepped to 4.5:1 on `card`, for amounts written in the series color.
   seriesCouponText: '#046865',
-  seriesNominalText: '#4A5FD0',
+  seriesRedemptionText: '#4A5FD0',
   seriesPurchaseText: '#C23300',
   shadowCard: '0 1px 2px rgba(4, 48, 46, 0.08), 0 4px 8px -2px rgba(4, 48, 46, 0.08)',
   shadowRaised: '0 8px 20px rgba(229, 61, 0, 0.32)',
@@ -79,10 +79,10 @@ export const dark: AppTheme = {
   fabIcon: '#FCFFF7',
   fabText: '#000000',
   seriesCoupon: '#21A0A0',
-  seriesNominal: '#5C6CE6',
+  seriesRedemption: '#5C6CE6',
   seriesPurchase: '#EE5A24',
   seriesCouponText: '#3CC9C3',
-  seriesNominalText: '#8C98F5',
+  seriesRedemptionText: '#8C98F5',
   seriesPurchaseText: '#FF6A33',
   // A drop shadow does not read on black; the lighter card surface sets cards apart instead.
   shadowCard: '0 0 0 0 transparent',

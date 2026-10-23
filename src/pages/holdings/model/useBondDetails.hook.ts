@@ -18,7 +18,7 @@ export function useBondDetails(isin: string) {
   const hasTopUps = (position?.purchases.length ?? 0) > 1;
   const received = sumTotals(payments.filter((payment) => payment.isPaid));
   const expected = sumTotals(payments.filter((payment) => !payment.isPaid));
-  const profit = round2(received + expected - (position?.investedAmount ?? 0));
+  const netIncome = round2(received + expected - (position?.investedAmount ?? 0));
   const canTopUp = !!bond && bond.maturityDate > today;
 
   function deletePurchase(purchase: Purchase) {
@@ -56,7 +56,7 @@ export function useBondDetails(isin: string) {
     hasTopUps,
     received,
     expected,
-    profit,
+    netIncome,
     canTopUp,
     deletePurchase,
     deletePosition,

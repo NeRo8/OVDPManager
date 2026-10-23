@@ -46,7 +46,7 @@ type Input = {
   purchaseDate: string;
   pricePerBond: number;
   /** All payments minus the amount paid */
-  profit: number;
+  netIncome: number;
   /** False while NBU has not published the redemption, so the payments fall short */
   isComplete: boolean;
   /** % a year; null when it cannot be computed */
@@ -101,11 +101,11 @@ function priceHint({ bond, pricePerBond, annualYield }: Input): PurchaseHint | n
 }
 
 /** Losing money outright, whatever the rates. */
-function lossHint({ bond, profit }: Input): PurchaseHint | null {
-  if (profit >= 0) return null;
+function lossHint({ bond, netIncome }: Input): PurchaseHint | null {
+  if (netIncome >= 0) return null;
   return {
     tone: 'error',
-    text: `Виплати не покриють покупку: ви втратите ${formatMoney(-profit, bond.currency)}.`,
+    text: `Виплати не покриють покупку: ви втратите ${formatMoney(-netIncome, bond.currency)}.`,
   };
 }
 

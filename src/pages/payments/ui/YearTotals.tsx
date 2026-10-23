@@ -33,7 +33,7 @@ export function YearTotals({ schedule }: ScheduleProps) {
               value={formatCompactMoney(couponTotal, currency)}
             />
             <LegendRow
-              color="nominal"
+              color="redemption"
               label="Погашення"
               value={formatCompactMoney(redemptionTotal, currency)}
             />

@@ -1,11 +1,11 @@
-import type { WalletPurchase } from '../portfolio';
+import type { PlanPurchase } from '../portfolio';
 import { usePurchasesStore } from './store';
 
-function updatePurchases(update: (current: WalletPurchase[]) => WalletPurchase[]): void {
+function updatePurchases(update: (current: PlanPurchase[]) => PlanPurchase[]): void {
   usePurchasesStore.setState((state) => ({ purchases: update(state.purchases) }));
 }
 
-export function addPurchase(purchase: Omit<WalletPurchase, 'id'>): WalletPurchase {
+export function addPurchase(purchase: Omit<PlanPurchase, 'id'>): PlanPurchase {
   const created = {
     ...purchase,
     id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
@@ -22,7 +22,7 @@ export function removePurchase(id: string): void {
 }
 
 /** Restores the wallet from a backup, replacing everything in it. */
-export function replacePurchases(purchases: WalletPurchase[]): void {
+export function replacePurchases(purchases: PlanPurchase[]): void {
   usePurchasesStore.setState({ purchases });
 }
 

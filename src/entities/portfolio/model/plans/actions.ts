@@ -1,5 +1,5 @@
 import type { InvestmentPlan } from '../plan';
-import type { WalletPurchase } from '../portfolio';
+import type { PlanPurchase } from '../portfolio';
 import { removePlanPurchases, replacePurchases } from '../purchases';
 import { usePlansStore } from './store';
 
@@ -28,7 +28,7 @@ export function removeInvestmentPlan(id: string): void {
 }
 
 /** Restores from a backup: its plans and their purchases replace everything. */
-export function restorePortfolio(purchases: WalletPurchase[], plans: InvestmentPlan[]): void {
+export function restorePortfolio(purchases: PlanPurchase[], plans: InvestmentPlan[]): void {
   replacePurchases(purchases);
   usePlansStore.setState({ plans });
 }

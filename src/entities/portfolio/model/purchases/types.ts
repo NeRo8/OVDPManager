@@ -1,6 +1,6 @@
-import type { WalletPurchase } from '../portfolio';
+import type { PlanPurchase } from '../portfolio';
 
 export type PurchasesState = {
   /** Purchases of every plan */
-  purchases: WalletPurchase[];
+  purchases: PlanPurchase[];
 };

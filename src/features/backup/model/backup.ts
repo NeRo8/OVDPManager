@@ -1,4 +1,4 @@
-import { type InvestmentPlan, type WalletPurchase, restorePortfolio } from '@/entities/portfolio';
+import { type InvestmentPlan, type PlanPurchase, restorePortfolio } from '@/entities/portfolio';
 import { confirmDestructive, plural, showToast, todayISO } from '@/shared/lib';
 import { type BackupEncryption, decryptBackup, encryptBackup } from '../lib/backupCipher';
 
@@ -63,17 +63,17 @@ export type Backup = {
 /** What the encrypted data holds. */
 type BackupContents = {
   /** Every purchase of every plan, each with its `planId`. */
-  holdings: WalletPurchase[];
+  holdings: PlanPurchase[];
   plans: InvestmentPlan[];
 };
 
-export type BackupData = { purchases: WalletPurchase[]; plans: InvestmentPlan[] };
+export type BackupData = { purchases: PlanPurchase[]; plans: InvestmentPlan[] };
 
 /** Binds the encrypted data to this format and version, so neither can be swapped. */
 const CONTEXT = `${FORMAT}:${VERSION}`;
 
 export async function serializeBackup(
-  purchases: WalletPurchase[],
+  purchases: PlanPurchase[],
   plans: InvestmentPlan[],
   key: string,
 ): Promise<string> {

@@ -63,7 +63,7 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
       today,
     );
     const income = sumTotals(payments);
-    const profit = round2(income - valid.amount);
+    const netIncome = round2(income - valid.amount);
     // Without the redemption row NBU has not published yet, the payments fall short of the truth.
     const isComplete = bond.payments.some((payment) => payment.type === 'redemption');
     const yearly = isComplete ? annualYield(valid.amount, valid.purchaseDate, payments) : null;
@@ -71,7 +71,7 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
       bond,
       purchaseDate: valid.purchaseDate,
       pricePerBond: valid.amount / valid.quantity,
-      profit,
+      netIncome,
       isComplete,
       annualYield: yearly,
       keyRate,
@@ -81,9 +81,9 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
       nextPayment: nextPayment(payments),
       couponsLeft: payments.filter((p) => p.type === 'coupon' && !p.isPaid).length,
       income,
-      profit,
+      netIncome,
       isComplete,
-      totalReturn: isComplete ? round2((profit / valid.amount) * 100) : null,
+      totalReturn: isComplete ? round2((netIncome / valid.amount) * 100) : null,
       annualYield: yearly,
       hints,
       verdict: purchaseVerdict(hints),

@@ -121,7 +121,7 @@ export default function PlanScreen() {
                   <InfoRow
                     label="Усього виплат"
                     hint="Погашення разом із купонами"
-                    value={formatMoney(total.proceeds, total.currency)}
+                    value={formatMoney(total.totalPayments, total.currency)}
                   />
                 </>
               )}
@@ -131,7 +131,7 @@ export default function PlanScreen() {
                 <InfoRow
                   label="Чистий дохід"
                   hint="Виплати мінус вкладення — ваш заробіток"
-                  value={formatMoney(total.profit, total.currency)}
+                  value={formatMoney(total.netIncome, total.currency)}
                 />
                 <Separator />
                 <InfoRow

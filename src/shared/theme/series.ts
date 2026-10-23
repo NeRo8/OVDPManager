@@ -6,7 +6,7 @@ import type { AppTheme } from './palette';
  */
 export const SERIES_COLORS = {
   coupon: { mark: 'seriesCoupon', text: 'seriesCouponText' },
-  nominal: { mark: 'seriesNominal', text: 'seriesNominalText' },
+  redemption: { mark: 'seriesRedemption', text: 'seriesRedemptionText' },
   purchase: { mark: 'seriesPurchase', text: 'seriesPurchaseText' },
 } as const satisfies Record<string, { mark: keyof AppTheme; text: keyof AppTheme }>;
 

@@ -28,8 +28,8 @@ export type PlanTotals = {
   invested: number;
   coupons: number;
   redemption: number;
-  proceeds: number;
-  profit: number;
+  totalPayments: number;
+  netIncome: number;
   returnPercent: number;
 };
 
@@ -41,14 +41,14 @@ export type PlanTotals = {
 export function planTotals(
   positions: WalletPosition[],
   payments: PositionPayment[],
-  investments: PurchaseEvent[],
+  purchases: PurchaseEvent[],
 ): PlanTotals[] {
   return CURRENCIES.flatMap((currency) => {
     const known = positions.filter((item) => item.bond && item.currency === currency);
     if (!known.length) return [];
     const knownIsins = new Set(known.map((item) => item.position.isin));
     const invested = sumTotals(
-      investments.filter((item) => item.currency === currency && knownIsins.has(item.isin)),
+      purchases.filter((item) => item.currency === currency && knownIsins.has(item.isin)),
     );
     const coupons = sumTotals(
       payments.filter((item) => item.currency === currency && item.type === 'coupon'),
@@ -59,8 +59,8 @@ export function planTotals(
     const complete = known.every(
       ({ bond }) => !!bond?.payments.some((payment) => payment.type === 'redemption'),
     );
-    const proceeds = round2(coupons + redemption);
-    const profit = round2(proceeds - invested);
+    const totalPayments = round2(coupons + redemption);
+    const netIncome = round2(totalPayments - invested);
     return [
       {
         currency,
@@ -68,9 +68,9 @@ export function planTotals(
         invested,
         coupons,
         redemption,
-        proceeds,
-        profit,
-        returnPercent: invested ? round2((profit / invested) * 100) : 0,
+        totalPayments,
+        netIncome,
+        returnPercent: invested ? round2((netIncome / invested) * 100) : 0,
       },
     ];
   });

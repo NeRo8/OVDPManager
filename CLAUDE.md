@@ -54,7 +54,7 @@ Feature-Sliced Design, imports only point down: `app` (routes in `src/app/`) →
 - Palette roles: deep teal `accent` for actions and income, vermilion `fab` / `danger` / purchases for money going out. Status colors for advice: `success` (green, all well), `warning` (amber, look before acting), `danger` (a loss, a mistake, an error); `*Surface` tints a banner of that status. Errors that block an action stay `danger`; a state that only needs attention (stale or missing NBU data) is `warning`. Text pairs pass WCAG AA; chart series were checked with the dataviz validator — re-run it when changing `series*` colors.
 - Colors needed as non-style props (`tintColor`, `placeholderTextColor`) go through `withUnistyles`. `useUnistyles()` is reserved for navigator options in `src/app/`.
 - Icons are Ionicons from `@react-native-vector-icons/ionicons/static` (font embedded by its config plugin in `app.json`; not `@expo/vector-icons`, which Expo is deprecating). In components use `ThemedIcon` from `src/shared/ui/icon/` with `uniProps={(theme) => ({ color: … })}`; icon props are typed `IconName`. Tab icons are filled when selected and `-outline` otherwise.
-- Chart series colors use `SeriesColor` keys (`coupon`, `nominal`, `purchase`) from `src/shared/theme/series.ts`, not color strings.
+- Chart series colors use `SeriesColor` keys (`coupon`, `redemption`, `purchase`) from `src/shared/theme/series.ts`, not color strings.
 - One React component per `.tsx` file; shared types/utilities go in separate `.ts` files next to their consumers.
 
 ## Notes

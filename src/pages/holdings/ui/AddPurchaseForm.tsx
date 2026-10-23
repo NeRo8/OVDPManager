@@ -132,9 +132,9 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
               <Typography
                 variant="subhead"
                 weight="medium"
-                tone={preview.profit < 0 ? 'danger' : 'primary'}
+                tone={preview.netIncome < 0 ? 'danger' : 'primary'}
               >
-                {formatMoney(preview.profit, currency)}
+                {formatMoney(preview.netIncome, currency)}
               </Typography>
             }
           />
