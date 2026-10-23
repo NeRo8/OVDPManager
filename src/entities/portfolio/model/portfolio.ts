@@ -124,6 +124,11 @@ export function isPlannedPurchase(
   return purchase.purchaseDate > today;
 }
 
+/** What one bond cost: the amount paid for the purchase (or the position) ÷ quantity. */
+export function pricePerBond(amount: number, quantity: number): number {
+  return round2(amount / quantity);
+}
+
 /** Use the bond's currency when available, including for purchases saved before currency was stored. */
 export function purchaseCurrency(purchase: Purchase, bond?: Bond): Currency | null {
   return bond?.currency ?? purchase.currency ?? null;

@@ -8,6 +8,7 @@ import {
   annualYield,
   isPlannedPurchase,
   nextPayment,
+  pricePerBond,
   positionPayments,
   purchaseResults,
   useActivePlan,
@@ -46,11 +47,11 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
   const keyRate = useKeyRate(purchaseDate);
   const draft = schema.safeParse(values);
   const valid = draft.success ? draft.data : null;
-  const pricePerBond = valid ? valid.amount / valid.quantity : null;
+  const price = valid ? pricePerBond(valid.amount, valid.quantity) : null;
   const isPlanned = isPlannedPurchase({ purchaseDate }, today);
 
   const preview = (() => {
-    if (!valid) return null;
+    if (!valid || price === null) return null;
     const draft: Purchase = {
       id: 'draft',
       isin: bond.isin,
@@ -68,7 +69,7 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
     const hints = purchaseHints({
       bond,
       purchaseDate: valid.purchaseDate,
-      pricePerBond: valid.amount / valid.quantity,
+      pricePerBond: price,
       netIncome: results.netIncome,
       isComplete: results.complete,
       annualYield: yearly,
@@ -106,7 +107,7 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
     isValid,
     submit,
     purchaseDate,
-    pricePerBond,
+    pricePerBond: price,
     isPlanned,
     preview,
   };

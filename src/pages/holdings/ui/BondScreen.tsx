@@ -7,9 +7,10 @@ import {
   BondTerms,
   ScheduleEventRow,
   isPlannedPurchase,
+  pricePerBond,
   purchaseCurrency,
 } from '@/entities/portfolio';
-import { formatDate, formatMoney, round2 } from '@/shared/lib';
+import { formatDate, formatMoney } from '@/shared/lib';
 import {
   Button,
   Card,
@@ -68,7 +69,10 @@ export default function BondScreen() {
               <Separator />
               <InfoRow
                 label="Середня ціна 1 шт"
-                value={formatMoney(round2(position.investedAmount / position.quantity), currency)}
+                value={formatMoney(
+                  pricePerBond(position.investedAmount, position.quantity),
+                  currency,
+                )}
               />
             </>
           )}
@@ -116,7 +120,7 @@ export default function BondScreen() {
                   <Typography variant="caption1" tone="secondary">
                     {formatMoney(purchase.amount, purchaseCurrency(purchase, bond))} · по{' '}
                     {formatMoney(
-                      round2(purchase.amount / purchase.quantity),
+                      pricePerBond(purchase.amount, purchase.quantity),
                       purchaseCurrency(purchase, bond),
                     )}
                   </Typography>
