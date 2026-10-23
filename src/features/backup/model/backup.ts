@@ -1,19 +1,6 @@
-import { z } from 'zod';
-
-import {
-  InvestmentPlanSchema,
-  PurchaseInputSchema,
-  type InvestmentPlan,
-  type WalletPurchase,
-  restorePortfolio,
-} from '@/entities/portfolio';
+import { type InvestmentPlan, type WalletPurchase, restorePortfolio } from '@/entities/portfolio';
 import { confirmDestructive, plural, showToast, todayISO } from '@/shared/lib';
-import {
-  type BackupEncryption,
-  BackupEncryptionSchema,
-  decryptBackup,
-  encryptBackup,
-} from '../lib/backupCipher';
+import { type BackupEncryption, decryptBackup, encryptBackup } from '../lib/backupCipher';
 
 const FORMAT = 'ovdp-manager-backup';
 const VERSION = 6;
@@ -104,72 +91,36 @@ export function backupFileName(): string {
   return `ovdp-backup-${todayISO()}.json`;
 }
 
-/** Only backups this app version writes are read; the file comes from outside, so it is checked. */
-const BackupSchema = z.object({
-  format: z.literal(FORMAT, { error: 'Це не резервна копія OVDP Manager' }),
-  version: z.literal(VERSION, {
-    error: 'Ця версія копії не підтримується: створіть нову копію в актуальній версії застосунку',
-  }),
-  encryption: BackupEncryptionSchema,
-  data: z.base64({ error: 'У копії немає зашифрованих даних' }),
-});
-
-const BackupContentsSchema = z.object({
-  holdings: z.array(z.unknown(), { error: 'У копії немає списку покупок' }),
-  plans: z.array(z.unknown(), { error: 'У копії немає списку планів' }),
-});
-
-/** A purchase in a backup file. Messages finish the sentence "Покупка №N: …". */
-const BackupPurchaseSchema = PurchaseInputSchema.extend({
-  id: z.string({ error: 'немає id покупки' }).min(1, { error: 'id покупки не може бути порожнім' }),
-  planId: z.string({ error: 'немає id плану' }).min(1, { error: 'id плану не може бути порожнім' }),
-});
-
-function issues(error: z.ZodError): string {
-  return [...new Set(error.issues.map((issue) => issue.message))].join('; ');
-}
-
-function parseJson(text: string): unknown {
+function parseJson<T>(text: string): T {
   try {
-    return JSON.parse(text);
+    return JSON.parse(text) as T;
   } catch {
     throw new Error('Це не схоже на файл резервної копії (некоректний JSON)');
   }
 }
 
 /**
- * Reads and decrypts a backup file. Throws WrongBackupKeyError when the key does not open it,
- * and an Error with a user-facing message for anything else.
+ * Reads and decrypts a backup file this app version wrote. Throws WrongBackupKeyError when the key
+ * does not open it, and an Error with a user-facing message for anything else.
  */
 export async function parseBackup(text: string, key: string): Promise<BackupData> {
-  const backup = BackupSchema.safeParse(parseJson(text));
-  if (!backup.success) throw new Error(issues(backup.error));
+  const backup = parseJson<Backup>(text);
+  if (backup.format !== FORMAT) throw new Error('Це не резервна копія OVDP Manager');
+  if (backup.version !== VERSION) {
+    throw new Error(
+      'Ця версія копії не підтримується: створіть нову копію в актуальній версії застосунку',
+    );
+  }
 
-  const contents = BackupContentsSchema.safeParse(
-    parseJson(await decryptBackup(backup.data, key, CONTEXT)),
-  );
-  if (!contents.success) throw new Error(issues(contents.error));
-
-  const planIds = new Set<string>();
-  const plans = contents.data.plans.map((raw, index): InvestmentPlan => {
-    const plan = InvestmentPlanSchema.safeParse(raw);
-    if (!plan.success) throw new Error(`План №${index + 1}: ${issues(plan.error)}`);
-    if (planIds.has(plan.data.id)) throw new Error(`План №${index + 1}: id повторюється`);
-    planIds.add(plan.data.id);
-    return plan.data;
-  });
+  const { holdings, plans } = parseJson<BackupContents>(await decryptBackup(backup, key, CONTEXT));
   // The app opens only with a plan, so a backup without one would leave nothing to show.
   if (!plans.length) throw new Error('У копії немає жодного плану');
 
-  const purchaseIds = new Set<string>();
-  const purchases = contents.data.holdings.map((raw, index): WalletPurchase => {
-    const purchase = BackupPurchaseSchema.safeParse(raw);
-    if (!purchase.success) throw new Error(`Покупка №${index + 1}: ${issues(purchase.error)}`);
-    const { id, planId } = purchase.data;
-    if (purchaseIds.has(id)) throw new Error(`Покупка №${index + 1}: id повторюється`);
-    if (!planIds.has(planId)) throw new Error(`Покупка №${index + 1}: її плану немає в копії`);
-    purchaseIds.add(id);
-    return purchase.data;
+  const planIds = new Set(plans.map((plan) => plan.id));
+  holdings.forEach((purchase, index) => {
+    if (!planIds.has(purchase.planId)) {
+      throw new Error(`Покупка №${index + 1}: її плану немає в копії`);
+    }
   });
-  return { purchases, plans };
+  return { purchases: holdings, plans };
 }

@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -16,10 +15,6 @@ const useActivePlanStore = create<ActivePlanStore>()(
   persist((): ActivePlanStore => ({ activePlanId: null }), {
     name: STORAGE_KEY,
     storage: createJSONStorage(() => mmkvStorage),
-    merge: (stored, current) => {
-      const saved = z.object({ activePlanId: z.string().nullable() }).safeParse(stored);
-      return { ...current, activePlanId: saved.success ? saved.data.activePlanId : null };
-    },
   }),
 );
 

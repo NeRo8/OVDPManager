@@ -5,8 +5,8 @@ import { z } from 'zod';
 import { useInvestmentPlans, usePurchases } from '@/entities/portfolio';
 import { showToast } from '@/shared/lib';
 import { exportBackupFile } from '../api/backupFile';
-import { BackupKeySchema } from '../lib/backupCipher';
 import { backupFileName, errorMessage, serializeBackup } from './backup';
+import { BackupKeySchema } from './backupKey.schema';
 
 // The key cannot be recovered, so it is typed twice: a typo would lock the backup for good.
 const BackupExportSchema = z

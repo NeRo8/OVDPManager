@@ -4,7 +4,6 @@ import QuickCrypto, {
   createDecipheriv,
   randomBytes,
 } from 'react-native-quick-crypto';
-import { z } from 'zod';
 
 const { Buffer } = QuickCrypto;
 
@@ -19,31 +18,20 @@ const SALT_BYTES = 16;
 const IV_BYTES = 12;
 
 /** How a backup was encrypted; everything but the key is stored next to the data. */
-export const BackupEncryptionSchema = z.object(
-  {
-    kdf: z.literal('argon2id'),
-    // Bounded, so a crafted file cannot make the phone allocate gigabytes or spin for minutes.
-    memory: z
-      .int()
-      .min(8 * 1024)
-      .max(256 * 1024),
-    passes: z.int().min(1).max(10),
-    parallelism: z.int().min(1).max(4),
-    salt: z.base64(),
-    cipher: z.literal('aes-256-gcm'),
-    iv: z.base64(),
-    tag: z.base64(),
-  },
-  { error: 'У копії немає даних шифрування' },
-);
-
-export type BackupEncryption = z.infer<typeof BackupEncryptionSchema>;
-
-/** The key a user gives a backup: long enough that guessing it is not a matter of minutes. */
-export const BackupKeySchema = z
-  .string()
-  .min(8, { error: 'Ключ — щонайменше 8 символів' })
-  .max(256, { error: 'Ключ — до 256 символів' });
+export type BackupEncryption = {
+  kdf: 'argon2id';
+  /** KiB */
+  memory: number;
+  passes: number;
+  parallelism: number;
+  /** base64 */
+  salt: string;
+  cipher: 'aes-256-gcm';
+  /** base64 */
+  iv: string;
+  /** base64 */
+  tag: string;
+};
 
 /** The key does not open the backup, or the file was changed after it was made. */
 export class WrongBackupKeyError extends Error {

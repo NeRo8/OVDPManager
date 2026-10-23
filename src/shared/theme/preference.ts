@@ -1,6 +1,5 @@
 import { Appearance } from 'react-native';
 import { UnistylesRuntime } from 'react-native-unistyles';
-import { z } from 'zod';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -14,18 +13,11 @@ type ThemePreferenceState = {
   preference: ThemePreference;
 };
 
-const StoredPreferenceSchema = z.object({ preference: z.enum(THEME_PREFERENCES) });
-
 const useThemePreferenceStore = create<ThemePreferenceState>()(
   persist((): ThemePreferenceState => ({ preference: 'system' }), {
     name: 'theme-preference-v1',
     version: 1,
     storage: createJSONStorage(() => mmkvStorage),
-    // An unknown stored value would make Unistyles throw on startup, so it falls back to `system`.
-    merge: (stored, current) => {
-      const parsed = StoredPreferenceSchema.safeParse(stored);
-      return parsed.success ? { ...current, ...parsed.data } : current;
-    },
   }),
 );
 

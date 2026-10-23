@@ -1,6 +1,5 @@
 export * from './model/portfolio';
 export * from './model/purchases.store';
-export { PurchaseSchema, PurchaseInputSchema } from './model/purchase.schema';
 export {
   useActivePurchases,
   useWallet,

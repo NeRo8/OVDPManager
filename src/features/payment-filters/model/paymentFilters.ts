@@ -1,11 +1,4 @@
-import { z } from 'zod';
-
-import {
-  CURRENCIES,
-  type Currency,
-  type PositionPayment,
-  type PurchaseEvent,
-} from '@/entities/portfolio';
+import { type Currency, type PositionPayment, type PurchaseEvent } from '@/entities/portfolio';
 import { addMonthsISO } from '@/shared/lib';
 
 export const PAYMENT_KINDS = ['all', 'coupon', 'redemption'] as const;
@@ -15,15 +8,13 @@ export type PaymentKindFilter = (typeof PAYMENT_KINDS)[number];
 /** Months ahead of today, or every future payment. Only the upcoming list uses it: the year view has its own year. */
 export type PaymentPeriodFilter = (typeof PAYMENT_PERIODS)[number];
 
-export const PaymentFiltersSchema = z.object({
-  kind: z.enum(PAYMENT_KINDS),
-  period: z.union([z.literal('all'), z.literal(3), z.literal(6), z.literal(12)]),
-  currency: z.union([z.literal('all'), z.enum(CURRENCIES)]),
+export type PaymentFilters = {
+  kind: PaymentKindFilter;
+  period: PaymentPeriodFilter;
+  currency: Currency | 'all';
   /** Bonds to show; empty shows every bond */
-  isins: z.array(z.string()),
-});
-
-export type PaymentFilters = z.infer<typeof PaymentFiltersSchema>;
+  isins: string[];
+};
 
 export const DEFAULT_PAYMENT_FILTERS: PaymentFilters = {
   kind: 'all',

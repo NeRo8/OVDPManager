@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -8,17 +7,6 @@ import type { WalletPurchase } from './portfolio';
 import { removePlanPurchases, replacePurchases } from './purchases.store';
 
 export const PLAN_NAME_MAX_LENGTH = 80;
-export const PlanNameSchema = z
-  .string()
-  .trim()
-  .min(1, { error: 'Вкажіть назву плану' })
-  .max(PLAN_NAME_MAX_LENGTH, { error: `Назва — до ${PLAN_NAME_MAX_LENGTH} символів` });
-
-/** A plan; its purchases are wallet purchases with its `planId`. */
-export const InvestmentPlanSchema = z.object({
-  id: z.string().min(1),
-  name: PlanNameSchema,
-}) satisfies z.ZodType<InvestmentPlan>;
 
 const STORAGE_KEY = 'investment-plan-v1';
 
@@ -26,18 +14,6 @@ type PlansStore = {
   plans: InvestmentPlan[];
   setPlans: (update: (current: InvestmentPlan[]) => InvestmentPlan[]) => void;
 };
-
-function readStoredPlans(stored: unknown): InvestmentPlan[] {
-  const saved = z.object({ plans: z.array(z.unknown()) }).safeParse(stored);
-  if (!saved.success) return [];
-  const ids = new Set<string>();
-  return saved.data.plans.flatMap((raw) => {
-    const plan = InvestmentPlanSchema.safeParse(raw);
-    if (!plan.success || ids.has(plan.data.id)) return [];
-    ids.add(plan.data.id);
-    return [plan.data];
-  });
-}
 
 const usePlansStore = create<PlansStore>()(
   persist(
@@ -49,7 +25,6 @@ const usePlansStore = create<PlansStore>()(
       name: STORAGE_KEY,
       storage: createJSONStorage(() => mmkvStorage),
       partialize: ({ plans }) => ({ plans }),
-      merge: (stored, current) => ({ ...current, plans: readStoredPlans(stored) }),
     },
   ),
 );
@@ -62,17 +37,17 @@ function newId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+/** `name` comes from the plan-name form, already trimmed and checked. */
 export function createInvestmentPlan(name: string): string {
-  const plan = InvestmentPlanSchema.parse({ id: newId(), name });
+  const plan: InvestmentPlan = { id: newId(), name };
   usePlansStore.getState().setPlans((plans) => [...plans, plan]);
   return plan.id;
 }
 
 export function renameInvestmentPlan(id: string, name: string): void {
-  const trimmed = PlanNameSchema.parse(name);
   usePlansStore
     .getState()
-    .setPlans((plans) => plans.map((plan) => (plan.id === id ? { ...plan, name: trimmed } : plan)));
+    .setPlans((plans) => plans.map((plan) => (plan.id === id ? { ...plan, name } : plan)));
 }
 
 /** Removes the plan with all its purchases. */

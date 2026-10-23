@@ -6,8 +6,9 @@ import { z } from 'zod';
 import { useInvestmentPlans, usePurchases } from '@/entities/portfolio';
 import { showToast } from '@/shared/lib';
 import { pickBackupFile } from '../api/backupFile';
-import { BackupKeySchema, WrongBackupKeyError } from '../lib/backupCipher';
+import { WrongBackupKeyError } from '../lib/backupCipher';
 import { errorMessage, parseBackup, replaceWithBackup } from './backup';
+import { BackupKeySchema } from './backupKey.schema';
 
 const BackupImportSchema = z.object({ key: BackupKeySchema, json: z.string() });
 

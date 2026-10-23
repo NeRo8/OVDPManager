@@ -1,8 +1,6 @@
-import { z } from 'zod';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { PurchaseSchema } from './purchase.schema';
 import type { WalletPurchase } from './portfolio';
 import { mmkvStorage } from '@/shared/lib';
 
@@ -25,16 +23,6 @@ const initialState: PurchasesState = {
   purchases: [],
 };
 
-/** Purchases read back from storage. A damaged record is left out rather than break the wallet. */
-function readStoredPurchases(stored: unknown): WalletPurchase[] {
-  const saved = z.object({ purchases: z.array(z.unknown()) }).safeParse(stored);
-  if (!saved.success) return [];
-  return saved.data.purchases.flatMap((item) => {
-    const purchase = PurchaseSchema.safeParse(item);
-    return purchase.success ? [purchase.data] : [];
-  });
-}
-
 const usePurchasesStore = create<PurchasesStore>()(
   persist(
     (set) => ({
@@ -48,7 +36,6 @@ const usePurchasesStore = create<PurchasesStore>()(
       name: STORAGE_KEY,
       storage: createJSONStorage(() => mmkvStorage),
       partialize: ({ purchases }) => ({ purchases }),
-      merge: (stored, current) => ({ ...current, purchases: readStoredPurchases(stored) }),
     },
   ),
 );

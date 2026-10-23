@@ -7,7 +7,6 @@ import { z } from 'zod';
 import {
   DEFAULT_PLAN_NAME,
   PLAN_NAME_MAX_LENGTH,
-  PlanNameSchema,
   createInvestmentPlan,
   renameInvestmentPlan,
   setActivePlan,
@@ -15,7 +14,13 @@ import {
 } from '@/entities/portfolio';
 import { Button, EmptyState, Input, FormScrollView, Section, Typography } from '@/shared/ui';
 
-const PlanNameFormSchema = z.object({ name: PlanNameSchema });
+const PlanNameFormSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, { error: 'Вкажіть назву плану' })
+    .max(PLAN_NAME_MAX_LENGTH, { error: `Назва — до ${PLAN_NAME_MAX_LENGTH} символів` }),
+});
 
 /**
  * Names a new plan, or renames the one in `planId`. Without any plans it is the first screen of

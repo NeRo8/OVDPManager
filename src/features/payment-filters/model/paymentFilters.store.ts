@@ -2,22 +2,13 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { mmkvStorage } from '@/shared/lib';
-import {
-  DEFAULT_PAYMENT_FILTERS,
-  PaymentFiltersSchema,
-  type PaymentFilters,
-} from './paymentFilters';
+import { DEFAULT_PAYMENT_FILTERS, type PaymentFilters } from './paymentFilters';
 
 const usePaymentFiltersStore = create<PaymentFilters>()(
   persist((): PaymentFilters => DEFAULT_PAYMENT_FILTERS, {
     name: 'payment-filters-v1',
     version: 1,
     storage: createJSONStorage(() => mmkvStorage),
-    // Unreadable saved filters fall back to showing every payment.
-    merge: (stored, current) => {
-      const parsed = PaymentFiltersSchema.safeParse(stored);
-      return parsed.success ? parsed.data : current;
-    },
   }),
 );
 
