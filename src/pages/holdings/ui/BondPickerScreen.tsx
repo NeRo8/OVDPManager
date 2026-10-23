@@ -1,6 +1,6 @@
 import { Stack, router } from 'expo-router';
 import { FlatList, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, withUnistyles } from 'react-native-unistyles';
 
 import { BondsUnavailable } from '@/entities/portfolio';
 import { useBondPicker } from '@/features/add-purchase';
@@ -8,6 +8,14 @@ import { SectionCell, Typography, screenContent } from '@/shared/ui';
 import { BondChoiceRow } from './BondChoiceRow';
 import { PickerFilters } from './PickerFilters';
 import { SortToggle } from './SortToggle';
+
+// The search field sits on the brand header, so it takes the header colors in both themes.
+const HeaderSearchBar = withUnistyles(Stack.SearchBar, (theme) => ({
+  textColor: theme.headerText,
+  hintTextColor: theme.headerMutedText,
+  headerIconColor: theme.headerText,
+  tintColor: theme.headerText,
+}));
 
 /**
  * First step of adding a purchase to the active plan: bonds in circulation narrowed by currency
@@ -26,9 +34,11 @@ export default function BondPickerScreen() {
 
   return (
     <>
-      <Stack.SearchBar
+      <HeaderSearchBar
         placeholder="Пошук за ISIN"
         autoCapitalize="characters"
+        // Android draws this icon in the theme color, which no prop changes; it would stay dark.
+        shouldShowHintSearchIcon={false}
         onChangeText={search}
         onCancelButtonPress={clearSearch}
       />
