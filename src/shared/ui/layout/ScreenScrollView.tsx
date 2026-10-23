@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { screenContent } from './screenContent';
 
-/** Scroll container of form and static screens: themed background, centered content column. */
+/** Scroll container of screens without text fields: themed background, centered content column. */
 type Props = ScrollViewProps;
 
 export function ScreenScrollView({ style, contentContainerStyle, ...props }: Props) {

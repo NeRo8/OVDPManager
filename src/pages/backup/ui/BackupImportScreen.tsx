@@ -1,7 +1,7 @@
 import { Controller } from 'react-hook-form';
 
 import { useBackupImport } from '@/features/backup';
-import { Button, Input, ScreenScrollView, Section, Typography } from '@/shared/ui';
+import { Button, Input, FormScrollView, Section, Typography } from '@/shared/ui';
 
 export default function BackupImportScreen() {
   const {
@@ -16,7 +16,7 @@ export default function BackupImportScreen() {
   } = useBackupImport();
 
   return (
-    <ScreenScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
+    <FormScrollView>
       <Section
         title="Ключ копії"
         footer={
@@ -89,6 +89,6 @@ export default function BackupImportScreen() {
         onPress={() => void restorePasted()}
         disabled={!canRestorePasted}
       />
-    </ScreenScrollView>
+    </FormScrollView>
   );
 }

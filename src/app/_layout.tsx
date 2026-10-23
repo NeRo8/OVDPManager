@@ -1,4 +1,5 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useUnistyles } from 'react-native-unistyles';
 
 import { useInvestmentPlans } from '@/entities/portfolio';
@@ -24,38 +25,44 @@ export default function RootLayout() {
   };
 
   return (
-    <QueryProvider>
-      <ThemeProvider value={navigationTheme}>
-        <Stack screenOptions={{ headerBackButtonDisplayMode: 'minimal' }}>
-          {/* Purchases live in plans, so the app opens only once there is one. */}
-          <Stack.Protected guard={hasPlans} redirectTo="/welcome">
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            {/* Adding a purchase to the active plan: choose a bond, then enter the purchase. */}
-            <Stack.Screen name="add/index" options={{ title: 'Оберіть ОВДП' }} />
-            <Stack.Screen name="add/[isin]" options={{ title: 'Додати ОВДП' }} />
-            <Stack.Screen name="plan/name" options={{ title: 'Новий план' }} />
-            <Stack.Screen name="plan/list" options={{ title: 'Мої плани' }} />
-            <Stack.Screen
-              name="payment-filters"
-              options={{
-                title: 'Фільтри виплат',
-                presentation: 'modal',
-                headerLeft: () => (
-                  <HeaderButton icon="close" accessibilityLabel="Закрити" onPress={goBackOrHome} />
-                ),
-              }}
-            />
-            <Stack.Screen name="bond/[isin]" options={{ title: 'ОВДП' }} />
-            <Stack.Screen name="backup/export" options={{ title: 'Створити копію' }} />
-          </Stack.Protected>
-          <Stack.Protected guard={!hasPlans} redirectTo="/">
-            <Stack.Screen name="welcome" options={{ title: 'Перший план' }} />
-          </Stack.Protected>
-          {/* Reachable without plans too: a backup brings its plans along. */}
-          <Stack.Screen name="backup/import" options={{ title: 'Відновити з копії' }} />
-        </Stack>
-        <ToastHost />
-      </ThemeProvider>
-    </QueryProvider>
+    <KeyboardProvider>
+      <QueryProvider>
+        <ThemeProvider value={navigationTheme}>
+          <Stack screenOptions={{ headerBackButtonDisplayMode: 'minimal' }}>
+            {/* Purchases live in plans, so the app opens only once there is one. */}
+            <Stack.Protected guard={hasPlans} redirectTo="/welcome">
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              {/* Adding a purchase to the active plan: choose a bond, then enter the purchase. */}
+              <Stack.Screen name="add/index" options={{ title: 'Оберіть ОВДП' }} />
+              <Stack.Screen name="add/[isin]" options={{ title: 'Додати ОВДП' }} />
+              <Stack.Screen name="plan/name" options={{ title: 'Новий план' }} />
+              <Stack.Screen name="plan/list" options={{ title: 'Мої плани' }} />
+              <Stack.Screen
+                name="payment-filters"
+                options={{
+                  title: 'Фільтри виплат',
+                  presentation: 'modal',
+                  headerLeft: () => (
+                    <HeaderButton
+                      icon="close"
+                      accessibilityLabel="Закрити"
+                      onPress={goBackOrHome}
+                    />
+                  ),
+                }}
+              />
+              <Stack.Screen name="bond/[isin]" options={{ title: 'ОВДП' }} />
+              <Stack.Screen name="backup/export" options={{ title: 'Створити копію' }} />
+            </Stack.Protected>
+            <Stack.Protected guard={!hasPlans} redirectTo="/">
+              <Stack.Screen name="welcome" options={{ title: 'Перший план' }} />
+            </Stack.Protected>
+            {/* Reachable without plans too: a backup brings its plans along. */}
+            <Stack.Screen name="backup/import" options={{ title: 'Відновити з копії' }} />
+          </Stack>
+          <ToastHost />
+        </ThemeProvider>
+      </QueryProvider>
+    </KeyboardProvider>
   );
 }

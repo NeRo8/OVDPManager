@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Controller } from 'react-hook-form';
 
 import { useBackupExport } from '@/features/backup';
-import { Button, Input, ScreenScrollView, Section, Separator, Typography } from '@/shared/ui';
+import { Button, Input, FormScrollView, Section, Separator, Typography } from '@/shared/ui';
 
 /** Making a backup: the key that encrypts it, typed twice, then the share sheet. */
 export default function BackupExportScreen() {
@@ -11,7 +11,7 @@ export default function BackupExportScreen() {
   const error = keyError ?? confirmationError;
 
   return (
-    <ScreenScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
+    <FormScrollView>
       <Section
         title="Ключ копії"
         footer={
@@ -66,6 +66,6 @@ export default function BackupExportScreen() {
         disabled={!canExport}
         onPress={() => void exportBackup()}
       />
-    </ScreenScrollView>
+    </FormScrollView>
   );
 }

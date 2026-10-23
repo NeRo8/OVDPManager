@@ -13,7 +13,7 @@ import {
   setActivePlan,
   useInvestmentPlans,
 } from '@/entities/portfolio';
-import { Button, EmptyState, Input, ScreenScrollView, Section, Typography } from '@/shared/ui';
+import { Button, EmptyState, Input, FormScrollView, Section, Typography } from '@/shared/ui';
 
 const PlanNameFormSchema = z.object({ name: PlanNameSchema });
 
@@ -66,7 +66,7 @@ export default function PlanNameScreen() {
     );
 
   return (
-    <ScreenScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
+    <FormScrollView>
       {header}
       {isFirst && (
         <Typography variant="subhead" tone="secondary" style={styles.intro}>
@@ -113,7 +113,7 @@ export default function PlanNameScreen() {
           onPress={() => router.push('/backup/import')}
         />
       )}
-    </ScreenScrollView>
+    </FormScrollView>
   );
 }
 

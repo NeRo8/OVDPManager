@@ -10,7 +10,7 @@ import {
   FieldRow,
   InfoRow,
   Input,
-  ScreenScrollView,
+  FormScrollView,
   Section,
   Separator,
   Typography,
@@ -34,7 +34,7 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
   const { currency } = bond;
 
   return (
-    <ScreenScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
+    <FormScrollView>
       <Section
         title="ОВДП"
         footer={
@@ -163,7 +163,7 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
       )}
 
       <Button title="Зберегти" disabled={!isValid} onPress={() => void submit()} />
-    </ScreenScrollView>
+    </FormScrollView>
   );
 }
 
