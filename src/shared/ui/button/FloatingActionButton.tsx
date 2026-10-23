@@ -1,10 +1,10 @@
-import { GlassView } from 'expo-glass-effect';
 import { Pressable, type StyleProp, View, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-screens/experimental';
-import { StyleSheet, withUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 import { hasLiquidGlass } from '@/shared/lib';
 import { space } from '@/shared/theme';
+import { ThemedGlassView } from '../glass/ThemedGlassView';
 import { Typography } from '../typography/Typography';
 import { type IconName, ThemedIcon } from '../icon/ThemedIcon';
 
@@ -13,12 +13,6 @@ const MARGIN = space.lg;
 
 /** Bottom padding a scrolling screen needs so the button never covers its last row. */
 export const FAB_CLEARANCE = SIZE + MARGIN * 2;
-
-// The glass follows the app's theme, which may differ from the system one; the tint is the button color.
-const FabGlass = withUnistyles(GlassView, (theme, rt) => ({
-  colorScheme: rt.themeName,
-  tintColor: theme.fab,
-}));
 
 export type FloatingActionButtonProps = {
   label?: string;
@@ -72,9 +66,13 @@ export function FloatingActionButton({
           style={({ pressed }) => [!hasLiquidGlass && pressed && styles.pressed, style]}
         >
           {hasLiquidGlass ? (
-            <FabGlass isInteractive style={styles.button}>
+            <ThemedGlassView
+              isInteractive
+              uniProps={(theme) => ({ tintColor: theme.fab })}
+              style={styles.button}
+            >
               {content}
-            </FabGlass>
+            </ThemedGlassView>
           ) : (
             <View style={[styles.button, styles.solid]}>{content}</View>
           )}

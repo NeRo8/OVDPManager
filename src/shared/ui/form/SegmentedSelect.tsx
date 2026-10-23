@@ -9,7 +9,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import { StyleSheet } from 'react-native-unistyles';
 
+import { hasLiquidGlass } from '@/shared/lib';
 import { space } from '@/shared/theme';
+import { ThemedGlassView } from '../glass/ThemedGlassView';
 import { Typography } from '../typography/Typography';
 
 /** The track's inset around the thumb; segments share the rest of its width equally. */
@@ -25,7 +27,11 @@ export type SegmentedSelectProps<T extends string | number> = {
   onChange: (value: T) => void;
 };
 
-/** One choice out of a few, marked by a thumb that slides to the selected segment. */
+/**
+ * One choice out of a few, marked by a thumb that slides to the selected segment. With Liquid
+ * Glass the track is a glass capsule and the thumb accent-tinted glass; elsewhere the thumb is
+ * a solid accent.
+ */
 export function SegmentedSelect<T extends string | number>({
   options,
   value,
@@ -56,8 +62,17 @@ export function SegmentedSelect<T extends string | number>({
 
   return (
     <View style={styles.track} onLayout={measureTrack} accessibilityRole="radiogroup">
+      {hasLiquidGlass && <ThemedGlassView style={styles.trackGlass} />}
       {segmentWidth > 0 && selectedIndex >= 0 && (
-        <Animated.View style={[styles.thumb(segmentWidth), thumbMotion]} />
+        // The glass moves with its parent: a transform, never an opacity, keeps it drawn right.
+        <Animated.View style={[styles.thumb(segmentWidth), thumbMotion]}>
+          {hasLiquidGlass && (
+            <ThemedGlassView
+              uniProps={(theme) => ({ tintColor: theme.accent })}
+              style={styles.thumbGlass}
+            />
+          )}
+        </Animated.View>
       )}
       {options.map((option) => {
         const selected = option.value === value;
@@ -86,27 +101,30 @@ export function SegmentedSelect<T extends string | number>({
   );
 }
 
+// Glass is a capsule like the system's controls; the solid thumb keeps the card's rounder corners.
+const THUMB_RADIUS = hasLiquidGlass ? 'full' : 'sm';
+
 const styles = StyleSheet.create((theme) => ({
-  // Track and thumb radii stay concentric: md = sm + the track's xs padding.
   track: {
     flexDirection: 'row',
-    borderRadius: theme.radius.md,
-    borderCurve: 'continuous',
-    //padding: TRACK_PADDING,
-    //backgroundColor: theme.muted,
+    padding: TRACK_PADDING,
   },
-  // Out of the flow and childless, so moving it re-lays-out nothing.
+  trackGlass: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: theme.radius.full,
+  },
+  // Out of the flow, so moving it re-lays-out nothing.
   thumb: (width: number) => ({
     position: 'absolute',
     top: TRACK_PADDING,
     bottom: TRACK_PADDING,
     left: TRACK_PADDING,
     width,
-    borderRadius: theme.radius.sm,
+    borderRadius: theme.radius[THUMB_RADIUS],
     borderCurve: 'continuous',
-    backgroundColor: theme.accent,
-    boxShadow: theme.shadowCard,
+    ...(!hasLiquidGlass && { backgroundColor: theme.accent, boxShadow: theme.shadowCard }),
   }),
+  thumbGlass: { flex: 1, borderRadius: theme.radius.full },
   option: {
     flex: 1,
     minHeight: 36,
