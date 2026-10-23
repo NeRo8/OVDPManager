@@ -1,4 +1,5 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useUnistyles } from 'react-native-unistyles';
 
@@ -11,7 +12,7 @@ export default function RootLayout() {
   const { theme, rt } = useUnistyles();
   const hasPlans = useInvestmentPlans().length > 0;
   const base = rt.themeName === 'dark' ? DarkTheme : DefaultTheme;
-  // Headers and navigator chrome take the app palette, so they match the top tabs and cards.
+  // Navigator surfaces use the app palette; headers have their own brand colors below.
   const navigationTheme = {
     ...base,
     colors: {
@@ -28,7 +29,15 @@ export default function RootLayout() {
     <KeyboardProvider>
       <QueryProvider>
         <ThemeProvider value={navigationTheme}>
-          <Stack screenOptions={{ headerBackButtonDisplayMode: 'minimal' }}>
+          <StatusBar style="light" />
+          <Stack
+            screenOptions={{
+              headerBackButtonDisplayMode: 'minimal',
+              headerStyle: { backgroundColor: theme.headerBackground },
+              headerTintColor: theme.headerText,
+              headerUserInterfaceStyle: 'dark',
+            }}
+          >
             {/* Purchases live in plans, so the app opens only once there is one. */}
             <Stack.Protected guard={hasPlans} redirectTo="/welcome">
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

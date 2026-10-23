@@ -8,7 +8,7 @@ export type HeaderButtonProps = {
   accessibilityLabel: string;
   onPress: () => void;
   disabled?: boolean;
-  /** `neutral` for a toggle that is off, so the accent color marks it as on */
+  /** `neutral` dims a toggle that is off; `accent` uses the full header foreground. */
   tone?: 'accent' | 'neutral';
   /** Glyph size; circled icons need more than the default to match plain ones */
   size?: number;
@@ -39,7 +39,9 @@ export function HeaderButton({
       <ThemedIcon
         name={icon}
         size={size}
-        uniProps={(theme) => ({ color: tone === 'accent' ? theme.accent : theme.text })}
+        uniProps={(theme) => ({
+          color: tone === 'accent' ? theme.headerText : theme.headerMutedText,
+        })}
       />
     </Pressable>
   );

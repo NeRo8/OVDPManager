@@ -4,6 +4,10 @@
 export const light = {
   background: '#EEF3EC',
   card: '#FCFFF7',
+  /** Brand header colors stay the same in both themes. */
+  headerBackground: '#046865',
+  headerText: '#FCFFF7',
+  headerMutedText: 'rgba(252, 255, 247, 0.8)',
   text: '#000000',
   secondaryText: '#52625E',
   border: '#D5E0DA',
@@ -52,6 +56,9 @@ export type AppTheme = typeof light;
 export const dark: AppTheme = {
   background: '#000000',
   card: '#0F1716',
+  headerBackground: light.headerBackground,
+  headerText: light.headerText,
+  headerMutedText: light.headerMutedText,
   text: '#FCFFF7',
   secondaryText: '#9AAEA9',
   border: '#24302D',

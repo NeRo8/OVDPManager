@@ -23,11 +23,11 @@ function ThemedTopTabs(props: Props) {
         // wrong index, so pressing a tab could land on another one. Without `lazy`, every tab
         // route is created right after the first render, before any tab is pressed.
         lazy: false,
-        tabBarActiveTintColor: theme.accent,
-        tabBarInactiveTintColor: theme.secondaryText,
-        tabBarIndicatorStyle: { backgroundColor: theme.accent, height: 2 },
+        tabBarActiveTintColor: theme.headerText,
+        tabBarInactiveTintColor: theme.headerMutedText,
+        tabBarIndicatorStyle: { backgroundColor: theme.headerText, height: 2 },
         tabBarStyle: {
-          backgroundColor: theme.card,
+          backgroundColor: theme.headerBackground,
           elevation: 0,
           shadowOpacity: 0,
           // The same line as under the tab headers, so the payments tab ends like the others.
