@@ -6,7 +6,7 @@ export default function PaymentsStackLayout() {
   return (
     <NativeStack>
       <NativeStack.Screen
-        name="(schedule)"
+        name="index"
         options={{ title: 'Виплати', headerRight: () => <PaymentFiltersButton /> }}
       />
     </NativeStack>

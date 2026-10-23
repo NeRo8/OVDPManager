@@ -4,10 +4,14 @@ import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
+  SCHEDULE_EVENT_TYPES,
+  filterSchedule,
   resetPaymentFilters,
   togglePaymentFilterIsin,
+  togglePaymentFilterType,
   updatePaymentFilters,
-  type PaymentFilters,
+  type ScheduleEventType,
+  type ScheduleTimeFilter,
 } from '@/features/payment-filters';
 import { formatDate } from '@/shared/lib';
 import {
@@ -19,37 +23,25 @@ import {
   Separator,
   Typography,
 } from '@/shared/ui';
-import { upcomingPayments } from '../model/upcomingPayments';
 import { useFilteredWallet } from '../model/useFilteredWallet.hook';
+import { EVENT_TYPE_LABELS, TIME_LABELS } from './paymentFilterLabels';
 
-const KIND_OPTIONS: { label: string; value: PaymentFilters['kind'] }[] = [
-  { label: 'Усі', value: 'all' },
-  { label: 'Купони', value: 'coupon' },
-  { label: 'Погашення', value: 'redemption' },
-];
+const TIME_OPTIONS = (['all', 'upcoming', 'past'] as const).map((value) => ({
+  label: TIME_LABELS[value],
+  value,
+}));
 
-const PERIOD_OPTIONS: { label: string; value: PaymentFilters['period'] }[] = [
-  { label: 'Усі', value: 'all' },
-  { label: '3 міс', value: 3 },
-  { label: '6 міс', value: 6 },
-  { label: 'Рік', value: 12 },
-];
-
-/** Narrows the upcoming payments; every change applies at once and is remembered. */
+/** Narrows the payments schedule; every change applies at once and is remembered. */
 export default function PaymentFiltersScreen() {
-  const filtered = useFilteredWallet();
-  const { filters, options: filterOptions, activeFilterCount } = filtered;
-  const { byIsin } = filtered.wallet;
-  const { upcoming, allCount } = upcomingPayments(filtered);
-  const currencyOptions: { label: string; value: PaymentFilters['currency'] }[] = [
-    { label: 'Усі', value: 'all' },
-    ...filterOptions.currencies.map((currency) => ({ label: currency, value: currency })),
-  ];
+  const { wallet, filters, isins, activeFilterCount } = useFilteredWallet();
+  const { events: shown, totalCount } = filterSchedule(wallet, filters);
+  // What each type would add, given the other filters.
+  const ofAnyType = filterSchedule(wallet, { ...filters, types: [] }).events;
+  const typeCount = (type: ScheduleEventType) =>
+    ofAnyType.filter((event) => event.type === type).length;
 
-  const changeKind = (kind: PaymentFilters['kind']) => updatePaymentFilters({ kind });
-  const changePeriod = (period: PaymentFilters['period']) => updatePaymentFilters({ period });
-  const changeCurrency = (currency: PaymentFilters['currency']) =>
-    updatePaymentFilters({ currency });
+  const showAllTypes = () => updatePaymentFilters({ types: [] });
+  const changeTime = (time: ScheduleTimeFilter) => updatePaymentFilters({ time });
   const showAllBonds = () => updatePaymentFilters({ isins: [] });
 
   return (
@@ -66,41 +58,39 @@ export default function PaymentFiltersScreen() {
           ),
         }}
       />
-      <Section title="Тип виплати">
-        <View style={styles.picker}>
-          <SegmentedSelect options={KIND_OPTIONS} value={filters.kind} onChange={changeKind} />
-        </View>
+      <Section title="Події" footer="Графік і підсумки року рахують лише позначені події.">
+        <CheckRow
+          title="Усі події"
+          subtitle={`Подій: ${ofAnyType.length}`}
+          checked={filters.types.length === 0}
+          onPress={showAllTypes}
+        />
+        {SCHEDULE_EVENT_TYPES.map((type) => (
+          <Fragment key={type}>
+            <Separator />
+            <CheckRow
+              title={EVENT_TYPE_LABELS[type]}
+              subtitle={`Подій: ${typeCount(type)}`}
+              checked={filters.types.includes(type)}
+              onPress={() => togglePaymentFilterType(type)}
+            />
+          </Fragment>
+        ))}
       </Section>
 
       <Section
-        title="Період"
-        footer="Для майбутніх виплат: від сьогодні до кінця періоду. У режимі «За рік» рік обирають на екрані виплат."
+        title="Час"
+        footer="Майбутні — виплати, яких ще не отримано, і заплановані купівлі; минулі — отримані виплати та зроблені купівлі."
       >
         <View style={styles.picker}>
-          <SegmentedSelect
-            options={PERIOD_OPTIONS}
-            value={filters.period}
-            onChange={changePeriod}
-          />
+          <SegmentedSelect options={TIME_OPTIONS} value={filters.time} onChange={changeTime} />
         </View>
       </Section>
 
-      {filterOptions.currencies.length > 1 && (
-        <Section title="Валюта">
-          <View style={styles.picker}>
-            <SegmentedSelect
-              options={currencyOptions}
-              value={filters.currency}
-              onChange={changeCurrency}
-            />
-          </View>
-        </Section>
-      )}
-
-      <Section title="ОВДП" footer="Позначте облігації, виплати яких показувати.">
+      <Section title="ОВДП" footer="Позначте облігації, виплати й купівлі яких показувати.">
         <CheckRow title="Усі ОВДП" checked={filters.isins.length === 0} onPress={showAllBonds} />
-        {filterOptions.isins.map((isin) => {
-          const bond = byIsin.get(isin);
+        {isins.map((isin) => {
+          const bond = wallet.byIsin.get(isin);
           return (
             <Fragment key={isin}>
               <Separator />
@@ -117,7 +107,7 @@ export default function PaymentFiltersScreen() {
 
       {activeFilterCount > 0 && (
         <Typography variant="subhead" tone="secondary" align="center">
-          Показано виплат: {upcoming.length} із {allCount}
+          Показано подій: {shown.length} із {totalCount}
         </Typography>
       )}
     </ScreenScrollView>

@@ -3,15 +3,20 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { formatCompactMoney, formatMoney } from '@/shared/lib';
 import { LegendRow, Typography } from '@/shared/ui';
+import type { ScheduleEventType } from '@/features/payment-filters';
 import type { YearSummary } from '../model/yearSummary';
 import { Tile } from './Tile';
 
-/** Two tiles: payments received and money invested. Their legend rows also key the chart. */
+/**
+ * Two tiles: payments received and money invested, each while the filters show its events. Their
+ * legend rows also key the chart.
+ */
 type Props = {
   summary: YearSummary;
+  types: readonly ScheduleEventType[];
 };
 
-export function YearTotals({ summary }: Props) {
+export function YearTotals({ summary, types }: Props) {
   const {
     currency,
     totalPayments,
@@ -22,60 +27,70 @@ export function YearTotals({ summary }: Props) {
     purchaseCount,
     averageMonthlyPurchase,
   } = summary;
+  const showsPayments = types.includes('coupon') || types.includes('redemption');
+  const showsPurchases = types.includes('purchase');
   const receivedPercent = totalPayments > 0 ? Math.round((received / totalPayments) * 100) : 0;
 
   return (
     <View style={styles.tiles}>
-      <Tile label="Виплати" value={formatMoney(totalPayments, currency)}>
-        {totalPayments > 0 ? (
-          <>
-            <LegendRow
-              color="coupon"
-              label="Купони"
-              value={formatCompactMoney(couponTotal, currency)}
-            />
-            <LegendRow
-              color="redemption"
-              label="Погашення"
-              value={formatCompactMoney(redemptionTotal, currency)}
-            />
-            {receivedPercent > 0 && receivedPercent < 100 && (
-              <View style={styles.progress}>
-                <View
-                  accessibilityRole="progressbar"
-                  accessibilityLabel="Отримано"
-                  accessibilityValue={{ min: 0, max: 100, now: receivedPercent }}
-                  style={styles.track}
-                >
-                  <View style={[styles.fill, { width: `${receivedPercent}%` }]} />
+      {showsPayments && (
+        <Tile label="Виплати" value={formatMoney(totalPayments, currency)}>
+          {totalPayments > 0 ? (
+            <>
+              {types.includes('coupon') && (
+                <LegendRow
+                  color="coupon"
+                  label="Купони"
+                  value={formatCompactMoney(couponTotal, currency)}
+                />
+              )}
+              {types.includes('redemption') && (
+                <LegendRow
+                  color="redemption"
+                  label="Погашення"
+                  value={formatCompactMoney(redemptionTotal, currency)}
+                />
+              )}
+              {receivedPercent > 0 && receivedPercent < 100 && (
+                <View style={styles.progress}>
+                  <View
+                    accessibilityRole="progressbar"
+                    accessibilityLabel="Отримано"
+                    accessibilityValue={{ min: 0, max: 100, now: receivedPercent }}
+                    style={styles.track}
+                  >
+                    <View style={[styles.fill, { width: `${receivedPercent}%` }]} />
+                  </View>
+                  <Typography variant="caption1" tone="secondary">
+                    отримано {receivedPercent} %
+                  </Typography>
                 </View>
-                <Typography variant="caption1" tone="secondary">
-                  отримано {receivedPercent} %
-                </Typography>
-              </View>
-            )}
-          </>
-        ) : (
-          <Typography variant="footnote" tone="secondary">
-            Виплат немає
-          </Typography>
-        )}
-      </Tile>
-
-      <Tile label="Вкладено" value={formatMoney(invested, currency)}>
-        {purchaseCount > 0 ? (
-          <>
-            <LegendRow color="purchase" label="Купівлі" value={`${purchaseCount}`} />
-            <Typography variant="caption1" tone="secondary">
-              ≈ {formatCompactMoney(averageMonthlyPurchase, currency)} на місяць
+              )}
+            </>
+          ) : (
+            <Typography variant="footnote" tone="secondary">
+              Виплат немає
             </Typography>
-          </>
-        ) : (
-          <Typography variant="footnote" tone="secondary">
-            Купівель не було
-          </Typography>
-        )}
-      </Tile>
+          )}
+        </Tile>
+      )}
+
+      {showsPurchases && (
+        <Tile label="Вкладено" value={formatMoney(invested, currency)}>
+          {purchaseCount > 0 ? (
+            <>
+              <LegendRow color="purchase" label="Купівлі" value={`${purchaseCount}`} />
+              <Typography variant="caption1" tone="secondary">
+                ≈ {formatCompactMoney(averageMonthlyPurchase, currency)} на місяць
+              </Typography>
+            </>
+          ) : (
+            <Typography variant="footnote" tone="secondary">
+              Купівель не було
+            </Typography>
+          )}
+        </Tile>
+      )}
     </View>
   );
 }

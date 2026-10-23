@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { CURRENCIES, type ScheduleEvent } from '@/entities/portfolio';
-import { filterSchedule } from '@/features/payment-filters';
+import { SCHEDULE_EVENT_TYPES, filterSchedule } from '@/features/payment-filters';
 import { useOptionChoice } from '@/shared/lib';
 import { groupScheduleEventsByMonth } from './scheduleSections';
 import type { FilteredWallet } from './useFilteredWallet.hook';
@@ -15,7 +15,9 @@ const yearOf = (event: ScheduleEvent) => Number(event.date.slice(0, 4));
  */
 export function useYearSchedule({ wallet, filters }: FilteredWallet) {
   const currentYear = Number(wallet.today.slice(0, 4));
-  const { events } = filterSchedule(wallet, filters, 'years');
+  const { events } = filterSchedule(wallet, filters);
+  // The chart and the totals show only the types the filters let through.
+  const types = filters.types.length > 0 ? filters.types : SCHEDULE_EVENT_TYPES;
   const years = events.map(yearOf);
   const firstYear = years.length ? Math.min(...years) : currentYear;
   const lastYear = years.length ? Math.max(...years) : currentYear;
@@ -44,6 +46,7 @@ export function useYearSchedule({ wallet, filters }: FilteredWallet) {
     lastYear,
     year,
     setYear,
+    types,
     currencies,
     currency,
     setCurrency,

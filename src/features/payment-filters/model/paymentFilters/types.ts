@@ -1,13 +1,13 @@
-import type { Currency } from '@/entities/portfolio';
+import type { ScheduleEvent } from '@/entities/portfolio';
 
-export type PaymentKindFilter = 'all' | 'coupon' | 'redemption';
-/** Months ahead of today, or every future payment. Only the upcoming list uses it: the year view has its own year. */
-export type PaymentPeriodFilter = 'all' | 3 | 6 | 12;
+export type ScheduleEventType = ScheduleEvent['type'];
+/** Events still ahead (payments not yet received, planned purchases), those behind, or both. */
+export type ScheduleTimeFilter = 'all' | 'upcoming' | 'past';
 
 export type PaymentFiltersState = {
-  kind: PaymentKindFilter;
-  period: PaymentPeriodFilter;
-  currency: Currency | 'all';
+  /** Event types to show; empty shows every type */
+  types: ScheduleEventType[];
+  time: ScheduleTimeFilter;
   /** Bonds to show; empty shows every bond */
   isins: string[];
 };

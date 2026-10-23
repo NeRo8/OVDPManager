@@ -7,13 +7,12 @@ import type { PaymentFiltersState } from './types';
 const STORAGE_KEY = 'payment-filters-v1';
 
 export const initialState: PaymentFiltersState = {
-  kind: 'all',
-  period: 'all',
-  currency: 'all',
+  types: [],
+  time: 'all',
   isins: [],
 };
 
-/** Filters of the upcoming payments; every change applies at once and is remembered. */
+/** Filters of the payments schedule; every change applies at once and is remembered. */
 export const usePaymentFiltersStore = create<PaymentFiltersState>()(
   persist(() => initialState, {
     name: STORAGE_KEY,

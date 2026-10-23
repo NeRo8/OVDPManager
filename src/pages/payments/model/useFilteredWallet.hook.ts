@@ -1,28 +1,22 @@
-import { CURRENCIES, useWallet } from '@/entities/portfolio';
+import { useWallet } from '@/entities/portfolio';
 import {
   countActiveFilters,
   effectiveFilters,
   usePaymentFilters,
-  type PaymentFilterOptions,
 } from '@/features/payment-filters';
 
-/** The wallet with the saved payment filters, cleaned of choices the wallet no longer has. */
+/** The wallet with the saved payment filters, cleaned of bonds the wallet no longer has. */
 export function useFilteredWallet() {
   const wallet = useWallet();
   const savedFilters = usePaymentFilters();
 
-  const options: PaymentFilterOptions = {
-    isins: wallet.positions
-      .filter(({ bond }) => bond)
-      .map(({ position }) => position.isin)
-      .sort(),
-    currencies: CURRENCIES.filter((currency) =>
-      [...wallet.payments, ...wallet.purchaseEvents].some((event) => event.currency === currency),
-    ),
-  };
-  const filters = effectiveFilters(savedFilters, options);
+  const isins = wallet.positions
+    .filter(({ bond }) => bond)
+    .map(({ position }) => position.isin)
+    .sort();
+  const filters = effectiveFilters(savedFilters, isins);
 
-  return { wallet, filters, options, activeFilterCount: countActiveFilters(filters) };
+  return { wallet, filters, isins, activeFilterCount: countActiveFilters(filters) };
 }
 
 export type FilteredWallet = ReturnType<typeof useFilteredWallet>;

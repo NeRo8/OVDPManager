@@ -11,24 +11,35 @@ import {
   Typography,
   type ChartSeries,
 } from '@/shared/ui';
+import type { ScheduleEventType } from '@/features/payment-filters';
 import type { YearSummary } from '../model/yearSummary';
 
 /** Chart of the year with the selected month spelled out underneath. */
 type Props = {
   summary: YearSummary;
+  /** Event types the filters let through; each is a series of its own color */
+  types: readonly ScheduleEventType[];
   year: number;
   /** January = 0 */
   month: number | null;
   onSelectMonth: (month: number) => void;
 };
 
-export function MonthBreakdown({ summary, year, month: selectedMonth, onSelectMonth }: Props) {
+export function MonthBreakdown({
+  summary,
+  types,
+  year,
+  month: selectedMonth,
+  onSelectMonth,
+}: Props) {
   const { currency, monthlyCoupons, monthlyRedemptions, monthlyPurchases } = summary;
-  const series: ChartSeries[] = [
-    { label: 'Купони', color: 'coupon', values: monthlyCoupons },
-    { label: 'Погашення', color: 'redemption', values: monthlyRedemptions },
-    { label: 'Купівлі', color: 'purchase', values: monthlyPurchases, direction: 'down' },
-  ];
+  const series = (
+    [
+      { label: 'Купони', color: 'coupon', values: monthlyCoupons },
+      { label: 'Погашення', color: 'redemption', values: monthlyRedemptions },
+      { label: 'Купівлі', color: 'purchase', values: monthlyPurchases, direction: 'down' },
+    ] satisfies (ChartSeries & { color: ScheduleEventType })[]
+  ).filter((s) => types.includes(s.color));
   const monthRows = selectedMonth === null ? [] : series.filter((s) => s.values[selectedMonth] > 0);
 
   return (
