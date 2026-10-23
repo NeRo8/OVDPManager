@@ -16,7 +16,7 @@ import type { ScheduleEvent } from '../model/portfolio';
 
 const KINDS = {
   coupon: 'Купон',
-  redemption: 'Погашення номіналу',
+  redemption: 'Погашення',
 } as const;
 
 /** Same colors as the schedule chart. */
