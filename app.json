@@ -10,7 +10,11 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./src/shared/config/app-icon/expo.icon",
-      "bundleIdentifier": "com.arturduchenkoomnitelecom.OVDPManager"
+      "bundleIdentifier": "com.arturduchenkoomnitelecom.OVDPManager",
+      "infoPlist": {
+        "CFBundleDevelopmentRegion": "uk",
+        "CFBundleLocalizations": ["uk"]
+      }
     },
     "android": {
       "adaptiveIcon": {
