@@ -3,13 +3,13 @@ import {
   purchaseCurrency,
   purchaseResults,
   removePurchase,
-  removePosition,
+  removePositionFromActivePlan,
   useWallet,
 } from '@/entities/portfolio';
 import { formatDate, formatMoney, confirmDestructive, goBackOrHome } from '@/shared/lib';
 
 export function useBondDetails(isin: string) {
-  const { plan, positions, byIsin, today } = useWallet();
+  const { positions, byIsin, today } = useWallet();
   const bond = byIsin.get(isin);
   const walletPosition = positions.find(({ position }) => position.isin === isin);
   const position = walletPosition?.position;
@@ -34,14 +34,14 @@ export function useBondDetails(isin: string) {
   }
 
   function deletePosition() {
-    if (!plan || !position) return;
+    if (!position) return;
     confirmDestructive(
       'Видалити ОВДП?',
       `${position.isin} і всі купівлі (${position.purchases.length}) буде видалено з гаманця.`,
       'Видалити',
       () => {
         goBackOrHome();
-        removePosition(plan.id, position.isin);
+        removePositionFromActivePlan(position.isin);
       },
     );
   }

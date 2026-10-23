@@ -5,3 +5,8 @@ import { usePurchasesStore } from './store';
 export function usePurchases(): PlanPurchase[] {
   return usePurchasesStore((state) => state.purchases);
 }
+
+/** Purchases of every plan. */
+export function getPurchases(): PlanPurchase[] {
+  return usePurchasesStore.getState().purchases;
+}

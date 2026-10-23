@@ -7,9 +7,8 @@ import { z } from 'zod';
 import {
   DEFAULT_PLAN_NAME,
   PLAN_NAME_MAX_LENGTH,
-  createInvestmentPlan,
+  createActivePlan,
   renameInvestmentPlan,
-  setActivePlan,
   useInvestmentPlans,
 } from '@/entities/portfolio';
 import { Button, EmptyState, Input, FormScrollView, Section, Typography } from '@/shared/ui';
@@ -50,9 +49,9 @@ export default function PlanNameScreen() {
       renameInvestmentPlan(existing.id, name);
       router.back();
     } else {
-      // A new plan becomes active and opens in the plans tab, ready for its first purchases.
-      // The first one needs no navigation: the guard swaps this screen for the app.
-      setActivePlan(createInvestmentPlan(name));
+      // The new plan opens in the plans tab; the first one needs no navigation, as the guard
+      // swaps this screen for the app.
+      createActivePlan(name);
       if (!isFirst) router.dismissTo('/plan');
     }
   });

@@ -4,14 +4,13 @@ import { useForm, useFormState, useWatch } from 'react-hook-form';
 import {
   type Bond,
   type Purchase,
-  addPurchase,
+  addPurchaseToActivePlan,
   annualYield,
   isPlannedPurchase,
   nextPayment,
   pricePerBond,
   positionPayments,
   purchaseResults,
-  useActivePlan,
   useBonds,
   useKeyRate,
 } from '@/entities/portfolio';
@@ -28,7 +27,6 @@ import { purchaseHints, purchaseVerdict } from './purchaseHints';
  * Validated on every change, so Save is enabled only for a purchase that can be stored.
  */
 export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
-  const plan = useActivePlan();
   const { bonds, byIsin } = useBonds();
   const today = todayISO();
   const schema = purchaseFormSchema(bond);
@@ -89,10 +87,7 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
   })();
 
   const submit = form.handleSubmit(({ purchaseDate, quantity, amount }) => {
-    // The app's screens open only once there is a plan, so one is always active here.
-    if (!plan) return;
-    addPurchase({
-      planId: plan.id,
+    addPurchaseToActivePlan({
       isin: bond.isin,
       purchaseDate,
       amount,
