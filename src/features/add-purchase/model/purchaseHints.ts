@@ -129,12 +129,13 @@ function keyRateHint({ bond, annualYield, keyRate }: Input): PurchaseHint | null
   };
 }
 
-/** The coupon rate among bonds of the same currency and term still in circulation. */
+/** The coupon rate among bonds of the same currency and term in circulation on the purchase date. */
 function peersHint({ bond, purchaseDate, bonds }: Input): PurchaseHint | null {
   const term = termOf(bond, purchaseDate);
   const peers = bondChoices(bonds, '', purchaseDate).filter(
     (peer) =>
       peer.isin !== bond.isin &&
+      peer.issueDate <= purchaseDate &&
       peer.currency === bond.currency &&
       termOf(peer, purchaseDate) === term,
   );

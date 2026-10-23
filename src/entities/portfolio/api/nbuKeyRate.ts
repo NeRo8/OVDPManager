@@ -12,12 +12,12 @@ type NbuKeyRow = {
 /** NBU publishes the rates on working days; a weekend or holiday date answers with nothing. */
 const DAYS_TO_LOOK_BACK = 7;
 
-/** The NBU key policy rate, % a year, as of the latest working day up to `today`. */
-export async function fetchKeyRate(today: string, signal?: AbortSignal): Promise<number> {
+/** The NBU key policy rate, % a year, as of the latest working day up to `date`. */
+export async function fetchKeyRate(date: string, signal?: AbortSignal): Promise<number> {
   for (let back = 0; back < DAYS_TO_LOOK_BACK; back += 1) {
-    const date = addDaysISO(today, -back).replaceAll('-', '');
+    const day = addDaysISO(date, -back).replaceAll('-', '');
     const { data: rows } = await nbuClient.get<NbuKeyRow[]>(
-      `/NBUStatService/v1/statdirectory/key?date=${date}&json`,
+      `/NBUStatService/v1/statdirectory/key?date=${day}&json`,
       { signal },
     );
     const policyRate = rows.find((row) => row.id_api === 'KEY_PolicyRate');

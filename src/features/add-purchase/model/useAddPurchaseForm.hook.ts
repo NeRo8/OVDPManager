@@ -27,7 +27,6 @@ import { purchaseHints, purchaseVerdict } from './purchaseHints';
 export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
   const plan = useActivePlan();
   const { bonds } = useBonds();
-  const keyRate = useKeyRate();
   const today = todayISO();
   const schema = purchaseFormSchema(bond);
   const form = useForm<PurchaseFormInput, unknown, PurchaseFormValues>({
@@ -41,10 +40,12 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
   // `form` object, and the Save button would stop following the form.
   const { isValid } = useFormState({ control: form.control });
   const values = useWatch({ control: form.control });
+  const purchaseDate = values.purchaseDate ?? today;
+  const keyRate = useKeyRate(purchaseDate);
   const draft = schema.safeParse(values);
   const valid = draft.success ? draft.data : null;
   const pricePerBond = valid ? valid.amount / valid.quantity : null;
-  const isPlanned = (values.purchaseDate ?? today) > today;
+  const isPlanned = purchaseDate > today;
 
   const preview = (() => {
     if (!valid) return null;
@@ -107,7 +108,7 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
     control: form.control,
     isValid,
     submit,
-    purchaseDate: values.purchaseDate ?? today,
+    purchaseDate,
     pricePerBond,
     isPlanned,
     preview,
