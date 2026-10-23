@@ -1,6 +1,6 @@
 import { router, Stack } from 'expo-router';
 import { useState } from 'react';
-import { RefreshControl, View } from 'react-native';
+import { RefreshControl } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
@@ -11,101 +11,41 @@ import {
   removeInvestmentPlan,
   useWallet,
   type Currency,
-  type ScheduleEvent,
 } from '@/entities/portfolio';
-import {
-  MONTHS,
-  confirmDestructive,
-  formatMoney,
-  plural,
-  round2,
-  usePullToRefresh,
-} from '@/shared/lib';
+import { confirmDestructive, formatMoney, plural, usePullToRefresh } from '@/shared/lib';
 import {
   ActionRow,
   Card,
-  FAB_CLEARANCE,
-  FloatingActionButton,
   InfoRow,
-  LegendRow,
-  MonthChart,
   ScreenScrollView,
   Section,
-  SectionTitle,
   SegmentedSelect,
   Separator,
   Typography,
-  YearNav,
-  type ChartSeries,
 } from '@/shared/ui';
-import { PlanEventRow } from './PlanEventRow';
-
-function eventOrder(a: ScheduleEvent, b: ScheduleEvent) {
-  return (
-    a.date.localeCompare(b.date) || Number(a.type === 'purchase') - Number(b.type === 'purchase')
-  );
-}
 
 /**
  * The plans tab: the active plan as a whole. Its purchases (bought or planned) are the ones in the
  * wallet; here they add up to what the plan costs and earns over its whole term.
  */
 export default function PlanScreen() {
-  const {
-    plan,
-    bonds,
-    error,
-    refresh,
-    today,
-    positions,
-    payments,
-    purchaseEvents,
-    numberOfPurchases,
-  } = useWallet();
+  const { plan, bonds, error, refresh, positions, payments, purchaseEvents, numberOfPurchases } =
+    useWallet();
   const pullToRefresh = usePullToRefresh(refresh);
   const planId = plan?.id ?? '';
   const totals = planTotals(positions, payments, purchaseEvents);
   const unknownBonds = positions.filter((item) => !item.bond).length;
   const [chosenCurrency, setCurrency] = useState<Currency | null>(null);
-  const [chosenYear, setYear] = useState<number | null>(null);
-  const [selectedMonth, setMonth] = useState<number | null>(null);
   const currencies = totals.map((total) => total.currency);
   const currency =
     chosenCurrency && currencies.includes(chosenCurrency) ? chosenCurrency : currencies[0];
   const total = totals.find((item) => item.currency === currency);
-  const events = [...purchaseEvents, ...payments]
-    .filter((event) => event.currency === currency)
-    .sort(eventOrder);
-  const currentYear = Number(today.slice(0, 4));
-  const years = events.map((event) => Number(event.date.slice(0, 4)));
-  const firstYear = years.length ? Math.min(...years) : currentYear;
-  const lastYear = years.length ? Math.max(...years) : currentYear;
-  // Open on this year when the plan spans it, so the chart starts at what is happening now.
-  const defaultYear = Math.min(Math.max(currentYear, firstYear), lastYear);
-  const year =
-    chosenYear && chosenYear >= firstYear && chosenYear <= lastYear ? chosenYear : defaultYear;
-  const yearEvents = events.filter((event) => Number(event.date.slice(0, 4)) === year);
-  const monthly = (type: ScheduleEvent['type']) =>
-    MONTHS.map((_, month) =>
-      round2(
-        yearEvents
-          .filter((event) => event.type === type && Number(event.date.slice(5, 7)) === month + 1)
-          .reduce((sum, event) => sum + event.total, 0),
-      ),
-    );
-  const series: ChartSeries[] = [
-    { label: 'купони', color: 'coupon', values: monthly('coupon') },
-    { label: 'погашення', color: 'nominal', values: monthly('redemption') },
-    { label: 'покупки', color: 'purchase', values: monthly('purchase'), direction: 'down' },
-  ];
-  const monthDetails =
-    selectedMonth === null ? [] : series.filter((item) => item.values[selectedMonth] > 0);
 
   // The app's screens open only once there is a plan, so one is always active here.
   if (!plan) return null;
 
   return (
-    <View style={styles.screen}>
+    <>
       {/* `headerTitle`, not `title`: the tab keeps its own label. */}
       <Stack.Screen options={{ headerTitle: plan.name }} />
       <ScreenScrollView
@@ -122,7 +62,7 @@ export default function PlanScreen() {
           <Card>
             <Typography variant="headline">План порожній</Typography>
             <Typography variant="subhead" tone="secondary">
-              Додайте ОВДП: дату купівлі, кількість і ціну однієї облігації. Покупка з’явиться в
+              Додайте ОВДП у гаманці: дату купівлі, кількість і суму покупки. Покупка з’явиться в
               гаманці та у виплатах.
             </Typography>
           </Card>
@@ -137,11 +77,7 @@ export default function PlanScreen() {
                   value: item,
                 }))}
                 value={total.currency}
-                onChange={(value) => {
-                  setCurrency(value);
-                  setYear(null);
-                  setMonth(null);
-                }}
+                onChange={setCurrency}
               />
             )}
             <Section
@@ -177,58 +113,6 @@ export default function PlanScreen() {
                 </>
               )}
             </Section>
-
-            <View style={styles.chartSection}>
-              <SectionTitle title="Графік виплат і покупок" />
-              <YearNav
-                year={year}
-                min={firstYear}
-                max={lastYear}
-                onChange={(value) => {
-                  setYear(value);
-                  setMonth(null);
-                }}
-              />
-              <Card>
-                <MonthChart
-                  series={series}
-                  currency={total.currency}
-                  selected={selectedMonth}
-                  onSelect={setMonth}
-                />
-                {selectedMonth !== null && (
-                  <View style={styles.monthDetails}>
-                    <Separator />
-                    <Typography variant="subhead" weight="semibold">
-                      {MONTHS[selectedMonth]} {year}
-                    </Typography>
-                    {monthDetails.length ? (
-                      monthDetails.map((item) => (
-                        <LegendRow
-                          key={item.label}
-                          color={item.color}
-                          label={item.label}
-                          value={formatMoney(item.values[selectedMonth], total.currency)}
-                        />
-                      ))
-                    ) : (
-                      <Typography variant="footnote" tone="secondary">
-                        Операцій немає
-                      </Typography>
-                    )}
-                  </View>
-                )}
-              </Card>
-            </View>
-
-            <Section title={`Операції · ${year}`}>
-              {yearEvents.map((event, index) => (
-                <View key={`${event.type}-${event.isin}-${event.date}-${index}`}>
-                  {index > 0 && <Separator />}
-                  <PlanEventRow event={event} today={today} />
-                </View>
-              ))}
-            </Section>
           </>
         )}
         {unknownBonds > 0 && (
@@ -260,18 +144,11 @@ export default function PlanScreen() {
         </Section>
         <NbuSourceNote />
       </ScreenScrollView>
-      <FloatingActionButton
-        accessibilityLabel="Додати ОВДП до плану"
-        onPress={() => router.push('/add')}
-      />
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  screen: { flex: 1 },
-  content: { gap: theme.space.xl, paddingBottom: FAB_CLEARANCE },
+  content: { gap: theme.space.xl },
   intro: { marginHorizontal: theme.space.lg },
-  chartSection: { gap: theme.space.md },
-  monthDetails: { gap: theme.space.sm, marginTop: theme.space.md },
 }));
