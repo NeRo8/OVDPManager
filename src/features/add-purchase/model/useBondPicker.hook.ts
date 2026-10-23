@@ -14,7 +14,7 @@ type FilterOption<T> = { value: T; count: number };
  * sorted by maturity or rate; a search by ISIN looks through every bond and sets the filters aside.
  */
 export function useBondPicker() {
-  const { bonds, error, refresh, today, positions } = useWallet();
+  const { bonds, today, positions } = useWallet();
   const [query, setQuery] = useState('');
   const [term, setTerm] = useState<BondTerm>('all');
   const [sort, setSort] = useState<BondSort>('maturity');
@@ -51,9 +51,6 @@ export function useBondPicker() {
   );
 
   return {
-    bonds,
-    error,
-    refresh,
     today,
     query,
     setQuery,

@@ -21,7 +21,7 @@ export default function UpcomingPaymentsScreen() {
       refreshControl={<RefreshControl {...pullToRefresh} />}
       ListHeaderComponent={
         <View style={styles.listHeader}>
-          <StaleBondsNotice error={wallet.error} />
+          <StaleBondsNotice />
           <Typography variant="subhead" tone="secondary" align="center">
             {activeFilterCount > 0
               ? `Показано виплат: ${upcoming.length} із ${allCount}`

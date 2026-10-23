@@ -34,7 +34,7 @@ export default function YearScheduleScreen() {
       refreshControl={<RefreshControl {...pullToRefresh} />}
       ListHeaderComponent={
         <View style={styles.listHeader}>
-          <StaleBondsNotice error={wallet.error} />
+          <StaleBondsNotice />
           <YearNav year={year} min={firstYear} max={lastYear} onChange={setYear} />
           {currency && currencies.length > 1 && (
             <SegmentedSelect

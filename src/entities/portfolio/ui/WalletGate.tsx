@@ -1,11 +1,10 @@
 import type { ReactNode } from 'react';
 
-import type { Wallet } from '../model/useWallet.hook';
-import { BondsUnavailable } from './BondsUnavailable';
+import { useActivePurchases } from '../model/useWallet.hook';
+import { BondsGate } from './BondsGate';
 import { EmptyWallet } from './EmptyWallet';
 
 type Props = {
-  wallet: Pick<Wallet, 'numberOfPurchases' | 'bonds' | 'error' | 'refresh'>;
   children: ReactNode;
 };
 
@@ -13,8 +12,8 @@ type Props = {
  * Shows `children` once there is something to show: an empty wallet invites to add a bond, and
  * without the NBU data the screen waits for it or offers a retry.
  */
-export function WalletGate({ wallet, children }: Props) {
-  if (wallet.numberOfPurchases === 0) return <EmptyWallet />;
-  if (!wallet.bonds) return <BondsUnavailable error={wallet.error} onRetry={wallet.refresh} />;
-  return children;
+export function WalletGate({ children }: Props) {
+  const { purchases } = useActivePurchases();
+  if (purchases.length === 0) return <EmptyWallet />;
+  return <BondsGate>{children}</BondsGate>;
 }

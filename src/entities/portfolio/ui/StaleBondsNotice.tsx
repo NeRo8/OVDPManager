@@ -1,12 +1,10 @@
 import { Typography } from '@/shared/ui';
+import { useBonds } from '../api/useBonds.hook';
 
-export type StaleBondsNoticeProps = {
-  error: string | null;
-};
-
-/** Inline notice when a refresh failed but cached bonds are still shown. */
-export function StaleBondsNotice({ error }: StaleBondsNoticeProps) {
-  if (!error) return null;
+/** Inline notice when a refresh failed but saved NBU data is still shown. */
+export function StaleBondsNotice() {
+  const { bonds, error } = useBonds();
+  if (!error || !bonds) return null;
   return (
     <Typography variant="caption1" tone="warning" align="center">
       Не вдалося оновити дані НБУ — показано збережені.

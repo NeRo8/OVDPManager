@@ -22,13 +22,13 @@ import {
 
 export default function PortfolioScreen() {
   const wallet = useWallet();
-  const { error, refresh, positions, today } = wallet;
+  const { refresh, positions, today } = wallet;
   const pullToRefresh = usePullToRefresh(refresh);
   const openBond = (isin: string) => router.push({ pathname: '/bond/[isin]', params: { isin } });
   const addBond = () => router.push('/add');
 
   return (
-    <WalletGate wallet={wallet}>
+    <WalletGate>
       <View style={styles.screen}>
         <FlatList
           style={styles.list}
@@ -39,7 +39,7 @@ export default function PortfolioScreen() {
           refreshControl={<RefreshControl {...pullToRefresh} />}
           ListHeaderComponent={
             <View style={styles.listHeader}>
-              <StaleBondsNotice error={error} />
+              <StaleBondsNotice />
               <SectionTitle title="Мої ОВДП" />
             </View>
           }

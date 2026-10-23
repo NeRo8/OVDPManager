@@ -1,6 +1,6 @@
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 
-import { BondsUnavailable, useWallet } from '@/entities/portfolio';
+import { BondsGate, useWallet } from '@/entities/portfolio';
 import { EmptyState } from '@/shared/ui';
 import { AddPurchaseForm } from './AddPurchaseForm';
 
@@ -11,7 +11,7 @@ import { AddPurchaseForm } from './AddPurchaseForm';
  */
 export default function AddPurchaseScreen() {
   const { isin, topUp } = useLocalSearchParams<{ isin: string; topUp?: string }>();
-  const { bonds, byIsin, error, refresh, positions } = useWallet();
+  const { byIsin, positions } = useWallet();
   const bond = byIsin.get(isin);
   const ownedQuantity =
     positions.find(({ position }) => position.isin === isin)?.position.quantity ?? 0;
@@ -22,28 +22,16 @@ export default function AddPurchaseScreen() {
     <Stack.Screen options={{ title: ownedQuantity > 0 ? 'Докупити ОВДП' : 'Додати ОВДП' }} />
   );
 
-  if (!bonds) {
-    return (
-      <>
-        {header}
-        <BondsUnavailable error={error} onRetry={refresh} />
-      </>
-    );
-  }
-
-  if (!bond) {
-    return (
-      <>
-        {header}
-        <EmptyState title={isin} message="Цієї ОВДП немає в даних НБУ." />
-      </>
-    );
-  }
-
   return (
     <>
       {header}
-      <AddPurchaseForm bond={bond} ownedQuantity={ownedQuantity} onSaved={closeAdding} />
+      <BondsGate>
+        {bond ? (
+          <AddPurchaseForm bond={bond} ownedQuantity={ownedQuantity} onSaved={closeAdding} />
+        ) : (
+          <EmptyState title={isin} message="Цієї ОВДП немає в даних НБУ." />
+        )}
+      </BondsGate>
     </>
   );
 }

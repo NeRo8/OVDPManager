@@ -32,8 +32,8 @@ import {
  * wallet; here they add up to what the plan costs and earns over its whole term.
  */
 export default function PlanScreen() {
-  const { plan, bonds, byIsin, today, error, refresh, positions, purchases, numberOfPurchases } =
-    useWallet();
+  const { plan, bonds, byIsin, today, refresh, positions, purchases } = useWallet();
+  const numberOfPurchases = purchases.length;
   const pullToRefresh = usePullToRefresh(refresh);
   const planId = plan?.id ?? '';
   const totals = purchaseResults(purchases, byIsin, today);
@@ -66,7 +66,7 @@ export default function PlanScreen() {
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl {...pullToRefresh} />}
       >
-        <StaleBondsNotice error={error} />
+        <StaleBondsNotice />
         <Typography variant="subhead" tone="secondary" style={styles.intro}>
           Підсумок плану за всіма його купівлями — зробленими й запланованими. Виплати рахуються за
           графіком НБУ.

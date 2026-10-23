@@ -2,7 +2,7 @@ import { Stack, router } from 'expo-router';
 import { FlatList, View } from 'react-native';
 import { StyleSheet, withUnistyles } from 'react-native-unistyles';
 
-import { BondsUnavailable } from '@/entities/portfolio';
+import { BondsGate } from '@/entities/portfolio';
 import { useBondPicker } from '@/features/add-purchase';
 import { SectionCell, Typography, screenContent } from '@/shared/ui';
 import { BondChoiceRow } from './BondChoiceRow';
@@ -23,17 +23,14 @@ const HeaderSearchBar = withUnistyles(Stack.SearchBar, (theme) => ({
  */
 export default function BondPickerScreen() {
   const picker = useBondPicker();
-  const { bonds, error, refresh, today, query, setQuery, isSearching, choices, ownedQuantity } =
-    picker;
-
-  if (!bonds) return <BondsUnavailable error={error} onRetry={refresh} />;
+  const { today, query, setQuery, isSearching, choices, ownedQuantity } = picker;
 
   const search = (event: { nativeEvent: { text: string } }) => setQuery(event.nativeEvent.text);
   const clearSearch = () => setQuery('');
   const chooseBond = (isin: string) => router.push({ pathname: '/add/[isin]', params: { isin } });
 
   return (
-    <>
+    <BondsGate>
       <HeaderSearchBar
         placeholder="Пошук за ISIN"
         autoCapitalize="characters"
@@ -78,7 +75,7 @@ export default function BondPickerScreen() {
           </Typography>
         }
       />
-    </>
+    </BondsGate>
   );
 }
 
