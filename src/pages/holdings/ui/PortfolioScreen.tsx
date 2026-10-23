@@ -60,7 +60,7 @@ export default function PortfolioScreen() {
                         {nextPayment ? `до ${formatDate(bond.maturityDate)}` : 'погашено'}
                       </Typography>
                     ) : (
-                      <Typography variant="caption1" tone="danger">
+                      <Typography variant="caption1" tone="warning">
                         Немає в даних НБУ
                       </Typography>
                     )}

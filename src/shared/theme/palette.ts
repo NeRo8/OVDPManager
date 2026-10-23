@@ -12,6 +12,15 @@ export const light = {
   positive: '#046865',
   // #E53D00 itself is 4.2:1 on `card`, so text takes a darker step of it.
   danger: '#C23300',
+  /**
+   * Status colors for advice: green is all well, amber asks to look, `danger` is a loss or a
+   * mistake. Each passes 4.5:1 on `card`, `background` and its own surface, which tints a banner.
+   */
+  success: '#1E7A36',
+  warning: '#8A5800',
+  successSurface: '#E2F3E5',
+  warningSurface: '#FFF1D2',
+  dangerSurface: '#FCE6DC',
   /** Fields, the segmented control's track and pressed rows */
   muted: '#E4EBE5',
   /** A surface raised above `muted`, such as the segmented control's thumb */
@@ -51,6 +60,11 @@ export const dark: AppTheme = {
   accentText: '#000000',
   positive: '#3CC9C3',
   danger: '#FF6A33',
+  success: '#5BC877',
+  warning: '#F0B03C',
+  successSurface: '#10291A',
+  warningSurface: '#2E2309',
+  dangerSurface: '#33160B',
   muted: '#18211F',
   // Lighter than the track: in the dark a raised surface is lighter, not shadowed.
   raised: '#33413E',

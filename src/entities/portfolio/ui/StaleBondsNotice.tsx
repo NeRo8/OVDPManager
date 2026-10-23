@@ -8,7 +8,7 @@ export type StaleBondsNoticeProps = {
 export function StaleBondsNotice({ error }: StaleBondsNoticeProps) {
   if (!error) return null;
   return (
-    <Typography variant="caption1" tone="danger" align="center">
+    <Typography variant="caption1" tone="warning" align="center">
       Не вдалося оновити дані НБУ — показано збережені.
     </Typography>
   );

@@ -47,7 +47,7 @@ export default function BondScreen() {
           {bond ? (
             <BondTerms bond={bond} />
           ) : (
-            <Typography variant="footnote" tone="danger">
+            <Typography variant="footnote" tone="warning">
               Цієї ОВДП немає в даних НБУ — параметри випуску й графік виплат недоступні.
             </Typography>
           )}

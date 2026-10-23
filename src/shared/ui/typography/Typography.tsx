@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import { fontWeights, typography, type FontWeight, type TypographyVariant } from '@/shared/theme';
 
 export type TypographyTone =
-  'primary' | 'secondary' | 'accent' | 'onAccent' | 'positive' | 'danger';
+  'primary' | 'secondary' | 'accent' | 'onAccent' | 'positive' | 'success' | 'warning' | 'danger';
 
 export type TypographyProps = TextProps & {
   variant?: TypographyVariant;
@@ -41,6 +41,8 @@ const styles = StyleSheet.create((theme) => ({
         accent: { color: theme.accent },
         onAccent: { color: theme.accentText },
         positive: { color: theme.positive },
+        success: { color: theme.success },
+        warning: { color: theme.warning },
         danger: { color: theme.danger },
       },
     },
