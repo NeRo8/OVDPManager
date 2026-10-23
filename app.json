@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "ОВДП Портфель",
-    "slug": "OVDPManager",
+    "slug": "ovdpmanager",
     "version": "1.0.0",
     "platforms": ["ios", "android"],
     "orientation": "portrait",
@@ -56,6 +56,10 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "eas": { "projectId": "2f3d3beb-9ce7-43bf-93c4-20d6a0125624" }
+    },
+    "owner": "nero8"
   }
 }

@@ -19,6 +19,7 @@
     "expo": "~58.0.14",
     "expo-build-properties": "~58.0.11",
     "expo-constants": "~58.0.12",
+    "expo-dev-client": "~58.0.14",
     "expo-device": "~58.0.5",
     "expo-document-picker": "~58.0.4",
     "expo-file-system": "~58.0.10",
@@ -75,7 +76,11 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "validate": "yarn format:check && yarn lint && yarn lint:fsd && yarn typecheck",
-    "prepare": "husky"
+    "prepare": "husky",
+    "build:dev:ios": "npx eas-cli build --platform ios --profile development",
+    "build:ios": "npx eas-cli build --platform ios --profile production",
+    "build:ios:submit": "npx eas-cli build --platform ios --profile production --auto-submit --no-wait",
+    "build:local:ios": "npx eas-cli build --platform ios --profile production --local"
   },
   "private": true
 }

@@ -34,6 +34,26 @@ Any version manager that reads `.node-version` / `.ruby-version` picks these up 
 
 This app uses Unistyles and other native modules. Run it in a [development build](https://docs.expo.dev/develop/development-builds/introduction/) on an Android emulator, iOS simulator, or device. Expo Go cannot load these modules.
 
+## Builds (EAS)
+
+iOS builds go through [EAS Build](https://docs.expo.dev/build/introduction/); Android is not shipped yet. The Expo project belongs to a personal account (`owner` in `app.json`), so sign in with `npx eas-cli login`. The scripts run EAS CLI through `npx eas-cli` (`24.8.0` or newer, `cli.version` in `eas.json`), so no global install is needed.
+
+| Profile       | Distribution                 | EAS environment | Use                                    |
+| ------------- | ---------------------------- | --------------- | -------------------------------------- |
+| `development` | Internal, development client | `development`   | Dev builds for registered iPhones.     |
+| `production`  | App Store                    | `production`    | TestFlight internal testing and later. |
+
+Both profiles extend `base`, which pins Node 24.22.1, Yarn 1.22.22 and CocoaPods 1.16.2: EAS calls a bare `pod` and never reads the `Gemfile`, so change a version in every place that names it. Build numbers live on EAS (`appVersionSource: remote`) and the production profile raises them on its own; the user-facing version is `version` in `app.json`. Signing credentials are managed by EAS.
+
+| Script                  | What it does                                                |
+| ----------------------- | ----------------------------------------------------------- |
+| `yarn build:dev:ios`    | Development build in the cloud.                             |
+| `yarn build:ios`        | Production build only.                                      |
+| `yarn build:ios:submit` | Production build, then upload to TestFlight (doesn't wait). |
+| `yarn build:local:ios`  | Production build on this Mac (`--local`, needs fastlane).   |
+
+Register an iPhone for development builds with `npx eas-cli device:create`. The first build of each profile asks for the Apple Developer login and lets EAS create the certificate and provisioning profile. Submissions go to App Store Connect app `6826422237`, team `W25YBRT2T2` (`ascAppId` and `appleTeamId` in `submit.production.ios` in `eas.json`). Internal testers get a build once Apple has processed it.
+
 ## Project structure
 
 | Path                                          | Responsibility                                                          |

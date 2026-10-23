@@ -19,6 +19,8 @@ yarn format                # Prettier write
 npx expo export --platform ios   # (or android) confirms the JS bundle builds
 ```
 
+EAS builds iOS only, on a personal Expo account (`owner` / `extra.eas.projectId` in `app.json`). `eas.json` and the `build:*` scripts follow the same layout as the owner's other Expo apps: `development` is an `expo-dev-client` build for registered devices (`distribution: internal`), `production` an App Store build for TestFlight internal testing with a remote, auto-incremented build number (`appVersionSource: remote`); no update channels, as there is no `expo-updates`. Both profiles extend `base`, which pins Node, Yarn and CocoaPods because EAS never reads the `Gemfile` — keep them in step with `.node-version`, `packageManager` and `Gemfile`. Scripts: `yarn build:dev:ios`, `build:ios`, `build:ios:submit` (TestFlight, `--no-wait`), `build:local:ios`; anything else through `npx eas-cli`.
+
 There is no test suite. "Done" means `yarn validate` passes.
 
 ## Architecture
