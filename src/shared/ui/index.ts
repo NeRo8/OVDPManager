@@ -32,3 +32,4 @@ export * from './form/Chip';
 export * from './form/FieldRow';
 export * from './navigation/TopTabs';
 export * from './toast/ToastHost';
+export * from './splash/LaunchSplash';

@@ -7,8 +7,13 @@ coin on its front cover, against a teal background.
   and the default app icon.
 - `android-icon-foreground.png`: transparent foreground, 1024 × 1024, with padding
   to keep the visible artwork inside Android's central 66/108 safe circle.
-- `splash-icon.png`: transparent artwork, 1024 × 1024, displayed at a canvas width
-  of 240 points on `#046865`.
+- `splash-icon.png`: transparent artwork, 1024 × 1024. `LaunchSplash`
+  (`src/shared/ui/splash/`) shows it 240 points wide on `#046865` once its bubble and
+  whirlpool animation has played.
+- `splash-blank.png`: a fully transparent 1024 × 1024 image for the native splash, so
+  that the system shows plain `#046865` and the logo first appears in `LaunchSplash`.
+  Android 12+ draws its launcher icon on a splash that has no image, so the native
+  splash needs this empty one.
 
 The old Expo Icon Composer bundle, background and monochrome images are no longer
 referenced by `app.json`. A custom Android themed monochrome icon is not configured.

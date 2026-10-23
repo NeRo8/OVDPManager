@@ -1,12 +1,16 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useUnistyles } from 'react-native-unistyles';
 
 import { useInvestmentPlans } from '@/entities/portfolio';
 import { QueryProvider } from '@/shared/api';
-import { HeaderButton, ToastHost } from '@/shared/ui';
+import { HeaderButton, LaunchSplash, ToastHost } from '@/shared/ui';
 import { goBackOrHome } from '@/shared/lib';
+
+// LaunchSplash hides the native splash once it covers the screen; until then nothing shows through.
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const { theme, rt } = useUnistyles();
@@ -70,6 +74,7 @@ export default function RootLayout() {
             <Stack.Screen name="backup/import" options={{ title: 'Відновити з копії' }} />
           </Stack>
           <ToastHost />
+          <LaunchSplash />
         </ThemeProvider>
       </QueryProvider>
     </KeyboardProvider>
