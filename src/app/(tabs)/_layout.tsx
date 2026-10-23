@@ -51,7 +51,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="plan"
         options={{
-          title: 'Плани',
+          title: 'План',
           headerRight: () => <PlanListButton />,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'bar-chart' : 'bar-chart-outline'} size={24} color={color} />
