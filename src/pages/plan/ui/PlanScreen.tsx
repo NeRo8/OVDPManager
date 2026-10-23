@@ -3,6 +3,7 @@ import { RefreshControl } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
+  BondsUnavailableCard,
   NbuSourceNote,
   StaleBondsNotice,
   purchaseResults,
@@ -81,6 +82,8 @@ export default function PlanScreen() {
             </Typography>
           </Card>
         )}
+        {/* The totals need the NBU data; without it this stands in their place. */}
+        {numberOfPurchases > 0 && <BondsUnavailableCard />}
 
         {bonds && total && (
           <>

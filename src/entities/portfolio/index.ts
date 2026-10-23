@@ -16,6 +16,7 @@ export * from './model/plans';
 export * from './model/activePlan';
 export { ScheduleEventRow } from './ui/ScheduleEventRow';
 export { BondsGate } from './ui/BondsGate';
+export { BondsUnavailableCard } from './ui/BondsUnavailableCard';
 export { NbuSourceNote } from './ui/NbuSourceNote';
 export { StaleBondsNotice } from './ui/StaleBondsNotice';
 export { BondParameters } from './ui/BondParameters';
