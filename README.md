@@ -8,7 +8,7 @@ This project pins its toolchain:
 
 | Tool      | Version   | Source                                            |
 | --------- | --------- | ------------------------------------------------- |
-| Node.js   | `22.19.0` | `.node-version`, `engines.node` in `package.json` |
+| Node.js   | `24.22.1` | `.node-version`, `engines.node` in `package.json` |
 | Yarn      | `1.22.22` | `packageManager` in `package.json`                |
 | Ruby      | `3.4.11`  | `.ruby-version`, `ruby` in `Gemfile`              |
 | CocoaPods | `1.16.2`  | `Gemfile` / `Gemfile.lock`                        |

@@ -50,7 +50,6 @@
       "@react-native-vector-icons/ionicons",
       "react-native-quick-crypto",
       "@react-native-firebase/app",
-      "./plugins/withFirebaseConfigure",
       "@react-native-firebase/auth",
       ["expo-build-properties", { "ios": { "useFrameworks": "dynamic" } }]
     ],
