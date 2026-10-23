@@ -39,6 +39,32 @@
           "resizeMode": "contain"
         }
       ],
+      [
+        "expo-font",
+        {
+          "ios": {
+            "fonts": [
+              "./src/shared/config/fonts/Manrope-Regular.ttf",
+              "./src/shared/config/fonts/Manrope-Medium.ttf",
+              "./src/shared/config/fonts/Manrope-SemiBold.ttf",
+              "./src/shared/config/fonts/Manrope-Bold.ttf"
+            ]
+          },
+          "android": {
+            "fonts": [
+              {
+                "fontFamily": "Manrope",
+                "fontDefinitions": [
+                  { "path": "./src/shared/config/fonts/Manrope-Regular.ttf", "weight": 400 },
+                  { "path": "./src/shared/config/fonts/Manrope-Medium.ttf", "weight": 500 },
+                  { "path": "./src/shared/config/fonts/Manrope-SemiBold.ttf", "weight": 600 },
+                  { "path": "./src/shared/config/fonts/Manrope-Bold.ttf", "weight": 700 }
+                ]
+              }
+            ]
+          }
+        }
+      ],
       "@react-native-community/datetimepicker",
       [
         "./plugins/withDatePickerAccent",
