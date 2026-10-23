@@ -11,7 +11,7 @@ import {
   Typography,
   screenContent,
 } from '@/shared/ui';
-import { currencySign, formatDate, formatMoney, plural } from '@/shared/lib';
+import { currencySign, formatDate, formatMoney, plural, usePullToRefresh } from '@/shared/lib';
 import { NbuSourceNote, StaleBondsNotice, WalletGate, useWallet } from '@/entities/portfolio';
 import { NextPaymentLine } from './NextPaymentLine';
 
@@ -30,7 +30,8 @@ function purchaseSummary(purchases: { purchaseDate: string }[], today: string): 
 
 export default function PortfolioScreen() {
   const wallet = useWallet();
-  const { isFetching, error, refresh, positions, today } = wallet;
+  const { error, refresh, positions, today } = wallet;
+  const pullToRefresh = usePullToRefresh(refresh);
 
   return (
     <WalletGate wallet={wallet}>
@@ -41,7 +42,7 @@ export default function PortfolioScreen() {
           contentInsetAdjustmentBehavior="automatic"
           data={positions}
           keyExtractor={({ position }) => position.isin}
-          refreshControl={<RefreshControl refreshing={isFetching} onRefresh={refresh} />}
+          refreshControl={<RefreshControl {...pullToRefresh} />}
           ListHeaderComponent={
             <View style={styles.listHeader}>
               <StaleBondsNotice error={error} />

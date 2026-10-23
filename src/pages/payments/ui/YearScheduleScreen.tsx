@@ -2,6 +2,7 @@ import { RefreshControl, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { NbuSourceNote, StaleBondsNotice } from '@/entities/portfolio';
+import { usePullToRefresh } from '@/shared/lib';
 import { SegmentedSelect, YearNav } from '@/shared/ui';
 import { useFilteredWallet } from '../model/useFilteredWallet.hook';
 import { useYearSchedule } from '../model/useYearSchedule.hook';
@@ -12,6 +13,7 @@ import { ScheduleSummary } from './ScheduleSummary';
 export default function YearScheduleScreen() {
   const filtered = useFilteredWallet();
   const { wallet } = filtered;
+  const pullToRefresh = usePullToRefresh(wallet.refresh);
   const schedule = useYearSchedule(filtered);
   const {
     firstYear,
@@ -29,7 +31,7 @@ export default function YearScheduleScreen() {
   return (
     <ScheduleSectionList
       sections={sections}
-      refreshControl={<RefreshControl refreshing={wallet.isFetching} onRefresh={wallet.refresh} />}
+      refreshControl={<RefreshControl {...pullToRefresh} />}
       ListHeaderComponent={
         <View style={styles.listHeader}>
           <StaleBondsNotice error={wallet.error} />

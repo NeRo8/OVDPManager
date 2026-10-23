@@ -13,7 +13,14 @@ import {
   type Currency,
   type ScheduleEvent,
 } from '@/entities/portfolio';
-import { MONTHS, confirmDestructive, formatMoney, plural, round2 } from '@/shared/lib';
+import {
+  MONTHS,
+  confirmDestructive,
+  formatMoney,
+  plural,
+  round2,
+  usePullToRefresh,
+} from '@/shared/lib';
 import {
   ActionRow,
   Card,
@@ -47,7 +54,6 @@ export default function PlanScreen() {
   const {
     plan,
     bonds,
-    isFetching,
     error,
     refresh,
     today,
@@ -56,6 +62,7 @@ export default function PlanScreen() {
     purchaseEvents,
     numberOfPurchases,
   } = useWallet();
+  const pullToRefresh = usePullToRefresh(refresh);
   const planId = plan?.id ?? '';
   const totals = planTotals(positions, payments, purchaseEvents);
   const unknownBonds = positions.filter((item) => !item.bond).length;
@@ -103,7 +110,7 @@ export default function PlanScreen() {
       <Stack.Screen options={{ headerTitle: plan.name }} />
       <ScreenScrollView
         contentContainerStyle={styles.content}
-        refreshControl={<RefreshControl refreshing={isFetching} onRefresh={refresh} />}
+        refreshControl={<RefreshControl {...pullToRefresh} />}
       >
         <StaleBondsNotice error={error} />
         <Typography variant="subhead" tone="secondary" style={styles.intro}>

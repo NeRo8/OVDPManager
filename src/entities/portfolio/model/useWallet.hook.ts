@@ -36,7 +36,7 @@ export function useActivePurchases() {
  */
 export function useWallet() {
   const { plan, purchases } = useActivePurchases();
-  const { bonds, byIsin, isFetching, error, refresh } = useBonds();
+  const { bonds, byIsin, error, refresh } = useBonds();
   const today = todayISO();
 
   const positions = groupPositions(purchases).map((position): WalletPosition => {
@@ -59,7 +59,6 @@ export function useWallet() {
     numberOfPurchases: purchases.length,
     bonds,
     byIsin,
-    isFetching,
     error,
     refresh,
     today,

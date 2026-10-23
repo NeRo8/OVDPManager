@@ -9,6 +9,8 @@ import { mmkvStorage, showToast } from '@/shared/lib';
 const CACHE_KEY = 'nbu-bonds-v1';
 /** The NBU list changes only when new bonds are issued, so a few hours of staleness is fine. */
 const STALE_AFTER_MS = 6 * 60 * 60 * 1000;
+/** After a failed automatic refresh, screens opening soon after do not try again on their own. */
+const RETRY_AFTER_MS = 5 * 60 * 1000;
 
 type CachedBonds = {
   bonds: Bond[] | null;
@@ -16,8 +18,8 @@ type CachedBonds = {
 };
 
 type BondsRequestState = {
-  isFetching: boolean;
   error: string | null;
+  failedAt: number | null;
 };
 
 const useBondsCacheStore = create<CachedBonds>()(
@@ -29,22 +31,31 @@ const useBondsCacheStore = create<CachedBonds>()(
 );
 
 const useBondsRequestStore = create<BondsRequestState>()(() => ({
-  isFetching: false,
   error: null,
+  failedAt: null,
 }));
 
-async function refreshBonds(): Promise<void> {
-  if (useBondsRequestStore.getState().isFetching) return;
-  useBondsRequestStore.setState({ isFetching: true, error: null });
+/** The request in progress, so a refresh asked for meanwhile waits for it instead of returning. */
+let inFlight: Promise<void> | null = null;
+
+function refreshBonds(): Promise<void> {
+  inFlight ??= loadBonds().finally(() => {
+    inFlight = null;
+  });
+  return inFlight;
+}
+
+async function loadBonds(): Promise<void> {
+  useBondsRequestStore.setState({ error: null });
   try {
     const bonds = await fetchBonds();
     const updatedAt = Date.now();
     useBondsCacheStore.setState({ bonds, updatedAt });
-    useBondsRequestStore.setState({ isFetching: false });
+    useBondsRequestStore.setState({ failedAt: null });
   } catch (error) {
     // NbuError from the client, or a malformed response from fetchBonds: both carry a ready message.
     const message = error instanceof Error ? error.message : 'Не вдалося завантажити дані НБУ';
-    useBondsRequestStore.setState({ isFetching: false, error: message });
+    useBondsRequestStore.setState({ error: message, failedAt: Date.now() });
     // Without cached bonds the screens show the error full-screen with a retry, so no toast then.
     if (useBondsCacheStore.getState().bonds) {
       showToast({
@@ -59,18 +70,19 @@ async function refreshBonds(): Promise<void> {
 
 export function useBonds() {
   const bonds = useBondsCacheStore((state) => state.bonds);
-  const isFetching = useBondsRequestStore((state) => state.isFetching);
   const error = useBondsRequestStore((state) => state.error);
 
   useEffect(() => {
+    const now = Date.now();
     const lastUpdate = useBondsCacheStore.getState().updatedAt;
-    if (!lastUpdate || Date.now() - lastUpdate > STALE_AFTER_MS) {
-      void refreshBonds();
-    }
+    const { failedAt } = useBondsRequestStore.getState();
+    const isStale = !lastUpdate || now - lastUpdate > STALE_AFTER_MS;
+    const failedRecently = failedAt !== null && now - failedAt < RETRY_AFTER_MS;
+    if (isStale && !failedRecently) void refreshBonds();
     // Only checked on mount: refreshes after that are user-initiated.
   }, []);
 
   const byIsin = useMemo(() => new Map((bonds ?? []).map((bond) => [bond.isin, bond])), [bonds]);
 
-  return { bonds, isFetching, error, byIsin, refresh: refreshBonds };
+  return { bonds, error, byIsin, refresh: refreshBonds };
 }

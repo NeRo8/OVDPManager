@@ -2,7 +2,7 @@ import { RefreshControl, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { NbuSourceNote, StaleBondsNotice } from '@/entities/portfolio';
-import { plural } from '@/shared/lib';
+import { plural, usePullToRefresh } from '@/shared/lib';
 import { Typography } from '@/shared/ui';
 import { upcomingPayments } from '../model/upcomingPayments';
 import { useFilteredWallet } from '../model/useFilteredWallet.hook';
@@ -12,12 +12,13 @@ import { ScheduleSectionList } from './ScheduleSectionList';
 export default function UpcomingPaymentsScreen() {
   const filtered = useFilteredWallet();
   const { wallet, activeFilterCount } = filtered;
+  const pullToRefresh = usePullToRefresh(wallet.refresh);
   const { upcoming, allCount, sections } = upcomingPayments(filtered);
 
   return (
     <ScheduleSectionList
       sections={sections}
-      refreshControl={<RefreshControl refreshing={wallet.isFetching} onRefresh={wallet.refresh} />}
+      refreshControl={<RefreshControl {...pullToRefresh} />}
       ListHeaderComponent={
         <View style={styles.listHeader}>
           <StaleBondsNotice error={wallet.error} />
