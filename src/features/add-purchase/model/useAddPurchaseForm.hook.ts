@@ -17,7 +17,7 @@ import {
 } from './purchaseForm.schema';
 
 /**
- * The second step of adding a purchase to the active plan: when, how many and at what price.
+ * The second step of adding a purchase to the active plan: when, how many and for how much.
  * Validated on every change, so Save is enabled only for a purchase that can be stored.
  */
 export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
@@ -27,8 +27,8 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
   const form = useForm<PurchaseFormInput, unknown, PurchaseFormValues>({
     resolver: zodResolver(schema),
     mode: 'onChange',
-    // NBU gives the nominal, not the price paid: it is only an editable starting value.
-    defaultValues: { purchaseDate: today, quantity: '', price: String(bond.nominal) },
+    // The amount is what the bank or broker charged for the whole purchase, as their apps show it.
+    defaultValues: { purchaseDate: today, quantity: '', amount: '' },
   });
 
   // Read through hooks, not `form.formState`: the React Compiler would cache a read of the stable
@@ -37,7 +37,7 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
   const values = useWatch({ control: form.control });
   const draft = schema.safeParse(values);
   const valid = draft.success ? draft.data : null;
-  const amount = valid ? round2(valid.price * valid.quantity) : null;
+  const pricePerBond = valid ? valid.amount / valid.quantity : null;
   const isPlanned = (values.purchaseDate ?? today) > today;
 
   const preview = (() => {
@@ -60,18 +60,18 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
       nextPayment: nextPayment(payments),
       couponsLeft: payments.filter((p) => p.type === 'coupon' && !p.isPaid).length,
       income,
-      profit: round2(income - round2(valid.price * valid.quantity)),
+      profit: round2(income - valid.amount),
     };
   })();
 
-  const submit = form.handleSubmit(({ purchaseDate, quantity, price }) => {
+  const submit = form.handleSubmit(({ purchaseDate, quantity, amount }) => {
     // The app's screens open only once there is a plan, so one is always active here.
     if (!plan) return;
     addPurchase({
       planId: plan.id,
       isin: bond.isin,
       purchaseDate,
-      amount: round2(price * quantity),
+      amount,
       quantity,
       currency: bond.currency,
     });
@@ -83,7 +83,7 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
     isValid,
     submit,
     purchaseDate: values.purchaseDate ?? today,
-    amount,
+    pricePerBond,
     isPlanned,
     preview,
   };

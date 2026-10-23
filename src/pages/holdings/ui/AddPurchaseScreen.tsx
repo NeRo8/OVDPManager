@@ -6,7 +6,7 @@ import { AddPurchaseForm } from './AddPurchaseForm';
 
 /**
  * Second step of adding a purchase to the active plan. The form opens once the NBU data has the
- * bond, so its price starts from the bond's nominal. A top-up from the bond's screen opens here
+ * bond, as it checks the date and previews the payments against it. A top-up from the bond's screen opens here
  * directly, without the bond list before it.
  */
 export default function AddPurchaseScreen() {

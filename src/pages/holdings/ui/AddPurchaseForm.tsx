@@ -27,10 +27,8 @@ type Props = {
  * disabled until the whole purchase is valid.
  */
 export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
-  const { control, isValid, submit, purchaseDate, amount, isPlanned, preview } = useAddPurchaseForm(
-    bond,
-    onSaved,
-  );
+  const { control, isValid, submit, purchaseDate, pricePerBond, isPlanned, preview } =
+    useAddPurchaseForm(bond, onSaved);
   const { currency } = bond;
 
   return (
@@ -53,7 +51,7 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
         footer={
           isPlanned
             ? `Дата ще попереду: покупка буде в плані як запланована й почне приносити виплати після ${formatDate(purchaseDate)}.`
-            : 'Початкова ціна — номінал НБУ; змініть її на ціну з застосунку банку чи брокера.'
+            : 'Сума — скільки списали за всю покупку, як у застосунку банку чи брокера; ціна 1 шт рахується з неї.'
         }
       >
         <Controller
@@ -86,9 +84,9 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
         <Separator />
         <Controller
           control={control}
-          name="price"
+          name="amount"
           render={({ field, fieldState }) => (
-            <FieldRow label={`Ціна 1 шт, ${currency}`} error={fieldState.error?.message}>
+            <FieldRow label={`Сума, ${currency}`} error={fieldState.error?.message}>
               <Input
                 variant="inline"
                 type="decimal"
@@ -102,7 +100,10 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
           )}
         />
         <Separator />
-        <InfoRow label="Сума" value={amount === null ? '—' : formatMoney(amount, currency)} />
+        <InfoRow
+          label="Ціна 1 шт"
+          value={pricePerBond === null ? '—' : formatMoney(pricePerBond, currency)}
+        />
       </Section>
 
       {preview && (
