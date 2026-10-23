@@ -1,5 +1,5 @@
 import { todayISO } from '@/shared/lib';
-import { useBonds } from '../api/bonds.store';
+import { useBonds } from '../api/useBonds.hook';
 import { useActivePlan } from './activePlan.store';
 import { usePurchases } from './purchases.store';
 import {

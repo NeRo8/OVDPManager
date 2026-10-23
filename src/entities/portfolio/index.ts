@@ -7,7 +7,7 @@ export {
   type Wallet,
   type WalletPosition,
 } from './model/useWallet.hook';
-export { useBonds } from './api/bonds.store';
+export { useBonds } from './api/useBonds.hook';
 export * from './model/plan';
 export * from './model/plan.store';
 export * from './model/activePlan.store';

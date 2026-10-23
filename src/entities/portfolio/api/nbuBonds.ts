@@ -69,9 +69,9 @@ function mapNbuSecurityToBond(security: NbuSecurity): Bond {
  * Full bond payment schedules from the NBU depository. A security that does not match the schema
  * is skipped, including one with an unknown payment type: better missing than miscounted.
  */
-export async function fetchBonds(): Promise<Bond[]> {
+export async function fetchBonds(signal?: AbortSignal): Promise<Bond[]> {
   // Unknown until the schemas below have checked it: axios does not validate the response.
-  const { data } = await nbuClient.get<unknown>('/depo_securities?json');
+  const { data } = await nbuClient.get<unknown>('/depo_securities?json', { signal });
   const list = z.array(z.unknown()).safeParse(data);
   if (!list.success) {
     throw new Error('Неочікуваний формат відповіді НБУ');
