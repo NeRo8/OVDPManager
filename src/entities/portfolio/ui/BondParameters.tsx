@@ -20,9 +20,9 @@ export function BondParameters({ bond }: Props) {
         value={coupon ? formatMoney(coupon.amount, bond.currency) : 'без купону'}
       />
       <Separator />
-      <InfoRow label="Розміщення" value={formatDate(bond.issueDate)} />
+      <InfoRow label="Дата розміщення" value={formatDate(bond.issueDate)} />
       <Separator />
-      <InfoRow label="Погашення" value={formatDate(bond.maturityDate)} />
+      <InfoRow label="Дата погашення" value={formatDate(bond.maturityDate)} />
       <Separator />
       <InfoRow label="Тип" value={bond.description} />
     </Section>

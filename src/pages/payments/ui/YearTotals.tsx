@@ -34,21 +34,21 @@ export function YearTotals({ schedule }: ScheduleProps) {
             />
             <LegendRow
               color="nominal"
-              label="Номінал"
+              label="Погашення"
               value={formatCompactMoney(redemptionTotal, currency)}
             />
             {paidPercent > 0 && paidPercent < 100 && (
               <View style={styles.progress}>
                 <View
                   accessibilityRole="progressbar"
-                  accessibilityLabel="Виплачено"
+                  accessibilityLabel="Отримано"
                   accessibilityValue={{ min: 0, max: 100, now: paidPercent }}
                   style={styles.track}
                 >
                   <View style={[styles.fill, { width: `${paidPercent}%` }]} />
                 </View>
                 <Typography variant="caption1" tone="secondary">
-                  виплачено {paidPercent} %
+                  отримано {paidPercent} %
                 </Typography>
               </View>
             )}
@@ -60,7 +60,7 @@ export function YearTotals({ schedule }: ScheduleProps) {
         )}
       </Tile>
 
-      <Tile label="Інвестовано" value={formatMoney(purchasedTotal, currency)}>
+      <Tile label="Вкладено" value={formatMoney(purchasedTotal, currency)}>
         {purchaseCount > 0 ? (
           <>
             <LegendRow color="purchase" label="Покупки" value={`${purchaseCount}`} />

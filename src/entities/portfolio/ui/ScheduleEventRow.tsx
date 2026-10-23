@@ -44,10 +44,10 @@ export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
   const isUpcoming = !isPurchase && !event.isPaid;
   const tone = isPaid ? 'secondary' : 'primary';
   const kind = [
-    isPurchase ? (event.isTopUp ? 'Докупівля' : 'Купівля') : KINDS[event.type],
+    isPurchase ? (event.isTopUp ? 'Докупівля' : 'Покупка') : KINDS[event.type],
     // A no-break space keeps "10 шт" on one line.
     (showQuantity || isPurchase) && `${event.quantity} шт`,
-    isPaid && 'виплачено',
+    isPaid && 'отримано',
     isUpcoming && formatDaysLeft(daysBetween(todayISO(), event.date)),
   ]
     .filter(Boolean)

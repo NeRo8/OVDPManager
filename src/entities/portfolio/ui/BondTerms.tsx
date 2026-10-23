@@ -13,15 +13,15 @@ type Props = {
 export function BondTerms({ bond }: Props) {
   const coupon = bond.payments.find((payment) => payment.type === 'coupon');
   const terms = [
-    { label: 'Ставка', value: `${bond.rate}%` },
+    { label: 'Ставка купону', value: `${bond.rate}%` },
     {
       label: 'Купон на 1 шт',
       value: coupon ? formatMoney(coupon.amount, bond.currency) : 'без купону',
     },
     { label: 'Номінал', value: formatMoney(bond.nominal, bond.currency) },
     { label: 'Тип', value: bond.description },
-    { label: 'Розміщення', value: formatDate(bond.issueDate) },
-    { label: 'Погашення', value: formatDate(bond.maturityDate) },
+    { label: 'Дата розміщення', value: formatDate(bond.issueDate) },
+    { label: 'Дата погашення', value: formatDate(bond.maturityDate) },
   ];
 
   return (

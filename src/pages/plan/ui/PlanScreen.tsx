@@ -62,8 +62,8 @@ export default function PlanScreen() {
           <Card>
             <Typography variant="headline">План порожній</Typography>
             <Typography variant="subhead" tone="secondary">
-              Додайте ОВДП у гаманці: дату купівлі, кількість і суму покупки. Покупка з’явиться в
-              гаманці та у виплатах.
+              Додайте ОВДП у гаманці: дату купівлі, кількість і суму. Покупка з’явиться в гаманці та
+              у виплатах.
             </Typography>
           </Card>
         )}
@@ -82,7 +82,7 @@ export default function PlanScreen() {
             )}
             <Section title={`Вкладення · ${total.currency}`}>
               <InfoRow
-                label="Вкладення"
+                label="Вкладено"
                 hint="Скільки коштують усі покупки плану"
                 value={formatMoney(total.invested, total.currency)}
               />
@@ -107,7 +107,7 @@ export default function PlanScreen() {
                 <>
                   <Separator />
                   <InfoRow
-                    label="Усього"
+                    label="Усього виплат"
                     hint="Погашення разом із купонами"
                     value={formatMoney(total.proceeds, total.currency)}
                   />
@@ -117,14 +117,14 @@ export default function PlanScreen() {
             {total.complete && (
               <Section title="Результат">
                 <InfoRow
-                  label="Чистий результат"
+                  label="Чистий дохід"
                   hint="Виплати мінус вкладення — ваш заробіток"
                   value={formatMoney(total.profit, total.currency)}
                 />
                 <Separator />
                 <InfoRow
                   label="Дохідність"
-                  hint="Чистий результат у відсотках від вкладень за весь строк, без перерахунку на рік, податків і комісій"
+                  hint="Чистий дохід у відсотках від вкладень за весь строк, без перерахунку на рік, податків і комісій"
                   value={`${total.returnPercent}%`}
                 />
               </Section>

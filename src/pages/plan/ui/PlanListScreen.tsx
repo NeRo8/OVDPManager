@@ -45,7 +45,7 @@ export default function PlanListScreen() {
           ),
         }}
       />
-      <Section footer="Виплати, гаманець і прогноз показують вибраний план. Він відкривається і при наступному запуску.">
+      <Section footer="Виплати й гаманець показують вибраний план. Він відкривається і при наступному запуску.">
         {plans.map((plan, index) => (
           <Fragment key={plan.id}>
             {index > 0 && <Separator />}

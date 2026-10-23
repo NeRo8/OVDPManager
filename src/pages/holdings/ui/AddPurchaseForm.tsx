@@ -37,7 +37,7 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
         title="ОВДП"
         footer={
           ownedQuantity > 0
-            ? `У плані вже є ${ownedQuantity} шт — ця покупка додасться до них.`
+            ? `У гаманці вже є ${ownedQuantity} шт — ця покупка додасться до них.`
             : undefined
         }
       >

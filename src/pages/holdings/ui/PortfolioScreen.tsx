@@ -61,7 +61,7 @@ export default function PortfolioScreen() {
                       </Typography>
                     ) : (
                       <Typography variant="caption1" tone="danger">
-                        Не знайдено в реєстрі НБУ
+                        Немає в даних НБУ
                       </Typography>
                     )}
                   </View>
