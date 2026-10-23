@@ -19,9 +19,9 @@ export function BondTerms({ bond }: Props) {
       value: coupon ? formatMoney(coupon.amount, bond.currency) : 'без купону',
     },
     { label: 'Номінал', value: formatMoney(bond.nominal, bond.currency) },
+    { label: 'Тип', value: bond.description },
     { label: 'Розміщення', value: formatDate(bond.issueDate) },
     { label: 'Погашення', value: formatDate(bond.maturityDate) },
-    { label: 'Тип', value: bond.description },
   ];
 
   return (
@@ -31,7 +31,7 @@ export function BondTerms({ bond }: Props) {
           <Typography variant="caption2" tone="secondary">
             {term.label}
           </Typography>
-          {/* A third of a phone width: a long type such as «Середньострокові» shrinks to fit. */}
+          {/* Half a card width: an unusually long type shrinks to fit. */}
           <Typography
             variant="footnote"
             weight="semibold"
@@ -50,5 +50,5 @@ export function BondTerms({ bond }: Props) {
 
 const styles = StyleSheet.create((theme) => ({
   grid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: theme.space.md },
-  term: { width: '33.33%', gap: theme.space.xxs, paddingRight: theme.space.sm },
+  term: { width: '50%', gap: theme.space.xxs, paddingRight: theme.space.sm },
 }));
