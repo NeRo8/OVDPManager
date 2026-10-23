@@ -4,12 +4,24 @@ import { Controller } from 'react-hook-form';
 import { useBackupExport } from '@/features/backup';
 import { Button, PasswordInput, FormScrollView, Section, Separator, Typography } from '@/shared/ui';
 
-/** Making a backup: the key that encrypts it, typed twice, then the share sheet. */
+/**
+ * Making a backup: the key that encrypts it, typed twice, then the Google account's cloud copy or
+ * a file from the share sheet.
+ */
 export default function BackupExportScreen() {
-  const { control, keyError, confirmationError, canExport, isExporting, exportBackup } =
-    useBackupExport(() => router.back());
+  const {
+    control,
+    keyError,
+    confirmationError,
+    accountEmail,
+    canExport,
+    exportingTo,
+    exportToFile,
+    uploadToCloud,
+  } = useBackupExport(() => router.back());
   const error = keyError ?? confirmationError;
-  const save = () => void exportBackup();
+  const saveToCloud = () => void uploadToCloud();
+  const saveToFile = () => void exportToFile();
 
   return (
     <FormScrollView>
@@ -60,11 +72,28 @@ export default function BackupExportScreen() {
           )}
         />
       </Section>
-      <Button
-        title={isExporting ? 'Шифруємо…' : 'Створити копію'}
-        disabled={!canExport}
-        onPress={save}
-      />
+      <Section
+        title="У хмарі"
+        footer={
+          accountEmail
+            ? `Копія належить акаунту ${accountEmail} і замінює попередню. Відновити її можна на будь-якому пристрої, увійшовши в цей акаунт.`
+            : 'Застосунок попросить увійти через Google. Відновити копію можна на будь-якому пристрої з тим самим акаунтом.'
+        }
+      >
+        <Button
+          title={exportingTo === 'cloud' ? 'Зберігаємо…' : 'Зберегти в хмарі'}
+          disabled={!canExport}
+          onPress={saveToCloud}
+        />
+      </Section>
+      <Section title="У файлі" footer="JSON-файл можна зберегти чи надіслати з меню «Поділитися».">
+        <Button
+          title={exportingTo === 'file' ? 'Шифруємо…' : 'Зберегти у файл…'}
+          variant="secondary"
+          disabled={!canExport}
+          onPress={saveToFile}
+        />
+      </Section>
     </FormScrollView>
   );
 }

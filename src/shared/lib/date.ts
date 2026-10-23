@@ -21,6 +21,11 @@ export function formatDate(isoDate: string): string {
   return format(parseISO(isoDate), 'dd.MM.yyyy');
 }
 
+/** An ISO timestamp (a moment, not a calendar date) → DD.MM.YYYY, HH:mm in local time. */
+export function formatDateTime(isoTimestamp: string): string {
+  return format(parseISO(isoTimestamp), 'dd.MM.yyyy, HH:mm');
+}
+
 /** Local calendar date as YYYY-MM-DD. */
 export function toISODate(date: Date): string {
   return format(date, ISO_DATE);

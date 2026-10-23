@@ -8,10 +8,11 @@ import {
 import { confirmDestructive, showToast } from '@/shared/lib';
 import type { BackupData } from './backup';
 
-/** Where the backup came from: a picked file or pasted JSON. */
-export type BackupSource = 'file' | 'pasted';
+/** Where the backup came from: the cloud copy, a picked file or pasted JSON. */
+export type BackupSource = 'cloud' | 'file' | 'pasted';
 
 const SOURCE_PHRASES = {
+  cloud: 'з хмари',
   file: 'з файлу',
   pasted: 'з копії',
 } as const satisfies Record<BackupSource, string>;

@@ -5,22 +5,26 @@ import { z } from 'zod';
 
 import { showToast } from '@/shared/lib';
 import { pickBackupFile } from '../api/backupFile';
+import { fetchCloudBackup } from '../api/cloudBackup';
+import { ensureGoogleAccount } from '../api/googleAccount';
 import { WrongBackupKeyError } from '../lib/backupCipher';
 import { parseBackup } from './backup';
 import { errorMessage } from './errorMessage';
 import { type BackupSource, restoreBackup } from './restoreBackup';
 import { BackupKeySchema } from './backupKey.schema';
+import { useGoogleAccount } from './useGoogleAccount.hook';
 
 const BackupImportSchema = z.object({ key: BackupKeySchema, json: z.string() });
 
 type BackupImportForm = z.infer<typeof BackupImportSchema>;
 
 /**
- * Restoring from a picked file or from pasted JSON, both opened with the backup's key. The outcome
- * comes as a toast; a key that does not fit is shown under the key, a problem with pasted JSON
- * under the JSON.
+ * Restoring from the Google account's cloud copy, a picked file or pasted JSON, all opened with
+ * the backup's key. The outcome comes as a toast; a key that does not fit is shown under the key,
+ * a problem with pasted JSON under the JSON.
  */
 export function useBackupImport() {
+  const account = useGoogleAccount();
   const [isBusy, setBusy] = useState(false);
   const form = useForm<BackupImportForm>({
     resolver: zodResolver(BackupImportSchema),
@@ -62,6 +66,34 @@ export function useBackupImport() {
     }
   }
 
+  async function restoreFromCloud() {
+    setBusy(true);
+    let text: string;
+    try {
+      const signedIn = await ensureGoogleAccount();
+      const cloudBackup = signedIn && (await fetchCloudBackup(signedIn.uid));
+      if (!cloudBackup) {
+        if (signedIn) {
+          showToast({ tone: 'info', title: 'У хмарі немає копії', message: signedIn.email });
+        }
+        setBusy(false);
+        return;
+      }
+      text = cloudBackup.backup;
+    } catch (error) {
+      showToast({
+        tone: 'error',
+        title: 'Не вдалося отримати копію',
+        message: errorMessage(error),
+      });
+      setBusy(false);
+      return;
+    }
+    await restore(text, 'cloud', (message) =>
+      showToast({ tone: 'error', title: 'Не вдалося відновити', message }),
+    );
+  }
+
   const restorePasted = form.handleSubmit(({ json: pasted }) =>
     restore(pasted.trim(), 'pasted', (message) => form.setError('json', { message })),
   );
@@ -70,9 +102,11 @@ export function useBackupImport() {
     control: form.control,
     keyError: errors.key?.message,
     pastedError: errors.json?.message,
-    canRestoreFile: hasKey && !isBusy,
+    accountEmail: account?.email,
+    canRestore: hasKey && !isBusy,
     canRestorePasted: hasKey && json.trim().length > 0 && !isBusy,
     isBusy,
+    restoreFromCloud,
     restoreFromFile,
     restorePasted,
   };

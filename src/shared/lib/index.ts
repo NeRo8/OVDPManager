@@ -1,4 +1,4 @@
-export { confirmDestructive } from './confirm';
+export { askDestructive, confirmDestructive } from './confirm';
 export * from './date';
 export * from './format';
 export { hasLiquidGlass } from './glass';

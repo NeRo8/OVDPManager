@@ -8,12 +8,15 @@ export default function BackupImportScreen() {
     control,
     keyError,
     pastedError,
-    canRestoreFile,
+    accountEmail,
+    canRestore,
     canRestorePasted,
     isBusy,
+    restoreFromCloud,
     restoreFromFile,
     restorePasted,
   } = useBackupImport();
+  const loadFromCloud = () => void restoreFromCloud();
   const pickFile = () => void restoreFromFile();
   const restoreFromPasted = () => void restorePasted();
 
@@ -49,13 +52,28 @@ export default function BackupImportScreen() {
         />
       </Section>
       <Section
-        title="Відновити з копії"
+        title="З хмари"
+        footer={
+          accountEmail
+            ? `Копія акаунта ${accountEmail}. Усі поточні плани та їхні купівлі буде замінено даними з копії.`
+            : 'Застосунок попросить увійти в Google-акаунт, з якого копію зберегли. Усі поточні плани та їхні купівлі буде замінено даними з копії.'
+        }
+      >
+        <Button
+          title={isBusy ? 'Розшифровуємо…' : 'Відновити з хмари'}
+          onPress={loadFromCloud}
+          disabled={!canRestore}
+        />
+      </Section>
+      <Section
+        title="З файлу"
         footer="Усі поточні плани та їхні купівлі буде замінено даними з копії."
       >
         <Button
-          title={isBusy ? 'Розшифровуємо…' : 'Вибрати JSON-файл копії…'}
+          title="Вибрати JSON-файл копії…"
+          variant="secondary"
           onPress={pickFile}
-          disabled={!canRestoreFile}
+          disabled={!canRestore}
         />
       </Section>
       <Section

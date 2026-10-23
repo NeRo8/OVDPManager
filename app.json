@@ -15,7 +15,8 @@
       "infoPlist": {
         "CFBundleDevelopmentRegion": "uk",
         "CFBundleLocalizations": ["uk"]
-      }
+      },
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +24,8 @@
         "foregroundImage": "./src/shared/config/app-icon/android-icon-foreground.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.nero.mobile.dev.ovdpmanager"
+      "package": "com.nero.mobile.dev.ovdpmanager",
+      "googleServicesFile": "./google-services.json"
     },
     "plugins": [
       "expo-router",
@@ -46,7 +48,11 @@
       ],
       "expo-sharing",
       "@react-native-vector-icons/ionicons",
-      "react-native-quick-crypto"
+      "react-native-quick-crypto",
+      "@react-native-firebase/app",
+      "./plugins/withFirebaseConfigure",
+      "@react-native-firebase/auth",
+      ["expo-build-properties", { "ios": { "useFrameworks": "dynamic" } }]
     ],
     "experiments": {
       "typedRoutes": true,
