@@ -1,7 +1,7 @@
 import { Controller } from 'react-hook-form';
 
 import { useBackupImport } from '@/features/backup';
-import { Button, Input, FormScrollView, Section, Typography } from '@/shared/ui';
+import { Button, Input, PasswordInput, FormScrollView, Section, Typography } from '@/shared/ui';
 
 export default function BackupImportScreen() {
   const {
@@ -35,12 +35,11 @@ export default function BackupImportScreen() {
           control={control}
           name="key"
           render={({ field }) => (
-            <Input
+            <PasswordInput
               value={field.value}
               onChangeText={field.onChange}
               onBlur={field.onBlur}
               placeholder="Ключ копії"
-              secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
               textContentType="password"

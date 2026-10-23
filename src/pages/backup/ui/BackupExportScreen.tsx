@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Controller } from 'react-hook-form';
 
 import { useBackupExport } from '@/features/backup';
-import { Button, Input, FormScrollView, Section, Separator, Typography } from '@/shared/ui';
+import { Button, PasswordInput, FormScrollView, Section, Separator, Typography } from '@/shared/ui';
 
 /** Making a backup: the key that encrypts it, typed twice, then the share sheet. */
 export default function BackupExportScreen() {
@@ -29,12 +29,11 @@ export default function BackupExportScreen() {
           control={control}
           name="key"
           render={({ field }) => (
-            <Input
+            <PasswordInput
               value={field.value}
               onChangeText={field.onChange}
               onBlur={field.onBlur}
               placeholder="Ключ, щонайменше 8 символів"
-              secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
               textContentType="newPassword"
@@ -48,12 +47,11 @@ export default function BackupExportScreen() {
           control={control}
           name="confirmation"
           render={({ field }) => (
-            <Input
+            <PasswordInput
               value={field.value}
               onChangeText={field.onChange}
               onBlur={field.onBlur}
               placeholder="Ключ ще раз"
-              secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
               textContentType="newPassword"

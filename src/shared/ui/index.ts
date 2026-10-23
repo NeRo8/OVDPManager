@@ -25,6 +25,7 @@ export * from './chart/Swatch';
 export * from './chart/LegendRow';
 export * from './form/DateField';
 export * from './form/Input';
+export * from './form/PasswordInput';
 export * from './form/SegmentedSelect';
 export * from './form/ChipSelect';
 export * from './form/Chip';
