@@ -3,10 +3,9 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { NbuSourceNote, StaleBondsNotice, WalletGate } from '@/entities/portfolio';
 import { usePullToRefresh } from '@/shared/lib';
-import { SegmentedSelect, Typography, YearNav } from '@/shared/ui';
+import { SegmentedSelect, YearNav } from '@/shared/ui';
 import { useFilteredWallet } from '../model/useFilteredWallet.hook';
 import { useYearSchedule } from '../model/useYearSchedule.hook';
-import { describePaymentFilters } from './paymentFilterLabels';
 import { ScheduleSectionList } from './ScheduleSectionList';
 import { ScheduleSummary } from './ScheduleSummary';
 
@@ -16,7 +15,7 @@ import { ScheduleSummary } from './ScheduleSummary';
  */
 export default function PaymentsScreen() {
   const filtered = useFilteredWallet();
-  const { wallet, filters, activeFilterCount } = filtered;
+  const { wallet, activeFilterCount } = filtered;
   const pullToRefresh = usePullToRefresh(wallet.refresh);
   const {
     firstYear,
@@ -43,12 +42,6 @@ export default function PaymentsScreen() {
           <View style={styles.listHeader}>
             <StaleBondsNotice />
             <YearNav year={year} min={firstYear} max={lastYear} onChange={setYear} />
-            {isFiltered && (
-              // The filters in use, as the whole screen shows only what they let through.
-              <Typography variant="footnote" tone="secondary" align="center">
-                Фільтри: {describePaymentFilters(filters)}
-              </Typography>
-            )}
             {currency && currencies.length > 1 && (
               <SegmentedSelect
                 options={currencies.map((value) => ({ label: value, value }))}
