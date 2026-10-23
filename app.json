@@ -36,6 +36,13 @@
         }
       ],
       "@react-native-community/datetimepicker",
+      [
+        "./plugins/withDatePickerAccent",
+        {
+          "accent": { "light": "#046865", "dark": "#21A0A0" },
+          "header": { "background": "#046865", "text": "#FCFFF7", "mutedText": "#CCFCFFF7" }
+        }
+      ],
       "expo-sharing",
       "@react-native-vector-icons/ionicons",
       "react-native-quick-crypto"

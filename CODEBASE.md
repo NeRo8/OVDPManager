@@ -54,6 +54,8 @@
 
 Ресурси іконок лежать у `src/shared/config/app-icon/`; посилання на них визначено в `app.json`. Нативні каталоги `ios/` і `android/` генерує Expo, їх не слід редагувати вручну.
 
+Вибір дати (`DateField`, `src/shared/ui/form/`) має колір теми застосунку. На iOS `withUnistyles` передає пікеру `themeVariant` і `accentColor`. На Android діалог бере акцент із нативної теми: локальний config-плагін `plugins/withDatePickerAccent.js` (підключений в `app.json`) додає тему діалогу на основі DayNight: `accent` світлої й темної палітри для вибраного дня й кнопок, а заголовок має фірмові кольори хедера (`headerBackground`, `headerText`, `headerMutedText`) в обох темах. Коли ці кольори змінюються в `palette.ts`, треба змінити й параметри плагіна в `app.json` і перезібрати застосунок.
+
 ## Перевірка
 
 `yarn validate` запускає Prettier, ESLint, Steiger і TypeScript. `npx expo export --platform ios` та `--platform android` перевіряють складання JS-бандлів; вони не замінюють запуск на пристрої.

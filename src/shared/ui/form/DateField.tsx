@@ -1,9 +1,21 @@
-import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import DateTimePicker, {
+  DateTimePickerAndroid,
+  type IOSNativeProps,
+} from '@react-native-community/datetimepicker';
 import { Platform, Pressable } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, withUnistyles } from 'react-native-unistyles';
 
 import { formatDate, fromISODate, toISODate } from '@/shared/lib';
 import { Typography } from '../typography/Typography';
+
+// The iOS picker follows the app theme, not the OS one, and takes the brand accent.
+const ThemedDateTimePicker = withUnistyles<typeof DateTimePicker, IOSNativeProps>(
+  DateTimePicker,
+  (theme, rt) => ({
+    themeVariant: rt.themeName,
+    accentColor: theme.accent,
+  }),
+);
 
 type Props = {
   value: string;
@@ -19,7 +31,7 @@ export function DateField({ value, onChange, maximumDate }: Props) {
 
   if (Platform.OS === 'ios') {
     return (
-      <DateTimePicker
+      <ThemedDateTimePicker
         value={date}
         mode="date"
         display="compact"
@@ -30,6 +42,7 @@ export function DateField({ value, onChange, maximumDate }: Props) {
     );
   }
 
+  // The dialog takes the accent from the native theme (plugins/withDatePickerAccent.js).
   const openPicker = () =>
     DateTimePickerAndroid.open({
       value: date,
