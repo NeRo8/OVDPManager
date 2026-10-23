@@ -144,6 +144,7 @@ export default function PlanScreen() {
           <Separator />
           <ActionRow
             title="Видалити план"
+            tone="danger"
             onPress={() =>
               confirmDestructive(
                 'Видалити план?',

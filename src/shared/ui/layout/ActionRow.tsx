@@ -1,16 +1,18 @@
 import { Pressable } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Typography } from '../typography/Typography';
+import { Typography, type TypographyTone } from '../typography/Typography';
 
 export type ActionRowProps = {
   title: string;
   onPress: () => void;
+  /** `danger` for an action that removes data */
+  tone?: Extract<TypographyTone, 'accent' | 'danger'>;
   disabled?: boolean;
 };
 
 /** A section row that does something in place, unlike LinkRow, which opens another screen. */
-export function ActionRow({ title, onPress, disabled }: ActionRowProps) {
+export function ActionRow({ title, onPress, tone = 'accent', disabled }: ActionRowProps) {
   return (
     <Pressable
       onPress={onPress}
@@ -19,7 +21,7 @@ export function ActionRow({ title, onPress, disabled }: ActionRowProps) {
       accessibilityState={{ disabled }}
       style={({ pressed }) => [styles.row, disabled ? styles.disabled : pressed && styles.pressed]}
     >
-      <Typography variant="body" tone="accent">
+      <Typography variant="body" tone={tone}>
         {title}
       </Typography>
     </Pressable>
