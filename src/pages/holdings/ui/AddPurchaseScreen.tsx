@@ -16,6 +16,8 @@ export default function AddPurchaseScreen() {
   const ownedQuantity =
     positions.find(({ position }) => position.isin === isin)?.position.quantity ?? 0;
 
+  // Back to where adding started: past the bond list, or straight back for a top-up.
+  const closeAdding = () => router.dismiss(topUp ? 1 : 2);
   const header = (
     <Stack.Screen options={{ title: ownedQuantity > 0 ? 'Докупити ОВДП' : 'Додати ОВДП' }} />
   );
@@ -41,12 +43,7 @@ export default function AddPurchaseScreen() {
   return (
     <>
       {header}
-      <AddPurchaseForm
-        bond={bond}
-        ownedQuantity={ownedQuantity}
-        // Back to where adding started: past the bond list, or straight back for a top-up.
-        onSaved={() => router.dismiss(topUp ? 1 : 2)}
-      />
+      <AddPurchaseForm bond={bond} ownedQuantity={ownedQuantity} onSaved={closeAdding} />
     </>
   );
 }

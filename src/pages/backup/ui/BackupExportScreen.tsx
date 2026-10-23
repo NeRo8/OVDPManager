@@ -9,6 +9,7 @@ export default function BackupExportScreen() {
   const { control, keyError, confirmationError, canExport, isExporting, exportBackup } =
     useBackupExport(() => router.back());
   const error = keyError ?? confirmationError;
+  const save = () => void exportBackup();
 
   return (
     <FormScrollView>
@@ -64,7 +65,7 @@ export default function BackupExportScreen() {
       <Button
         title={isExporting ? 'Шифруємо…' : 'Створити копію'}
         disabled={!canExport}
-        onPress={() => void exportBackup()}
+        onPress={save}
       />
     </FormScrollView>
   );

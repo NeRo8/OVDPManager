@@ -13,13 +13,16 @@ export type YearNavProps = {
 
 /** ‹ 2026 › switcher. */
 export function YearNav({ year, min, max, onChange }: YearNavProps) {
+  const showPreviousYear = () => onChange(year - 1);
+  const showNextYear = () => onChange(year + 1);
+
   return (
     <View style={styles.nav}>
       <YearArrow
         label="‹"
         accessibilityLabel="Попередній рік"
         disabled={year <= min}
-        onPress={() => onChange(year - 1)}
+        onPress={showPreviousYear}
       />
       <Typography variant="title2" tabular align="center" style={styles.year}>
         {year}
@@ -28,7 +31,7 @@ export function YearNav({ year, min, max, onChange }: YearNavProps) {
         label="›"
         accessibilityLabel="Наступний рік"
         disabled={year >= max}
-        onPress={() => onChange(year + 1)}
+        onPress={showNextYear}
       />
     </View>
   );

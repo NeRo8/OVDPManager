@@ -17,6 +17,8 @@ export default function SettingsScreen() {
   const numberOfPurchases = usePurchases().length;
   const numberOfPlans = useInvestmentPlans().length;
   const themePreference = useThemePreference();
+  const openBackupExport = () => router.push('/backup/export');
+  const openBackupImport = () => router.push('/backup/import');
 
   return (
     <ScreenScrollView>
@@ -24,9 +26,9 @@ export default function SettingsScreen() {
         title="Дані"
         footer={`Створено ${planCount(numberOfPlans)}, ${numberOfPlans === 1 ? 'у ньому' : 'у них'} ${purchaseCount(numberOfPurchases)}. Дані зберігаються на цьому пристрої; зашифрована вашим ключем копія у JSON-файлі дає змогу відновити їх тут чи на іншому пристрої.`}
       >
-        <LinkRow title="Створити копію" onPress={() => router.push('/backup/export')} />
+        <LinkRow title="Створити копію" onPress={openBackupExport} />
         <Separator />
-        <LinkRow title="Відновити з копії" onPress={() => router.push('/backup/import')} />
+        <LinkRow title="Відновити з копії" onPress={openBackupImport} />
       </Section>
 
       <Section title="Оформлення" footer="Системна тема повторює світлий чи темний режим пристрою.">

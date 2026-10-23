@@ -44,6 +44,18 @@ export default function PlanScreen() {
   // The app's screens open only once there is a plan, so one is always active here.
   if (!plan) return null;
 
+  const renamePlan = () => router.push({ pathname: '/plan/name', params: { planId } });
+
+  const confirmRemovePlan = () =>
+    confirmDestructive(
+      'Видалити план?',
+      numberOfPurchases
+        ? `План «${plan.name}» і ${numberOfPurchases} ${plural(numberOfPurchases, 'покупку', 'покупки', 'покупок')} в ньому буде видалено.`
+        : `План «${plan.name}» буде видалено.`,
+      'Видалити',
+      () => removeInvestmentPlan(planId),
+    );
+
   return (
     <>
       {/* `headerTitle`, not `title`: the tab keeps its own label. */}
@@ -137,27 +149,9 @@ export default function PlanScreen() {
           </Typography>
         )}
         <Section title="Керування планом">
-          <ActionRow
-            title="Перейменувати план"
-            onPress={() => router.push({ pathname: '/plan/name', params: { planId } })}
-          />
+          <ActionRow title="Перейменувати план" onPress={renamePlan} />
           <Separator />
-          <ActionRow
-            title="Видалити план"
-            tone="danger"
-            onPress={() =>
-              confirmDestructive(
-                'Видалити план?',
-                numberOfPurchases
-                  ? `План «${plan.name}» і ${numberOfPurchases} ${plural(numberOfPurchases, 'покупку', 'покупки', 'покупок')} в ньому буде видалено.`
-                  : `План «${plan.name}» буде видалено.`,
-                'Видалити',
-                () => {
-                  removeInvestmentPlan(planId);
-                },
-              )
-            }
-          />
+          <ActionRow title="Видалити план" tone="danger" onPress={confirmRemovePlan} />
         </Section>
         <NbuSourceNote />
       </ScreenScrollView>

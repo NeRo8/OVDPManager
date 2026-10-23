@@ -18,6 +18,8 @@ export default function PortfolioScreen() {
   const wallet = useWallet();
   const { error, refresh, positions, today } = wallet;
   const pullToRefresh = usePullToRefresh(refresh);
+  const openBond = (isin: string) => router.push({ pathname: '/bond/[isin]', params: { isin } });
+  const addBond = () => router.push('/add');
 
   return (
     <WalletGate wallet={wallet}>
@@ -42,9 +44,7 @@ export default function PortfolioScreen() {
             return (
               <SectionCell index={index} count={positions.length}>
                 <Pressable
-                  onPress={() =>
-                    router.push({ pathname: '/bond/[isin]', params: { isin: position.isin } })
-                  }
+                  onPress={() => openBond(position.isin)}
                   accessibilityRole="link"
                   style={({ pressed }) => [styles.position, pressed && styles.pressed]}
                 >
@@ -79,10 +79,7 @@ export default function PortfolioScreen() {
           }}
           ListFooterComponent={<NbuSourceNote />}
         />
-        <FloatingActionButton
-          accessibilityLabel="Додати ОВДП"
-          onPress={() => router.push('/add')}
-        />
+        <FloatingActionButton accessibilityLabel="Додати ОВДП" onPress={addBond} />
       </View>
     </WalletGate>
   );

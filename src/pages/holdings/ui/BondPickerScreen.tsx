@@ -20,13 +20,17 @@ export default function BondPickerScreen() {
 
   if (!bonds) return <BondsUnavailable error={error} onRetry={refresh} />;
 
+  const search = (event: { nativeEvent: { text: string } }) => setQuery(event.nativeEvent.text);
+  const clearSearch = () => setQuery('');
+  const chooseBond = (isin: string) => router.push({ pathname: '/add/[isin]', params: { isin } });
+
   return (
     <>
       <Stack.SearchBar
         placeholder="Пошук за ISIN"
         autoCapitalize="characters"
-        onChangeText={(event) => setQuery(event.nativeEvent.text)}
-        onCancelButtonPress={() => setQuery('')}
+        onChangeText={search}
+        onCancelButtonPress={clearSearch}
       />
       <FlatList
         style={styles.list}
@@ -54,7 +58,7 @@ export default function BondPickerScreen() {
               today={today}
               owned={ownedQuantity.get(bond.isin)}
               showCurrency={isSearching}
-              onPress={() => router.push({ pathname: '/add/[isin]', params: { isin: bond.isin } })}
+              onPress={() => chooseBond(bond.isin)}
             />
           </SectionCell>
         )}

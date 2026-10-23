@@ -110,11 +110,12 @@ export function MonthChart({ series, currency, selected, onSelect }: Props) {
                 .map((s) => `${s.label} ${formatMoney(s.values[month], currency)}`);
               const upStack = segments(up, month).reverse();
               const downStack = segments(down, month);
+              const select = () => onSelect(month);
               return (
                 <Pressable
                   key={name}
-                  onPress={() => onSelect(month)}
-                  onHoverIn={() => onSelect(month)}
+                  onPress={select}
+                  onHoverIn={select}
                   accessibilityRole="button"
                   accessibilityLabel={`${name}: ${parts.length ? parts.join(', ') : 'нічого немає'}`}
                   accessibilityState={{ selected: selected === month }}

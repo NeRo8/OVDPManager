@@ -14,6 +14,8 @@ export default function BackupImportScreen() {
     restoreFromFile,
     restorePasted,
   } = useBackupImport();
+  const pickFile = () => void restoreFromFile();
+  const restoreFromPasted = () => void restorePasted();
 
   return (
     <FormScrollView>
@@ -53,7 +55,7 @@ export default function BackupImportScreen() {
       >
         <Button
           title={isBusy ? 'Розшифровуємо…' : 'Вибрати JSON-файл копії…'}
-          onPress={() => void restoreFromFile()}
+          onPress={pickFile}
           disabled={!canRestoreFile}
         />
       </Section>
@@ -86,7 +88,7 @@ export default function BackupImportScreen() {
       <Button
         title="Відновити зі вставленого"
         variant="secondary"
-        onPress={() => void restorePasted()}
+        onPress={restoreFromPasted}
         disabled={!canRestorePasted}
       />
     </FormScrollView>

@@ -17,6 +17,7 @@ export default function PlanListScreen() {
   const purchases = usePurchases();
   const activePlan = useActivePlan();
   const today = todayISO();
+  const createPlan = () => router.push('/plan/name');
 
   function subtitle(plan: InvestmentPlan) {
     const planPurchases = purchases.filter((purchase) => purchase.planId === plan.id);
@@ -37,11 +38,7 @@ export default function PlanListScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <HeaderButton
-              icon="add"
-              accessibilityLabel="Створити план"
-              onPress={() => router.push('/plan/name')}
-            />
+            <HeaderButton icon="add" accessibilityLabel="Створити план" onPress={createPlan} />
           ),
         }}
       />

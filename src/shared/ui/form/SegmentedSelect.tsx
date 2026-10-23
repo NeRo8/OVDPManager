@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, View, type LayoutChangeEvent } from 'react-native';
 import Animated, {
   Easing,
   ReduceMotion,
@@ -52,22 +52,20 @@ export function SegmentedSelect<T extends string | number>({
   }, [selectedIndex, segmentWidth, thumbX]);
 
   const thumbMotion = useAnimatedStyle(() => ({ transform: [{ translateX: thumbX.get() }] }));
+  const measureTrack = (event: LayoutChangeEvent) => setTrackWidth(event.nativeEvent.layout.width);
 
   return (
-    <View
-      style={styles.track}
-      onLayout={(event) => setTrackWidth(event.nativeEvent.layout.width)}
-      accessibilityRole="radiogroup"
-    >
+    <View style={styles.track} onLayout={measureTrack} accessibilityRole="radiogroup">
       {segmentWidth > 0 && selectedIndex >= 0 && (
         <Animated.View style={[styles.thumb(segmentWidth), thumbMotion]} />
       )}
       {options.map((option) => {
         const selected = option.value === value;
+        const select = () => onChange(option.value);
         return (
           <Pressable
             key={option.value}
-            onPress={() => onChange(option.value)}
+            onPress={select}
             accessibilityRole="radio"
             accessibilityState={{ selected }}
             style={({ pressed }) => [styles.option, pressed && !selected && styles.pressed]}

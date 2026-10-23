@@ -24,6 +24,13 @@ export function ToastView({ toast }: Props) {
   styles.useVariants({ tone: toast.tone });
   const { action } = toast;
 
+  const dismiss = () => hideToast(toast.id);
+
+  const runAction = () => {
+    hideToast(toast.id);
+    action?.onPress();
+  };
+
   return (
     <Animated.View
       entering={FadeInUp.duration(250).easing(EASE_OUT)}
@@ -33,7 +40,7 @@ export function ToastView({ toast }: Props) {
       accessibilityLiveRegion="polite"
     >
       <Pressable
-        onPress={() => hideToast(toast.id)}
+        onPress={dismiss}
         accessibilityRole="button"
         accessibilityLabel={[toast.title, toast.message].filter(Boolean).join('. ')}
         accessibilityHint="Закрити повідомлення"
@@ -64,10 +71,7 @@ export function ToastView({ toast }: Props) {
       </Pressable>
       {action && (
         <Pressable
-          onPress={() => {
-            hideToast(toast.id);
-            action.onPress();
-          }}
+          onPress={runAction}
           hitSlop={8}
           accessibilityRole="button"
           style={({ pressed }) => [styles.action, pressed && styles.pressed]}

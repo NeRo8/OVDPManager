@@ -31,6 +31,7 @@ export function MonthBreakdown({ schedule }: ScheduleProps) {
     { label: 'Покупки', color: 'purchase', values: monthlyPurchases, direction: 'down' },
   ];
   const monthRows = selectedMonth === null ? [] : series.filter((s) => s.values[selectedMonth] > 0);
+  const selectMonth = (month: number) => setChosenMonth({ year, month });
 
   return (
     <View style={styles.section}>
@@ -40,7 +41,7 @@ export function MonthBreakdown({ schedule }: ScheduleProps) {
           series={series.map((s) => ({ ...s, label: s.label.toLowerCase() }))}
           currency={currency}
           selected={selectedMonth}
-          onSelect={(month) => setChosenMonth({ year, month })}
+          onSelect={selectMonth}
         />
 
         {selectedMonth !== null && (

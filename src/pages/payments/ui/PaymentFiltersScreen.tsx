@@ -46,6 +46,12 @@ export default function PaymentFiltersScreen() {
     ...filterOptions.currencies.map((currency) => ({ label: currency, value: currency })),
   ];
 
+  const changeKind = (kind: PaymentFilters['kind']) => updatePaymentFilters({ kind });
+  const changePeriod = (period: PaymentFilters['period']) => updatePaymentFilters({ period });
+  const changeCurrency = (currency: PaymentFilters['currency']) =>
+    updatePaymentFilters({ currency });
+  const showAllBonds = () => updatePaymentFilters({ isins: [] });
+
   return (
     <ScreenScrollView>
       <Stack.Screen
@@ -62,11 +68,7 @@ export default function PaymentFiltersScreen() {
       />
       <Section title="Тип виплати">
         <View style={styles.picker}>
-          <SegmentedSelect
-            options={KIND_OPTIONS}
-            value={filters.kind}
-            onChange={(kind) => updatePaymentFilters({ kind })}
-          />
+          <SegmentedSelect options={KIND_OPTIONS} value={filters.kind} onChange={changeKind} />
         </View>
       </Section>
 
@@ -78,7 +80,7 @@ export default function PaymentFiltersScreen() {
           <SegmentedSelect
             options={PERIOD_OPTIONS}
             value={filters.period}
-            onChange={(period) => updatePaymentFilters({ period })}
+            onChange={changePeriod}
           />
         </View>
       </Section>
@@ -89,18 +91,14 @@ export default function PaymentFiltersScreen() {
             <SegmentedSelect
               options={currencyOptions}
               value={filters.currency}
-              onChange={(currency) => updatePaymentFilters({ currency })}
+              onChange={changeCurrency}
             />
           </View>
         </Section>
       )}
 
       <Section title="ОВДП" footer="Позначте облігації, виплати яких показувати.">
-        <CheckRow
-          title="Усі ОВДП"
-          checked={filters.isins.length === 0}
-          onPress={() => updatePaymentFilters({ isins: [] })}
-        />
+        <CheckRow title="Усі ОВДП" checked={filters.isins.length === 0} onPress={showAllBonds} />
         {filterOptions.isins.map((isin) => {
           const bond = byIsin.get(isin);
           return (

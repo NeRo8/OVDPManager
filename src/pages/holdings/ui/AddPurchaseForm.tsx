@@ -32,6 +32,7 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
   const { control, isValid, submit, purchaseDate, pricePerBond, isPlanned, preview } =
     useAddPurchaseForm(bond, onSaved);
   const { currency } = bond;
+  const save = () => void submit();
 
   return (
     <FormScrollView>
@@ -162,7 +163,7 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
         </Section>
       )}
 
-      <Button title="Зберегти" disabled={!isValid} onPress={() => void submit()} />
+      <Button title="Зберегти" disabled={!isValid} onPress={save} />
     </FormScrollView>
   );
 }

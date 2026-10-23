@@ -15,6 +15,8 @@ export function DateField({ value, onChange, maximumDate }: Props) {
   const date = fromISODate(value);
   const max = maximumDate ? fromISODate(maximumDate) : undefined;
 
+  const changeDate = (_: unknown, selectedDate: Date) => onChange(toISODate(selectedDate));
+
   if (Platform.OS === 'ios') {
     return (
       <DateTimePicker
@@ -22,25 +24,22 @@ export function DateField({ value, onChange, maximumDate }: Props) {
         mode="date"
         display="compact"
         maximumDate={max}
-        onValueChange={(_, date) => onChange(toISODate(date))}
+        onValueChange={changeDate}
         style={styles.iosPicker}
       />
     );
   }
 
+  const openPicker = () =>
+    DateTimePickerAndroid.open({
+      value: date,
+      mode: 'date',
+      maximumDate: max,
+      onValueChange: changeDate,
+    });
+
   return (
-    <Pressable
-      onPress={() =>
-        DateTimePickerAndroid.open({
-          value: date,
-          mode: 'date',
-          maximumDate: max,
-          onValueChange: (_, selectedDate) => onChange(toISODate(selectedDate)),
-        })
-      }
-      style={styles.button}
-      accessibilityRole="button"
-    >
+    <Pressable onPress={openPicker} style={styles.button} accessibilityRole="button">
       <Typography tabular>{formatDate(value)}</Typography>
     </Pressable>
   );

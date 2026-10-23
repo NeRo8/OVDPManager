@@ -16,9 +16,11 @@ type SortToggleProps = {
 
 /** Names the order in use; a press switches to the other one. */
 export function SortToggle({ sort, onChange }: SortToggleProps) {
+  const switchSort = () => onChange(sort === 'maturity' ? 'rate' : 'maturity');
+
   return (
     <Pressable
-      onPress={() => onChange(sort === 'maturity' ? 'rate' : 'maturity')}
+      onPress={switchSort}
       hitSlop={8}
       accessibilityRole="button"
       accessibilityLabel={`Сортування: ${SORT_LABELS[sort].toLowerCase()}. Змінити`}

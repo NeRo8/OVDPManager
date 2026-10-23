@@ -39,6 +39,9 @@ export default function BondScreen() {
 
   if (!position) return <EmptyState message="У гаманці немає цієї ОВДП" />;
 
+  const topUp = () =>
+    router.push({ pathname: '/add/[isin]', params: { isin: position.isin, topUp: '1' } });
+
   return (
     <View style={styles.screen}>
       <Stack.Screen options={{ title: position.isin }} />
@@ -152,15 +155,7 @@ export default function BondScreen() {
         <Button title="Видалити з гаманця" variant="destructive" onPress={deletePosition} />
       </ScreenScrollView>
       {canTopUp && (
-        <FloatingActionButton
-          accessibilityLabel={`Докупити ${position.isin}`}
-          onPress={() =>
-            router.push({
-              pathname: '/add/[isin]',
-              params: { isin: position.isin, topUp: '1' },
-            })
-          }
-        />
+        <FloatingActionButton accessibilityLabel={`Докупити ${position.isin}`} onPress={topUp} />
       )}
     </View>
   );

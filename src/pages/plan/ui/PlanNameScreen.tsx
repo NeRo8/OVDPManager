@@ -40,7 +40,7 @@ export default function PlanNameScreen() {
   // Read through the hook, not `form.formState`, which the React Compiler would cache.
   const { errors, isValid } = useFormState({ control: form.control });
   const nameError = errors.name?.message;
-  const save = form.handleSubmit(({ name }) => {
+  const submit = form.handleSubmit(({ name }) => {
     if (existing) {
       renameInvestmentPlan(existing.id, name);
       router.back();
@@ -51,6 +51,8 @@ export default function PlanNameScreen() {
       if (!isFirst) router.dismissTo('/plan');
     }
   });
+  const save = () => void submit();
+  const openBackupImport = () => router.push('/backup/import');
   const header = (
     <Stack.Screen
       options={{ title: planId ? 'Назва плану' : isFirst ? 'Перший план' : 'Новий план' }}
@@ -104,14 +106,10 @@ export default function PlanNameScreen() {
       <Button
         title={existing ? 'Зберегти назву' : 'Створити план'}
         disabled={!isValid}
-        onPress={() => void save()}
+        onPress={save}
       />
       {isFirst && (
-        <Button
-          title="Відновити з копії"
-          variant="secondary"
-          onPress={() => router.push('/backup/import')}
-        />
+        <Button title="Відновити з копії" variant="secondary" onPress={openBackupImport} />
       )}
     </FormScrollView>
   );

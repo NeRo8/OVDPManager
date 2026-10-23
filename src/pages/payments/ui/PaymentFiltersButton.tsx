@@ -7,13 +7,14 @@ import { useFilteredWallet } from '../model/useFilteredWallet.hook';
 export function PaymentFiltersButton() {
   const { activeFilterCount } = useFilteredWallet();
   const isFiltered = activeFilterCount > 0;
+  const openFilters = () => router.push('/payment-filters');
 
   return (
     <HeaderButton
       icon={isFiltered ? 'options' : 'options-outline'}
       tone={isFiltered ? 'accent' : 'neutral'}
       accessibilityLabel={isFiltered ? `Фільтри, увімкнено: ${activeFilterCount}` : 'Фільтри'}
-      onPress={() => router.push('/payment-filters')}
+      onPress={openFilters}
     />
   );
 }
