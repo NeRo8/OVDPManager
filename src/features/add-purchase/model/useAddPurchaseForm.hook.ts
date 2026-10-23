@@ -6,6 +6,7 @@ import {
   type Purchase,
   addPurchase,
   annualYield,
+  isPlannedPurchase,
   nextPayment,
   positionPayments,
   purchaseResults,
@@ -46,7 +47,7 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
   const draft = schema.safeParse(values);
   const valid = draft.success ? draft.data : null;
   const pricePerBond = valid ? valid.amount / valid.quantity : null;
-  const isPlanned = purchaseDate > today;
+  const isPlanned = isPlannedPurchase({ purchaseDate }, today);
 
   const preview = (() => {
     if (!valid) return null;

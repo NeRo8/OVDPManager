@@ -116,6 +116,14 @@ export function groupPositions(purchases: Purchase[]): Position[] {
   }));
 }
 
+/** A purchase dated after today. It counts as made once its date arrives, with no confirmation. */
+export function isPlannedPurchase(
+  purchase: Pick<Purchase, 'purchaseDate'>,
+  today: string,
+): boolean {
+  return purchase.purchaseDate > today;
+}
+
 /** Use the bond's currency when available, including for purchases saved before currency was stored. */
 export function purchaseCurrency(purchase: Purchase, bond?: Bond): Currency | null {
   return bond?.currency ?? purchase.currency ?? null;

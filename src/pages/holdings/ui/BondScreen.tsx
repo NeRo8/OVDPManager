@@ -3,7 +3,12 @@ import { Fragment } from 'react';
 import { Pressable, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { BondTerms, ScheduleEventRow, purchaseCurrency } from '@/entities/portfolio';
+import {
+  BondTerms,
+  ScheduleEventRow,
+  isPlannedPurchase,
+  purchaseCurrency,
+} from '@/entities/portfolio';
 import { formatDate, formatMoney, round2 } from '@/shared/lib';
 import {
   Button,
@@ -103,7 +108,7 @@ export default function BondScreen() {
                   <Typography variant="callout" tabular>
                     {formatDate(purchase.purchaseDate)} · {purchase.quantity} шт
                   </Typography>
-                  {purchase.purchaseDate > today && (
+                  {isPlannedPurchase(purchase, today) && (
                     <Typography variant="caption1" tone="accent">
                       Заплановано — виплати після цієї дати
                     </Typography>

@@ -12,7 +12,13 @@ import {
   screenContent,
 } from '@/shared/ui';
 import { currencySign, formatDate, formatMoney, usePullToRefresh } from '@/shared/lib';
-import { NbuSourceNote, StaleBondsNotice, WalletGate, useWallet } from '@/entities/portfolio';
+import {
+  NbuSourceNote,
+  StaleBondsNotice,
+  WalletGate,
+  isPlannedPurchase,
+  useWallet,
+} from '@/entities/portfolio';
 
 export default function PortfolioScreen() {
   const wallet = useWallet();
@@ -39,7 +45,9 @@ export default function PortfolioScreen() {
           }
           renderItem={({ item: { position, bond, currency, nextPayment }, index }) => {
             // Nothing bought yet: every purchase of the position is still ahead.
-            const isPlanned = position.purchases.every((purchase) => purchase.purchaseDate > today);
+            const isPlanned = position.purchases.every((purchase) =>
+              isPlannedPurchase(purchase, today),
+            );
             const tone = isPlanned ? 'accent' : 'secondary';
             return (
               <SectionCell index={index} count={positions.length}>

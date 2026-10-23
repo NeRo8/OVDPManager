@@ -2,6 +2,7 @@ import { Stack, router } from 'expo-router';
 import { Fragment } from 'react';
 
 import {
+  isPlannedPurchase,
   setActivePlan,
   useActivePlan,
   useInvestmentPlans,
@@ -21,7 +22,7 @@ export default function PlanListScreen() {
 
   function subtitle(plan: InvestmentPlan) {
     const planPurchases = purchases.filter((purchase) => purchase.planId === plan.id);
-    const planned = planPurchases.filter((purchase) => purchase.purchaseDate > today).length;
+    const planned = planPurchases.filter((purchase) => isPlannedPurchase(purchase, today)).length;
     return [
       planPurchases.length
         ? `${planPurchases.length} ${plural(planPurchases.length, 'купівля', 'купівлі', 'купівель')}`
