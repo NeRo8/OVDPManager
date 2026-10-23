@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
 import { todayISO } from '@/shared/lib';
-import { getCachedKeyRate, saveKeyRate, useCachedKeyRate } from './keyRate.store';
+import { getCachedKeyRate, saveKeyRate, useCachedKeyRate } from './keyRate';
 import { fetchKeyRate } from './nbuKeyRate';
 
 /** The rate changes at NBU board meetings, a few times a year. */

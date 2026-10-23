@@ -1,7 +1,7 @@
 import { todayISO } from '@/shared/lib';
 import { useBonds } from '../api/useBonds.hook';
-import { useActivePlan } from './activePlan.store';
-import { usePurchases } from './purchases.store';
+import { useActivePlan } from './activePlan';
+import { usePurchases } from './purchases';
 import {
   type Bond,
   type Currency,

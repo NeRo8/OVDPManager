@@ -1,17 +1,5 @@
-import { create } from 'zustand';
-
-export type ToastTone = 'error' | 'success' | 'info';
-
-export type Toast = {
-  /** New for every toast, so a repeated message still restarts its timer and animation. */
-  id: number;
-  tone: ToastTone;
-  title: string;
-  message?: string;
-  action?: { label: string; onPress: () => void };
-};
-
-const useToastStore = create<{ toast: Toast | null }>()(() => ({ toast: null }));
+import { useToastStore } from './store';
+import type { Toast } from './types';
 
 let lastId = 0;
 
@@ -27,8 +15,4 @@ export function showToast(toast: Omit<Toast, 'id'>): void {
 /** Hides the toast if it is still the one on screen. */
 export function hideToast(id: number): void {
   useToastStore.setState((state) => (state.toast?.id === id ? { toast: null } : state));
-}
-
-export function useToast(): Toast | null {
-  return useToastStore((state) => state.toast);
 }

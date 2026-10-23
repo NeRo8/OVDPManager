@@ -1,27 +1,6 @@
 import { type Currency, type PositionPayment, type PurchaseEvent } from '@/entities/portfolio';
 import { addMonthsISO } from '@/shared/lib';
-
-export const PAYMENT_KINDS = ['all', 'coupon', 'redemption'] as const;
-export const PAYMENT_PERIODS = ['all', 3, 6, 12] as const;
-
-export type PaymentKindFilter = (typeof PAYMENT_KINDS)[number];
-/** Months ahead of today, or every future payment. Only the upcoming list uses it: the year view has its own year. */
-export type PaymentPeriodFilter = (typeof PAYMENT_PERIODS)[number];
-
-export type PaymentFilters = {
-  kind: PaymentKindFilter;
-  period: PaymentPeriodFilter;
-  currency: Currency | 'all';
-  /** Bonds to show; empty shows every bond */
-  isins: string[];
-};
-
-export const DEFAULT_PAYMENT_FILTERS: PaymentFilters = {
-  kind: 'all',
-  period: 'all',
-  currency: 'all',
-  isins: [],
-};
+import type { PaymentFilters } from './paymentFilters';
 
 /** What the wallet's payments can be narrowed to. */
 export type PaymentFilterOptions = {

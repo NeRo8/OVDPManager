@@ -53,5 +53,5 @@ Third-party skills in `.claude/skills/` are general guides; this project's setup
 - Feature-Sliced Design is applied deliberately and checked by `yarn lint:fsd`. Do not restructure existing code unless asked:
   - `src/app/` is both the Expo Router root and the FSD app layer; never rename it to `_app` or put non-route files in it.
   - Single-consumer slices in `features/` are intentional (`insignificant-slice` is off); their UI lives in `pages/`. Do not fold them into pages.
-  - Keep the NBU fetch and its cache store in `entities/portfolio/api/`, and the `*.hook.ts` / `*.store.ts` file naming.
+  - Keep the NBU fetch and its cache stores in `entities/portfolio/api/`, the `*.hook.ts` file naming, and one folder per store with `types.ts` / `store.ts` / `selectors.ts` / `actions.ts` / `index.ts`.
 - Declare component props as a named type (`type Props = {...}`), even where skill examples write them inline.

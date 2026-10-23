@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native-unistyles';
 
 import { dark, light } from './palette';
-import { applyNativeColorScheme, getThemePreference } from './preference';
+import { applyNativeColorScheme, getThemePreference } from './themePreference';
 import { radius, space } from './tokens';
 
 // Spacing and radii are the same in both themes; living in the theme, they reach every stylesheet.

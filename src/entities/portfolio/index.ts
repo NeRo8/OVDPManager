@@ -1,5 +1,5 @@
 export * from './model/portfolio';
-export * from './model/purchases.store';
+export * from './model/purchases';
 export {
   useActivePurchases,
   useWallet,
@@ -10,8 +10,8 @@ export { useBonds } from './api/useBonds.hook';
 export { useKeyRate } from './api/useKeyRate.hook';
 export { annualYield } from './model/yield';
 export * from './model/plan';
-export * from './model/plan.store';
-export * from './model/activePlan.store';
+export * from './model/plans';
+export * from './model/activePlan';
 export { ScheduleEventRow } from './ui/ScheduleEventRow';
 export { BondsUnavailable } from './ui/BondsUnavailable';
 export { NbuSourceNote } from './ui/NbuSourceNote';

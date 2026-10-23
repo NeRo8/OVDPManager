@@ -10,6 +10,7 @@ import type { WalletPosition } from './useWallet.hook';
 
 /** The suggested name of the first plan. */
 export const DEFAULT_PLAN_NAME = 'Мій план';
+export const PLAN_NAME_MAX_LENGTH = 80;
 
 /**
  * An investment plan: the basis of the app. Its purchases (past or planned) are the wallet
