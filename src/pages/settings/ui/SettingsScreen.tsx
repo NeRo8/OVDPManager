@@ -27,13 +27,9 @@ export default function SettingsScreen() {
     <ScreenScrollView>
       <Section
         title="Дані"
-        footer={`Створено ${planCount(numberOfPlans)}, у них ${purchaseCount(numberOfPurchases)}. Дані зберігаються на цьому пристрої; копія у JSON-файлі дає змогу відновити їх тут чи на іншому пристрої.`}
+        footer={`Створено ${planCount(numberOfPlans)}, ${numberOfPlans === 1 ? 'у ньому' : 'у них'} ${purchaseCount(numberOfPurchases)}. Дані зберігаються на цьому пристрої; копія у JSON-файлі дає змогу відновити їх тут чи на іншому пристрої.`}
       >
-        <ActionRow
-          title="Створити копію"
-          onPress={exportBackup}
-          disabled={isBusy || (numberOfPurchases === 0 && numberOfPlans === 0)}
-        />
+        <ActionRow title="Створити копію" onPress={exportBackup} disabled={isBusy} />
         <Separator />
         <LinkRow title="Відновити з копії" onPress={() => router.push('/backup/import')} />
       </Section>

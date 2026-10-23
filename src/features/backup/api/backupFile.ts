@@ -11,7 +11,9 @@ export async function exportBackupFile(json: string, fileName: string): Promise<
 
 export async function pickBackupFile(): Promise<string | null> {
   const picked = await DocumentPicker.getDocumentAsync({
-    type: 'application/json',
+    // Apps on Android often save a received .json as plain text or bare bytes; parseBackup checks
+    // the contents anyway, so those types stay pickable too.
+    type: ['application/json', 'text/plain', 'application/octet-stream'],
     copyToCacheDirectory: true,
   });
   if (picked.canceled) return null;

@@ -2,15 +2,13 @@ import { Controller } from 'react-hook-form';
 
 import { useBackupImport } from '@/features/backup';
 import { Button, Input, ScreenScrollView, Section, Typography } from '@/shared/ui';
-import { StatusMessage } from './StatusMessage';
 
 export default function BackupImportScreen() {
-  const { control, pastedError, canRestorePasted, status, restoreFromFile, restorePasted } =
+  const { control, pastedError, canRestorePasted, restoreFromFile, restorePasted } =
     useBackupImport();
 
   return (
     <ScreenScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
-      <StatusMessage status={status} />
       <Section
         title="Відновити з копії"
         footer="Усі поточні плани та їхні покупки буде замінено даними з копії."

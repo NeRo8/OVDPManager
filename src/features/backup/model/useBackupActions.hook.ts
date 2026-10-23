@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useInvestmentPlans, usePurchases } from '@/entities/portfolio';
 import { showToast } from '@/shared/lib';
 import { exportBackupFile } from '../api/backupFile';
-import { backupFileName, errorStatus, serializeBackup } from './backup';
+import { backupFileName, errorMessage, serializeBackup } from './backup';
 
 /** Backup actions that run in place, without a screen of their own; failures come as toasts. */
 export function useBackupActions() {
@@ -16,7 +16,11 @@ export function useBackupActions() {
     try {
       await task();
     } catch (error) {
-      showToast({ tone: 'error', title: 'Не вдалося', message: errorStatus(error).text });
+      showToast({
+        tone: 'error',
+        title: 'Не вдалося створити копію',
+        message: errorMessage(error),
+      });
     } finally {
       setBusy(false);
     }

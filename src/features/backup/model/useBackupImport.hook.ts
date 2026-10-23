@@ -1,11 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
 import { useForm, useFormState } from 'react-hook-form';
 import { z } from 'zod';
 
 import { useInvestmentPlans, usePurchases } from '@/entities/portfolio';
+import { showToast } from '@/shared/lib';
 import { pickBackupFile } from '../api/backupFile';
-import { type BackupStatus, errorStatus, parseBackup, replaceWithBackup } from './backup';
+import { errorMessage, parseBackup, replaceWithBackup } from './backup';
 
 const PastedBackupSchema = z.object({
   json: z.string().trim().min(1, { error: 'Вставте вміст файлу копії' }),
@@ -14,13 +14,12 @@ const PastedBackupSchema = z.object({
 type PastedBackup = z.infer<typeof PastedBackupSchema>;
 
 /**
- * Restoring from a picked file or from pasted JSON. A file's outcome comes as a status above the
- * screen; a problem with pasted JSON is shown under the field it came from.
+ * Restoring from a picked file or from pasted JSON. The outcome comes as a toast, except a problem
+ * with pasted JSON, which is shown under the field it came from.
  */
 export function useBackupImport() {
   const purchases = usePurchases();
   const plans = useInvestmentPlans();
-  const [status, setStatus] = useState<BackupStatus | null>(null);
   const form = useForm<PastedBackup>({
     resolver: zodResolver(PastedBackupSchema),
     mode: 'onChange',
@@ -30,11 +29,11 @@ export function useBackupImport() {
   // Read through the hook, not `form.formState`, which the React Compiler would cache.
   const { errors, isValid } = useFormState({ control: form.control });
 
-  function restore(text: string, source: string, onReplaced?: () => void) {
-    replaceWithBackup(parseBackup(text), purchases.length, plans.length, source, (replaced) => {
-      onReplaced?.();
-      setStatus(replaced);
-    });
+  // Restored data replaces whatever was pasted, along with its error.
+  function restore(text: string, source: string) {
+    replaceWithBackup(parseBackup(text), purchases.length, plans.length, source, () =>
+      form.reset(),
+    );
   }
 
   async function restoreFromFile() {
@@ -42,16 +41,15 @@ export function useBackupImport() {
       const text = await pickBackupFile();
       if (text) restore(text, 'з файлу');
     } catch (error) {
-      setStatus(errorStatus(error));
+      showToast({ tone: 'error', title: 'Не вдалося відновити', message: errorMessage(error) });
     }
   }
 
   const restorePasted = form.handleSubmit(({ json }) => {
-    setStatus(null);
     try {
-      restore(json, 'з копії', () => form.reset());
+      restore(json, 'з копії');
     } catch (error) {
-      form.setError('json', { message: errorStatus(error).text });
+      form.setError('json', { message: errorMessage(error) });
     }
   });
 
@@ -59,7 +57,6 @@ export function useBackupImport() {
     control: form.control,
     pastedError: errors.json?.message,
     canRestorePasted: isValid,
-    status,
     restoreFromFile,
     restorePasted,
   };

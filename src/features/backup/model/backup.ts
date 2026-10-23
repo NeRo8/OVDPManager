@@ -7,7 +7,7 @@ import {
   type WalletPurchase,
   restorePortfolio,
 } from '@/entities/portfolio';
-import { confirmDestructive, plural, todayISO } from '@/shared/lib';
+import { confirmDestructive, plural, showToast, todayISO } from '@/shared/lib';
 
 const FORMAT = 'ovdp-manager-backup';
 const VERSION = 5;
@@ -20,28 +20,30 @@ export function planCount(count: number): string {
   return `${count} ${plural(count, 'план', 'плани', 'планів')}`;
 }
 
-/** Outcome of a backup action, shown above the screen's content. */
-export type BackupStatus = { error: boolean; text: string };
-
-export function errorStatus(error: unknown): BackupStatus {
-  return { error: true, text: error instanceof Error ? error.message : String(error) };
+export function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 /**
  * Replaces every plan and purchase with the backup's, asking first when that would overwrite
- * something. `source` completes the messages: "з файлу", "з копії".
+ * something, and says so in a toast. `source` completes the messages: "з файлу", "з копії".
  */
 export function replaceWithBackup(
   restored: BackupData,
   currentCount: number,
   currentPlanCount: number,
   source: string,
-  onReplaced: (status: BackupStatus) => void,
+  onReplaced: () => void,
 ) {
   const restoredSummary = `${planCount(restored.plans.length)} і ${purchaseCount(restored.purchases.length)}`;
   const apply = () => {
     restorePortfolio(restored.purchases, restored.plans);
-    onReplaced({ error: false, text: `Відновлено ${restoredSummary} ${source}.` });
+    showToast({
+      tone: 'success',
+      title: 'Копію відновлено',
+      message: `Відновлено ${restoredSummary} ${source}.`,
+    });
+    onReplaced();
   };
   if (currentCount === 0 && currentPlanCount === 0) {
     apply();
