@@ -8,9 +8,15 @@ import {
   restorePortfolio,
 } from '@/entities/portfolio';
 import { confirmDestructive, plural, showToast, todayISO } from '@/shared/lib';
+import {
+  type BackupEncryption,
+  BackupEncryptionSchema,
+  decryptBackup,
+  encryptBackup,
+} from '../lib/backupCipher';
 
 const FORMAT = 'ovdp-manager-backup';
-const VERSION = 5;
+const VERSION = 6;
 
 export function purchaseCount(count: number): string {
   return `${count} ${plural(count, 'покупка', 'покупки', 'покупок')}`;
@@ -57,10 +63,18 @@ export function replaceWithBackup(
   );
 }
 
+/** The file: readable framing around the encrypted plans and purchases. */
 export type Backup = {
   format: typeof FORMAT;
   version: typeof VERSION;
   exportedAt: string;
+  encryption: BackupEncryption;
+  /** BackupContents as JSON, AES-256-GCM encrypted, base64 */
+  data: string;
+};
+
+/** What the encrypted data holds. */
+type BackupContents = {
   /** Every purchase of every plan, each with its `planId`. */
   holdings: WalletPurchase[];
   plans: InvestmentPlan[];
@@ -68,13 +82,20 @@ export type Backup = {
 
 export type BackupData = { purchases: WalletPurchase[]; plans: InvestmentPlan[] };
 
-export function serializeBackup(purchases: WalletPurchase[], plans: InvestmentPlan[]): string {
+/** Binds the encrypted data to this format and version, so neither can be swapped. */
+const CONTEXT = `${FORMAT}:${VERSION}`;
+
+export async function serializeBackup(
+  purchases: WalletPurchase[],
+  plans: InvestmentPlan[],
+  key: string,
+): Promise<string> {
+  const contents: BackupContents = { holdings: purchases, plans };
   const backup: Backup = {
     format: FORMAT,
     version: VERSION,
     exportedAt: new Date().toISOString(),
-    holdings: purchases,
-    plans,
+    ...(await encryptBackup(JSON.stringify(contents), key, CONTEXT)),
   };
   return JSON.stringify(backup, null, 2);
 }
@@ -86,7 +107,14 @@ export function backupFileName(): string {
 /** Only backups this app version writes are read; the file comes from outside, so it is checked. */
 const BackupSchema = z.object({
   format: z.literal(FORMAT, { error: 'Це не резервна копія OVDP Manager' }),
-  version: z.literal(VERSION, { error: 'Ця версія копії не підтримується' }),
+  version: z.literal(VERSION, {
+    error: 'Ця версія копії не підтримується: створіть нову копію в актуальній версії застосунку',
+  }),
+  encryption: BackupEncryptionSchema,
+  data: z.base64({ error: 'У копії немає зашифрованих даних' }),
+});
+
+const BackupContentsSchema = z.object({
   holdings: z.array(z.unknown(), { error: 'У копії немає списку покупок' }),
   plans: z.array(z.unknown(), { error: 'У копії немає списку планів' }),
 });
@@ -101,20 +129,29 @@ function issues(error: z.ZodError): string {
   return [...new Set(error.issues.map((issue) => issue.message))].join('; ');
 }
 
-/** Reads a backup file. Throws an Error with a user-facing message. */
-export function parseBackup(text: string): BackupData {
-  let data: unknown;
+function parseJson(text: string): unknown {
   try {
-    data = JSON.parse(text);
+    return JSON.parse(text);
   } catch {
     throw new Error('Це не схоже на файл резервної копії (некоректний JSON)');
   }
+}
 
-  const backup = BackupSchema.safeParse(data);
+/**
+ * Reads and decrypts a backup file. Throws WrongBackupKeyError when the key does not open it,
+ * and an Error with a user-facing message for anything else.
+ */
+export async function parseBackup(text: string, key: string): Promise<BackupData> {
+  const backup = BackupSchema.safeParse(parseJson(text));
   if (!backup.success) throw new Error(issues(backup.error));
 
+  const contents = BackupContentsSchema.safeParse(
+    parseJson(await decryptBackup(backup.data, key, CONTEXT)),
+  );
+  if (!contents.success) throw new Error(issues(contents.error));
+
   const planIds = new Set<string>();
-  const plans = backup.data.plans.map((raw, index): InvestmentPlan => {
+  const plans = contents.data.plans.map((raw, index): InvestmentPlan => {
     const plan = InvestmentPlanSchema.safeParse(raw);
     if (!plan.success) throw new Error(`План №${index + 1}: ${issues(plan.error)}`);
     if (planIds.has(plan.data.id)) throw new Error(`План №${index + 1}: id повторюється`);
@@ -125,7 +162,7 @@ export function parseBackup(text: string): BackupData {
   if (!plans.length) throw new Error('У копії немає жодного плану');
 
   const purchaseIds = new Set<string>();
-  const purchases = backup.data.holdings.map((raw, index): WalletPurchase => {
+  const purchases = contents.data.holdings.map((raw, index): WalletPurchase => {
     const purchase = BackupPurchaseSchema.safeParse(raw);
     if (!purchase.success) throw new Error(`Покупка №${index + 1}: ${issues(purchase.error)}`);
     const { id, planId } = purchase.data;

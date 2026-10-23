@@ -46,6 +46,7 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen name="bond/[isin]" options={{ title: 'ОВДП' }} />
+            <Stack.Screen name="backup/export" options={{ title: 'Створити копію' }} />
           </Stack.Protected>
           <Stack.Protected guard={!hasPlans} redirectTo="/">
             <Stack.Screen name="welcome" options={{ title: 'Перший план' }} />

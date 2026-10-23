@@ -1,3 +1,3 @@
 export * from './model/backup';
-export { useBackupActions } from './model/useBackupActions.hook';
+export { useBackupExport } from './model/useBackupExport.hook';
 export { useBackupImport } from './model/useBackupImport.hook';

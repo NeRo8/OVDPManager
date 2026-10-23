@@ -2,16 +2,10 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { planCount, purchaseCount, useBackupActions } from '@/features/backup';
+import { useInvestmentPlans, usePurchases } from '@/entities/portfolio';
+import { planCount, purchaseCount } from '@/features/backup';
 import { setThemePreference, useThemePreference, type ThemePreference } from '@/shared/theme';
-import {
-  ActionRow,
-  LinkRow,
-  ScreenScrollView,
-  Section,
-  SegmentedSelect,
-  Separator,
-} from '@/shared/ui';
+import { LinkRow, ScreenScrollView, Section, SegmentedSelect, Separator } from '@/shared/ui';
 
 const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
   { label: 'Системна', value: 'system' },
@@ -20,16 +14,17 @@ const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
 ];
 
 export default function SettingsScreen() {
-  const { numberOfPurchases, numberOfPlans, isBusy, exportBackup } = useBackupActions();
+  const numberOfPurchases = usePurchases().length;
+  const numberOfPlans = useInvestmentPlans().length;
   const themePreference = useThemePreference();
 
   return (
     <ScreenScrollView>
       <Section
         title="Дані"
-        footer={`Створено ${planCount(numberOfPlans)}, ${numberOfPlans === 1 ? 'у ньому' : 'у них'} ${purchaseCount(numberOfPurchases)}. Дані зберігаються на цьому пристрої; копія у JSON-файлі дає змогу відновити їх тут чи на іншому пристрої.`}
+        footer={`Створено ${planCount(numberOfPlans)}, ${numberOfPlans === 1 ? 'у ньому' : 'у них'} ${purchaseCount(numberOfPurchases)}. Дані зберігаються на цьому пристрої; зашифрована вашим ключем копія у JSON-файлі дає змогу відновити їх тут чи на іншому пристрої.`}
       >
-        <ActionRow title="Створити копію" onPress={exportBackup} disabled={isBusy} />
+        <LinkRow title="Створити копію" onPress={() => router.push('/backup/export')} />
         <Separator />
         <LinkRow title="Відновити з копії" onPress={() => router.push('/backup/import')} />
       </Section>

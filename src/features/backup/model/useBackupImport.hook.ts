@@ -1,62 +1,78 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useFormState } from 'react-hook-form';
+import { useState } from 'react';
+import { useForm, useFormState, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 
 import { useInvestmentPlans, usePurchases } from '@/entities/portfolio';
 import { showToast } from '@/shared/lib';
 import { pickBackupFile } from '../api/backupFile';
+import { BackupKeySchema, WrongBackupKeyError } from '../lib/backupCipher';
 import { errorMessage, parseBackup, replaceWithBackup } from './backup';
 
-const PastedBackupSchema = z.object({
-  json: z.string().trim().min(1, { error: 'Вставте вміст файлу копії' }),
-});
+const BackupImportSchema = z.object({ key: BackupKeySchema, json: z.string() });
 
-type PastedBackup = z.infer<typeof PastedBackupSchema>;
+type BackupImportForm = z.infer<typeof BackupImportSchema>;
 
 /**
- * Restoring from a picked file or from pasted JSON. The outcome comes as a toast, except a problem
- * with pasted JSON, which is shown under the field it came from.
+ * Restoring from a picked file or from pasted JSON, both opened with the backup's key. The outcome
+ * comes as a toast; a key that does not fit is shown under the key, a problem with pasted JSON
+ * under the JSON.
  */
 export function useBackupImport() {
   const purchases = usePurchases();
   const plans = useInvestmentPlans();
-  const form = useForm<PastedBackup>({
-    resolver: zodResolver(PastedBackupSchema),
+  const [isBusy, setBusy] = useState(false);
+  const form = useForm<BackupImportForm>({
+    resolver: zodResolver(BackupImportSchema),
     mode: 'onChange',
-    defaultValues: { json: '' },
+    defaultValues: { key: '', json: '' },
   });
 
-  // Read through the hook, not `form.formState`, which the React Compiler would cache.
-  const { errors, isValid } = useFormState({ control: form.control });
+  // Read through hooks, not `form.formState`, which the React Compiler would cache.
+  const { errors } = useFormState({ control: form.control });
+  const [key, json] = useWatch({ control: form.control, name: ['key', 'json'] });
+  const hasKey = BackupKeySchema.safeParse(key).success;
 
-  // Restored data replaces whatever was pasted, along with its error.
-  function restore(text: string, source: string) {
-    replaceWithBackup(parseBackup(text), purchases.length, plans.length, source, () =>
-      form.reset(),
-    );
+  async function restore(text: string, source: string, showError: (message: string) => void) {
+    setBusy(true);
+    try {
+      const restored = await parseBackup(text, key);
+      // Restored data replaces whatever was typed, along with its errors.
+      replaceWithBackup(restored, purchases.length, plans.length, source, () => form.reset());
+    } catch (error) {
+      if (error instanceof WrongBackupKeyError) form.setError('key', { message: error.message });
+      else showError(errorMessage(error));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function restoreFromFile() {
+    let text: string | null;
     try {
-      const text = await pickBackupFile();
-      if (text) restore(text, 'з файлу');
+      text = await pickBackupFile();
     } catch (error) {
-      showToast({ tone: 'error', title: 'Не вдалося відновити', message: errorMessage(error) });
+      showToast({ tone: 'error', title: 'Не вдалося відкрити файл', message: errorMessage(error) });
+      return;
+    }
+    if (text) {
+      await restore(text, 'з файлу', (message) =>
+        showToast({ tone: 'error', title: 'Не вдалося відновити', message }),
+      );
     }
   }
 
-  const restorePasted = form.handleSubmit(({ json }) => {
-    try {
-      restore(json, 'з копії');
-    } catch (error) {
-      form.setError('json', { message: errorMessage(error) });
-    }
-  });
+  const restorePasted = form.handleSubmit(({ json: pasted }) =>
+    restore(pasted.trim(), 'з копії', (message) => form.setError('json', { message })),
+  );
 
   return {
     control: form.control,
+    keyError: errors.key?.message,
     pastedError: errors.json?.message,
-    canRestorePasted: isValid,
+    canRestoreFile: hasKey && !isBusy,
+    canRestorePasted: hasKey && json.trim().length > 0 && !isBusy,
+    isBusy,
     restoreFromFile,
     restorePasted,
   };
