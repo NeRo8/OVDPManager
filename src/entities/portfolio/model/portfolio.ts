@@ -189,6 +189,16 @@ export function purchaseEvents(purchases: Purchase[], byIsin: Map<string, Bond>)
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
+/**
+ * Schedule order: by date, and on the same day a payment before a purchase, as the payment goes to
+ * the previous owner.
+ */
+export function compareScheduleEvents(a: ScheduleEvent, b: ScheduleEvent): number {
+  return (
+    a.date.localeCompare(b.date) || Number(a.type === 'purchase') - Number(b.type === 'purchase')
+  );
+}
+
 /** Sum of the events' totals, rounded to cents. */
 export function sumTotals(events: { total: number }[]): number {
   return round2(events.reduce((total, event) => total + event.total, 0));

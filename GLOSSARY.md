@@ -34,6 +34,12 @@ _Avoid_: calling a Purchase itself a payment
 The Active plan's Payments in date order, with its Purchases listed among them as money going out.
 _Avoid_: Графік, calendar
 
+**Upcoming payments** (Майбутні):
+The Payments not yet Received, in date order. Planned purchases are not among them.
+
+**Payment type** (Тип виплати):
+Coupon or Redemption, as a filter. It narrows Payments only; Purchases stay listed whatever type is chosen.
+
 **Coupon** (Купон):
 A periodic interest Payment.
 

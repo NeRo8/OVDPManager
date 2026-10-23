@@ -1,2 +1,2 @@
-export * from './model/filterPayments';
+export * from './model/filterSchedule';
 export * from './model/paymentFilters';
