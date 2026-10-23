@@ -80,39 +80,55 @@ export default function PlanScreen() {
                 onChange={setCurrency}
               />
             )}
-            <Section
-              title={`Увесь план · ${total.currency}`}
-              footer="Дохідність — за весь строк плану, без річного перерахунку, податків і комісій."
-            >
-              <InfoRow label="Вкладення" value={formatMoney(total.invested, total.currency)} />
-              <Separator />
-              <InfoRow label="Купони" value={formatMoney(total.coupons, total.currency)} />
-              <Separator />
+            <Section title={`Вкладення · ${total.currency}`}>
+              <InfoRow
+                label="Вкладення"
+                hint="Скільки коштують усі покупки плану"
+                value={formatMoney(total.invested, total.currency)}
+              />
+            </Section>
+            <Section title="Виплати">
               <InfoRow
                 label="Погашення"
+                hint="Номінал, який повернуть у дату погашення. Зазвичай він менший за ціну покупки — різницю покривають купони"
                 value={
                   total.complete
                     ? formatMoney(total.redemption, total.currency)
                     : 'Немає повних даних НБУ'
                 }
               />
+              <Separator />
+              <InfoRow
+                label="Купони"
+                hint="Відсотки, отримані й ще очікувані до погашення"
+                value={formatMoney(total.coupons, total.currency)}
+              />
               {total.complete && (
                 <>
                   <Separator />
                   <InfoRow
-                    label="Усі виплати"
+                    label="Усього"
+                    hint="Погашення разом із купонами"
                     value={formatMoney(total.proceeds, total.currency)}
                   />
-                  <Separator />
-                  <InfoRow
-                    label="Чистий результат"
-                    value={formatMoney(total.profit, total.currency)}
-                  />
-                  <Separator />
-                  <InfoRow label="Дохідність" value={`${total.returnPercent}%`} />
                 </>
               )}
             </Section>
+            {total.complete && (
+              <Section title="Результат">
+                <InfoRow
+                  label="Чистий результат"
+                  hint="Виплати мінус вкладення — ваш заробіток"
+                  value={formatMoney(total.profit, total.currency)}
+                />
+                <Separator />
+                <InfoRow
+                  label="Дохідність"
+                  hint="Чистий результат у відсотках від вкладень за весь строк, без перерахунку на рік, податків і комісій"
+                  value={`${total.returnPercent}%`}
+                />
+              </Section>
+            )}
           </>
         )}
         {unknownBonds > 0 && (
