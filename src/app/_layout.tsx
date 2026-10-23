@@ -9,6 +9,14 @@ import { QueryProvider } from '@/shared/api';
 import { HeaderButton, LaunchSplash, NativeStack, ToastHost } from '@/shared/ui';
 import { goBackOrHome } from '@/shared/lib';
 
+// Filters open over their list, which shows every change at once; closing is all that is left.
+const FILTERS_MODAL = {
+  presentation: 'modal',
+  headerLeft: () => (
+    <HeaderButton icon="close" accessibilityLabel="Закрити" onPress={goBackOrHome} />
+  ),
+} as const;
+
 // LaunchSplash hides the native splash once it covers the screen; until then nothing shows through.
 SplashScreen.preventAutoHideAsync();
 
@@ -46,17 +54,11 @@ export default function RootLayout() {
               <NativeStack.Screen name="plan/list" options={{ title: 'Мої плани' }} />
               <NativeStack.Screen
                 name="payment-filters"
-                options={{
-                  title: 'Фільтри виплат',
-                  presentation: 'modal',
-                  headerLeft: () => (
-                    <HeaderButton
-                      icon="close"
-                      accessibilityLabel="Закрити"
-                      onPress={goBackOrHome}
-                    />
-                  ),
-                }}
+                options={{ title: 'Фільтри виплат', ...FILTERS_MODAL }}
+              />
+              <NativeStack.Screen
+                name="bond-filters"
+                options={{ title: 'Фільтри ОВДП', ...FILTERS_MODAL }}
               />
               <NativeStack.Screen name="bond/[isin]" options={{ title: 'ОВДП' }} />
               <NativeStack.Screen name="backup/export" options={{ title: 'Створити копію' }} />

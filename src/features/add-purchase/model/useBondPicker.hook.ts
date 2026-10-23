@@ -1,23 +1,23 @@
 import { useState } from 'react';
 
 import { CURRENCIES, type Currency, bondChoices, useWallet } from '@/entities/portfolio';
-import { useOptionChoice } from '@/shared/lib';
 import { type BondTerm, termOf } from './bondTerm';
+import { useBondPickerFilters } from './bondPickerFilters';
 
 export type { BondTerm };
-export type BondSort = 'maturity' | 'rate';
 
 type FilterOption<T> = { value: T; count: number };
 
 /**
  * The first step of adding a purchase. Bonds in circulation are narrowed by currency and term and
  * sorted by maturity or rate; a search by ISIN looks through every bond and sets the filters aside.
+ * The filters live in a store, so the picker and its filters screen share them.
  */
 export function useBondPicker() {
   const { bonds, today, positions } = useWallet();
+  const filters = useBondPickerFilters();
+  const { term, sort } = filters;
   const [query, setQuery] = useState('');
-  const [term, setTerm] = useState<BondTerm>('all');
-  const [sort, setSort] = useState<BondSort>('maturity');
 
   const isSearching = query.trim().length > 0;
   const inCirculation = bonds ? bondChoices(bonds, '', today) : [];
@@ -25,8 +25,10 @@ export function useBondPicker() {
     value,
     count: inCirculation.filter((bond) => bond.currency === value).length,
   })).filter((option) => option.count > 0);
-  const [chosenCurrency, setCurrency] = useOptionChoice(currencies.map((option) => option.value));
-  const currency = chosenCurrency ?? 'UAH';
+  // The chosen currency while some bond still has it, otherwise the first one that does.
+  const defaultCurrency = currencies[0]?.value ?? 'UAH';
+  const currency =
+    currencies.find((option) => option.value === filters.currency)?.value ?? defaultCurrency;
   const ofCurrency = inCirculation.filter((bond) => bond.currency === currency);
   const terms: FilterOption<BondTerm>[] = (['all', 'short', 'medium', 'long'] as const).map(
     (value) => ({
@@ -49,6 +51,12 @@ export function useBondPicker() {
   const ownedQuantity = new Map(
     positions.map(({ position }) => [position.isin, position.quantity]),
   );
+  // What differs from a fresh picker; the order counts too, as it changes what comes first.
+  const activeFilterCount = [
+    currency !== defaultCurrency,
+    term !== 'all',
+    sort !== 'maturity',
+  ].filter(Boolean).length;
 
   return {
     today,
@@ -57,13 +65,12 @@ export function useBondPicker() {
     isSearching,
     currencies,
     currency,
-    setCurrency,
     terms,
     term,
-    setTerm,
     sort,
-    setSort,
     choices,
+    filteredCount: sorted.length,
+    activeFilterCount,
     ownedQuantity,
   };
 }

@@ -1,13 +1,13 @@
 import { Stack, router } from 'expo-router';
-import { FlatList, View } from 'react-native';
+import { FlatList } from 'react-native';
 import { StyleSheet, withUnistyles } from 'react-native-unistyles';
 
 import { BondsGate } from '@/entities/portfolio';
 import { useBondPicker } from '@/features/add-purchase';
 import { SectionCell, Typography, screenContent } from '@/shared/ui';
 import { BondChoiceRow } from './BondChoiceRow';
-import { PickerFilters } from './PickerFilters';
-import { SortToggle } from './SortToggle';
+import { BondFiltersButton } from './BondFiltersButton';
+import { SORT_LABELS, TERM_LABELS } from './bondFilterLabels';
 
 // The search field follows the app's theme, which may differ from the system one.
 const HeaderSearchBar = withUnistyles(Stack.SearchBar, (theme) => ({
@@ -19,11 +19,12 @@ const HeaderSearchBar = withUnistyles(Stack.SearchBar, (theme) => ({
 
 /**
  * First step of adding a purchase to the active plan: bonds in circulation narrowed by currency
- * and term, sorted by maturity or rate. The header search finds any bond by ISIN.
+ * and term, sorted by maturity or rate; the header button opens those filters. The header search
+ * finds any bond by ISIN.
  */
 export default function BondPickerScreen() {
-  const picker = useBondPicker();
-  const { today, query, setQuery, isSearching, choices, ownedQuantity } = picker;
+  const { today, query, setQuery, isSearching, currency, term, sort, choices, ownedQuantity } =
+    useBondPicker();
 
   const search = (event: { nativeEvent: { text: string } }) => setQuery(event.nativeEvent.text);
   const clearSearch = () => setQuery('');
@@ -31,6 +32,7 @@ export default function BondPickerScreen() {
 
   return (
     <BondsGate>
+      <Stack.Screen options={{ headerRight: () => <BondFiltersButton /> }} />
       <HeaderSearchBar
         placeholder="Пошук за ISIN"
         autoCapitalize="characters"
@@ -46,15 +48,12 @@ export default function BondPickerScreen() {
         data={choices}
         keyExtractor={(bond) => bond.isin}
         ListHeaderComponent={
-          <View style={styles.header}>
-            {!isSearching && <PickerFilters picker={picker} />}
-            <View style={styles.summary}>
-              <Typography variant="footnote" tone="secondary">
-                {isSearching ? `Знайдено: ${choices.length}` : `ОВДП: ${choices.length}`}
-              </Typography>
-              {!isSearching && <SortToggle sort={picker.sort} onChange={picker.setSort} />}
-            </View>
-          </View>
+          // The filters in use, as the list shows only what they let through.
+          <Typography variant="footnote" tone="secondary" style={styles.summary}>
+            {isSearching
+              ? `Знайдено: ${choices.length}`
+              : `${currency} · ${TERM_LABELS[term].toLowerCase()} · ${SORT_LABELS[sort].toLowerCase()} · ОВДП: ${choices.length}`}
+          </Typography>
         }
         renderItem={({ item: bond, index }) => (
           <SectionCell index={index} count={choices.length}>
@@ -80,12 +79,6 @@ export default function BondPickerScreen() {
 const styles = StyleSheet.create((theme) => ({
   list: { backgroundColor: theme.background },
   content: { gap: 0 },
-  header: { gap: theme.space.md, marginBottom: theme.space.md },
-  summary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: theme.space.lg,
-  },
+  summary: { marginHorizontal: theme.space.lg, marginBottom: theme.space.md },
   empty: { marginTop: theme.space.xl },
 }));
