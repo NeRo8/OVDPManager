@@ -36,7 +36,7 @@ export default function YearScheduleScreen() {
         <View style={styles.listHeader}>
           <StaleBondsNotice error={wallet.error} />
           <YearNav year={year} min={firstYear} max={lastYear} onChange={setChosenYear} />
-          {currencies.length > 1 && (
+          {currency && currencies.length > 1 && (
             <SegmentedSelect
               options={currencies.map((value) => ({ label: value, value }))}
               value={currency}

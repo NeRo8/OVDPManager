@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { CURRENCIES, type Currency, bondChoices, useWallet } from '@/entities/portfolio';
+import { useOptionChoice } from '@/shared/lib';
 import { type BondTerm, termOf } from './bondTerm';
 
 export type { BondTerm };
@@ -15,7 +16,6 @@ type FilterOption<T> = { value: T; count: number };
 export function useBondPicker() {
   const { bonds, error, refresh, today, positions } = useWallet();
   const [query, setQuery] = useState('');
-  const [chosenCurrency, setCurrency] = useState<Currency | null>(null);
   const [term, setTerm] = useState<BondTerm>('all');
   const [sort, setSort] = useState<BondSort>('maturity');
 
@@ -25,10 +25,8 @@ export function useBondPicker() {
     value,
     count: inCirculation.filter((bond) => bond.currency === value).length,
   })).filter((option) => option.count > 0);
-  const currency =
-    chosenCurrency && currencies.some((option) => option.value === chosenCurrency)
-      ? chosenCurrency
-      : (currencies[0]?.value ?? 'UAH');
+  const [chosenCurrency, setCurrency] = useOptionChoice(currencies.map((option) => option.value));
+  const currency = chosenCurrency ?? 'UAH';
   const ofCurrency = inCirculation.filter((bond) => bond.currency === currency);
   const terms: FilterOption<BondTerm>[] = (['all', 'short', 'medium', 'long'] as const).map(
     (value) => ({

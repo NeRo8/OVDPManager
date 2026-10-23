@@ -5,4 +5,5 @@ export { goBackOrHome } from './navigation';
 export * from './number';
 export { mmkvStorage } from './storage';
 export * from './toast';
+export { useOptionChoice } from './useOptionChoice.hook';
 export { usePullToRefresh } from './usePullToRefresh.hook';

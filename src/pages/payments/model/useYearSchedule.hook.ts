@@ -9,7 +9,7 @@ import {
   sumTotals,
 } from '@/entities/portfolio';
 import { filterSchedule } from '@/features/payment-filters';
-import { MONTHS, round2 } from '@/shared/lib';
+import { MONTHS, round2, useOptionChoice } from '@/shared/lib';
 import { groupScheduleEventsByMonth } from './scheduleSections';
 import type { FilteredWallet } from './useFilteredWallet.hook';
 
@@ -25,7 +25,6 @@ export function useYearSchedule({ wallet, filters }: FilteredWallet) {
   const lastYear = years.length ? Math.max(...years) : currentYear;
 
   const [chosenYear, setChosenYear] = useState<number | null>(null);
-  const [chosenCurrency, setChosenCurrency] = useState<Currency | null>(null);
   const [chosenMonth, setChosenMonth] = useState<{ year: number; month: number } | null>(null);
 
   const year = chosenYear ?? Math.min(Math.max(currentYear, firstYear), lastYear);
@@ -37,8 +36,7 @@ export function useYearSchedule({ wallet, filters }: FilteredWallet) {
     .filter((currency): currency is Currency => currency !== null)
     .sort((a, b) => CURRENCIES.indexOf(a) - CURRENCIES.indexOf(b));
   // The chart has one money scale, so a year in several currencies shows one at a time.
-  const currency =
-    chosenCurrency && currencies.includes(chosenCurrency) ? chosenCurrency : currencies[0];
+  const [currency, setChosenCurrency] = useOptionChoice(currencies);
 
   const coupons = yearPayments.filter(
     (payment) => payment.type === 'coupon' && payment.currency === currency,

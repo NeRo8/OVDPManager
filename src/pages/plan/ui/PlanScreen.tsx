@@ -1,18 +1,21 @@
 import { router, Stack } from 'expo-router';
-import { useState } from 'react';
 import { RefreshControl } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
-  CURRENCIES,
   NbuSourceNote,
   StaleBondsNotice,
   purchaseResults,
   removeInvestmentPlan,
   useWallet,
-  type Currency,
 } from '@/entities/portfolio';
-import { confirmDestructive, formatMoney, plural, usePullToRefresh } from '@/shared/lib';
+import {
+  confirmDestructive,
+  formatMoney,
+  plural,
+  useOptionChoice,
+  usePullToRefresh,
+} from '@/shared/lib';
 import {
   ActionRow,
   Card,
@@ -35,10 +38,9 @@ export default function PlanScreen() {
   const planId = plan?.id ?? '';
   const totals = purchaseResults(purchases, byIsin, today);
   const unknownBonds = positions.filter((item) => !item.bond).length;
-  const [chosenCurrency, setCurrency] = useState<Currency | null>(null);
+  // Totals come in CURRENCIES order.
   const currencies = totals.map((total) => total.currency);
-  const currency =
-    chosenCurrency && currencies.includes(chosenCurrency) ? chosenCurrency : currencies[0];
+  const [currency, setCurrency] = useOptionChoice(currencies);
   const total = totals.find((item) => item.currency === currency);
 
   // The app's screens open only once there is a plan, so one is always active here.
@@ -84,10 +86,7 @@ export default function PlanScreen() {
           <>
             {currencies.length > 1 && (
               <SegmentedSelect
-                options={CURRENCIES.filter((item) => currencies.includes(item)).map((item) => ({
-                  label: item,
-                  value: item,
-                }))}
+                options={currencies.map((item) => ({ label: item, value: item }))}
                 value={total.currency}
                 onChange={setCurrency}
               />
