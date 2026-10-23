@@ -54,6 +54,8 @@ Both profiles extend `base`, which pins Node 24.22.1, Yarn 1.22.22 and CocoaPods
 
 Register an iPhone for development builds with `npx eas-cli device:create`. The first build of each profile asks for the Apple Developer login and lets EAS create the certificate and provisioning profile. Submissions go to App Store Connect app `6826422237`, team `W25YBRT2T2` (`ascAppId` and `appleTeamId` in `submit.production.ios` in `eas.json`). Internal testers get a build once Apple has processed it.
 
+Backups are encrypted with standard algorithms (Argon2id, AES-256-GCM) from `react-native-quick-crypto`, not Apple's OS, so `app.json` declares `ios.config.usesNonExemptEncryption: true`. App Store Connect then asks about each build before testers get it: answer that the app uses standard encryption algorithms instead of, or in addition to, Apple's OS, and whether it is available in France. Only distribution in France needs a document (the French encryption declaration).
+
 ## Project structure
 
 | Path                                          | Responsibility                                                          |

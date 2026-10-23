@@ -16,7 +16,8 @@
         "CFBundleDevelopmentRegion": "uk",
         "CFBundleLocalizations": ["uk"]
       },
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "config": { "usesNonExemptEncryption": true }
     },
     "android": {
       "adaptiveIcon": {
