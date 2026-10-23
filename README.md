@@ -1,6 +1,6 @@
 # ОВДП Портфель
 
-Mobile Expo app for tracking Ukrainian government bonds, future payments, and local backups.
+Mobile Expo app for tracking Ukrainian government bonds, their future payments, investment plans, and encrypted backups (to a file or to the cloud).
 
 ## Get started
 
@@ -45,9 +45,9 @@ This app uses Unistyles and other native modules. Run it in a [development build
 | `src/shared/api/`                             | Shared Axios client for the NBU API.                                    |
 | `src/shared/ui/`, `lib/`, `theme/`, `config/` | Reusable components, utilities, Unistyles theme, and app assets.        |
 
-Each page, feature, and entity has an `index.ts` public API. Imports point down the stack: pages can use features, entities, and shared code; features can use entities and shared code; entities can use shared code. Imports inside a slice use relative paths. See [CODEBASE.md](CODEBASE.md) for entry points and data flow.
+Each page, feature, and entity has an `index.ts` public API. Imports point down the stack: pages can use features, entities, and shared code; features can use entities and shared code; entities can use shared code. Imports inside a slice use relative paths. See [CLAUDE.md](CLAUDE.md) for entry points and data flow.
 
-The app targets iOS and Android. Its three bottom tabs show payments (upcoming, or a year with its chart, as swipeable top tabs; both filterable), the wallet, and settings (backups and the app theme). Bond details have Overview, Payments and Purchases top tabs. Bond details, adding a purchase, payment filters, and restoring a backup are stack routes.
+The app targets iOS and Android. Its four bottom tabs show payments (upcoming, or a year with its chart, as swipeable top tabs; both filterable), the wallet, the active investment plan, and settings (backups, the cloud account, and the app theme). Bond details are one scrolling screen with the bond's parameters, totals, purchases, and payments. Bond details, the bond picker and its filters, adding a purchase, payment filters, the plan list, and restoring a backup are stack routes.
 
 ## Code quality
 

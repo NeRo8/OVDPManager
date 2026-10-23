@@ -42,7 +42,7 @@ Docs: https://docs.expo.dev/eas/index.md
 
 ## Skills and project overrides
 
-Third-party skills in `.claude/skills/` are general guides; this project's setup wins when they disagree. Code layout and data flow are described in `CODEBASE.md`.
+Third-party skills in `.claude/skills/` are general guides; this project's setup wins when they disagree. Code layout and data flow are described in `CLAUDE.md`.
 
 - On conflicts, the Expo plugin skills (`expo-*`) and `react-native-unistyles-v3` take precedence over `react-native-best-practices` and `vercel-composition-patterns`.
 - Never add a dependency the user did not ask for, even when a skill recommends one (FlashList, LegendList, zeego, `@gorhom/bottom-sheet`, NativeWind, SWR, jotai, …). Install packages only with `npx expo install`, never `npm install` with a pinned version from a skill.
