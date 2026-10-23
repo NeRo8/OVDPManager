@@ -11,6 +11,12 @@ declare module '@tanstack/react-query' {
   }
 }
 
+/** After a failed request, screens opening soon after do not try again on their own. */
+const RETRY_AFTER_MS = 5 * 60 * 1000;
+
+const notFailedRecently = (query: { state: { errorUpdatedAt: number } }) =>
+  Date.now() - query.state.errorUpdatedAt > RETRY_AFTER_MS;
+
 /**
  * The app's one query client. A query that fails over data it already has tells the user in a
  * toast with a retry; without data the screen shows the error itself.
@@ -32,6 +38,6 @@ export const queryClient = new QueryClient({
     },
   }),
   defaultOptions: {
-    queries: { retry: 1 },
+    queries: { retry: 1, refetchOnMount: notFailedRecently, retryOnMount: notFailedRecently },
   },
 });

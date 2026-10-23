@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { useEffect } from 'react';
 
 import { todayISO } from '@/shared/lib';
 import { getCachedKeyRate, saveKeyRate, useCachedKeyRate } from './keyRate';
@@ -17,20 +16,17 @@ export function useKeyRate(date: string): number | null {
   const today = todayISO();
   const rateDate = date < today ? date : today;
   const rate = useCachedKeyRate(rateDate);
-  const { data, dataUpdatedAt } = useQuery({
+  useQuery({
     queryKey: ['nbu', 'key-rate', rateDate],
-    queryFn: ({ signal }) => fetchKeyRate(rateDate, signal),
+    queryFn: async ({ signal }) => {
+      const fetched = await fetchKeyRate(rateDate, signal);
+      saveKeyRate(rateDate, fetched, Date.now());
+      return fetched;
+    },
     staleTime: rateDate < today ? Infinity : STALE_AFTER_MS,
     initialData: () => getCachedKeyRate(rateDate)?.rate,
     initialDataUpdatedAt: () => getCachedKeyRate(rateDate)?.updatedAt,
   });
-
-  useEffect(() => {
-    // The initial data came from the store, so only a newer answer is saved.
-    if (data !== undefined && dataUpdatedAt > (getCachedKeyRate(rateDate)?.updatedAt ?? 0)) {
-      saveKeyRate(rateDate, data, dataUpdatedAt);
-    }
-  }, [data, dataUpdatedAt, rateDate]);
 
   return rate;
 }
