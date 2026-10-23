@@ -3,16 +3,17 @@ import { useForm, useFormState, useWatch } from 'react-hook-form';
 
 import {
   type Bond,
+  type Purchase,
   addPurchase,
   annualYield,
   nextPayment,
   positionPayments,
-  sumTotals,
+  purchaseResults,
   useActivePlan,
   useBonds,
   useKeyRate,
 } from '@/entities/portfolio';
-import { round2, todayISO } from '@/shared/lib';
+import { todayISO } from '@/shared/lib';
 import {
   type PurchaseFormInput,
   type PurchaseFormValues,
@@ -26,7 +27,7 @@ import { purchaseHints, purchaseVerdict } from './purchaseHints';
  */
 export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
   const plan = useActivePlan();
-  const { bonds } = useBonds();
+  const { bonds, byIsin } = useBonds();
   const today = todayISO();
   const schema = purchaseFormSchema(bond);
   const form = useForm<PurchaseFormInput, unknown, PurchaseFormValues>({
@@ -49,30 +50,26 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
 
   const preview = (() => {
     if (!valid) return null;
-    const payments = positionPayments(
-      [
-        {
-          id: 'preview',
-          isin: bond.isin,
-          purchaseDate: valid.purchaseDate,
-          amount: 0,
-          quantity: valid.quantity,
-        },
-      ],
-      bond,
-      today,
-    );
-    const income = sumTotals(payments);
-    const netIncome = round2(income - valid.amount);
-    // Without the redemption row NBU has not published yet, the payments fall short of the truth.
-    const isComplete = bond.payments.some((payment) => payment.type === 'redemption');
-    const yearly = isComplete ? annualYield(valid.amount, valid.purchaseDate, payments) : null;
+    const draft: Purchase = {
+      id: 'draft',
+      isin: bond.isin,
+      purchaseDate: valid.purchaseDate,
+      amount: valid.amount,
+      quantity: valid.quantity,
+    };
+    // The bond comes from the NBU data, so its results are always there.
+    const results = purchaseResults([draft], byIsin, today).at(0);
+    if (!results) return null;
+    const payments = positionPayments([draft], bond, today);
+    const yearly = results.complete
+      ? annualYield(valid.amount, valid.purchaseDate, payments)
+      : null;
     const hints = purchaseHints({
       bond,
       purchaseDate: valid.purchaseDate,
       pricePerBond: valid.amount / valid.quantity,
-      netIncome,
-      isComplete,
+      netIncome: results.netIncome,
+      isComplete: results.complete,
       annualYield: yearly,
       keyRate,
       bonds: bonds ?? [],
@@ -80,10 +77,9 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
     return {
       nextPayment: nextPayment(payments),
       couponsLeft: payments.filter((p) => p.type === 'coupon' && !p.isPaid).length,
-      income,
-      netIncome,
-      isComplete,
-      totalReturn: isComplete ? round2((netIncome / valid.amount) * 100) : null,
+      totalPayments: results.totalPayments,
+      netIncome: results.netIncome,
+      returnPercent: results.returnPercent,
       annualYield: yearly,
       hints,
       verdict: purchaseVerdict(hints),

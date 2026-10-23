@@ -29,9 +29,7 @@ export default function BondScreen() {
     payments,
     currency,
     hasTopUps,
-    received,
-    expected,
-    netIncome,
+    results,
     canTopUp,
     deletePurchase,
     deletePosition,
@@ -69,23 +67,27 @@ export default function BondScreen() {
               />
             </>
           )}
-          {bond && (
+          {results && (
             <>
               <Separator />
-              <InfoRow label="Отримано" value={formatMoney(received, currency)} />
+              <InfoRow label="Отримано" value={formatMoney(results.received, currency)} />
               <Separator />
-              <InfoRow label="Очікується" value={formatMoney(expected, currency)} />
+              <InfoRow label="Очікується" value={formatMoney(results.expected, currency)} />
               <Separator />
               <InfoRow
                 label="Чистий дохід"
                 value={
-                  <Typography
-                    variant="subhead"
-                    weight="semibold"
-                    tone={netIncome >= 0 ? 'positive' : 'danger'}
-                  >
-                    {formatMoney(netIncome, currency)}
-                  </Typography>
+                  results.netIncome === null ? (
+                    'Немає повних даних НБУ'
+                  ) : (
+                    <Typography
+                      variant="subhead"
+                      weight="semibold"
+                      tone={results.netIncome >= 0 ? 'positive' : 'danger'}
+                    >
+                      {formatMoney(results.netIncome, currency)}
+                    </Typography>
+                  )
                 }
               />
             </>

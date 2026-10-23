@@ -56,6 +56,7 @@ export function useWallet() {
 
   return {
     plan,
+    purchases,
     numberOfPurchases: purchases.length,
     bonds,
     byIsin,

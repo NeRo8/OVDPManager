@@ -124,27 +124,27 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
           <Separator />
           <InfoRow label="Купонів попереду" value={String(preview.couponsLeft)} />
           <Separator />
-          <InfoRow label="Усього виплат" value={formatMoney(preview.income, currency)} />
+          <InfoRow label="Усього виплат" value={formatMoney(preview.totalPayments, currency)} />
           <Separator />
-          <InfoRow
-            label="Чистий дохід"
-            value={
-              <Typography
-                variant="subhead"
-                weight="medium"
-                tone={preview.netIncome < 0 ? 'danger' : 'primary'}
-              >
-                {formatMoney(preview.netIncome, currency)}
-              </Typography>
-            }
-          />
-          <Separator />
-          {preview.isComplete ? (
+          {preview.netIncome !== null ? (
             <>
+              <InfoRow
+                label="Чистий дохід"
+                value={
+                  <Typography
+                    variant="subhead"
+                    weight="medium"
+                    tone={preview.netIncome < 0 ? 'danger' : 'primary'}
+                  >
+                    {formatMoney(preview.netIncome, currency)}
+                  </Typography>
+                }
+              />
+              <Separator />
               <InfoRow
                 label="Дохідність за весь строк"
                 hint="Чистий дохід у відсотках від суми купівлі"
-                value={preview.totalReturn === null ? '—' : `${preview.totalReturn}%`}
+                value={preview.returnPercent === null ? '—' : `${preview.returnPercent}%`}
               />
               <Separator />
               <InfoRow

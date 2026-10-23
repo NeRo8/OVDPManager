@@ -7,7 +7,7 @@ import {
   CURRENCIES,
   NbuSourceNote,
   StaleBondsNotice,
-  planTotals,
+  purchaseResults,
   removeInvestmentPlan,
   useWallet,
   type Currency,
@@ -29,11 +29,11 @@ import {
  * wallet; here they add up to what the plan costs and earns over its whole term.
  */
 export default function PlanScreen() {
-  const { plan, bonds, error, refresh, positions, payments, purchaseEvents, numberOfPurchases } =
+  const { plan, bonds, byIsin, today, error, refresh, positions, purchases, numberOfPurchases } =
     useWallet();
   const pullToRefresh = usePullToRefresh(refresh);
   const planId = plan?.id ?? '';
-  const totals = planTotals(positions, payments, purchaseEvents);
+  const totals = purchaseResults(purchases, byIsin, today);
   const unknownBonds = positions.filter((item) => !item.bond).length;
   const [chosenCurrency, setCurrency] = useState<Currency | null>(null);
   const currencies = totals.map((total) => total.currency);
@@ -126,7 +126,7 @@ export default function PlanScreen() {
                 </>
               )}
             </Section>
-            {total.complete && (
+            {total.netIncome !== null && (
               <Section title="Результат">
                 <InfoRow
                   label="Чистий дохід"
@@ -137,7 +137,7 @@ export default function PlanScreen() {
                 <InfoRow
                   label="Дохідність"
                   hint="Чистий дохід у відсотках від вкладень за весь строк, без перерахунку на рік, податків і комісій"
-                  value={`${total.returnPercent}%`}
+                  value={total.returnPercent === null ? '—' : `${total.returnPercent}%`}
                 />
               </Section>
             )}

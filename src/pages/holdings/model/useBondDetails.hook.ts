@@ -1,12 +1,12 @@
 import {
   type Purchase,
   purchaseCurrency,
+  purchaseResults,
   removePurchase,
   removePosition,
-  sumTotals,
   useWallet,
 } from '@/entities/portfolio';
-import { formatDate, formatMoney, round2, confirmDestructive, goBackOrHome } from '@/shared/lib';
+import { formatDate, formatMoney, confirmDestructive, goBackOrHome } from '@/shared/lib';
 
 export function useBondDetails(isin: string) {
   const { plan, positions, byIsin, today } = useWallet();
@@ -16,9 +16,8 @@ export function useBondDetails(isin: string) {
   const payments = walletPosition?.payments ?? [];
   const currency = walletPosition?.currency ?? null;
   const hasTopUps = (position?.purchases.length ?? 0) > 1;
-  const received = sumTotals(payments.filter((payment) => payment.isPaid));
-  const expected = sumTotals(payments.filter((payment) => !payment.isPaid));
-  const netIncome = round2(received + expected - (position?.investedAmount ?? 0));
+  /** Missing when the NBU data has no such bond */
+  const results = purchaseResults(position?.purchases ?? [], byIsin, today).at(0);
   const canTopUp = !!bond && bond.maturityDate > today;
 
   function deletePurchase(purchase: Purchase) {
@@ -54,9 +53,7 @@ export function useBondDetails(isin: string) {
     payments,
     currency,
     hasTopUps,
-    received,
-    expected,
-    netIncome,
+    results,
     canTopUp,
     deletePurchase,
     deletePosition,
