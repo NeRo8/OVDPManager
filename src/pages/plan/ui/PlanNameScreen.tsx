@@ -1,6 +1,8 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { Controller, useForm, useFormState } from 'react-hook-form';
 import { StyleSheet } from 'react-native-unistyles';
+import { z } from 'zod';
 
 import {
   DEFAULT_PLAN_NAME,
@@ -11,8 +13,9 @@ import {
   setActivePlan,
   useInvestmentPlans,
 } from '@/entities/portfolio';
-import { showToast } from '@/shared/lib';
 import { Button, EmptyState, Input, ScreenScrollView, Section, Typography } from '@/shared/ui';
+
+const PlanNameFormSchema = z.object({ name: PlanNameSchema });
 
 /**
  * Names a new plan, or renames the one in `planId`. Without any plans it is the first screen of
@@ -23,11 +26,31 @@ export default function PlanNameScreen() {
   const plans = useInvestmentPlans();
   const isFirst = plans.length === 0;
   const existing = plans.find((plan) => plan.id === planId);
-  const [name, setName] = useState(
-    existing?.name ?? (isFirst ? DEFAULT_PLAN_NAME : `План ${plans.length + 1}`),
-  );
-  const trimmed = name.trim();
-  const canSave = PlanNameSchema.safeParse(name).success;
+  const form = useForm<
+    z.input<typeof PlanNameFormSchema>,
+    unknown,
+    z.output<typeof PlanNameFormSchema>
+  >({
+    resolver: zodResolver(PlanNameFormSchema),
+    mode: 'onChange',
+    defaultValues: {
+      name: existing?.name ?? (isFirst ? DEFAULT_PLAN_NAME : `План ${plans.length + 1}`),
+    },
+  });
+  // Read through the hook, not `form.formState`, which the React Compiler would cache.
+  const { errors, isValid } = useFormState({ control: form.control });
+  const nameError = errors.name?.message;
+  const save = form.handleSubmit(({ name }) => {
+    if (existing) {
+      renameInvestmentPlan(existing.id, name);
+      router.back();
+    } else {
+      // A new plan becomes active and opens in the plans tab, ready for its first purchases.
+      // The first one needs no navigation: the guard swaps this screen for the app.
+      setActivePlan(createInvestmentPlan(name));
+      if (!isFirst) router.dismissTo('/plan');
+    }
+  });
   const header = (
     <Stack.Screen
       options={{ title: planId ? 'Назва плану' : isFirst ? 'Перший план' : 'Новий план' }}
@@ -53,37 +76,35 @@ export default function PlanNameScreen() {
       )}
       <Section
         title="Назва"
-        footer={`До ${PLAN_NAME_MAX_LENGTH} символів. Назву можна змінити пізніше.`}
+        footer={
+          nameError ? (
+            <Typography variant="caption1" tone="danger" accessibilityLiveRegion="polite">
+              {nameError}
+            </Typography>
+          ) : (
+            `До ${PLAN_NAME_MAX_LENGTH} символів. Назву можна змінити пізніше.`
+          )
+        }
       >
-        <Input
-          value={name}
-          onChangeText={setName}
-          placeholder="Наприклад, ОВДП на освіту"
-          maxLength={PLAN_NAME_MAX_LENGTH}
-          autoFocus={!isFirst}
+        <Controller
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <Input
+              value={field.value}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              placeholder="Наприклад, ОВДП на освіту"
+              maxLength={PLAN_NAME_MAX_LENGTH}
+              autoFocus={!isFirst}
+            />
+          )}
         />
       </Section>
       <Button
         title={existing ? 'Зберегти назву' : 'Створити план'}
-        onPress={() => {
-          if (!canSave) {
-            showToast({
-              tone: 'error',
-              title: 'План не збережено',
-              message: 'Вкажіть назву плану',
-            });
-            return;
-          }
-          if (existing) {
-            renameInvestmentPlan(existing.id, trimmed);
-            router.back();
-          } else {
-            // A new plan becomes active and opens in the plans tab, ready for its first purchases.
-            // The first one needs no navigation: the guard swaps this screen for the app.
-            setActivePlan(createInvestmentPlan(trimmed));
-            if (!isFirst) router.dismissTo('/plan');
-          }
-        }}
+        disabled={!isValid}
+        onPress={() => void save()}
       />
       {isFirst && (
         <Button

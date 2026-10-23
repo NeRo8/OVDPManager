@@ -1,9 +1,12 @@
+import { Controller } from 'react-hook-form';
+
 import { useBackupImport } from '@/features/backup';
-import { Button, Input, ScreenScrollView, Section } from '@/shared/ui';
+import { Button, Input, ScreenScrollView, Section, Typography } from '@/shared/ui';
 import { StatusMessage } from './StatusMessage';
 
 export default function BackupImportScreen() {
-  const { pasted, setPasted, status, restoreFromFile, restorePasted } = useBackupImport();
+  const { control, pastedError, canRestorePasted, status, restoreFromFile, restorePasted } =
+    useBackupImport();
 
   return (
     <ScreenScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
@@ -14,21 +17,37 @@ export default function BackupImportScreen() {
       >
         <Button title="Вибрати JSON-файл копії…" onPress={restoreFromFile} />
       </Section>
-      <Section title="Або вставити JSON вручну">
-        <Input
-          variant="area"
-          value={pasted}
-          onChangeText={setPasted}
-          placeholder="Вставте сюди вміст файлу копії"
-          autoCapitalize="none"
-          autoCorrect={false}
+      <Section
+        title="Або вставити JSON вручну"
+        footer={
+          pastedError && (
+            <Typography variant="caption1" tone="danger" accessibilityLiveRegion="polite">
+              {pastedError}
+            </Typography>
+          )
+        }
+      >
+        <Controller
+          control={control}
+          name="json"
+          render={({ field }) => (
+            <Input
+              variant="area"
+              value={field.value}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              placeholder="Вставте сюди вміст файлу копії"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          )}
         />
       </Section>
       <Button
         title="Відновити зі вставленого"
         variant="secondary"
-        onPress={restorePasted}
-        disabled={!pasted.trim()}
+        onPress={() => void restorePasted()}
+        disabled={!canRestorePasted}
       />
     </ScreenScrollView>
   );

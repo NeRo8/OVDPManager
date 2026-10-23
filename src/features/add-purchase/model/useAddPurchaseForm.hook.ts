@@ -1,50 +1,57 @@
-import { useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, useFormState, useWatch } from 'react-hook-form';
 
 import {
+  type Bond,
   addPurchase,
   nextPayment,
   positionPayments,
   sumTotals,
-  useWallet,
+  useActivePlan,
 } from '@/entities/portfolio';
-import { formatDate, parseAmount, round2 } from '@/shared/lib';
+import { round2, todayISO } from '@/shared/lib';
+import {
+  type PurchaseFormInput,
+  type PurchaseFormValues,
+  purchaseFormSchema,
+} from './purchaseForm.schema';
 
 /**
- * The second step of adding a purchase to the active plan: when, how many and at what price. The
- * date may lie ahead: a planned purchase earns from its date on, like any other.
+ * The second step of adding a purchase to the active plan: when, how many and at what price.
+ * Validated on every change, so Save is enabled only for a purchase that can be stored.
  */
-export function useAddPurchaseForm(isin: string) {
-  const { plan, bonds, byIsin, error, refresh, today, positions } = useWallet();
-  const bond = byIsin.get(isin) ?? null;
+export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
+  const plan = useActivePlan();
+  const today = todayISO();
+  const schema = purchaseFormSchema(bond);
+  const form = useForm<PurchaseFormInput, unknown, PurchaseFormValues>({
+    resolver: zodResolver(schema),
+    mode: 'onChange',
+    // NBU gives the nominal, not the price paid: it is only an editable starting value.
+    defaultValues: { purchaseDate: today, quantity: '', price: String(bond.nominal) },
+  });
 
-  const [purchaseDate, setPurchaseDate] = useState(today);
-  const [quantityText, setQuantityText] = useState('');
-  const [enteredPrice, setPriceText] = useState<string | null>(null);
-  // NBU gives the nominal, not the price paid: it is only an editable starting value.
-  const priceText = enteredPrice ?? (bond ? String(bond.nominal) : '');
-
-  const ownedQuantity =
-    positions.find(({ position }) => position.isin === isin)?.position.quantity ?? 0;
-  const quantity = Number(quantityText);
-  const price = round2(parseAmount(priceText));
-  const quantityValid = Number.isSafeInteger(quantity) && quantity > 0;
-  const priceValid =
-    Number.isFinite(price) && price > 0 && price * quantity <= Number.MAX_SAFE_INTEGER;
-  const amount = quantityValid && priceValid ? round2(price * quantity) : null;
-  const isPlanned = purchaseDate > today;
-
-  const dateProblem = !bond
-    ? null
-    : purchaseDate < bond.issueDate
-      ? `ОВДП розміщена ${formatDate(bond.issueDate)} — дата купівлі не може бути раніше`
-      : purchaseDate >= bond.maturityDate
-        ? `ОВДП погашається ${formatDate(bond.maturityDate)} — купівля має бути раніше`
-        : null;
+  // Read through hooks, not `form.formState`: the React Compiler would cache a read of the stable
+  // `form` object, and the Save button would stop following the form.
+  const { isValid } = useFormState({ control: form.control });
+  const values = useWatch({ control: form.control });
+  const draft = schema.safeParse(values);
+  const valid = draft.success ? draft.data : null;
+  const amount = valid ? round2(valid.price * valid.quantity) : null;
+  const isPlanned = (values.purchaseDate ?? today) > today;
 
   const preview = (() => {
-    if (!bond || !quantityValid || dateProblem) return null;
+    if (!valid) return null;
     const payments = positionPayments(
-      [{ id: 'preview', isin: bond.isin, purchaseDate, amount: 0, quantity }],
+      [
+        {
+          id: 'preview',
+          isin: bond.isin,
+          purchaseDate: valid.purchaseDate,
+          amount: 0,
+          quantity: valid.quantity,
+        },
+      ],
       bond,
       today,
     );
@@ -53,56 +60,31 @@ export function useAddPurchaseForm(isin: string) {
       nextPayment: nextPayment(payments),
       couponsLeft: payments.filter((p) => p.type === 'coupon' && !p.isPaid).length,
       income,
-      profit: amount === null ? null : round2(income - amount),
+      profit: round2(income - round2(valid.price * valid.quantity)),
     };
   })();
 
-  /** Why the purchase cannot be saved yet, or null when it can. */
-  const problem = !plan
-    ? 'Немає активного плану'
-    : !bond
-      ? 'Немає даних НБУ про цю ОВДП'
-      : (dateProblem ??
-        (!quantityValid
-          ? 'Вкажіть кількість облігацій — ціле число, більше нуля'
-          : !priceValid
-            ? 'Вкажіть ціну однієї облігації — більше нуля'
-            : null));
-  const currency = bond?.currency ?? 'UAH';
-
-  /** Adds the purchase to the active plan; false when the form cannot be saved yet. */
-  function save(): boolean {
-    if (problem || !plan || !bond || amount === null) return false;
+  const submit = form.handleSubmit(({ purchaseDate, quantity, price }) => {
+    // The app's screens open only once there is a plan, so one is always active here.
+    if (!plan) return;
     addPurchase({
       planId: plan.id,
       isin: bond.isin,
       purchaseDate,
-      amount,
+      amount: round2(price * quantity),
       quantity,
       currency: bond.currency,
     });
-    return true;
-  }
+    onSaved();
+  });
 
   return {
-    bonds,
-    error,
-    refresh,
-    today,
-    bond,
-    ownedQuantity,
-    purchaseDate,
-    setPurchaseDate,
-    quantityText,
-    setQuantityText,
-    priceText,
-    setPriceText,
+    control: form.control,
+    isValid,
+    submit,
+    purchaseDate: values.purchaseDate ?? today,
     amount,
     isPlanned,
-    dateProblem,
     preview,
-    problem,
-    currency,
-    save,
   };
 }

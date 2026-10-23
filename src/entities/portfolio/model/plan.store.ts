@@ -8,7 +8,11 @@ import type { WalletPurchase } from './portfolio';
 import { removePlanPurchases, replacePurchases } from './purchases.store';
 
 export const PLAN_NAME_MAX_LENGTH = 80;
-export const PlanNameSchema = z.string().trim().min(1).max(PLAN_NAME_MAX_LENGTH);
+export const PlanNameSchema = z
+  .string()
+  .trim()
+  .min(1, { error: 'Вкажіть назву плану' })
+  .max(PLAN_NAME_MAX_LENGTH, { error: `Назва — до ${PLAN_NAME_MAX_LENGTH} символів` });
 
 /** A plan; its purchases are wallet purchases with its `planId`. */
 export const InvestmentPlanSchema = z.object({
