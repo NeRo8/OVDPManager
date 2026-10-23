@@ -79,7 +79,8 @@ export function YearTotals({ schedule }: ScheduleProps) {
 }
 
 const styles = StyleSheet.create((theme) => ({
-  tiles: { flexDirection: 'row', gap: theme.space.md },
+  // Stacked: at half a phone width the legend labels wrap.
+  tiles: { gap: theme.space.md },
   progress: { gap: theme.space.xs, marginTop: theme.space.xxs },
   track: {
     height: 4,

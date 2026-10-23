@@ -16,10 +16,7 @@ export function Tile({ label, value, children }: TileProps) {
       <Typography variant="overline" tone="secondary">
         {label}
       </Typography>
-      {/* Half a phone width: long amounts shrink instead of wrapping. */}
-      <Typography variant="title2" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
-        {value}
-      </Typography>
+      <Typography variant="title2">{value}</Typography>
       <View style={styles.tileDetails}>{children}</View>
     </View>
   );
@@ -27,7 +24,6 @@ export function Tile({ label, value, children }: TileProps) {
 
 const styles = StyleSheet.create((theme) => ({
   tile: {
-    flex: 1,
     borderRadius: theme.radius.md,
     borderCurve: 'continuous',
     boxShadow: theme.shadowCard,
