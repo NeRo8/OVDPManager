@@ -4,10 +4,13 @@ import { useForm, useFormState, useWatch } from 'react-hook-form';
 import {
   type Bond,
   addPurchase,
+  annualYield,
   nextPayment,
   positionPayments,
   sumTotals,
   useActivePlan,
+  useBonds,
+  useKeyRate,
 } from '@/entities/portfolio';
 import { round2, todayISO } from '@/shared/lib';
 import {
@@ -15,6 +18,7 @@ import {
   type PurchaseFormValues,
   purchaseFormSchema,
 } from './purchaseForm.schema';
+import { purchaseHints, purchaseVerdict } from './purchaseHints';
 
 /**
  * The second step of adding a purchase to the active plan: when, how many and for how much.
@@ -22,6 +26,8 @@ import {
  */
 export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
   const plan = useActivePlan();
+  const { bonds } = useBonds();
+  const keyRate = useKeyRate();
   const today = todayISO();
   const schema = purchaseFormSchema(bond);
   const form = useForm<PurchaseFormInput, unknown, PurchaseFormValues>({
@@ -56,11 +62,30 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
       today,
     );
     const income = sumTotals(payments);
+    const profit = round2(income - valid.amount);
+    // Without the redemption row NBU has not published yet, the payments fall short of the truth.
+    const isComplete = bond.payments.some((payment) => payment.type === 'redemption');
+    const yearly = isComplete ? annualYield(valid.amount, valid.purchaseDate, payments) : null;
+    const hints = purchaseHints({
+      bond,
+      purchaseDate: valid.purchaseDate,
+      pricePerBond: valid.amount / valid.quantity,
+      profit,
+      isComplete,
+      annualYield: yearly,
+      keyRate,
+      bonds: bonds ?? [],
+    });
     return {
       nextPayment: nextPayment(payments),
       couponsLeft: payments.filter((p) => p.type === 'coupon' && !p.isPaid).length,
       income,
-      profit: round2(income - valid.amount),
+      profit,
+      isComplete,
+      totalReturn: isComplete ? round2((profit / valid.amount) * 100) : null,
+      annualYield: yearly,
+      hints,
+      verdict: purchaseVerdict(hints),
     };
   })();
 

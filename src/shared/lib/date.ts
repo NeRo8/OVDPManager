@@ -1,4 +1,5 @@
 import {
+  addDays,
   addMonths,
   differenceInCalendarDays,
   differenceInMonths,
@@ -37,6 +38,11 @@ export function fromISODate(isoDate: string): Date {
 /** The same day `months` later, clamped to the month's last day (31.01 + 1 → 28.02). */
 export function addMonthsISO(isoDate: string, months: number): string {
   return toISODate(addMonths(parseISO(isoDate), months));
+}
+
+/** The calendar date `days` later; negative goes back. */
+export function addDaysISO(isoDate: string, days: number): string {
+  return toISODate(addDays(parseISO(isoDate), days));
 }
 
 export function daysBetween(fromISO: string, toISO: string): number {

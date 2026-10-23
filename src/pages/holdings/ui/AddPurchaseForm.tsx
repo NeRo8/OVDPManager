@@ -13,7 +13,9 @@ import {
   ScreenScrollView,
   Section,
   Separator,
+  Typography,
 } from '@/shared/ui';
+import { PurchaseHints } from './PurchaseHints';
 
 type Props = {
   bond: Bond;
@@ -106,6 +108,8 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
         />
       </Section>
 
+      {preview && <PurchaseHints hints={preview.hints} verdict={preview.verdict} />}
+
       {preview && (
         <Section title={ownedQuantity > 0 ? 'Що дасть ця покупка' : 'Що ви отримаєте'}>
           <InfoRow
@@ -121,7 +125,40 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
           <Separator />
           <InfoRow label="Усього виплат" value={formatMoney(preview.income, currency)} />
           <Separator />
-          <InfoRow label="Чистий дохід" value={formatMoney(preview.profit, currency)} />
+          <InfoRow
+            label="Чистий дохід"
+            value={
+              <Typography
+                variant="subhead"
+                weight="medium"
+                tone={preview.profit < 0 ? 'danger' : 'primary'}
+              >
+                {formatMoney(preview.profit, currency)}
+              </Typography>
+            }
+          />
+          <Separator />
+          {preview.isComplete ? (
+            <>
+              <InfoRow
+                label="Дохідність за весь строк"
+                hint="Чистий дохід у відсотках від суми покупки"
+                value={preview.totalReturn === null ? '—' : `${preview.totalReturn}%`}
+              />
+              <Separator />
+              <InfoRow
+                label="Річна дохідність"
+                hint={`Ваша ціна й кожна виплата до погашення ${formatDate(bond.maturityDate)} у свій день, перераховані на рік. Її можна порівнювати з депозитом`}
+                value={preview.annualYield === null ? '—' : `${preview.annualYield}%`}
+              />
+            </>
+          ) : (
+            <InfoRow
+              label="Дохідність"
+              hint="НБУ ще не опублікував погашення цієї ОВДП, тому виплати неповні"
+              value="Немає повних даних НБУ"
+            />
+          )}
         </Section>
       )}
 

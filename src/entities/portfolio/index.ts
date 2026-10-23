@@ -8,6 +8,8 @@ export {
   type WalletPosition,
 } from './model/useWallet.hook';
 export { useBonds } from './api/useBonds.hook';
+export { useKeyRate } from './api/useKeyRate.hook';
+export { annualYield } from './model/yield';
 export * from './model/plan';
 export * from './model/plan.store';
 export * from './model/activePlan.store';

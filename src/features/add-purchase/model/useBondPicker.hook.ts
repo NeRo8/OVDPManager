@@ -1,19 +1,12 @@
 import { useState } from 'react';
 
-import { CURRENCIES, type Bond, type Currency, bondChoices, useWallet } from '@/entities/portfolio';
-import { addMonthsISO } from '@/shared/lib';
+import { CURRENCIES, type Currency, bondChoices, useWallet } from '@/entities/portfolio';
+import { type BondTerm, termOf } from './bondTerm';
 
-/** Time left until maturity: up to a year, one to three years, longer. */
-export type BondTerm = 'all' | 'short' | 'medium' | 'long';
+export type { BondTerm };
 export type BondSort = 'maturity' | 'rate';
 
 type FilterOption<T> = { value: T; count: number };
-
-function termOf(bond: Bond, today: string): Exclude<BondTerm, 'all'> {
-  if (bond.maturityDate <= addMonthsISO(today, 12)) return 'short';
-  if (bond.maturityDate <= addMonthsISO(today, 36)) return 'medium';
-  return 'long';
-}
 
 /**
  * The first step of adding a purchase. Bonds in circulation are narrowed by currency and term and
