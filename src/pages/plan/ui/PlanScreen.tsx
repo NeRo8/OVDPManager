@@ -61,8 +61,7 @@ export default function PlanScreen() {
 
   return (
     <>
-      {/* `headerTitle`, not `title`: the tab keeps its own label. */}
-      <Stack.Screen options={{ headerTitle: plan.name }} />
+      <Stack.Screen options={{ title: plan.name }} />
       <ScreenScrollView
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl {...pullToRefresh} />}

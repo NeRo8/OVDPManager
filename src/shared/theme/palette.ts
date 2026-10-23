@@ -4,7 +4,10 @@
 export const light = {
   background: '#EEF3EC',
   card: '#FCFFF7',
-  /** Brand header colors stay the same in both themes. */
+  /**
+   * Brand surface of the launch splash and the Android date picker's header, the same in both
+   * themes. Navigation headers are not colored: on iOS 26 they are glass over the content.
+   */
   headerBackground: '#046865',
   headerText: '#FCFFF7',
   headerMutedText: 'rgba(252, 255, 247, 0.8)',

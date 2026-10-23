@@ -8,19 +8,22 @@ export type HeaderButtonProps = {
   accessibilityLabel: string;
   onPress: () => void;
   disabled?: boolean;
-  /** `neutral` dims a toggle that is off; `accent` uses the full header foreground. */
+  /** `neutral` is the text color, as the system back button; `accent` marks a toggle that is on. */
   tone?: 'accent' | 'neutral';
   /** Glyph size; circled icons need more than the default to match plain ones */
   size?: number;
 };
 
-/** Icon-only header action; the label is announced by screen readers instead of shown. */
+/**
+ * Icon-only header action; the label is announced by screen readers instead of shown. In a native
+ * stack header iOS 26 puts it on glass by itself.
+ */
 export function HeaderButton({
   icon,
   accessibilityLabel,
   onPress,
   disabled,
-  tone = 'accent',
+  tone = 'neutral',
   size = 24,
 }: HeaderButtonProps) {
   return (
@@ -40,7 +43,7 @@ export function HeaderButton({
         name={icon}
         size={size}
         uniProps={(theme) => ({
-          color: tone === 'accent' ? theme.headerText : theme.headerMutedText,
+          color: tone === 'accent' ? theme.accent : theme.text,
         })}
       />
     </Pressable>

@@ -9,12 +9,12 @@ import { BondChoiceRow } from './BondChoiceRow';
 import { PickerFilters } from './PickerFilters';
 import { SortToggle } from './SortToggle';
 
-// The search field sits on the brand header, so it takes the header colors in both themes.
+// The search field follows the app's theme, which may differ from the system one.
 const HeaderSearchBar = withUnistyles(Stack.SearchBar, (theme) => ({
-  textColor: theme.headerText,
-  hintTextColor: theme.headerMutedText,
-  headerIconColor: theme.headerText,
-  tintColor: theme.headerText,
+  textColor: theme.text,
+  hintTextColor: theme.secondaryText,
+  headerIconColor: theme.text,
+  tintColor: theme.accent,
 }));
 
 /**
@@ -34,8 +34,6 @@ export default function BondPickerScreen() {
       <HeaderSearchBar
         placeholder="Пошук за ISIN"
         autoCapitalize="characters"
-        // Android draws this icon in the theme color, which no prop changes; it would stay dark.
-        shouldShowHintSearchIcon={false}
         onChangeText={search}
         onCancelButtonPress={clearSearch}
       />

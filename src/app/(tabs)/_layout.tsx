@@ -1,70 +1,49 @@
-import { Tabs } from 'expo-router/js-tabs';
-import { Ionicons } from '@react-native-vector-icons/ionicons/static';
+import { NativeTabs } from 'expo-router/native-tabs';
 import { useUnistyles } from 'react-native-unistyles';
 
-import { PaymentFiltersButton } from '@/pages/payments';
-import { PlanListButton } from '@/pages/plan';
-
+/**
+ * The platform's own tab bar: Liquid Glass on iOS 26, Material on Android. Native tabs draw no
+ * headers, so each tab is a folder with its own stack. Icons are SF Symbols on iOS and Material
+ * Symbols on Android; a selected tab's SF Symbol is filled where the symbol has a filled form.
+ */
 export default function TabLayout() {
-  // Navigator options are props, not styles, so the theme is read here. Tab icons are filled when
-  // the tab is selected and outlined otherwise.
-  const { theme: colors } = useUnistyles();
+  // Navigator options are props, not styles, so the theme is read here.
+  const { theme } = useUnistyles();
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: colors.accent,
-        tabBarInactiveTintColor: colors.secondaryText,
-        tabBarStyle: { backgroundColor: colors.card, borderTopColor: colors.border },
-        // Every tab header ends in the same hairline in the theme's border color, instead of the
-        // platform shadow (a grey line on iOS, an elevation shadow on Android).
-        headerShadowVisible: false,
-        headerStyle: {
-          backgroundColor: colors.headerBackground,
-        },
-        headerTintColor: colors.headerText,
-      }}
+    <NativeTabs
+      tintColor={theme.accent}
+      // iOS 26 draws the glass bar itself; these color it on Android and older iOS.
+      backgroundColor={theme.card}
+      indicatorColor={theme.muted}
+      // Android shows only the selected tab's label by default; every tab keeps its name here.
+      labelVisibilityMode="labeled"
     >
-      <Tabs.Screen
-        name="(payments)"
-        options={{
-          title: 'Виплати',
-          // The top tabs continue the header, so the same line goes under them instead.
-          headerStyle: { backgroundColor: colors.headerBackground },
-          headerRight: () => <PaymentFiltersButton />,
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={24} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="holdings"
-        options={{
-          title: 'Гаманець',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'wallet' : 'wallet-outline'} size={24} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="plan"
-        options={{
-          title: 'План',
-          headerRight: () => <PlanListButton />,
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'bar-chart' : 'bar-chart-outline'} size={24} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Налаштування',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'settings' : 'settings-outline'} size={24} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+      <NativeTabs.Trigger name="(payments)">
+        <NativeTabs.Trigger.Icon sf="calendar" md="calendar_month" />
+        <NativeTabs.Trigger.Label>Виплати</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="(holdings)">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'wallet.bifold', selected: 'wallet.bifold.fill' }}
+          md="account_balance_wallet"
+        />
+        <NativeTabs.Trigger.Label>Гаманець</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="(plan)">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'chart.bar', selected: 'chart.bar.fill' }}
+          md="bar_chart"
+        />
+        <NativeTabs.Trigger.Label>План</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="(settings)">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'gearshape', selected: 'gearshape.fill' }}
+          md="settings"
+        />
+        <NativeTabs.Trigger.Label>Налаштування</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }

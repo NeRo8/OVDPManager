@@ -1,6 +1,8 @@
 import BaseTopTabs, { type JSTopTabsProps } from 'expo-router/js-top-tabs';
+import { useHeaderHeight } from 'expo-router/react-navigation';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { hasLiquidGlass } from '@/shared/lib';
 import { typography } from '@/shared/theme';
 
 type Props = JSTopTabsProps;
@@ -12,6 +14,8 @@ type Props = JSTopTabsProps;
 function ThemedTopTabs(props: Props) {
   // Navigator options are props, not styles, so the theme is read here.
   const { theme } = useUnistyles();
+  // A transparent glass header lies over the screen; the tab bar starts under it.
+  const headerHeight = useHeaderHeight();
 
   return (
     <BaseTopTabs
@@ -23,14 +27,14 @@ function ThemedTopTabs(props: Props) {
         // wrong index, so pressing a tab could land on another one. Without `lazy`, every tab
         // route is created right after the first render, before any tab is pressed.
         lazy: false,
-        tabBarActiveTintColor: theme.headerText,
-        tabBarInactiveTintColor: theme.headerMutedText,
-        tabBarIndicatorStyle: { backgroundColor: theme.headerText, height: 2 },
+        tabBarActiveTintColor: theme.accent,
+        tabBarInactiveTintColor: theme.secondaryText,
+        tabBarIndicatorStyle: { backgroundColor: theme.accent, height: 2 },
         tabBarStyle: {
-          backgroundColor: theme.headerBackground,
+          marginTop: hasLiquidGlass ? headerHeight : 0,
+          backgroundColor: theme.background,
           elevation: 0,
           shadowOpacity: 0,
-          // The same line as under the tab headers, so the payments tab ends like the others.
           borderBottomWidth: StyleSheet.hairlineWidth,
           borderBottomColor: theme.border,
         },

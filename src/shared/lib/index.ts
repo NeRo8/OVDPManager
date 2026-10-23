@@ -1,6 +1,7 @@
 export { confirmDestructive } from './confirm';
 export * from './date';
 export * from './format';
+export { hasLiquidGlass } from './glass';
 export { goBackOrHome } from './navigation';
 export * from './number';
 export { mmkvStorage } from './storage';

@@ -1,4 +1,5 @@
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { useRef, useState } from 'react';
 import { Image } from 'react-native';
 import Animated, {
@@ -108,6 +109,8 @@ export function LaunchSplash() {
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
+      {/* Light on the teal; once the splash is gone the status bar follows the app's theme again. */}
+      <StatusBar style="light" />
       {!reduceMotion && (
         <>
           <SplashRing size={LOGO_SIZE * 0.95} turns={2} swirl={swirl} />

@@ -30,6 +30,7 @@ export * from './form/SegmentedSelect';
 export * from './form/ChipSelect';
 export * from './form/Chip';
 export * from './form/FieldRow';
+export * from './navigation/NativeStack';
 export * from './navigation/TopTabs';
 export * from './toast/ToastHost';
 export * from './splash/LaunchSplash';
