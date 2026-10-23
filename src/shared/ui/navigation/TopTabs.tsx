@@ -3,7 +3,7 @@ import { useHeaderHeight } from 'expo-router/react-navigation';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { hasLiquidGlass } from '@/shared/lib';
-import { typography } from '@/shared/theme';
+import { fontWeights, typography } from '@/shared/theme';
 
 type Props = JSTopTabsProps;
 
@@ -38,7 +38,11 @@ function ThemedTopTabs(props: Props) {
           borderBottomWidth: StyleSheet.hairlineWidth,
           borderBottomColor: theme.border,
         },
-        tabBarLabelStyle: { ...typography.subhead, fontWeight: '600', textTransform: 'none' },
+        tabBarLabelStyle: {
+          ...typography.subhead,
+          fontWeight: fontWeights.semibold,
+          textTransform: 'none',
+        },
         sceneStyle: { backgroundColor: theme.background },
       }}
     />

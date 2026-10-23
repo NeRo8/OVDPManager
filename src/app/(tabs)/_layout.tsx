@@ -1,6 +1,8 @@
 import { NativeTabs } from 'expo-router/native-tabs';
 import { useUnistyles } from 'react-native-unistyles';
 
+import { fontFamily, fontWeights } from '@/shared/theme';
+
 /**
  * The platform's own tab bar: Liquid Glass on iOS 26, Material on Android. Native tabs draw no
  * headers, so each tab is a folder with its own stack. Icons are SF Symbols on iOS and Material
@@ -18,6 +20,7 @@ export default function TabLayout() {
       indicatorColor={theme.muted}
       // Android shows only the selected tab's label by default; every tab keeps its name here.
       labelVisibilityMode="labeled"
+      labelStyle={{ fontFamily, fontWeight: fontWeights.medium }}
     >
       <NativeTabs.Trigger name="(payments)">
         <NativeTabs.Trigger.Icon sf="calendar" md="calendar_month" />

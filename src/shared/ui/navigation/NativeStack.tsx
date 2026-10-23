@@ -3,6 +3,7 @@ import type { ComponentProps } from 'react';
 import { useUnistyles } from 'react-native-unistyles';
 
 import { hasLiquidGlass } from '@/shared/lib';
+import { fontFamily, fontWeights } from '@/shared/theme';
 
 type Props = Omit<ComponentProps<typeof Stack>, 'screenOptions'>;
 
@@ -23,7 +24,7 @@ function ThemedStack(props: Props) {
         headerShadowVisible: false,
         headerStyle: hasLiquidGlass ? undefined : { backgroundColor: theme.background },
         headerTintColor: theme.accent,
-        headerTitleStyle: { color: theme.text },
+        headerTitleStyle: { fontFamily, fontWeight: fontWeights.semibold, color: theme.text },
         contentStyle: { backgroundColor: theme.background },
       }}
     />
