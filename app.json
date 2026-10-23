@@ -9,7 +9,7 @@
     "scheme": "ovdpmanager",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./src/shared/config/app-icon/expo.icon",
+      "icon": "./src/shared/config/app-icon/icon.png",
       "bundleIdentifier": "com.arturduchenkoomnitelecom.OVDPManager",
       "infoPlist": {
         "CFBundleDevelopmentRegion": "uk",
@@ -18,10 +18,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./src/shared/config/app-icon/android-icon-foreground.png",
-        "backgroundImage": "./src/shared/config/app-icon/android-icon-background.png",
-        "monochromeImage": "./src/shared/config/app-icon/android-icon-monochrome.png"
+        "backgroundColor": "#046865",
+        "foregroundImage": "./src/shared/config/app-icon/android-icon-foreground.png"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.arturduchenkoomnitelecom.OVDPManager"
@@ -31,9 +29,10 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#046865",
           "image": "./src/shared/config/app-icon/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 240,
+          "resizeMode": "contain"
         }
       ],
       "@react-native-community/datetimepicker",
