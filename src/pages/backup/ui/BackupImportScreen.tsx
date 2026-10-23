@@ -50,7 +50,7 @@ export default function BackupImportScreen() {
       </Section>
       <Section
         title="Відновити з копії"
-        footer="Усі поточні плани та їхні покупки буде замінено даними з копії."
+        footer="Усі поточні плани та їхні купівлі буде замінено даними з копії."
       >
         <Button
           title={isBusy ? 'Розшифровуємо…' : 'Вибрати JSON-файл копії…'}

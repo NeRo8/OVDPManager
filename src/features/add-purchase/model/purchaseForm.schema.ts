@@ -32,13 +32,13 @@ export function purchaseFormSchema(bond: Bond) {
     amount: z
       .string()
       .trim()
-      .min(1, { error: 'Вкажіть суму покупки' })
+      .min(1, { error: 'Вкажіть суму купівлі' })
       .transform((text) => round2(parseAmount(text)))
       .pipe(
         z
           .number({ error: 'Сума має бути числом' })
           .positive({ error: 'Сума має бути більшою за нуль' })
-          .max(Number.MAX_SAFE_INTEGER, { error: 'Завелика сума покупки' }),
+          .max(Number.MAX_SAFE_INTEGER, { error: 'Завелика сума купівлі' }),
       ),
   });
 }

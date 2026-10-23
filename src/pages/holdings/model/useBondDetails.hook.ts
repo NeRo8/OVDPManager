@@ -24,7 +24,7 @@ export function useBondDetails(isin: string) {
   function deletePurchase(purchase: Purchase) {
     if (!position) return;
     confirmDestructive(
-      'Видалити покупку?',
+      'Видалити купівлю?',
       `${formatDate(purchase.purchaseDate)} · ${purchase.quantity} шт · ${formatMoney(purchase.amount, purchaseCurrency(purchase, bond))}`,
       'Видалити',
       () => {
@@ -38,7 +38,7 @@ export function useBondDetails(isin: string) {
     if (!plan || !position) return;
     confirmDestructive(
       'Видалити ОВДП?',
-      `${position.isin} і всі покупки (${position.purchases.length}) буде видалено з гаманця.`,
+      `${position.isin} і всі купівлі (${position.purchases.length}) буде видалено з гаманця.`,
       'Видалити',
       () => {
         goBackOrHome();

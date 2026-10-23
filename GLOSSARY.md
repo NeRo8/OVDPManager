@@ -54,11 +54,11 @@ _Avoid_: portfolio, scenario
 **Active plan**:
 The one Plan the app is currently showing.
 
-**Purchase** (Покупка):
+**Purchase** (Купівля):
 Buying a quantity of one Bond on one date for a total amount paid; the price per bond follows from them.
-_Avoid_: investment, holding, transaction
+_Avoid_: покупка, investment, holding, transaction
 
-**Planned purchase** (Запланована покупка, заплановано):
+**Planned purchase** (Запланована купівля, заплановано):
 A Purchase dated after today. Once its date arrives it counts as made, with no confirmation.
 _Avoid_: pending, unconfirmed
 

@@ -24,8 +24,8 @@ export default function PlanListScreen() {
     const planned = planPurchases.filter((purchase) => purchase.purchaseDate > today).length;
     return [
       planPurchases.length
-        ? `${planPurchases.length} ${plural(planPurchases.length, 'покупка', 'покупки', 'покупок')}`
-        : 'Покупок ще немає',
+        ? `${planPurchases.length} ${plural(planPurchases.length, 'купівля', 'купівлі', 'купівель')}`
+        : 'Купівель ще немає',
       planned > 0 &&
         `з них ${planned} ${plural(planned, 'запланована', 'заплановані', 'запланованих')}`,
     ]

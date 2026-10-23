@@ -40,7 +40,7 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
         title="ОВДП"
         footer={
           ownedQuantity > 0
-            ? `У гаманці вже є ${ownedQuantity} шт — ця покупка додасться до них.`
+            ? `У гаманці вже є ${ownedQuantity} шт — ця купівля додасться до них.`
             : undefined
         }
       >
@@ -50,11 +50,11 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
       <BondParameters bond={bond} />
 
       <Section
-        title={isPlanned ? 'Запланована покупка' : 'Покупка'}
+        title={isPlanned ? 'Запланована купівля' : 'Купівля'}
         footer={
           isPlanned
-            ? `Дата ще попереду: покупка буде в плані як запланована й почне приносити виплати після ${formatDate(purchaseDate)}.`
-            : 'Сума — скільки списали за всю покупку, як у застосунку банку чи брокера; ціна 1 шт рахується з неї.'
+            ? `Дата ще попереду: купівля буде в плані як запланована й почне приносити виплати після ${formatDate(purchaseDate)}.`
+            : 'Сума — скільки списали за всю купівлю, як у застосунку банку чи брокера; ціна 1 шт рахується з неї.'
         }
       >
         <Controller
@@ -112,7 +112,7 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
       {preview && <PurchaseHints hints={preview.hints} verdict={preview.verdict} />}
 
       {preview && (
-        <Section title={ownedQuantity > 0 ? 'Що дасть ця покупка' : 'Що ви отримаєте'}>
+        <Section title={ownedQuantity > 0 ? 'Що дасть ця купівля' : 'Що ви отримаєте'}>
           <InfoRow
             label="Наступна виплата"
             value={
@@ -143,7 +143,7 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
             <>
               <InfoRow
                 label="Дохідність за весь строк"
-                hint="Чистий дохід у відсотках від суми покупки"
+                hint="Чистий дохід у відсотках від суми купівлі"
                 value={preview.totalReturn === null ? '—' : `${preview.totalReturn}%`}
               />
               <Separator />

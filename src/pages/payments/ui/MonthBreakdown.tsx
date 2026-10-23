@@ -28,7 +28,7 @@ export function MonthBreakdown({ schedule }: ScheduleProps) {
   const series: ChartSeries[] = [
     { label: 'Купони', color: 'coupon', values: monthlyCoupons },
     { label: 'Погашення', color: 'redemption', values: monthlyRedemptions },
-    { label: 'Покупки', color: 'purchase', values: monthlyPurchases, direction: 'down' },
+    { label: 'Купівлі', color: 'purchase', values: monthlyPurchases, direction: 'down' },
   ];
   const monthRows = selectedMonth === null ? [] : series.filter((s) => s.values[selectedMonth] > 0);
   const selectMonth = (month: number) => setChosenMonth({ year, month });
@@ -64,7 +64,7 @@ export function MonthBreakdown({ schedule }: ScheduleProps) {
                 ))
               ) : (
                 <Typography variant="footnote" tone="secondary">
-                  Виплат і покупок немає
+                  Виплат і купівель немає
                 </Typography>
               )}
             </View>

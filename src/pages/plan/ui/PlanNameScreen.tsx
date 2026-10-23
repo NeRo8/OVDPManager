@@ -77,7 +77,7 @@ export default function PlanNameScreen() {
       {header}
       {isFirst && (
         <Typography variant="subhead" tone="secondary" style={styles.intro}>
-          Покупки ОВДП зберігаються в інвестиційних планах. Створіть перший план, а згодом додайте
+          Купівлі ОВДП зберігаються в інвестиційних планах. Створіть перший план, а згодом додайте
           інші та перемикайтеся між ними.
         </Typography>
       )}

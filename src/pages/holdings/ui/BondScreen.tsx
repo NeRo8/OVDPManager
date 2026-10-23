@@ -92,7 +92,7 @@ export default function BondScreen() {
           )}
         </Section>
 
-        <Section title={`Покупки (${position.purchases.length})`}>
+        <Section title={`Купівлі (${position.purchases.length})`}>
           {position.purchases.map((purchase, index) => (
             <Fragment key={purchase.id}>
               {index > 0 && <Separator />}
@@ -118,7 +118,7 @@ export default function BondScreen() {
                   onPress={() => deletePurchase(purchase)}
                   hitSlop={8}
                   accessibilityRole="button"
-                  accessibilityLabel={`Видалити покупку від ${formatDate(purchase.purchaseDate)}`}
+                  accessibilityLabel={`Видалити купівлю від ${formatDate(purchase.purchaseDate)}`}
                   style={({ pressed }) => pressed && styles.pressed}
                 >
                   <Typography variant="subhead" tone="danger">

@@ -50,7 +50,7 @@ export default function PlanScreen() {
     confirmDestructive(
       'Видалити план?',
       numberOfPurchases
-        ? `План «${plan.name}» і ${numberOfPurchases} ${plural(numberOfPurchases, 'покупку', 'покупки', 'покупок')} в ньому буде видалено.`
+        ? `План «${plan.name}» і ${numberOfPurchases} ${plural(numberOfPurchases, 'купівлю', 'купівлі', 'купівель')} в ньому буде видалено.`
         : `План «${plan.name}» буде видалено.`,
       'Видалити',
       () => removeInvestmentPlan(planId),
@@ -66,7 +66,7 @@ export default function PlanScreen() {
       >
         <StaleBondsNotice error={error} />
         <Typography variant="subhead" tone="secondary" style={styles.intro}>
-          Підсумок плану за всіма його покупками — купленими й запланованими. Виплати рахуються за
+          Підсумок плану за всіма його купівлями — зробленими й запланованими. Виплати рахуються за
           графіком НБУ.
         </Typography>
 
@@ -74,7 +74,7 @@ export default function PlanScreen() {
           <Card>
             <Typography variant="headline">План порожній</Typography>
             <Typography variant="subhead" tone="secondary">
-              Додайте ОВДП у гаманці: дату купівлі, кількість і суму. Покупка з’явиться в гаманці та
+              Додайте ОВДП у гаманці: дату купівлі, кількість і суму. Купівля з’явиться в гаманці та
               у виплатах.
             </Typography>
           </Card>
@@ -95,14 +95,14 @@ export default function PlanScreen() {
             <Section title={`Вкладення · ${total.currency}`}>
               <InfoRow
                 label="Вкладено"
-                hint="Скільки коштують усі покупки плану"
+                hint="Скільки коштують усі купівлі плану"
                 value={formatMoney(total.invested, total.currency)}
               />
             </Section>
             <Section title="Виплати">
               <InfoRow
                 label="Погашення"
-                hint="Номінал, який повернуть у дату погашення. Зазвичай він менший за ціну покупки — різницю покривають купони"
+                hint="Номінал, який повернуть у дату погашення. Зазвичай він менший за ціну купівлі — різницю покривають купони"
                 value={
                   total.complete
                     ? formatMoney(total.redemption, total.currency)

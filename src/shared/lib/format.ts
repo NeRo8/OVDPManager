@@ -69,7 +69,7 @@ export const MONTHS_SHORT = [
   'гру',
 ];
 
-/** Ukrainian plural form: 1 покупка, 2 покупки, 5 покупок. */
+/** Ukrainian plural form: 1 купівля, 2 купівлі, 5 купівель. */
 export function plural(n: number, one: string, few: string, many: string): string {
   const mod10 = n % 10;
   const mod100 = n % 100;

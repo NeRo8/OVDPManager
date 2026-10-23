@@ -63,14 +63,14 @@ export function YearTotals({ schedule }: ScheduleProps) {
       <Tile label="Вкладено" value={formatMoney(purchasedTotal, currency)}>
         {purchaseCount > 0 ? (
           <>
-            <LegendRow color="purchase" label="Покупки" value={`${purchaseCount}`} />
+            <LegendRow color="purchase" label="Купівлі" value={`${purchaseCount}`} />
             <Typography variant="caption1" tone="secondary">
               ≈ {formatCompactMoney(averageMonthlyPurchase, currency)} на місяць
             </Typography>
           </>
         ) : (
           <Typography variant="footnote" tone="secondary">
-            Покупок не було
+            Купівель не було
           </Typography>
         )}
       </Tile>

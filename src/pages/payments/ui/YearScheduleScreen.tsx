@@ -48,7 +48,7 @@ export default function YearScheduleScreen() {
           )}
         </View>
       }
-      emptyMessage={`У ${year} році виплат і покупок немає.`}
+      emptyMessage={`У ${year} році виплат і купівель немає.`}
       ListFooterComponent={<NbuSourceNote />}
     />
   );

@@ -6,7 +6,7 @@ const FORMAT = 'ovdp-manager-backup';
 const VERSION = 6;
 
 export function purchaseCount(count: number): string {
-  return `${count} ${plural(count, 'покупка', 'покупки', 'покупок')}`;
+  return `${count} ${plural(count, 'купівля', 'купівлі', 'купівель')}`;
 }
 
 export function planCount(count: number): string {
@@ -119,7 +119,7 @@ export async function parseBackup(text: string, key: string): Promise<BackupData
   const planIds = new Set(plans.map((plan) => plan.id));
   holdings.forEach((purchase, index) => {
     if (!planIds.has(purchase.planId)) {
-      throw new Error(`Покупка №${index + 1}: її плану немає в копії`);
+      throw new Error(`Купівля №${index + 1}: її плану немає в копії`);
     }
   });
   return { purchases: holdings, plans };

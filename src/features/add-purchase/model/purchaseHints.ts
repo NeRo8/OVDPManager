@@ -36,9 +36,9 @@ const SEVERITY = { info: 0, success: 1, warning: 2, error: 3 } as const satisfie
 >;
 
 const VERDICT_TITLES = {
-  success: 'Вигідна покупка',
+  success: 'Вигідна купівля',
   warning: 'Є на що звернути увагу',
-  error: 'Невигідна або ризикована покупка',
+  error: 'Невигідна або ризикована купівля',
 } as const satisfies Record<PurchaseVerdict['tone'], string>;
 
 type Input = {
@@ -70,7 +70,7 @@ function priceHint({ bond, pricePerBond, annualYield }: Input): PurchaseHint | n
   if (ratio < 1 - IMPLAUSIBLE_PRICE_RATIO || ratio > 1 + IMPLAUSIBLE_PRICE_RATIO) {
     return {
       tone: 'error',
-      text: `Ціна 1 шт (${formatMoney(pricePerBond, currency)}) дуже далека від номіналу (${formatMoney(nominal, currency)}). Перевірте кількість і суму: сума — за всю покупку.`,
+      text: `Ціна 1 шт (${formatMoney(pricePerBond, currency)}) дуже далека від номіналу (${formatMoney(nominal, currency)}). Перевірте кількість і суму: сума — за всю купівлю.`,
     };
   }
   const gap = round2(Math.abs(pricePerBond - nominal));
@@ -105,7 +105,7 @@ function lossHint({ bond, netIncome }: Input): PurchaseHint | null {
   if (netIncome >= 0) return null;
   return {
     tone: 'error',
-    text: `Виплати не покриють покупку: ви втратите ${formatMoney(-netIncome, bond.currency)}.`,
+    text: `Виплати не покриють купівлю: ви втратите ${formatMoney(-netIncome, bond.currency)}.`,
   };
 }
 
