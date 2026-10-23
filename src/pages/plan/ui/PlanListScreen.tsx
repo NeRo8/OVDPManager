@@ -3,6 +3,7 @@ import { Fragment } from 'react';
 
 import {
   isPlannedPurchase,
+  purchaseCount,
   setActivePlan,
   useActivePlan,
   useInvestmentPlans,
@@ -24,9 +25,7 @@ export default function PlanListScreen() {
     const planPurchases = purchases.filter((purchase) => purchase.planId === plan.id);
     const planned = planPurchases.filter((purchase) => isPlannedPurchase(purchase, today)).length;
     return [
-      planPurchases.length
-        ? `${planPurchases.length} ${plural(planPurchases.length, 'купівля', 'купівлі', 'купівель')}`
-        : 'Купівель ще немає',
+      planPurchases.length ? purchaseCount(planPurchases.length) : 'Купівель ще немає',
       planned > 0 &&
         `з них ${planned} ${plural(planned, 'запланована', 'заплановані', 'запланованих')}`,
     ]

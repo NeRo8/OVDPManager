@@ -1,54 +1,9 @@
-import { type InvestmentPlan, type PlanPurchase, restorePortfolio } from '@/entities/portfolio';
-import { confirmDestructive, plural, showToast, todayISO } from '@/shared/lib';
+import type { InvestmentPlan, PlanPurchase } from '@/entities/portfolio';
+import { todayISO } from '@/shared/lib';
 import { type BackupEncryption, decryptBackup, encryptBackup } from '../lib/backupCipher';
 
 const FORMAT = 'ovdp-manager-backup';
 const VERSION = 6;
-
-export function purchaseCount(count: number): string {
-  return `${count} ${plural(count, 'купівля', 'купівлі', 'купівель')}`;
-}
-
-export function planCount(count: number): string {
-  return `${count} ${plural(count, 'план', 'плани', 'планів')}`;
-}
-
-export function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
-
-/**
- * Replaces every plan and purchase with the backup's, asking first when that would overwrite
- * something, and says so in a toast. `source` completes the messages: "з файлу", "з копії".
- */
-export function replaceWithBackup(
-  restored: BackupData,
-  currentCount: number,
-  currentPlanCount: number,
-  source: string,
-  onReplaced: () => void,
-) {
-  const restoredSummary = `${planCount(restored.plans.length)} і ${purchaseCount(restored.purchases.length)}`;
-  const apply = () => {
-    restorePortfolio(restored.purchases, restored.plans);
-    showToast({
-      tone: 'success',
-      title: 'Копію відновлено',
-      message: `Відновлено ${restoredSummary} ${source}.`,
-    });
-    onReplaced();
-  };
-  if (currentCount === 0 && currentPlanCount === 0) {
-    apply();
-    return;
-  }
-  confirmDestructive(
-    'Замінити дані з копії?',
-    `Зараз ${planCount(currentPlanCount)} і ${purchaseCount(currentCount)}. Їх буде замінено на ${restoredSummary} ${source}.`,
-    'Замінити',
-    apply,
-  );
-}
 
 /** The file: readable framing around the encrypted plans and purchases. */
 export type Backup = {

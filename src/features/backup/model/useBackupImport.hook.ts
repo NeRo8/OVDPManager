@@ -3,11 +3,12 @@ import { useState } from 'react';
 import { useForm, useFormState, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 
-import { useInvestmentPlans, usePurchases } from '@/entities/portfolio';
 import { showToast } from '@/shared/lib';
 import { pickBackupFile } from '../api/backupFile';
 import { WrongBackupKeyError } from '../lib/backupCipher';
-import { errorMessage, parseBackup, replaceWithBackup } from './backup';
+import { parseBackup } from './backup';
+import { errorMessage } from './errorMessage';
+import { type BackupSource, restoreBackup } from './restoreBackup';
 import { BackupKeySchema } from './backupKey.schema';
 
 const BackupImportSchema = z.object({ key: BackupKeySchema, json: z.string() });
@@ -20,8 +21,6 @@ type BackupImportForm = z.infer<typeof BackupImportSchema>;
  * under the JSON.
  */
 export function useBackupImport() {
-  const purchases = usePurchases();
-  const plans = useInvestmentPlans();
   const [isBusy, setBusy] = useState(false);
   const form = useForm<BackupImportForm>({
     resolver: zodResolver(BackupImportSchema),
@@ -34,12 +33,12 @@ export function useBackupImport() {
   const [key, json] = useWatch({ control: form.control, name: ['key', 'json'] });
   const hasKey = BackupKeySchema.safeParse(key).success;
 
-  async function restore(text: string, source: string, showError: (message: string) => void) {
+  async function restore(text: string, source: BackupSource, showError: (message: string) => void) {
     setBusy(true);
     try {
       const restored = await parseBackup(text, key);
       // Restored data replaces whatever was typed, along with its errors.
-      replaceWithBackup(restored, purchases.length, plans.length, source, () => form.reset());
+      restoreBackup(restored, source, () => form.reset());
     } catch (error) {
       if (error instanceof WrongBackupKeyError) form.setError('key', { message: error.message });
       else showError(errorMessage(error));
@@ -57,14 +56,14 @@ export function useBackupImport() {
       return;
     }
     if (text) {
-      await restore(text, 'з файлу', (message) =>
+      await restore(text, 'file', (message) =>
         showToast({ tone: 'error', title: 'Не вдалося відновити', message }),
       );
     }
   }
 
   const restorePasted = form.handleSubmit(({ json: pasted }) =>
-    restore(pasted.trim(), 'з копії', (message) => form.setError('json', { message })),
+    restore(pasted.trim(), 'pasted', (message) => form.setError('json', { message })),
   );
 
   return {

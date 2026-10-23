@@ -2,8 +2,7 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { useInvestmentPlans, usePurchases } from '@/entities/portfolio';
-import { planCount, purchaseCount } from '@/features/backup';
+import { planCount, purchaseCount, useInvestmentPlans, usePurchases } from '@/entities/portfolio';
 import { setThemePreference, useThemePreference, type ThemePreference } from '@/shared/theme';
 import { LinkRow, ScreenScrollView, Section, SegmentedSelect, Separator } from '@/shared/ui';
 

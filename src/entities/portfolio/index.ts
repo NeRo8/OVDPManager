@@ -10,6 +10,7 @@ export { useBonds } from './api/useBonds.hook';
 export { useKeyRate } from './api/useKeyRate.hook';
 export { annualYield } from './model/yield';
 export * from './model/results';
+export * from './model/counts';
 export * from './model/plan';
 export * from './model/plans';
 export * from './model/activePlan';
