@@ -5,12 +5,12 @@ import type { ScheduleProps } from './schedule.types';
 import { MonthBreakdown } from './MonthBreakdown';
 import { YearTotals } from './YearTotals';
 
-/** The year at a glance: money in and money out, then the same split month by month. */
+/** The year at a glance: money in and out month by month, then the year's totals. */
 export function ScheduleSummary({ schedule }: ScheduleProps) {
   return (
     <View style={styles.summary}>
-      <YearTotals schedule={schedule} />
       <MonthBreakdown schedule={schedule} />
+      <YearTotals schedule={schedule} />
     </View>
   );
 }

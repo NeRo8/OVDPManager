@@ -45,7 +45,7 @@ type Props = {
 
 /**
  * Monthly stacked columns on one money scale: "up" series above the baseline, "down" below.
- * The legend lives with the totals above the chart; the selected month carries the value labels.
+ * The legend lives with the totals below the chart; the selected month carries the value labels.
  */
 export function MonthChart({ series, currency, selected, onSelect }: Props) {
   const up = series.filter((s) => s.direction !== 'down');

@@ -9,7 +9,7 @@ import { useYearSchedule } from '../model/useYearSchedule.hook';
 import { ScheduleSectionList } from './ScheduleSectionList';
 import { ScheduleSummary } from './ScheduleSummary';
 
-/** One year: money in and out, the monthly chart, then every payment and purchase. */
+/** One year: the monthly chart, the year's totals, then every payment and purchase. */
 export default function YearScheduleScreen() {
   const filtered = useFilteredWallet();
   const { wallet } = filtered;
