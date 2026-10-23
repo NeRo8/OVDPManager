@@ -18,5 +18,7 @@ export const usePaymentFiltersStore = create<PaymentFiltersState>()(
   persist(() => initialState, {
     name: STORAGE_KEY,
     storage: createJSONStorage(() => mmkvStorage),
+    // Complete the one-time reset of the former version-1 store and persist version 0.
+    migrate: () => initialState,
   }),
 );
