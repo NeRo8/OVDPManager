@@ -55,7 +55,7 @@ export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
 
   return (
     <View style={[styles.row, isPaid && styles.paid]}>
-      <Avatar label={event.currency ? currencySign(event.currency) : '?'} color={series} />
+      <Avatar label={currencySign(event.currency)} color={series} />
       <View style={styles.eventDetails}>
         {showIsin && (
           <Typography variant="callout" weight="semibold">

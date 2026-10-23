@@ -57,7 +57,7 @@ export default function PortfolioScreen() {
                   style={({ pressed }) => [styles.position, pressed && styles.pressed]}
                 >
                   {/* Money invested: the purchase color of the schedule chart. */}
-                  <Avatar label={currency ? currencySign(currency) : '?'} color="purchase" />
+                  <Avatar label={currencySign(currency)} color="purchase" />
                   <View style={styles.positionInfo}>
                     <Typography variant="headline" tabular>
                       {position.isin}

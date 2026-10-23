@@ -36,8 +36,8 @@ export type Purchase = {
   /** Total amount paid for the bonds, in the bond currency */
   amount: number;
   quantity: number;
-  /** Older purchases may lack this; the NBU bond can still supply it. */
-  currency?: Currency;
+  /** The bond's currency, taken when the purchase is added */
+  currency: Currency;
 };
 
 /** A purchase in one investment plan; the wallet shows those of the active plan. */
@@ -69,8 +69,7 @@ export type PurchaseEvent = {
   id: string;
   date: string;
   isin: string;
-  /** Unknown when neither the purchase nor NBU data supplies it. */
-  currency: Currency | null;
+  currency: Currency;
   quantity: number;
   /** Amount paid */
   total: number;
@@ -129,18 +128,14 @@ export function pricePerBond(amount: number, quantity: number): number {
   return round2(amount / quantity);
 }
 
-/** Use the bond's currency when available, including for purchases saved before currency was stored. */
-export function purchaseCurrency(purchase: Purchase, bond?: Bond): Currency | null {
-  return bond?.currency ?? purchase.currency ?? null;
+/** The bond's currency from the NBU data; the purchase keeps its own for a bond missing there. */
+export function purchaseCurrency(purchase: Purchase, bond?: Bond): Currency {
+  return bond?.currency ?? purchase.currency;
 }
 
-/** A position can have one currency only when every purchase's currency is known and agrees. */
-export function positionCurrency(position: Position, bond?: Bond): Currency | null {
-  const currency = purchaseCurrency(position.purchases[0], bond);
-  return currency &&
-    position.purchases.every((purchase) => purchaseCurrency(purchase, bond) === currency)
-    ? currency
-    : null;
+/** Every purchase of a position is of one bond, so of one currency. */
+export function positionCurrency(position: Position, bond?: Bond): Currency {
+  return purchaseCurrency(position.purchases[0], bond);
 }
 
 /**

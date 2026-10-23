@@ -14,7 +14,8 @@ export function useBondDetails(isin: string) {
   const walletPosition = positions.find(({ position }) => position.isin === isin);
   const position = walletPosition?.position;
   const payments = walletPosition?.payments ?? [];
-  const currency = walletPosition?.currency ?? null;
+  /** Comes with the position */
+  const currency = walletPosition?.currency;
   const hasTopUps = (position?.purchases.length ?? 0) > 1;
   /** Missing when the NBU data has no such bond */
   const results = purchaseResults(position?.purchases ?? [], byIsin, today).at(0);

@@ -18,7 +18,7 @@ export type WalletPosition = {
   position: Position;
   /** Missing when the NBU data has no such bond */
   bond?: Bond;
-  currency: Currency | null;
+  currency: Currency;
   payments: PositionPayment[];
   nextPayment?: PositionPayment;
 };

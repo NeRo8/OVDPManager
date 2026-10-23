@@ -41,7 +41,7 @@ export default function BondScreen() {
     deletePosition,
   } = useBondDetails(isin);
 
-  if (!position) return <EmptyState message="У гаманці немає цієї ОВДП" />;
+  if (!position || !currency) return <EmptyState message="У гаманці немає цієї ОВДП" />;
 
   const topUp = () =>
     router.push({ pathname: '/add/[isin]', params: { isin: position.isin, topUp: '1' } });

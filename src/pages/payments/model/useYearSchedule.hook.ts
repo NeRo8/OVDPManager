@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { CURRENCIES, type Currency, type ScheduleEvent } from '@/entities/portfolio';
+import { CURRENCIES, type ScheduleEvent } from '@/entities/portfolio';
 import { filterSchedule } from '@/features/payment-filters';
 import { useOptionChoice } from '@/shared/lib';
 import { groupScheduleEventsByMonth } from './scheduleSections';
@@ -24,9 +24,9 @@ export function useYearSchedule({ wallet, filters }: FilteredWallet) {
   const year = chosenYear ?? Math.min(Math.max(currentYear, firstYear), lastYear);
   const yearEvents = events.filter((event) => yearOf(event) === year);
 
-  const currencies = [...new Set(yearEvents.map((event) => event.currency))]
-    .filter((currency): currency is Currency => currency !== null)
-    .sort((a, b) => CURRENCIES.indexOf(a) - CURRENCIES.indexOf(b));
+  const currencies = [...new Set(yearEvents.map((event) => event.currency))].sort(
+    (a, b) => CURRENCIES.indexOf(a) - CURRENCIES.indexOf(b),
+  );
   // The chart has one money scale, so a year in several currencies shows one at a time.
   const [currency, setCurrency] = useOptionChoice(currencies);
   const summary = currency ? yearSummary(yearEvents, currency) : null;
@@ -35,9 +35,8 @@ export function useYearSchedule({ wallet, filters }: FilteredWallet) {
   const month = chosenMonth?.year === year ? chosenMonth.month : (summary?.defaultMonth ?? null);
   const setMonth = (month: number) => setChosenMonth({ year, month });
 
-  // Purchases of an unknown currency are listed under every currency, as they may be in any.
   const sections = groupScheduleEventsByMonth(
-    yearEvents.filter((event) => event.currency === currency || event.currency === null),
+    yearEvents.filter((event) => event.currency === currency),
   );
 
   return {

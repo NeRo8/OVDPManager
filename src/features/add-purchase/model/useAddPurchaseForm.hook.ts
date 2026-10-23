@@ -56,6 +56,7 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
       purchaseDate: valid.purchaseDate,
       amount: valid.amount,
       quantity: valid.quantity,
+      currency: bond.currency,
     };
     // The bond comes from the NBU data, so its results are always there.
     const results = purchaseResults([draft], byIsin, today).at(0);
