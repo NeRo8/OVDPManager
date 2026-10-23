@@ -8,6 +8,7 @@
     "icon": "./src/shared/config/app-icon/icon.png",
     "scheme": "ovdpmanager",
     "userInterfaceStyle": "automatic",
+    "backgroundColor": "#046865",
     "ios": {
       "icon": "./src/shared/config/app-icon/icon.png",
       "bundleIdentifier": "com.arturduchenkoomnitelecom.OVDPManager",
