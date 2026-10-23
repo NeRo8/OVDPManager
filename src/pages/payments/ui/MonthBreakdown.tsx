@@ -11,27 +11,25 @@ import {
   Typography,
   type ChartSeries,
 } from '@/shared/ui';
-import type { ScheduleProps } from './schedule.types';
+import type { YearSummary } from '../model/yearSummary';
 
 /** Chart of the year with the selected month spelled out underneath. */
-export function MonthBreakdown({ schedule }: ScheduleProps) {
-  const {
-    year,
-    currency,
-    monthlyCoupons,
-    monthlyRedemptions,
-    monthlyPurchases,
-    selectedMonth,
-    setChosenMonth,
-  } = schedule;
-  if (!currency) return null;
+type Props = {
+  summary: YearSummary;
+  year: number;
+  /** January = 0 */
+  month: number | null;
+  onSelectMonth: (month: number) => void;
+};
+
+export function MonthBreakdown({ summary, year, month: selectedMonth, onSelectMonth }: Props) {
+  const { currency, monthlyCoupons, monthlyRedemptions, monthlyPurchases } = summary;
   const series: ChartSeries[] = [
     { label: 'Купони', color: 'coupon', values: monthlyCoupons },
     { label: 'Погашення', color: 'redemption', values: monthlyRedemptions },
     { label: 'Купівлі', color: 'purchase', values: monthlyPurchases, direction: 'down' },
   ];
   const monthRows = selectedMonth === null ? [] : series.filter((s) => s.values[selectedMonth] > 0);
-  const selectMonth = (month: number) => setChosenMonth({ year, month });
 
   return (
     <View style={styles.section}>
@@ -41,7 +39,7 @@ export function MonthBreakdown({ schedule }: ScheduleProps) {
           series={series.map((s) => ({ ...s, label: s.label.toLowerCase() }))}
           currency={currency}
           selected={selectedMonth}
-          onSelect={selectMonth}
+          onSelect={onSelectMonth}
         />
 
         {selectedMonth !== null && (

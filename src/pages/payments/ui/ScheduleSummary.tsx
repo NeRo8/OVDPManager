@@ -1,16 +1,24 @@
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import type { ScheduleProps } from './schedule.types';
+import type { YearSummary } from '../model/yearSummary';
 import { MonthBreakdown } from './MonthBreakdown';
 import { YearTotals } from './YearTotals';
 
 /** The year at a glance: money in and out month by month, then the year's totals. */
-export function ScheduleSummary({ schedule }: ScheduleProps) {
+type Props = {
+  summary: YearSummary;
+  year: number;
+  /** The month spelled out under the chart, January = 0 */
+  month: number | null;
+  onSelectMonth: (month: number) => void;
+};
+
+export function ScheduleSummary({ summary, year, month, onSelectMonth }: Props) {
   return (
     <View style={styles.summary}>
-      <MonthBreakdown schedule={schedule} />
-      <YearTotals schedule={schedule} />
+      <MonthBreakdown summary={summary} year={year} month={month} onSelectMonth={onSelectMonth} />
+      <YearTotals summary={summary} />
     </View>
   );
 }

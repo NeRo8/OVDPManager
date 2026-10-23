@@ -14,19 +14,19 @@ export default function YearScheduleScreen() {
   const filtered = useFilteredWallet();
   const { wallet } = filtered;
   const pullToRefresh = usePullToRefresh(wallet.refresh);
-  const schedule = useYearSchedule(filtered);
   const {
     firstYear,
     lastYear,
     year,
-    setChosenYear,
+    setYear,
     currencies,
     currency,
-    setChosenCurrency,
-    yearPayments,
-    yearPurchases,
+    setCurrency,
+    summary,
+    month,
+    setMonth,
     sections,
-  } = schedule;
+  } = useYearSchedule(filtered);
 
   return (
     <ScheduleSectionList
@@ -35,16 +35,16 @@ export default function YearScheduleScreen() {
       ListHeaderComponent={
         <View style={styles.listHeader}>
           <StaleBondsNotice error={wallet.error} />
-          <YearNav year={year} min={firstYear} max={lastYear} onChange={setChosenYear} />
+          <YearNav year={year} min={firstYear} max={lastYear} onChange={setYear} />
           {currency && currencies.length > 1 && (
             <SegmentedSelect
               options={currencies.map((value) => ({ label: value, value }))}
               value={currency}
-              onChange={setChosenCurrency}
+              onChange={setCurrency}
             />
           )}
-          {currency && (yearPayments.length > 0 || yearPurchases.length > 0) && (
-            <ScheduleSummary schedule={schedule} />
+          {summary && (
+            <ScheduleSummary summary={summary} year={year} month={month} onSelectMonth={setMonth} />
           )}
         </View>
       }

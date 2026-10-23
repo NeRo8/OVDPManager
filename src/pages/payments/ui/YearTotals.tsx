@@ -3,29 +3,31 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { formatCompactMoney, formatMoney } from '@/shared/lib';
 import { LegendRow, Typography } from '@/shared/ui';
-import type { ScheduleProps } from './schedule.types';
+import type { YearSummary } from '../model/yearSummary';
 import { Tile } from './Tile';
 
 /** Two tiles: payments received and money invested. Their legend rows also key the chart. */
-export function YearTotals({ schedule }: ScheduleProps) {
+type Props = {
+  summary: YearSummary;
+};
+
+export function YearTotals({ summary }: Props) {
   const {
     currency,
-    yearTotal,
-    paidTotal,
+    totalPayments,
+    received,
     couponTotal,
     redemptionTotal,
-    purchasedTotal,
+    invested,
+    purchaseCount,
     averageMonthlyPurchase,
-    yearPurchases,
-  } = schedule;
-  if (!currency) return null;
-  const paidPercent = yearTotal > 0 ? Math.round((paidTotal / yearTotal) * 100) : 0;
-  const purchaseCount = yearPurchases.length;
+  } = summary;
+  const receivedPercent = totalPayments > 0 ? Math.round((received / totalPayments) * 100) : 0;
 
   return (
     <View style={styles.tiles}>
-      <Tile label="Виплати" value={formatMoney(yearTotal, currency)}>
-        {yearTotal > 0 ? (
+      <Tile label="Виплати" value={formatMoney(totalPayments, currency)}>
+        {totalPayments > 0 ? (
           <>
             <LegendRow
               color="coupon"
@@ -37,18 +39,18 @@ export function YearTotals({ schedule }: ScheduleProps) {
               label="Погашення"
               value={formatCompactMoney(redemptionTotal, currency)}
             />
-            {paidPercent > 0 && paidPercent < 100 && (
+            {receivedPercent > 0 && receivedPercent < 100 && (
               <View style={styles.progress}>
                 <View
                   accessibilityRole="progressbar"
                   accessibilityLabel="Отримано"
-                  accessibilityValue={{ min: 0, max: 100, now: paidPercent }}
+                  accessibilityValue={{ min: 0, max: 100, now: receivedPercent }}
                   style={styles.track}
                 >
-                  <View style={[styles.fill, { width: `${paidPercent}%` }]} />
+                  <View style={[styles.fill, { width: `${receivedPercent}%` }]} />
                 </View>
                 <Typography variant="caption1" tone="secondary">
-                  отримано {paidPercent} %
+                  отримано {receivedPercent} %
                 </Typography>
               </View>
             )}
@@ -60,7 +62,7 @@ export function YearTotals({ schedule }: ScheduleProps) {
         )}
       </Tile>
 
-      <Tile label="Вкладено" value={formatMoney(purchasedTotal, currency)}>
+      <Tile label="Вкладено" value={formatMoney(invested, currency)}>
         {purchaseCount > 0 ? (
           <>
             <LegendRow color="purchase" label="Купівлі" value={`${purchaseCount}`} />
