@@ -2,9 +2,10 @@ import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import type { Currency } from '@/entities/portfolio';
-import { formatDate, formatMoney } from '@/shared/lib';
+import { formatMoney } from '@/shared/lib';
 import { ShareBar, Typography } from '@/shared/ui';
 import type { YieldBond } from '../model/yieldReport';
+import { bondStateLabel } from './portfolioLabels';
 import { pointsCell } from './reportCells';
 
 type Props = {
@@ -17,15 +18,11 @@ type Props = {
 /** One bond's yield as a bar against the highest, and against the key rate on its purchase dates. */
 export function YieldBondRow({ bond: row, currency, highestYield }: Props) {
   const { isin, bond, state, invested, annualYield, keyRateAtPurchase } = row;
-  const where =
-    state === 'unknown'
-      ? 'немає в даних НБУ'
-      : state === 'planned'
-        ? 'заплановано'
-        : state === 'redeemed'
-          ? 'погашено'
-          : `до ${formatDate(bond?.maturityDate ?? '')}`;
-  const details = [bond && `купон ${bond.rate}%`, formatMoney(invested, currency), where]
+  const details = [
+    bond && `купон ${bond.rate}%`,
+    formatMoney(invested, currency),
+    bondStateLabel(state, bond?.maturityDate),
+  ]
     .filter(Boolean)
     .join(' · ');
 

@@ -1,3 +1,5 @@
+export * from './model/bondFilters';
+export * from './model/bondReportFilters';
 export * from './model/periodFilters';
 export * from './model/periodReportFilters';
 export * from './model/portfolioFilters';

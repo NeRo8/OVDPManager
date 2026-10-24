@@ -2,9 +2,10 @@ import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import type { Currency } from '@/entities/portfolio';
-import { formatDate, formatMoney } from '@/shared/lib';
+import { formatMoney } from '@/shared/lib';
 import { LegendRow, ShareBar, TotalRow, Typography } from '@/shared/ui';
 import type { PortfolioBond } from '../model/portfolioReport';
+import { bondStateLabel } from './portfolioLabels';
 import { shareCell } from './reportCells';
 
 type Props = {
@@ -43,11 +44,7 @@ export function PortfolioBondRow({ bond: row, currency }: Props) {
             tone={state === 'planned' ? 'accent' : 'secondary'}
             tabular
           >
-            {state === 'planned'
-              ? 'заплановано'
-              : state === 'redeemed'
-                ? 'погашено'
-                : `до ${formatDate(bond?.maturityDate ?? '')}`}
+            {bondStateLabel(state, bond?.maturityDate)}
           </Typography>
         )}
       </View>

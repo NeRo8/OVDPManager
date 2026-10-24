@@ -14,3 +14,4 @@ export { default as PortfolioReportFiltersScreen } from './ui/PortfolioReportFil
 export { default as YieldReportScreen } from './ui/YieldReportScreen';
 export { default as YieldReportFiltersScreen } from './ui/YieldReportFiltersScreen';
 export { default as BondReportScreen } from './ui/BondReportScreen';
+export { default as BondReportFiltersScreen } from './ui/BondReportFiltersScreen';

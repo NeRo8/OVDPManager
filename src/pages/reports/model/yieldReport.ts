@@ -59,7 +59,8 @@ export function purchaseDates(wallet: Wallet): string[] {
   return wallet.purchases.map((purchase) => purchase.purchaseDate);
 }
 
-function keyRateAt(purchases: Purchase[], keyRateOn: KeyRateOn): number | null {
+/** The key rate on the purchase dates, weighted by amount; null until each has loaded. */
+export function keyRateAt(purchases: Purchase[], keyRateOn: KeyRateOn): number | null {
   const rates = purchases.map((purchase) => keyRateOn(purchase.purchaseDate));
   if (rates.some((rate) => rate === null)) return null;
   return weightedAverage(

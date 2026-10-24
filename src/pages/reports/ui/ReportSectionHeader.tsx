@@ -5,13 +5,13 @@ import { StyleSheet } from 'react-native-unistyles';
 import { SectionTitle } from '@/shared/ui';
 
 type Props = {
-  /** The blocks of the currency before its rows */
-  children: ReactNode;
+  /** The blocks before the rows, if any */
+  children?: ReactNode;
   /** Names the rows that follow */
   rowsTitle: string;
 };
 
-/** What comes before a currency's rows in a report list, spaced as the screen's sections. */
+/** What comes before a section's rows in a report list, spaced as the screen's sections. */
 export function ReportSectionHeader({ children, rowsTitle }: Props) {
   return (
     <View style={styles.header}>
