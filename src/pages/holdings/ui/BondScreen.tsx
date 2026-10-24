@@ -1,29 +1,40 @@
 import { Stack, router, useLocalSearchParams } from 'expo-router';
-import { Fragment } from 'react';
-import { Pressable, View } from 'react-native';
+import {
+  SectionList,
+  type SectionListData,
+  type SectionListRenderItemInfo,
+  View,
+} from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
   BondTerms,
+  type PositionPayment,
+  type Purchase,
   ScheduleEventRow,
-  isPlannedPurchase,
-  pricePerBond,
-  purchaseCurrency,
 } from '@/entities/portfolio';
-import { formatDate, formatMoney } from '@/shared/lib';
 import {
   Button,
   Card,
   EmptyState,
   FAB_CLEARANCE,
   FloatingActionButton,
-  InfoRow,
-  ScreenScrollView,
-  Section,
-  Separator,
+  SectionCell,
+  SectionTitle,
   Typography,
+  screenContent,
 } from '@/shared/ui';
 import { useBondDetails } from '../model/useBondDetails.hook';
+import { PositionSummary } from './PositionSummary';
+import { PurchaseRow } from './PurchaseRow';
+
+type BondRow = Purchase | PositionPayment;
+
+/** The purchases, then the payments, each a card of list rows. */
+type BondSection = { key: 'purchases' | 'payments'; title: string; data: BondRow[] };
+
+const isPurchase = (row: BondRow): row is Purchase => 'purchaseDate' in row;
+const keyOf = (row: BondRow) => (isPurchase(row) ? row.id : `${row.date}-${row.type}`);
 
 /** A bond in the wallet: the issue's terms, what the position has cost and earned, its purchases and payments. */
 export default function BondScreen() {
@@ -44,131 +55,91 @@ export default function BondScreen() {
   if (!position || !currency)
     return <EmptyState icon="search-outline" message="У гаманці немає цієї ОВДП" />;
 
+  const sections: BondSection[] = [
+    { key: 'purchases', title: `Купівлі (${position.purchases.length})`, data: position.purchases },
+    // Without the NBU data there is no schedule to list.
+    ...(bond
+      ? [{ key: 'payments' as const, title: `Виплати (${payments.length})`, data: payments }]
+      : []),
+  ];
+
   const topUp = () =>
     router.push({ pathname: '/add/[isin]', params: { isin: position.isin, topUp: '1' } });
+
+  const renderSectionHeader = ({ section }: { section: SectionListData<BondRow, BondSection> }) => (
+    <View style={styles.sectionHeader}>
+      <SectionTitle title={section.title} />
+    </View>
+  );
+  const renderSectionFooter = ({ section }: { section: SectionListData<BondRow, BondSection> }) => {
+    if (section.key !== 'payments') return null;
+    if (!section.data.length)
+      return (
+        <EmptyState
+          layout="inline"
+          icon="calendar-outline"
+          title="Виплат немає"
+          message="Усі виплати за графіком НБУ припадають на дати до купівлі, тож цій купівлі вони не належать."
+        />
+      );
+    return hasTopUps ? (
+      <Typography variant="caption1" tone="secondary" style={styles.sectionFooter}>
+        Кожна виплата враховує лише облігації, куплені до її дати.
+      </Typography>
+    ) : null;
+  };
+  const renderItem = ({
+    item,
+    index,
+    section,
+  }: SectionListRenderItemInfo<BondRow, BondSection>) => (
+    <SectionCell index={index} count={section.data.length}>
+      {isPurchase(item) ? (
+        <PurchaseRow purchase={item} bond={bond} today={today} onDelete={deletePurchase} />
+      ) : (
+        <ScheduleEventRow event={item} showQuantity={hasTopUps} />
+      )}
+    </SectionCell>
+  );
 
   return (
     <View style={styles.screen}>
       <Stack.Screen options={{ title: position.isin }} />
-      <ScreenScrollView contentContainerStyle={canTopUp && styles.withFab}>
-        <Card>
-          {bond ? (
-            <BondTerms bond={bond} />
-          ) : (
-            <Typography variant="footnote" tone="warning">
-              Цієї ОВДП немає в даних НБУ — параметри випуску й графік виплат недоступні.
-            </Typography>
-          )}
-        </Card>
-
-        <Section title="Підсумок">
-          <InfoRow label="Кількість" value={`${position.quantity} шт`} />
-          <Separator />
-          <InfoRow label="Вкладено" value={formatMoney(position.investedAmount, currency)} />
-          {hasTopUps && (
-            <>
-              <Separator />
-              <InfoRow
-                label="Середня ціна 1 шт"
-                value={formatMoney(
-                  pricePerBond(position.investedAmount, position.quantity),
-                  currency,
-                )}
-              />
-            </>
-          )}
-          {results && (
-            <>
-              <Separator />
-              <InfoRow label="Отримано" value={formatMoney(results.received, currency)} />
-              <Separator />
-              <InfoRow label="Очікується" value={formatMoney(results.expected, currency)} />
-              <Separator />
-              <InfoRow
-                label="Чистий дохід"
-                value={
-                  results.netIncome === null ? (
-                    'Немає повних даних НБУ'
-                  ) : (
-                    <Typography
-                      variant="subhead"
-                      weight="semibold"
-                      tone={results.netIncome >= 0 ? 'positive' : 'danger'}
-                    >
-                      {formatMoney(results.netIncome, currency)}
-                    </Typography>
-                  )
-                }
-              />
-            </>
-          )}
-        </Section>
-
-        <Section title={`Купівлі (${position.purchases.length})`}>
-          {position.purchases.map((purchase, index) => (
-            <Fragment key={purchase.id}>
-              {index > 0 && <Separator />}
-              <View style={styles.purchase}>
-                <View style={styles.purchaseInfo}>
-                  <Typography variant="callout" tabular>
-                    {formatDate(purchase.purchaseDate)} · {purchase.quantity} шт
-                  </Typography>
-                  {isPlannedPurchase(purchase, today) && (
-                    <Typography variant="caption1" tone="accent">
-                      Заплановано — виплати після цієї дати
-                    </Typography>
-                  )}
-                  <Typography variant="caption1" tone="secondary">
-                    {formatMoney(purchase.amount, purchaseCurrency(purchase, bond))} · по{' '}
-                    {formatMoney(
-                      pricePerBond(purchase.amount, purchase.quantity),
-                      purchaseCurrency(purchase, bond),
-                    )}
-                  </Typography>
-                </View>
-                <Pressable
-                  onPress={() => deletePurchase(purchase)}
-                  hitSlop={8}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Видалити купівлю від ${formatDate(purchase.purchaseDate)}`}
-                  style={({ pressed }) => pressed && styles.pressed}
-                >
-                  <Typography variant="subhead" tone="danger">
-                    Видалити
-                  </Typography>
-                </Pressable>
-              </View>
-            </Fragment>
-          ))}
-        </Section>
-
-        {bond && (
-          <Section
-            title={`Виплати (${payments.length})`}
-            footer={
-              hasTopUps ? 'Кожна виплата враховує лише облігації, куплені до її дати.' : undefined
-            }
-          >
-            {payments.length === 0 ? (
-              <EmptyState
-                layout="inline"
-                icon="calendar-outline"
-                title="Виплат немає"
-                message="Усі виплати за графіком НБУ припадають на дати до купівлі, тож цій купівлі вони не належать."
-              />
-            ) : (
-              payments.map((payment, index) => (
-                <Fragment key={`${payment.date}-${payment.type}`}>
-                  {index > 0 && <Separator />}
-                  <ScheduleEventRow event={payment} showQuantity={hasTopUps} />
-                </Fragment>
-              ))
-            )}
-          </Section>
-        )}
-
-        <Button title="Видалити з гаманця" variant="destructive" onPress={deletePosition} />
-      </ScreenScrollView>
+      <SectionList
+        sections={sections}
+        style={styles.list}
+        contentContainerStyle={[screenContent, styles.content, canTopUp && styles.withFab]}
+        contentInsetAdjustmentBehavior="automatic"
+        stickySectionHeadersEnabled={false}
+        keyExtractor={keyOf}
+        ListHeaderComponent={
+          <View style={styles.listHeader}>
+            <Card>
+              {bond ? (
+                <BondTerms bond={bond} />
+              ) : (
+                <Typography variant="footnote" tone="warning">
+                  Цієї ОВДП немає в даних НБУ — параметри випуску й графік виплат недоступні.
+                </Typography>
+              )}
+            </Card>
+            <PositionSummary
+              position={position}
+              currency={currency}
+              hasTopUps={hasTopUps}
+              results={results}
+            />
+          </View>
+        }
+        renderSectionHeader={renderSectionHeader}
+        renderSectionFooter={renderSectionFooter}
+        renderItem={renderItem}
+        ListFooterComponent={
+          <View style={styles.listFooter}>
+            <Button title="Видалити з гаманця" variant="destructive" onPress={deletePosition} />
+          </View>
+        }
+      />
       {canTopUp && (
         <FloatingActionButton accessibilityLabel={`Докупити ${position.isin}`} onPress={topUp} />
       )}
@@ -178,14 +149,12 @@ export default function BondScreen() {
 
 const styles = StyleSheet.create((theme) => ({
   screen: { flex: 1 },
+  list: { backgroundColor: theme.background },
+  // The list has no gaps of its own: the section headers and the footer space themselves.
+  content: { gap: 0 },
   withFab: { paddingBottom: FAB_CLEARANCE },
-  purchase: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.space.md,
-    paddingHorizontal: theme.space.lg,
-    paddingVertical: theme.space.md,
-  },
-  purchaseInfo: { flex: 1, gap: theme.space.xxs },
-  pressed: { opacity: 0.5 },
+  listHeader: { gap: theme.space.xl },
+  sectionHeader: { marginTop: theme.space.xl, marginBottom: theme.space.sm },
+  sectionFooter: { lineHeight: 18, marginHorizontal: theme.space.lg, marginTop: theme.space.sm },
+  listFooter: { marginTop: theme.space.xl },
 }));
