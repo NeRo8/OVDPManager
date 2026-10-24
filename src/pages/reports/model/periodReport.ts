@@ -38,7 +38,10 @@ export type BondReport = Flows & {
   incomeShare: number | null;
 };
 
-/** The bonds that stand out in the period; each is left out when there are not two to compare. */
+/**
+ * The bonds that stand out in the period; each is left out when there are not two to compare, and
+ * the largest income when none is above zero.
+ */
 export type BondHighlights = {
   highestYield?: BondReport;
   lowestYield?: BondReport;
@@ -110,10 +113,11 @@ function bondHighlights(bonds: BondReport[]): BondHighlights {
     .filter((bond) => bond.annualYield !== null)
     .sort((first, second) => (second.annualYield ?? 0) - (first.annualYield ?? 0));
   const byIncome = [...bonds].sort((first, second) => second.income - first.income);
+  const highestIncome = byIncome.length > 1 && byIncome[0].income > 0 ? byIncome[0] : undefined;
   return {
     highestYield: byYield.length > 1 ? byYield[0] : undefined,
     lowestYield: byYield.length > 1 ? byYield.at(-1) : undefined,
-    highestIncome: byIncome.length > 1 ? byIncome[0] : undefined,
+    highestIncome,
   };
 }
 
