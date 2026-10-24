@@ -4,6 +4,7 @@ import {
   type Currency,
   type PurchaseResults,
   type Wallet,
+  type WalletPosition,
   isPlannedPurchase,
   purchaseResults,
 } from '@/entities/portfolio';
@@ -44,23 +45,24 @@ export type CurrencyPortfolio = {
   unknownCount: number;
 };
 
-const passesStatus = (state: BondState, status: PortfolioStatus) =>
+/** Where a bond of the wallet stands today. */
+export function bondState(
+  { position, bond, nextPayment }: WalletPosition,
+  today: string,
+): BondState {
+  if (!bond) return 'unknown';
+  if (position.purchases.every((purchase) => isPlannedPurchase(purchase, today))) return 'planned';
+  return nextPayment ? 'active' : 'redeemed';
+}
+
+/** In circulation means everything not redeemed: planned, and unknown without the NBU data. */
+export const passesStatus = (state: BondState, status: PortfolioStatus) =>
   status === 'all' || (status === 'redeemed') === (state === 'redeemed');
 
 /** The wallet's bonds in the status picked, per currency, each with what it costs and earns. */
 export function portfolioReport(wallet: Wallet, status: PortfolioStatus): CurrencyPortfolio[] {
   const { byIsin, today } = wallet;
-  const bonds = wallet.positions.map((item) => {
-    const { position, bond, nextPayment } = item;
-    const state: BondState = !bond
-      ? 'unknown'
-      : position.purchases.every((purchase) => isPlannedPurchase(purchase, today))
-        ? 'planned'
-        : nextPayment
-          ? 'active'
-          : 'redeemed';
-    return { item, state };
-  });
+  const bonds = wallet.positions.map((item) => ({ item, state: bondState(item, today) }));
 
   return CURRENCIES.flatMap((currency): CurrencyPortfolio[] => {
     const inCurrency = bonds.filter(

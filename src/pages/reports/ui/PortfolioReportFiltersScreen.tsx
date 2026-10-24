@@ -1,6 +1,4 @@
 import { Stack } from 'expo-router';
-import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
 
 import {
   resetPortfolioReportFilters,
@@ -8,15 +6,10 @@ import {
   updatePortfolioReportFilters,
   type PortfolioStatus,
 } from '@/features/report-filters';
-import { HeaderButton, ScreenScrollView, Section, SegmentedSelect } from '@/shared/ui';
+import { HeaderButton, ScreenScrollView } from '@/shared/ui';
 import { usePortfolioReport } from '../model/usePortfolioReport.hook';
-import { PORTFOLIO_STATUS_LABELS } from './portfolioLabels';
+import { BondStatusSection } from './BondStatusSection';
 import { ReportScopeSections } from './ReportScopeSections';
-
-const STATUS_OPTIONS = (['all', 'active', 'redeemed'] as const).map((value) => ({
-  label: PORTFOLIO_STATUS_LABELS[value],
-  value,
-}));
 
 /** What the portfolio report covers; every change applies at once and is remembered. */
 export default function PortfolioReportFiltersScreen() {
@@ -38,19 +31,7 @@ export default function PortfolioReportFiltersScreen() {
           ),
         }}
       />
-      <Section
-        title="Стан"
-        footer="В обігу — ОВДП, за якими ще будуть виплати, і заплановані купівлі; погашені — ті, за якими всі виплати вже отримано."
-      >
-        <View style={styles.picker}>
-          <SegmentedSelect
-            options={STATUS_OPTIONS}
-            value={filters.status}
-            onChange={changeStatus}
-          />
-        </View>
-      </Section>
-
+      <BondStatusSection value={filters.status} onChange={changeStatus} />
       <ReportScopeSections
         wallet={wallet}
         scope={filters}
@@ -61,7 +42,3 @@ export default function PortfolioReportFiltersScreen() {
     </ScreenScrollView>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  picker: { padding: theme.space.md },
-}));

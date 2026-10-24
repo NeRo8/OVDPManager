@@ -11,9 +11,9 @@ import {
   portfolioReport,
 } from '../model/portfolioReport';
 import { usePortfolioReport } from '../model/usePortfolioReport.hook';
+import { BondStatusEmpty } from './BondStatusEmpty';
 import { PORTFOLIO_STATUS_TITLES } from './portfolioLabels';
 import { PortfolioBondRow } from './PortfolioBondRow';
-import { PortfolioEmpty } from './PortfolioEmpty';
 import { PortfolioSummary } from './PortfolioSummary';
 import { ReportFiltersButton } from './ReportFiltersButton';
 import { ReportHeading } from './ReportHeading';
@@ -82,7 +82,7 @@ export default function PortfolioReportScreen() {
         }
         renderSectionHeader={renderSectionHeader}
         renderItem={renderItem}
-        ListEmptyComponent={<PortfolioEmpty wallet={filtered} status={filters.status} />}
+        ListEmptyComponent={<BondStatusEmpty wallet={filtered} status={filters.status} />}
       />
     </WalletGate>
   );

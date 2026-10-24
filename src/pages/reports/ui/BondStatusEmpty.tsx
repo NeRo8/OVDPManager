@@ -9,8 +9,8 @@ type Props = {
   status: PortfolioStatus;
 };
 
-/** Why the portfolio report has no bonds, and which filter would show some. */
-export function PortfolioEmpty({ wallet, status }: Props) {
+/** Why a report filtered by the bonds' status has none, and which filter would show some. */
+export function BondStatusEmpty({ wallet, status }: Props) {
   const next = wallet.positions
     .flatMap(({ bond }) => (bond ? [bond] : []))
     .sort((first, second) => first.maturityDate.localeCompare(second.maturityDate))

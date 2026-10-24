@@ -12,4 +12,5 @@ export { default as RedemptionsReportFiltersScreen } from './ui/RedemptionsRepor
 export { default as PortfolioReportScreen } from './ui/PortfolioReportScreen';
 export { default as PortfolioReportFiltersScreen } from './ui/PortfolioReportFiltersScreen';
 export { default as YieldReportScreen } from './ui/YieldReportScreen';
+export { default as YieldReportFiltersScreen } from './ui/YieldReportFiltersScreen';
 export { default as BondReportScreen } from './ui/BondReportScreen';

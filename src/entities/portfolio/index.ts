@@ -8,6 +8,7 @@ export {
 } from './model/useWallet.hook';
 export { useBonds } from './api/useBonds.hook';
 export { useKeyRate } from './api/useKeyRate.hook';
+export { useKeyRates } from './api/useKeyRates.hook';
 export { annualYield } from './model/yield';
 export * from './model/results';
 export * from './model/counts';

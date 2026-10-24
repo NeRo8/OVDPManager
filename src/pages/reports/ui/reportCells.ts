@@ -15,6 +15,12 @@ export const changeCell = (change: number | null) => {
 /** A share in whole percent; one that rounds to zero still shows it is there. */
 export const shareCell = (share: number) => (share < 0.5 ? '<1%' : `${Math.round(share)}%`);
 
+/** A difference of rates in percentage points with its sign: +1.3 п.п., −0.4 п.п. */
+export const pointsCell = (difference: number) => {
+  const rounded = Math.round(difference * 10) / 10;
+  return `${rounded > 0 ? '+' : rounded < 0 ? '−' : ''}${Math.abs(rounded)} п.п.`;
+};
+
 export const FLOW_COLUMNS = ['Купівлі', 'Купони', 'Погашення'];
 
 export const flowCells = ({ invested, coupons, redemptions }: Flows) => [

@@ -1,5 +1,101 @@
-import { ScreenScrollView } from '@/shared/ui';
+import { Stack } from 'expo-router';
+import type { SectionListData, SectionListRenderItemInfo } from 'react-native';
 
+import { CURRENCY_NAMES, WalletGate } from '@/entities/portfolio';
+import { filterWallet } from '@/features/report-filters';
+import { formatDate } from '@/shared/lib';
+import { SectionCell } from '@/shared/ui';
+import { useYieldReport } from '../model/useYieldReport.hook';
+import { type CurrencyYield, type YieldBond, yieldReport } from '../model/yieldReport';
+import { BondStatusEmpty } from './BondStatusEmpty';
+import { PORTFOLIO_STATUS_TITLES } from './portfolioLabels';
+import { ReportFiltersButton } from './ReportFiltersButton';
+import { ReportHeading } from './ReportHeading';
+import { ReportList } from './ReportList';
+import { ReportListHeader } from './ReportListHeader';
+import { ReportSectionHeader } from './ReportSectionHeader';
+import { YieldBondRow } from './YieldBondRow';
+import { YieldComparison } from './YieldComparison';
+import { YieldSummary } from './YieldSummary';
+
+/** A currency of the report: its average yield heads the section, its bonds are the rows. */
+type CurrencySection = { report: CurrencyYield; data: YieldBond[]; highestYield: number };
+
+const keyOf = (bond: YieldBond) => bond.isin;
+
+/**
+ * The yield of the active plan's bonds held to maturity next to the NBU key rate, with the status,
+ * currency and bonds picked in its filters, every currency apart: the average, then each bond's,
+ * the highest first. Everything shows at once, with no taps, so it reads the same on paper.
+ */
 export default function YieldReportScreen() {
-  return <ScreenScrollView />;
+  const { wallet, filters, keyRateOn, activeFilterCount } = useYieldReport();
+  const filtered = filterWallet(wallet, filters);
+  const currencies = yieldReport(filtered, filters.status, keyRateOn);
+  const sections = currencies.map((report): CurrencySection => ({
+    report,
+    data: report.bonds,
+    highestYield: Math.max(0, ...report.bonds.map(({ annualYield }) => annualYield ?? 0)),
+  }));
+
+  const renderSectionHeader = ({
+    section: { report },
+  }: {
+    section: SectionListData<YieldBond, CurrencySection>;
+  }) => (
+    <ReportSectionHeader rowsTitle={`По облігаціях · ${CURRENCY_NAMES[report.currency]}`}>
+      <YieldSummary report={report} />
+      {report.averageYield !== null && report.keyRate !== null && (
+        <YieldComparison
+          currency={report.currency}
+          averageYield={report.averageYield}
+          keyRate={report.keyRate}
+        />
+      )}
+    </ReportSectionHeader>
+  );
+  const renderItem = ({
+    item,
+    index,
+    section,
+  }: SectionListRenderItemInfo<YieldBond, CurrencySection>) => (
+    <SectionCell index={index} count={section.data.length}>
+      <YieldBondRow
+        bond={item}
+        currency={section.report.currency}
+        highestYield={section.highestYield}
+      />
+    </SectionCell>
+  );
+
+  return (
+    <WalletGate>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <ReportFiltersButton
+              activeFilterCount={activeFilterCount}
+              href="/yield-report-filters"
+            />
+          ),
+        }}
+      />
+      <ReportList
+        wallet={wallet}
+        sections={sections}
+        keyExtractor={keyOf}
+        ListHeaderComponent={
+          <ReportListHeader>
+            <ReportHeading
+              title={`Станом на ${formatDate(wallet.today)}`}
+              subtitle={PORTFOLIO_STATUS_TITLES[filters.status]}
+            />
+          </ReportListHeader>
+        }
+        renderSectionHeader={renderSectionHeader}
+        renderItem={renderItem}
+        ListEmptyComponent={<BondStatusEmpty wallet={filtered} status={filters.status} />}
+      />
+    </WalletGate>
+  );
 }

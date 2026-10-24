@@ -10,3 +10,5 @@ export * from './model/structureReportFilters';
 export * from './model/yearFilters';
 export * from './model/yearOverYearReportFilters';
 export * from './model/yearReportFilters';
+export * from './model/yieldFilters';
+export * from './model/yieldReportFilters';
