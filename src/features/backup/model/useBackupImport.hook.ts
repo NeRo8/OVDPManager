@@ -18,12 +18,17 @@ const BackupImportSchema = z.object({ key: BackupKeySchema, json: z.string() });
 
 type BackupImportForm = z.infer<typeof BackupImportSchema>;
 
+type Options = {
+  /** Called once the backup's plans have replaced the current ones, to leave the screen */
+  onRestored: () => void;
+};
+
 /**
  * Restoring from the Google account's cloud copy, a picked file or pasted JSON, all opened with
  * the backup's key. The outcome comes as a toast; a key that does not fit is shown under the key,
  * a problem with pasted JSON under the JSON.
  */
-export function useBackupImport() {
+export function useBackupImport({ onRestored }: Options) {
   const account = useGoogleAccount();
   const [isBusy, setBusy] = useState(false);
   const form = useForm<BackupImportForm>({
@@ -42,7 +47,10 @@ export function useBackupImport() {
     try {
       const restored = await parseBackup(text, key);
       // Restored data replaces whatever was typed, along with its errors.
-      restoreBackup(restored, source, () => form.reset());
+      restoreBackup(restored, source, () => {
+        form.reset();
+        onRestored();
+      });
     } catch (error) {
       if (error instanceof WrongBackupKeyError) form.setError('key', { message: error.message });
       else showError(errorMessage(error));

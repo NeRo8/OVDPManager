@@ -1,9 +1,15 @@
+import { router } from 'expo-router';
 import { Controller } from 'react-hook-form';
 
+import { useInvestmentPlans } from '@/entities/portfolio';
 import { useBackupImport } from '@/features/backup';
 import { Button, Input, PasswordInput, FormScrollView, Section, Typography } from '@/shared/ui';
 
 export default function BackupImportScreen() {
+  const hasPlans = useInvestmentPlans().length > 0;
+  // From settings, back to them. On the first launch the first-plan screen under this one is gone
+  // once plans exist, so the restored portfolio opens the app.
+  const leave = () => (hasPlans ? router.back() : router.replace('/'));
   const {
     control,
     keyError,
@@ -15,7 +21,7 @@ export default function BackupImportScreen() {
     restoreFromCloud,
     restoreFromFile,
     restorePasted,
-  } = useBackupImport();
+  } = useBackupImport({ onRestored: leave });
   const loadFromCloud = () => void restoreFromCloud();
   const pickFile = () => void restoreFromFile();
   const restoreFromPasted = () => void restorePasted();
