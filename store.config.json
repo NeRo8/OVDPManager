@@ -27,7 +27,17 @@
         "marketingUrl": "https://nero8.github.io/OVDPManager/",
         "supportUrl": "https://nero8.github.io/OVDPManager/",
         "privacyPolicyUrl": "https://nero8.github.io/OVDPManager/privacy.html",
-        "privacyChoicesUrl": "https://nero8.github.io/OVDPManager/privacy.html#delete"
+        "privacyChoicesUrl": "https://nero8.github.io/OVDPManager/privacy.html#delete",
+        "screenshots": {
+          "APP_IPHONE_67": [
+            "store/apple/screenshot/uk/APP_IPHONE_67/01-payments.jpg",
+            "store/apple/screenshot/uk/APP_IPHONE_67/02-holdings.jpg",
+            "store/apple/screenshot/uk/APP_IPHONE_67/03-bond.jpg",
+            "store/apple/screenshot/uk/APP_IPHONE_67/04-catalog.jpg",
+            "store/apple/screenshot/uk/APP_IPHONE_67/05-plan.jpg",
+            "store/apple/screenshot/uk/APP_IPHONE_67/06-report.jpg"
+          ]
+        }
       },
       "en-US": {
         "title": "ОВДП Портфель",
@@ -51,7 +61,17 @@
         "marketingUrl": "https://nero8.github.io/OVDPManager/",
         "supportUrl": "https://nero8.github.io/OVDPManager/",
         "privacyPolicyUrl": "https://nero8.github.io/OVDPManager/privacy.html#en",
-        "privacyChoicesUrl": "https://nero8.github.io/OVDPManager/privacy.html#delete-en"
+        "privacyChoicesUrl": "https://nero8.github.io/OVDPManager/privacy.html#delete-en",
+        "screenshots": {
+          "APP_IPHONE_67": [
+            "store/apple/screenshot/en-US/APP_IPHONE_67/01-payments.jpg",
+            "store/apple/screenshot/en-US/APP_IPHONE_67/02-holdings.jpg",
+            "store/apple/screenshot/en-US/APP_IPHONE_67/03-bond.jpg",
+            "store/apple/screenshot/en-US/APP_IPHONE_67/04-catalog.jpg",
+            "store/apple/screenshot/en-US/APP_IPHONE_67/05-plan.jpg",
+            "store/apple/screenshot/en-US/APP_IPHONE_67/06-report.jpg"
+          ]
+        }
       }
     },
     "advisory": {
