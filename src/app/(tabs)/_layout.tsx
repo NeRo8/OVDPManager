@@ -33,6 +33,13 @@ export default function TabLayout() {
         />
         <NativeTabs.Trigger.Label>Гаманець</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="(reports)">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'doc.text', selected: 'doc.text.fill' }}
+          md="summarize"
+        />
+        <NativeTabs.Trigger.Label>Звіти</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="(plan)">
         <NativeTabs.Trigger.Icon
           sf={{ default: 'chart.bar', selected: 'chart.bar.fill' }}
