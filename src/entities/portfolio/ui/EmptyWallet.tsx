@@ -8,6 +8,7 @@ export function EmptyWallet() {
 
   return (
     <EmptyState
+      icon="wallet-outline"
       title="Гаманець порожній"
       message="Додайте ОВДП за її номером (ISIN), датою купівлі та сумою — і побачите графік виплат купонів."
     >

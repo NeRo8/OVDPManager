@@ -1,10 +1,10 @@
 import { Stack, router } from 'expo-router';
-import { FlatList } from 'react-native';
+import { FlatList, View } from 'react-native';
 import { StyleSheet, withUnistyles } from 'react-native-unistyles';
 
 import { BondsGate } from '@/entities/portfolio';
 import { useBondPicker } from '@/features/add-purchase';
-import { SectionCell, Typography, screenContent } from '@/shared/ui';
+import { IconBadge, SectionCell, Typography, screenContent } from '@/shared/ui';
 import { BondChoiceRow } from './BondChoiceRow';
 import { BondFiltersButton } from './BondFiltersButton';
 import { SORT_LABELS, TERM_LABELS } from './bondFilterLabels';
@@ -67,9 +67,12 @@ export default function BondPickerScreen() {
           </SectionCell>
         )}
         ListEmptyComponent={
-          <Typography variant="subhead" tone="secondary" align="center" style={styles.empty}>
-            {query.trim() ? 'ОВДП з таким номером не знайдено' : 'За цими фільтрами ОВДП немає'}
-          </Typography>
+          <View style={styles.empty}>
+            <IconBadge icon="search-outline" />
+            <Typography variant="subhead" tone="secondary" align="center">
+              {query.trim() ? 'ОВДП з таким номером не знайдено' : 'За цими фільтрами ОВДП немає'}
+            </Typography>
+          </View>
         }
       />
     </BondsGate>
@@ -80,5 +83,5 @@ const styles = StyleSheet.create((theme) => ({
   list: { backgroundColor: theme.background },
   content: { gap: 0 },
   summary: { marginHorizontal: theme.space.lg, marginBottom: theme.space.md },
-  empty: { marginTop: theme.space.xl },
+  empty: { alignItems: 'center', gap: theme.space.md, marginTop: theme.space.xl },
 }));

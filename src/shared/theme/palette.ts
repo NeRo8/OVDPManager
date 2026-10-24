@@ -16,6 +16,8 @@ export const light = {
   border: '#D5E0DA',
   accent: '#046865',
   accentText: '#FCFFF7',
+  /** Tints the disc and the glow behind an illustration icon drawn in `accent` (5.4:1) */
+  accentSurface: '#D6ECE8',
   positive: '#046865',
   // #E53D00 itself is 4.2:1 on `card`, so text takes a darker step of it.
   danger: '#C23300',
@@ -68,6 +70,7 @@ export const dark: AppTheme = {
   // #046865 is 2.7:1 on black, so the lighter teal takes its place.
   accent: '#21A0A0',
   accentText: '#000000',
+  accentSurface: '#0B2B2A',
   positive: '#3CC9C3',
   danger: '#FF6A33',
   success: '#5BC877',

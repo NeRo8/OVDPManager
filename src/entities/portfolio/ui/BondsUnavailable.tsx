@@ -9,7 +9,7 @@ export type BondsUnavailableProps = {
 export function BondsUnavailable({ error, onRetry }: BondsUnavailableProps) {
   if (!error) return <LoadingState message="Завантажуємо дані НБУ…" />;
   return (
-    <EmptyState title="Немає зв’язку з НБУ" message={error}>
+    <EmptyState icon="cloud-offline-outline" title="Немає зв’язку з НБУ" message={error}>
       <Button title="Спробувати ще раз" onPress={onRetry} />
     </EmptyState>
   );

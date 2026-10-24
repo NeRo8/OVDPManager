@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { View } from 'react-native';
 import { Controller, useForm, useFormState } from 'react-hook-form';
 import { StyleSheet } from 'react-native-unistyles';
 import { z } from 'zod';
@@ -11,7 +12,15 @@ import {
   renameInvestmentPlan,
   useInvestmentPlans,
 } from '@/entities/portfolio';
-import { Button, EmptyState, Input, FormScrollView, Section, Typography } from '@/shared/ui';
+import {
+  Button,
+  EmptyState,
+  FormScrollView,
+  IconBadge,
+  Input,
+  Section,
+  Typography,
+} from '@/shared/ui';
 
 const PlanNameFormSchema = z.object({
   name: z
@@ -67,7 +76,11 @@ export default function PlanNameScreen() {
     return (
       <>
         {header}
-        <EmptyState title="План не знайдено" message="Поверніться до списку планів." />
+        <EmptyState
+          icon="search-outline"
+          title="План не знайдено"
+          message="Поверніться до списку планів."
+        />
       </>
     );
 
@@ -75,10 +88,19 @@ export default function PlanNameScreen() {
     <FormScrollView>
       {header}
       {isFirst && (
-        <Typography variant="subhead" tone="secondary" style={styles.intro}>
-          Купівлі ОВДП зберігаються в інвестиційних планах. Створіть перший план, а згодом додайте
-          інші та перемикайтеся між ними.
-        </Typography>
+        <View style={styles.intro}>
+          {/* The plans tab's chart, so the plan looks the same here and in the tab bar. */}
+          <IconBadge icon="bar-chart-outline" size="lg" />
+          <View style={styles.introText}>
+            <Typography variant="title2" align="center">
+              Почніть з плану
+            </Typography>
+            <Typography variant="subhead" tone="secondary" align="center">
+              Купівлі ОВДП зберігаються в інвестиційних планах. Створіть перший план, а згодом
+              додайте інші та перемикайтеся між ними.
+            </Typography>
+          </View>
+        </View>
       )}
       <Section
         title="Назва"
@@ -120,5 +142,11 @@ export default function PlanNameScreen() {
 }
 
 const styles = StyleSheet.create((theme) => ({
-  intro: { marginHorizontal: theme.space.lg },
+  intro: {
+    alignItems: 'center',
+    gap: theme.space.xl,
+    paddingTop: theme.space.lg,
+    paddingHorizontal: theme.space.lg,
+  },
+  introText: { gap: theme.space.sm },
 }));

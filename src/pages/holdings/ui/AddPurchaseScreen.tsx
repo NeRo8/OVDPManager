@@ -29,7 +29,7 @@ export default function AddPurchaseScreen() {
         {bond ? (
           <AddPurchaseForm bond={bond} ownedQuantity={ownedQuantity} onSaved={closeAdding} />
         ) : (
-          <EmptyState title={isin} message="Цієї ОВДП немає в даних НБУ." />
+          <EmptyState icon="search-outline" title={isin} message="Цієї ОВДП немає в даних НБУ." />
         )}
       </BondsGate>
     </>
