@@ -1,8 +1,7 @@
 import { Stack } from 'expo-router';
 import type { SectionListData, SectionListRenderItemInfo } from 'react-native';
 
-import { CURRENCY_NAMES, WalletGate } from '@/entities/portfolio';
-import { filterWallet } from '@/features/report-filters';
+import { CURRENCY_NAMES, WalletGate, narrowWallet } from '@/entities/portfolio';
 import { formatDate } from '@/shared/lib';
 import { SectionCell } from '@/shared/ui';
 import { useYieldReport } from '../model/useYieldReport.hook';
@@ -30,7 +29,7 @@ const keyOf = (bond: YieldBond) => bond.isin;
  */
 export default function YieldReportScreen() {
   const { wallet, filters, keyRateOn, activeFilterCount } = useYieldReport();
-  const filtered = filterWallet(wallet, filters);
+  const filtered = narrowWallet(wallet, filters);
   const currencies = yieldReport(filtered, filters.status, keyRateOn);
   const sections = currencies.map((report): CurrencySection => ({
     report,

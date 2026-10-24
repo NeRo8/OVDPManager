@@ -3,8 +3,8 @@ import { Fragment } from 'react';
 import { RefreshControl, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { NbuSourceNote, StaleBondsNotice, WalletGate } from '@/entities/portfolio';
-import { countScopeFilters, filterWallet, reportYears } from '@/features/report-filters';
+import { NbuSourceNote, StaleBondsNotice, WalletGate, narrowWallet } from '@/entities/portfolio';
+import { countScopeFilters, reportYears } from '@/features/report-filters';
 import { usePullToRefresh } from '@/shared/lib';
 import { EmptyState, ScreenScrollView } from '@/shared/ui';
 import { ALL_YEARS_TERMS } from '../model/reportTerms';
@@ -28,7 +28,7 @@ import { YearsResultsTable } from './YearsResultsTable';
  */
 export default function YearOverYearReportScreen() {
   const { wallet, filters, activeFilterCount } = useYearOverYearReport();
-  const filtered = filterWallet(wallet, filters);
+  const filtered = narrowWallet(wallet, filters);
   const { firstYear, lastYear } = reportYears(filtered);
   const currencies = yearOverYearReport(filtered);
   const pullToRefresh = usePullToRefresh(wallet.refresh);

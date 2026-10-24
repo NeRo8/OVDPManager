@@ -1,5 +1,4 @@
-import type { Wallet, WalletPosition } from '@/entities/portfolio';
-import { filterWallet } from '@/features/report-filters';
+import { type Wallet, type WalletPosition, narrowWallet } from '@/entities/portfolio';
 import { type CurrencyYears, yearOverYearReport } from './yearOverYearReport';
 import { KEY_RATE_CURRENCY, type KeyRateOn, keyRateAt } from './yieldReport';
 
@@ -23,7 +22,7 @@ export function bondChoicesByMaturity(wallet: Wallet): WalletPosition[] {
 /** Everything about one bond of the wallet: what it cost, pays and earns, by year too. */
 export function bondReport(wallet: Wallet, item: WalletPosition, keyRateOn: KeyRateOn): BondReport {
   const { position, currency } = item;
-  const alone = filterWallet(wallet, { currency: null, isins: [position.isin] });
+  const alone = narrowWallet(wallet, { currency: null, isins: [position.isin] });
 
   return {
     item,

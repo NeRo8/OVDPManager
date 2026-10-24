@@ -1,6 +1,9 @@
 import { CURRENCIES, type Currency, type Wallet } from '@/entities/portfolio';
 
-/** What a report covers besides its time: the filters every report with filters has. */
+/**
+ * What a report covers besides its time: the filters every report with filters has. It is a
+ * `WalletScope`, so `narrowWallet` takes it as it is.
+ */
 export type ReportScope = {
   /** Null, or a currency the wallet no longer has: every currency */
   currency: Currency | null;
@@ -46,19 +49,4 @@ export function toggledIsins(isins: string[], isin: string): string[] {
 /** How many of the scope's filters are on. */
 export function countScopeFilters({ currency, isins }: ReportScope): number {
   return [currency !== null, isins.length > 0].filter(Boolean).length;
-}
-
-/** The wallet with only the currency and the bonds the scope lets through. */
-export function filterWallet(wallet: Wallet, { currency, isins }: ReportScope): Wallet {
-  const passes = (item: { currency: Currency; isin: string }) =>
-    (currency === null || item.currency === currency) &&
-    (isins.length === 0 || isins.includes(item.isin));
-  return {
-    ...wallet,
-    positions: wallet.positions.filter((item) =>
-      passes({ currency: item.currency, isin: item.position.isin }),
-    ),
-    payments: wallet.payments.filter(passes),
-    purchaseEvents: wallet.purchaseEvents.filter(passes),
-  };
 }

@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import type { SectionListData, SectionListRenderItemInfo } from 'react-native';
 
-import { CURRENCY_NAMES, type Wallet } from '@/entities/portfolio';
+import { type ActiveWallet, CURRENCY_NAMES } from '@/entities/portfolio';
 import { SectionCell } from '@/shared/ui';
 import type { BondReport, CurrencyReport } from '../model/periodReport';
 import type { ReportTerms } from '../model/reportTerms';
@@ -17,7 +17,7 @@ import { ReportSummary } from './ReportSummary';
 type CurrencySection = { report: CurrencyReport; data: BondReport[] };
 
 type Props = {
-  wallet: Wallet;
+  wallet: ActiveWallet;
   reports: CurrencyReport[];
   terms: ReportTerms;
   /** What the report covers, above the currencies or the reason there are none */

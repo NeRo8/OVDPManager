@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 
-import { WalletGate } from '@/entities/portfolio';
-import { countScopeFilters, filterWallet } from '@/features/report-filters';
+import { WalletGate, narrowWallet } from '@/entities/portfolio';
+import { countScopeFilters } from '@/features/report-filters';
 import { EmptyState } from '@/shared/ui';
 import { YEAR_TERMS } from '../model/reportTerms';
 import { useYearReport } from '../model/useYearReport.hook';
@@ -17,7 +17,7 @@ import { ReportHeading } from './ReportHeading';
  */
 export default function YearReportScreen() {
   const { wallet, filters, year, activeFilterCount } = useYearReport();
-  const currencies = yearReport(filterWallet(wallet, filters), year);
+  const currencies = yearReport(narrowWallet(wallet, filters), year);
   const isCurrentYear = year === Number(wallet.today.slice(0, 4));
 
   return (

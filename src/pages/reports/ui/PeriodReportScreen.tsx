@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 
-import { WalletGate } from '@/entities/portfolio';
-import { countScopeFilters, filterWallet } from '@/features/report-filters';
+import { WalletGate, narrowWallet } from '@/entities/portfolio';
+import { countScopeFilters } from '@/features/report-filters';
 import { EmptyState } from '@/shared/ui';
 import { periodReport } from '../model/periodReport';
 import { PERIOD_TERMS } from '../model/reportTerms';
@@ -18,7 +18,7 @@ import { ReportHeading } from './ReportHeading';
  */
 export default function PeriodReportScreen() {
   const { wallet, filters, period, activeFilterCount } = useReportPeriod();
-  const currencies = periodReport(filterWallet(wallet, filters), period.from, period.to);
+  const currencies = periodReport(narrowWallet(wallet, filters), period.from, period.to);
 
   return (
     <WalletGate>

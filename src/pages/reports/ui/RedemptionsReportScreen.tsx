@@ -1,8 +1,13 @@
 import { Stack } from 'expo-router';
 import type { SectionListData, SectionListRenderItemInfo } from 'react-native';
 
-import { type PositionPayment, ScheduleEventRow, WalletGate } from '@/entities/portfolio';
-import { countScopeFilters, filterWallet } from '@/features/report-filters';
+import {
+  type PositionPayment,
+  ScheduleEventRow,
+  WalletGate,
+  narrowWallet,
+} from '@/entities/portfolio';
+import { countScopeFilters } from '@/features/report-filters';
 import { SectionCell } from '@/shared/ui';
 import { type CurrencyRedemptions, redemptionsReport } from '../model/redemptionsReport';
 import { useRedemptionsReport } from '../model/useRedemptionsReport.hook';
@@ -26,7 +31,7 @@ const keyOf = (payment: PositionPayment) => `${payment.isin}-${payment.date}`;
  */
 export default function RedemptionsReportScreen() {
   const { wallet, filters, activeFilterCount } = useRedemptionsReport();
-  const filtered = filterWallet(wallet, filters);
+  const filtered = narrowWallet(wallet, filters);
   const currencies = redemptionsReport(filtered, filters.time);
   const sections = currencies.map((report): CurrencySection => ({ report, data: report.payments }));
   const years = currencies.flatMap((report) => report.years.map(({ year }) => year));

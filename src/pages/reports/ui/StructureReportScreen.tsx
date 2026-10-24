@@ -2,8 +2,7 @@ import { Stack } from 'expo-router';
 import type { SectionListData, SectionListRenderItemInfo } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { CURRENCY_NAMES, WalletGate } from '@/entities/portfolio';
-import { filterWallet } from '@/features/report-filters';
+import { CURRENCY_NAMES, WalletGate, narrowWallet } from '@/entities/portfolio';
 import { formatDate } from '@/shared/lib';
 import { SectionCell, Typography } from '@/shared/ui';
 import {
@@ -36,7 +35,7 @@ const keyOf = (bond: StructureBond) => bond.isin;
  */
 export default function StructureReportScreen() {
   const { wallet, filters, activeFilterCount } = useStructureReport();
-  const filtered = filterWallet(wallet, filters);
+  const filtered = narrowWallet(wallet, filters);
   const { currencies, unknownCount } = structureReport(filtered, filters.purchases);
   const sections = currencies.map((report): CurrencySection => ({ report, data: report.bonds }));
 

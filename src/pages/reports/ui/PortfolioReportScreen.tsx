@@ -1,8 +1,7 @@
 import { Stack } from 'expo-router';
 import type { SectionListData, SectionListRenderItemInfo } from 'react-native';
 
-import { CURRENCY_NAMES, WalletGate } from '@/entities/portfolio';
-import { filterWallet } from '@/features/report-filters';
+import { CURRENCY_NAMES, WalletGate, narrowWallet } from '@/entities/portfolio';
 import { formatDate } from '@/shared/lib';
 import { SectionCell } from '@/shared/ui';
 import {
@@ -33,7 +32,7 @@ const keyOf = (bond: PortfolioBond) => bond.isin;
  */
 export default function PortfolioReportScreen() {
   const { wallet, filters, activeFilterCount } = usePortfolioReport();
-  const filtered = filterWallet(wallet, filters);
+  const filtered = narrowWallet(wallet, filters);
   const currencies = portfolioReport(filtered, filters.status);
   const sections = currencies.map((report): CurrencySection => ({ report, data: report.bonds }));
 

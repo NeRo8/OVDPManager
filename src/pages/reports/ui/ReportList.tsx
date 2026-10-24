@@ -1,7 +1,7 @@
 import { RefreshControl, SectionList, type SectionListProps, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { NbuSourceNote, type Wallet } from '@/entities/portfolio';
+import { type ActiveWallet, NbuSourceNote } from '@/entities/portfolio';
 import { usePullToRefresh } from '@/shared/lib';
 import { screenContent } from '@/shared/ui';
 import { ReportCaption } from './ReportCaption';
@@ -15,7 +15,7 @@ type Props<ItemT, SectionT> = Omit<
   | 'refreshControl'
   | 'ListFooterComponent'
 > & {
-  wallet: Wallet;
+  wallet: ActiveWallet;
 };
 
 /**
