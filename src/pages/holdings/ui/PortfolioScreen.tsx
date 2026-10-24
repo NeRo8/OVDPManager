@@ -18,6 +18,7 @@ import {
   StaleBondsNotice,
   WalletGate,
   isPlannedPurchase,
+  isRedeemed,
   useWallet,
 } from '@/entities/portfolio';
 
@@ -44,7 +45,7 @@ export default function PortfolioScreen() {
               <SectionTitle title="Мої ОВДП" />
             </View>
           }
-          renderItem={({ item: { position, bond, currency, nextPayment }, index }) => {
+          renderItem={({ item: { position, bond, currency }, index }) => {
             // Nothing bought yet: every purchase of the position is still ahead.
             const isPlanned = position.purchases.every((purchase) =>
               isPlannedPurchase(purchase, today),
@@ -66,7 +67,9 @@ export default function PortfolioScreen() {
                     {bond ? (
                       <Typography variant="caption1" tone="secondary">
                         {bond.rate}% ·{' '}
-                        {nextPayment ? `до ${formatDate(bond.maturityDate)}` : 'погашено'}
+                        {isRedeemed(bond, today)
+                          ? 'погашено'
+                          : `до ${formatDate(bond.maturityDate)}`}
                       </Typography>
                     ) : (
                       <Typography variant="caption1" tone="warning">

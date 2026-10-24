@@ -7,6 +7,7 @@ import {
 } from '@/entities/portfolio';
 import type { StructurePurchases } from '@/features/report-filters';
 import { addDaysISO, addMonthsISO, daysBetween, round2 } from '@/shared/lib';
+import { bondState } from './portfolioReport';
 
 /** Time left until maturity, the bond picker's one and three years split finer. */
 export type TermBucket = 'halfYear' | 'year' | 'twoYears' | 'threeYears' | 'longer';
@@ -67,8 +68,8 @@ function termOf(maturityDate: string, today: string): TermBucket {
  */
 export function structureReport(wallet: Wallet, purchases: StructurePurchases): StructureReport {
   const { today } = wallet;
-  // Without the NBU data a bond has no payments, so it counts as still in circulation.
-  const inCirculation = wallet.positions.filter(({ bond, nextPayment }) => !bond || nextPayment);
+  // Without the NBU data a bond has no maturity to go by, so it counts as still in circulation.
+  const inCirculation = wallet.positions.filter((item) => bondState(item, today) !== 'redeemed');
   const held = inCirculation.flatMap(({ position, bond, currency }) => {
     if (!bond) return [];
     const amount = position.purchases

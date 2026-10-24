@@ -129,6 +129,14 @@ export function isPlannedPurchase(
   return purchase.purchaseDate > today;
 }
 
+/**
+ * Redeemed once the maturity date has passed: on the day itself the redemption is still to come,
+ * as any payment is. It holds even while NBU has not published the redemption.
+ */
+export function isRedeemed(bond: Pick<Bond, 'maturityDate'>, today: string): boolean {
+  return bond.maturityDate < today;
+}
+
 /** What one bond cost: the amount paid for the purchase (or the position) ÷ quantity. */
 export function pricePerBond(amount: number, quantity: number): number {
   return round2(amount / quantity);

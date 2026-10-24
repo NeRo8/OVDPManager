@@ -6,6 +6,7 @@ import {
   type Wallet,
   type WalletPosition,
   isPlannedPurchase,
+  isRedeemed,
   purchaseResults,
 } from '@/entities/portfolio';
 import type { PortfolioStatus } from '@/features/report-filters';
@@ -46,13 +47,10 @@ export type CurrencyPortfolio = {
 };
 
 /** Where a bond of the wallet stands today. */
-export function bondState(
-  { position, bond, nextPayment }: WalletPosition,
-  today: string,
-): BondState {
+export function bondState({ position, bond }: WalletPosition, today: string): BondState {
   if (!bond) return 'unknown';
   if (position.purchases.every((purchase) => isPlannedPurchase(purchase, today))) return 'planned';
-  return nextPayment ? 'active' : 'redeemed';
+  return isRedeemed(bond, today) ? 'redeemed' : 'active';
 }
 
 /** In circulation means everything not redeemed: planned, and unknown without the NBU data. */
