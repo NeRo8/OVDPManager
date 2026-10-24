@@ -1,16 +1,11 @@
 import { Stack } from 'expo-router';
 import type { SectionListData, SectionListRenderItemInfo } from 'react-native';
 
-import {
-  type PositionPayment,
-  ScheduleEventRow,
-  WalletGate,
-  narrowWallet,
-} from '@/entities/portfolio';
-import { countScopeFilters } from '@/features/report-filters';
+import { type PositionPayment, ScheduleEventRow, WalletGate } from '@/entities/portfolio';
+import { isScopeOn } from '@/features/report-filters';
 import { SectionCell } from '@/shared/ui';
 import { type CurrencyRedemptions, redemptionsReport } from '../model/redemptionsReport';
-import { useRedemptionsReport } from '../model/useRedemptionsReport.hook';
+import { useReport } from '../model/useReport.hook';
 import { REDEMPTION_TIME_LABELS } from './redemptionLabels';
 import { RedemptionsCurrencyHeader } from './RedemptionsCurrencyHeader';
 import { RedemptionsEmpty } from './RedemptionsEmpty';
@@ -30,9 +25,8 @@ const keyOf = (payment: PositionPayment) => `${payment.isin}-${payment.date}`;
  * every redemption. Everything shows at once, with no taps, so it reads the same on paper.
  */
 export default function RedemptionsReportScreen() {
-  const { wallet, filters, activeFilterCount } = useRedemptionsReport();
-  const filtered = narrowWallet(wallet, filters);
-  const currencies = redemptionsReport(filtered, filters.time);
+  const { wallet, narrowed, filters, activeFilterCount } = useReport('redemptions');
+  const currencies = redemptionsReport(narrowed, filters.time);
   const sections = currencies.map((report): CurrencySection => ({ report, data: report.payments }));
   const years = currencies.flatMap((report) => report.years.map(({ year }) => year));
   const firstYear = Math.min(...years);
@@ -58,10 +52,7 @@ export default function RedemptionsReportScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <ReportFiltersButton
-              activeFilterCount={activeFilterCount}
-              href="/redemptions-report-filters"
-            />
+            <ReportFiltersButton activeFilterCount={activeFilterCount} report="redemptions" />
           ),
         }}
       />
@@ -82,11 +73,7 @@ export default function RedemptionsReportScreen() {
         renderSectionHeader={renderSectionHeader}
         renderItem={renderItem}
         ListEmptyComponent={
-          <RedemptionsEmpty
-            wallet={filtered}
-            time={filters.time}
-            isScoped={countScopeFilters(filters) > 0}
-          />
+          <RedemptionsEmpty wallet={narrowed} time={filters.time} isScoped={isScopeOn(filters)} />
         }
       />
     </WalletGate>

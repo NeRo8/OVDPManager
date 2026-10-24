@@ -1,27 +1,10 @@
-import { useKeyRates, useWallet } from '@/entities/portfolio';
-import {
-  countYieldReportFilters,
-  effectiveScope,
-  reportScopeOptions,
-  useYieldReportFilters,
-} from '@/features/report-filters';
+import { useKeyRates } from '@/entities/portfolio';
+import { useReport } from './useReport.hook';
 import { purchaseDates } from './yieldReport';
 
-/**
- * The saved filters of the yield report, fitted to the active plan's wallet, and the NBU key rate
- * today and on every purchase date.
- */
+/** The yield report's filters, and the NBU key rate today and on every purchase date. */
 export function useYieldReport() {
-  const wallet = useWallet();
-  const options = reportScopeOptions(wallet);
-  const filters = effectiveScope(useYieldReportFilters(), options);
-  const keyRateOn = useKeyRates([...purchaseDates(wallet), wallet.today]);
-
-  return {
-    wallet,
-    filters,
-    options,
-    keyRateOn,
-    activeFilterCount: countYieldReportFilters(filters),
-  };
+  const report = useReport('yield');
+  const keyRateOn = useKeyRates([...purchaseDates(report.wallet), report.wallet.today]);
+  return { ...report, keyRateOn };
 }

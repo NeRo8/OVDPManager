@@ -1,30 +1,13 @@
-import { useKeyRates, useWallet } from '@/entities/portfolio';
-import {
-  countBondReportFilters,
-  reportBondIsin,
-  useBondReportFilters,
-} from '@/features/report-filters';
-import { bondChoicesByMaturity } from './bondReport';
+import { useKeyRates } from '@/entities/portfolio';
+import { useReport } from './useReport.hook';
 
 /** The bond picked for the bond report, the nearest to maturity at first, and its key rates. */
 export function useBondReport() {
-  const wallet = useWallet();
-  const choices = bondChoicesByMaturity(wallet);
-  const isins = choices.map(({ position }) => position.isin);
-  const filters = useBondReportFilters();
-  const isin = reportBondIsin(filters, isins);
+  const report = useReport('bond');
+  const { isin, choices } = report.filters;
   const item = choices.find(({ position }) => position.isin === isin);
   const keyRateOn = useKeyRates(
     item?.position.purchases.map((purchase) => purchase.purchaseDate) ?? [],
   );
-
-  return {
-    wallet,
-    choices,
-    isin,
-    defaultIsin: isins[0],
-    item,
-    keyRateOn,
-    activeFilterCount: countBondReportFilters(filters, isins),
-  };
+  return { ...report, item, keyRateOn };
 }

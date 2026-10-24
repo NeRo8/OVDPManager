@@ -73,35 +73,7 @@ export default function RootLayout() {
               <NativeStack.Screen name="reports/year" options={{ title: 'Звіт за рік' }} />
               <NativeStack.Screen name="reports/period" options={{ title: 'Звіт за період' }} />
               <NativeStack.Screen
-                name="year-report-filters"
-                options={{ title: 'Фільтри звіту', ...FILTERS_MODAL }}
-              />
-              <NativeStack.Screen
-                name="year-over-year-report-filters"
-                options={{ title: 'Фільтри звіту', ...FILTERS_MODAL }}
-              />
-              <NativeStack.Screen
-                name="redemptions-report-filters"
-                options={{ title: 'Фільтри звіту', ...FILTERS_MODAL }}
-              />
-              <NativeStack.Screen
-                name="portfolio-report-filters"
-                options={{ title: 'Фільтри звіту', ...FILTERS_MODAL }}
-              />
-              <NativeStack.Screen
-                name="structure-report-filters"
-                options={{ title: 'Фільтри звіту', ...FILTERS_MODAL }}
-              />
-              <NativeStack.Screen
-                name="yield-report-filters"
-                options={{ title: 'Фільтри звіту', ...FILTERS_MODAL }}
-              />
-              <NativeStack.Screen
-                name="bond-report-filters"
-                options={{ title: 'Фільтри звіту', ...FILTERS_MODAL }}
-              />
-              <NativeStack.Screen
-                name="period-report-filters"
+                name="report-filters/[report]"
                 options={{ title: 'Фільтри звіту', ...FILTERS_MODAL }}
               />
               <NativeStack.Screen

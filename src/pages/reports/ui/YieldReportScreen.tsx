@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import type { SectionListData, SectionListRenderItemInfo } from 'react-native';
 
-import { CURRENCY_NAMES, WalletGate, narrowWallet } from '@/entities/portfolio';
+import { CURRENCY_NAMES, WalletGate } from '@/entities/portfolio';
 import { formatDate } from '@/shared/lib';
 import { SectionCell } from '@/shared/ui';
 import { useYieldReport } from '../model/useYieldReport.hook';
@@ -28,9 +28,8 @@ const keyOf = (bond: YieldBond) => bond.isin;
  * the highest first. Everything shows at once, with no taps, so it reads the same on paper.
  */
 export default function YieldReportScreen() {
-  const { wallet, filters, keyRateOn, activeFilterCount } = useYieldReport();
-  const filtered = narrowWallet(wallet, filters);
-  const currencies = yieldReport(filtered, filters.status, keyRateOn);
+  const { wallet, narrowed, filters, keyRateOn, activeFilterCount } = useYieldReport();
+  const currencies = yieldReport(narrowed, filters.status, keyRateOn);
   const sections = currencies.map((report): CurrencySection => ({
     report,
     data: report.bonds,
@@ -72,10 +71,7 @@ export default function YieldReportScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <ReportFiltersButton
-              activeFilterCount={activeFilterCount}
-              href="/yield-report-filters"
-            />
+            <ReportFiltersButton activeFilterCount={activeFilterCount} report="yield" />
           ),
         }}
       />
@@ -93,7 +89,7 @@ export default function YieldReportScreen() {
         }
         renderSectionHeader={renderSectionHeader}
         renderItem={renderItem}
-        ListEmptyComponent={<BondStatusEmpty wallet={filtered} status={filters.status} />}
+        ListEmptyComponent={<BondStatusEmpty wallet={narrowed} status={filters.status} />}
       />
     </WalletGate>
   );

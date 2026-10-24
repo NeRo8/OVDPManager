@@ -3,12 +3,12 @@ import { Fragment } from 'react';
 import { RefreshControl, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { NbuSourceNote, StaleBondsNotice, WalletGate, narrowWallet } from '@/entities/portfolio';
-import { countScopeFilters, reportYears } from '@/features/report-filters';
+import { NbuSourceNote, StaleBondsNotice, WalletGate } from '@/entities/portfolio';
+import { isScopeOn, reportYears } from '@/features/report-filters';
 import { usePullToRefresh } from '@/shared/lib';
 import { EmptyState, ScreenScrollView } from '@/shared/ui';
 import { ALL_YEARS_TERMS } from '../model/reportTerms';
-import { useYearOverYearReport } from '../model/useYearOverYearReport.hook';
+import { useReport } from '../model/useReport.hook';
 import { yearOverYearReport } from '../model/yearOverYearReport';
 import { ReportCaption } from './ReportCaption';
 import { ReportFiltersButton } from './ReportFiltersButton';
@@ -27,10 +27,9 @@ import { YearsResultsTable } from './YearsResultsTable';
  * results of each year. Everything shows at once, with no taps, so it reads the same on paper.
  */
 export default function YearOverYearReportScreen() {
-  const { wallet, filters, activeFilterCount } = useYearOverYearReport();
-  const filtered = narrowWallet(wallet, filters);
-  const { firstYear, lastYear } = reportYears(filtered);
-  const currencies = yearOverYearReport(filtered);
+  const { wallet, narrowed, filters, activeFilterCount } = useReport('yearOverYear');
+  const { firstYear, lastYear } = reportYears(narrowed);
+  const currencies = yearOverYearReport(narrowed);
   const pullToRefresh = usePullToRefresh(wallet.refresh);
 
   return (
@@ -39,10 +38,7 @@ export default function YearOverYearReportScreen() {
         <Stack.Screen
           options={{
             headerRight: () => (
-              <ReportFiltersButton
-                activeFilterCount={activeFilterCount}
-                href="/year-over-year-report-filters"
-              />
+              <ReportFiltersButton activeFilterCount={activeFilterCount} report="yearOverYear" />
             ),
           }}
         />
@@ -68,7 +64,7 @@ export default function YearOverYearReportScreen() {
               </Fragment>
             ))}
           </>
-        ) : countScopeFilters(filters) > 0 ? (
+        ) : isScopeOn(filters) ? (
           <EmptyState
             layout="inline"
             icon="funnel-outline"

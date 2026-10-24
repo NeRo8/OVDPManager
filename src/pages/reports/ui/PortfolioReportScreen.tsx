@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import type { SectionListData, SectionListRenderItemInfo } from 'react-native';
 
-import { CURRENCY_NAMES, WalletGate, narrowWallet } from '@/entities/portfolio';
+import { CURRENCY_NAMES, WalletGate } from '@/entities/portfolio';
 import { formatDate } from '@/shared/lib';
 import { SectionCell } from '@/shared/ui';
 import {
@@ -9,7 +9,7 @@ import {
   type PortfolioBond,
   portfolioReport,
 } from '../model/portfolioReport';
-import { usePortfolioReport } from '../model/usePortfolioReport.hook';
+import { useReport } from '../model/useReport.hook';
 import { BondStatusEmpty } from './BondStatusEmpty';
 import { PORTFOLIO_STATUS_TITLES } from './portfolioLabels';
 import { PortfolioBondRow } from './PortfolioBondRow';
@@ -31,9 +31,8 @@ const keyOf = (bond: PortfolioBond) => bond.isin;
  * income. Everything shows at once, with no taps, so it reads the same on paper.
  */
 export default function PortfolioReportScreen() {
-  const { wallet, filters, activeFilterCount } = usePortfolioReport();
-  const filtered = narrowWallet(wallet, filters);
-  const currencies = portfolioReport(filtered, filters.status);
+  const { wallet, narrowed, filters, activeFilterCount } = useReport('portfolio');
+  const currencies = portfolioReport(narrowed, filters.status);
   const sections = currencies.map((report): CurrencySection => ({ report, data: report.bonds }));
 
   const renderSectionHeader = ({
@@ -60,10 +59,7 @@ export default function PortfolioReportScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <ReportFiltersButton
-              activeFilterCount={activeFilterCount}
-              href="/portfolio-report-filters"
-            />
+            <ReportFiltersButton activeFilterCount={activeFilterCount} report="portfolio" />
           ),
         }}
       />
@@ -81,7 +77,7 @@ export default function PortfolioReportScreen() {
         }
         renderSectionHeader={renderSectionHeader}
         renderItem={renderItem}
-        ListEmptyComponent={<BondStatusEmpty wallet={filtered} status={filters.status} />}
+        ListEmptyComponent={<BondStatusEmpty wallet={narrowed} status={filters.status} />}
       />
     </WalletGate>
   );

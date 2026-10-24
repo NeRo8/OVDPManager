@@ -1,17 +1,18 @@
-import { type Href, router } from 'expo-router';
+import { router } from 'expo-router';
 
+import type { ReportName } from '@/features/report-filters';
 import { HeaderButton } from '@/shared/ui';
 
 type Props = {
+  report: ReportName;
   activeFilterCount: number;
-  /** The report's filters modal */
-  href: Href;
 };
 
 /** Header action of a report; a filled accent icon shows that some filters are on. */
-export function ReportFiltersButton({ activeFilterCount, href }: Props) {
+export function ReportFiltersButton({ report, activeFilterCount }: Props) {
   const isFiltered = activeFilterCount > 0;
-  const openFilters = () => router.push(href);
+  const openFilters = () =>
+    router.push({ pathname: '/report-filters/[report]', params: { report } });
 
   return (
     <HeaderButton

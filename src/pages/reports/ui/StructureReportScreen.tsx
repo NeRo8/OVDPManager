@@ -2,7 +2,7 @@ import { Stack } from 'expo-router';
 import type { SectionListData, SectionListRenderItemInfo } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { CURRENCY_NAMES, WalletGate, narrowWallet } from '@/entities/portfolio';
+import { CURRENCY_NAMES, WalletGate } from '@/entities/portfolio';
 import { formatDate } from '@/shared/lib';
 import { SectionCell, Typography } from '@/shared/ui';
 import {
@@ -10,7 +10,7 @@ import {
   type StructureBond,
   structureReport,
 } from '../model/structureReport';
-import { useStructureReport } from '../model/useStructureReport.hook';
+import { useReport } from '../model/useReport.hook';
 import { ReportFiltersButton } from './ReportFiltersButton';
 import { ReportHeading } from './ReportHeading';
 import { ReportList } from './ReportList';
@@ -34,9 +34,8 @@ const keyOf = (bond: StructureBond) => bond.isin;
  * maturity and by bond. Everything shows at once, with no taps, so it reads the same on paper.
  */
 export default function StructureReportScreen() {
-  const { wallet, filters, activeFilterCount } = useStructureReport();
-  const filtered = narrowWallet(wallet, filters);
-  const { currencies, unknownCount } = structureReport(filtered, filters.purchases);
+  const { wallet, narrowed, filters, activeFilterCount } = useReport('structure');
+  const { currencies, unknownCount } = structureReport(narrowed, filters.purchases);
   const sections = currencies.map((report): CurrencySection => ({ report, data: report.bonds }));
 
   const renderSectionHeader = ({
@@ -64,10 +63,7 @@ export default function StructureReportScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <ReportFiltersButton
-              activeFilterCount={activeFilterCount}
-              href="/structure-report-filters"
-            />
+            <ReportFiltersButton activeFilterCount={activeFilterCount} report="structure" />
           ),
         }}
       />
@@ -91,7 +87,7 @@ export default function StructureReportScreen() {
         }
         renderSectionHeader={renderSectionHeader}
         renderItem={renderItem}
-        ListEmptyComponent={<StructureEmpty wallet={filtered} />}
+        ListEmptyComponent={<StructureEmpty wallet={narrowed} />}
       />
     </WalletGate>
   );

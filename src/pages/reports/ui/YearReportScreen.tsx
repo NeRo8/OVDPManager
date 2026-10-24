@@ -1,10 +1,10 @@
 import { Stack } from 'expo-router';
 
-import { WalletGate, narrowWallet } from '@/entities/portfolio';
-import { countScopeFilters } from '@/features/report-filters';
+import { WalletGate } from '@/entities/portfolio';
+import { isScopeOn } from '@/features/report-filters';
 import { EmptyState } from '@/shared/ui';
 import { YEAR_TERMS } from '../model/reportTerms';
-import { useYearReport } from '../model/useYearReport.hook';
+import { useReport } from '../model/useReport.hook';
 import { yearReport } from '../model/yearReport';
 import { CurrencyReportList } from './CurrencyReportList';
 import { ReportFiltersButton } from './ReportFiltersButton';
@@ -16,8 +16,9 @@ import { ReportHeading } from './ReportHeading';
  * Everything shows at once, with no taps, so it reads the same on paper.
  */
 export default function YearReportScreen() {
-  const { wallet, filters, year, activeFilterCount } = useYearReport();
-  const currencies = yearReport(narrowWallet(wallet, filters), year);
+  const { wallet, narrowed, filters, activeFilterCount } = useReport('year');
+  const { year } = filters;
+  const currencies = yearReport(narrowed, year);
   const isCurrentYear = year === Number(wallet.today.slice(0, 4));
 
   return (
@@ -25,10 +26,7 @@ export default function YearReportScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <ReportFiltersButton
-              activeFilterCount={activeFilterCount}
-              href="/year-report-filters"
-            />
+            <ReportFiltersButton activeFilterCount={activeFilterCount} report="year" />
           ),
         }}
       />
@@ -40,7 +38,7 @@ export default function YearReportScreen() {
           <ReportHeading title={String(year)} subtitle={isCurrentYear ? 'Цей рік' : undefined} />
         }
         empty={
-          countScopeFilters(filters) > 0 ? (
+          isScopeOn(filters) ? (
             <EmptyState
               layout="inline"
               icon="funnel-outline"

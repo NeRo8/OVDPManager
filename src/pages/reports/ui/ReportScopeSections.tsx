@@ -1,15 +1,20 @@
 import { Fragment } from 'react';
 
-import { CURRENCY_NAMES, type Currency, type Wallet } from '@/entities/portfolio';
-import type { ReportScope, ReportScopeOptions } from '@/features/report-filters';
+import {
+  CURRENCY_NAMES,
+  type Currency,
+  type Wallet,
+  type WalletScope,
+  type WalletScopeOptions,
+} from '@/entities/portfolio';
 import { currencySign, formatDate } from '@/shared/lib';
 import { CheckRow, Section, Separator } from '@/shared/ui';
 
 type Props = {
   wallet: Wallet;
-  scope: ReportScope;
-  options: ReportScopeOptions;
-  onChange: (patch: Partial<ReportScope>) => void;
+  scope: WalletScope;
+  options: WalletScopeOptions;
+  onChange: (patch: Partial<WalletScope>) => void;
   onToggleIsin: (isin: string) => void;
 };
 

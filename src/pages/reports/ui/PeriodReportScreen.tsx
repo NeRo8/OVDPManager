@@ -1,11 +1,11 @@
 import { Stack } from 'expo-router';
 
-import { WalletGate, narrowWallet } from '@/entities/portfolio';
-import { countScopeFilters } from '@/features/report-filters';
+import { WalletGate } from '@/entities/portfolio';
+import { isScopeOn } from '@/features/report-filters';
 import { EmptyState } from '@/shared/ui';
 import { periodReport } from '../model/periodReport';
 import { PERIOD_TERMS } from '../model/reportTerms';
-import { useReportPeriod } from '../model/useReportPeriod.hook';
+import { useReport } from '../model/useReport.hook';
 import { CurrencyReportList } from './CurrencyReportList';
 import { PERIOD_LABELS, formatPeriod } from './periodLabels';
 import { ReportFiltersButton } from './ReportFiltersButton';
@@ -17,18 +17,16 @@ import { ReportHeading } from './ReportHeading';
  * what each bond brought.
  */
 export default function PeriodReportScreen() {
-  const { wallet, filters, period, activeFilterCount } = useReportPeriod();
-  const currencies = periodReport(narrowWallet(wallet, filters), period.from, period.to);
+  const { wallet, narrowed, filters, activeFilterCount } = useReport('period');
+  const { dates: period } = filters;
+  const currencies = periodReport(narrowed, period.from, period.to);
 
   return (
     <WalletGate>
       <Stack.Screen
         options={{
           headerRight: () => (
-            <ReportFiltersButton
-              activeFilterCount={activeFilterCount}
-              href="/period-report-filters"
-            />
+            <ReportFiltersButton activeFilterCount={activeFilterCount} report="period" />
           ),
         }}
       />
@@ -43,7 +41,7 @@ export default function PeriodReportScreen() {
           />
         }
         empty={
-          countScopeFilters(filters) > 0 ? (
+          isScopeOn(filters) ? (
             <EmptyState
               layout="inline"
               icon="funnel-outline"

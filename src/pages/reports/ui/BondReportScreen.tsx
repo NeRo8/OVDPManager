@@ -103,10 +103,7 @@ export default function BondReportScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <ReportFiltersButton
-              activeFilterCount={activeFilterCount}
-              href="/bond-report-filters"
-            />
+            <ReportFiltersButton activeFilterCount={activeFilterCount} report="bond" />
           ),
         }}
       />

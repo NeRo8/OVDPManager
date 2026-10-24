@@ -12,13 +12,6 @@ export type BondReport = {
   money?: CurrencyYears;
 };
 
-/** The wallet's bonds for the report to pick from: the nearest to maturity first, unknown last. */
-export function bondChoicesByMaturity(wallet: Wallet): WalletPosition[] {
-  return [...wallet.positions].sort((first, second) =>
-    (first.bond?.maturityDate ?? '9999').localeCompare(second.bond?.maturityDate ?? '9999'),
-  );
-}
-
 /** Everything about one bond of the wallet: what it cost, pays and earns, by year too. */
 export function bondReport(wallet: Wallet, item: WalletPosition, keyRateOn: KeyRateOn): BondReport {
   const { position, currency } = item;
