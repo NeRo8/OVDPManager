@@ -1,0 +1,14 @@
+import { View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
+
+export function Separator() {
+  return <View style={styles.separator} />;
+}
+
+const styles = StyleSheet.create((theme) => ({
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    marginLeft: theme.space.lg,
+    backgroundColor: theme.border,
+  },
+}));

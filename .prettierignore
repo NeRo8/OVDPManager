@@ -1,3 +1,5 @@
 AGENTS.md
-assets/
+src/shared/config/app-icon/expo.icon/
 yarn.lock
+src/ovdp-backup-*.json
+.claude/skills/

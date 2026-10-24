@@ -1,42 +1,92 @@
 {
   "expo": {
-    "name": "OVDPManager",
-    "slug": "OVDPManager",
+    "name": "ОВДП Портфель",
+    "slug": "ovdpmanager",
     "version": "1.0.0",
+    "platforms": ["ios", "android"],
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./src/shared/config/app-icon/icon.png",
     "scheme": "ovdpmanager",
     "userInterfaceStyle": "automatic",
+    "backgroundColor": "#046865",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./src/shared/config/app-icon/icon.png",
+      "bundleIdentifier": "com.nero.mobile.dev.ovdpmanager",
+      "infoPlist": {
+        "CFBundleDevelopmentRegion": "uk",
+        "CFBundleLocalizations": ["uk"]
+      },
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "config": { "usesNonExemptEncryption": true }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#046865",
+        "foregroundImage": "./src/shared/config/app-icon/android-icon-foreground.png"
       },
-      "predictiveBackGestureEnabled": false
-    },
-    "web": {
-      "output": "server",
-      "favicon": "./assets/images/favicon.png"
+      "predictiveBackGestureEnabled": false,
+      "package": "com.nero.mobile.dev.ovdpmanager",
+      "googleServicesFile": "./google-services.json"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#046865",
+          "image": "./src/shared/config/app-icon/splash-blank.png",
+          "imageWidth": 240,
+          "resizeMode": "contain"
         }
-      ]
+      ],
+      [
+        "expo-font",
+        {
+          "ios": {
+            "fonts": [
+              "./src/shared/config/fonts/Manrope-Regular.ttf",
+              "./src/shared/config/fonts/Manrope-Medium.ttf",
+              "./src/shared/config/fonts/Manrope-SemiBold.ttf",
+              "./src/shared/config/fonts/Manrope-Bold.ttf"
+            ]
+          },
+          "android": {
+            "fonts": [
+              {
+                "fontFamily": "Manrope",
+                "fontDefinitions": [
+                  { "path": "./src/shared/config/fonts/Manrope-Regular.ttf", "weight": 400 },
+                  { "path": "./src/shared/config/fonts/Manrope-Medium.ttf", "weight": 500 },
+                  { "path": "./src/shared/config/fonts/Manrope-SemiBold.ttf", "weight": 600 },
+                  { "path": "./src/shared/config/fonts/Manrope-Bold.ttf", "weight": 700 }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "@react-native-community/datetimepicker",
+      [
+        "./plugins/withDatePickerAccent",
+        {
+          "accent": { "light": "#046865", "dark": "#21A0A0" },
+          "header": { "background": "#046865", "text": "#FCFFF7", "mutedText": "#CCFCFFF7" }
+        }
+      ],
+      "expo-sharing",
+      "@react-native-vector-icons/ionicons",
+      "react-native-quick-crypto",
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      ["expo-build-properties", { "ios": { "useFrameworks": "dynamic" } }]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "eas": { "projectId": "2f3d3beb-9ce7-43bf-93c4-20d6a0125624" }
+    },
+    "owner": "nero8"
   }
 }

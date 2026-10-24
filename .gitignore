@@ -7,7 +7,6 @@ node_modules/
 # Expo
 .expo/
 dist/
-web-build/
 expo-env.d.ts
 
 # Native
@@ -42,3 +41,6 @@ example
 # generated native folders
 /ios
 /android
+
+# Personal portfolio exports
+src/ovdp-backup-*.json
