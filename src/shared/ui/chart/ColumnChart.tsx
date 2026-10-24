@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { MONTHS, MONTHS_SHORT, formatCompact, formatMoney } from '@/shared/lib';
+import { formatCompact, formatMoney } from '@/shared/lib';
 import { SERIES_COLORS, type SeriesColor } from '@/shared/theme';
 import { Typography } from '../typography/Typography';
 
@@ -10,7 +10,7 @@ const PLOT_HEIGHT = 160;
 const SPLIT_PLOT_HEIGHT = 200;
 const AXIS_WIDTH = 52;
 const VALUE_WIDTH = 72;
-/** Room past the tallest column for the selected column's value label */
+/** Room past the tallest and the lowest column for the selected column's value labels */
 const LABEL_SPACE = 22;
 /** Surface-colored gap between stacked segments */
 const SEGMENT_GAP = 2;
@@ -29,29 +29,39 @@ export type ChartSeries = {
   /** Lowercase name for the accessibility label: "купони" */
   label: string;
   color: SeriesColor;
-  /** Twelve monthly totals, January first */
+  /** One total per column */
   values: number[];
   /** Money in grows up from the baseline, money out grows down. Defaults to up. */
   direction?: 'up' | 'down';
 };
 
+export type ChartColumn = {
+  /** Under the column: "січ", "2026" */
+  label: string;
+  /** For the accessibility label: "Січень", "2026 рік" */
+  name: string;
+};
+
 type Props = {
+  columns: ChartColumn[];
   /** Stacked away from the baseline, the first series of each direction at the baseline */
   series: ChartSeries[];
   currency: string;
-  selected: number | null;
-  onSelect: (month: number) => void;
+  /** A column to label with its values; columns are pressable only with `onSelect` */
+  selected?: number | null;
+  onSelect?: (column: number) => void;
 };
 
 /**
- * Monthly stacked columns on one money scale: "up" series above the baseline, "down" below.
- * The legend lives with the totals below the chart; the selected month carries the value labels.
+ * Stacked columns on one money scale: "up" series above the baseline, "down" below. The legend
+ * lives with the totals below the chart; the selected column carries the value labels.
  */
-export function MonthChart({ series, currency, selected, onSelect }: Props) {
+export function ColumnChart({ columns, series, currency, selected = null, onSelect }: Props) {
+  const lastColumn = columns.length - 1;
   const up = series.filter((s) => s.direction !== 'down');
   const down = series.filter((s) => s.direction === 'down');
   const sumOf = (group: ChartSeries[]) =>
-    MONTHS.map((_, month) => group.reduce((sum, s) => sum + s.values[month], 0));
+    columns.map((_, column) => group.reduce((sum, s) => sum + s.values[column], 0));
   const upTotals = sumOf(up);
   const downTotals = sumOf(down);
   const upMax = niceMax(Math.max(...upTotals));
@@ -65,23 +75,27 @@ export function MonthChart({ series, currency, selected, onSelect }: Props) {
   ];
   const tickTop = (tick: number) => baseline - tick * unit;
   const scale = (value: number) => (value > 0 ? Math.max(value * unit, MIN_SEGMENT) : 0);
-  // Non-empty segments of a month, from the baseline outwards.
-  const segments = (group: ChartSeries[], month: number) =>
-    group.map((s) => ({ ...s, height: scale(s.values[month]) })).filter((s) => s.height > 0);
-  const stackHeight = (group: ChartSeries[], month: number) => {
-    const parts = segments(group, month);
+  // Non-empty segments of a column, from the baseline outwards.
+  const segments = (group: ChartSeries[], column: number) =>
+    group.map((s) => ({ ...s, height: scale(s.values[column]) })).filter((s) => s.height > 0);
+  const stackHeight = (group: ChartSeries[], column: number) => {
+    const parts = segments(group, column);
     return parts.reduce((sum, s) => sum + s.height, 0) + SEGMENT_GAP * (parts.length - 1);
   };
-  const labelPosition = (month: number) =>
-    month === 0
+  const labelPosition = (column: number) =>
+    column === 0
       ? styles.valueStart
-      : month === 11
+      : column === lastColumn
         ? styles.valueEnd
-        : { left: `${((month + 0.5) / 12) * 100}%` as const, marginLeft: -VALUE_WIDTH / 2 };
-  const labelAlign = (month: number) => (month === 0 ? 'left' : month === 11 ? 'right' : 'center');
+        : {
+            left: `${((column + 0.5) / columns.length) * 100}%` as const,
+            marginLeft: -VALUE_WIDTH / 2,
+          };
+  const labelAlign = (column: number) =>
+    column === 0 ? 'left' : column === lastColumn ? 'right' : 'center';
 
   return (
-    <View style={styles.chart}>
+    <View style={[styles.chart, onSelect && styles.labelRoom]}>
       <View style={[styles.axis, { height: plotHeight }]}>
         {ticks.map((tick) => (
           <Typography
@@ -104,21 +118,22 @@ export function MonthChart({ series, currency, selected, onSelect }: Props) {
           ))}
 
           <View style={styles.bars}>
-            {MONTHS.map((name, month) => {
+            {columns.map(({ name }, column) => {
               const parts = series
-                .filter((s) => s.values[month] > 0)
-                .map((s) => `${s.label} ${formatMoney(s.values[month], currency)}`);
-              const upStack = segments(up, month).reverse();
-              const downStack = segments(down, month);
-              const select = () => onSelect(month);
+                .filter((s) => s.values[column] > 0)
+                .map((s) => `${s.label} ${formatMoney(s.values[column], currency)}`);
+              const upStack = segments(up, column).reverse();
+              const downStack = segments(down, column);
+              const select = onSelect && (() => onSelect(column));
               return (
                 <Pressable
                   key={name}
+                  disabled={!select}
                   onPress={select}
                   onHoverIn={select}
-                  accessibilityRole="button"
+                  accessibilityRole={select ? 'button' : 'text'}
                   accessibilityLabel={`${name}: ${parts.length ? parts.join(', ') : 'нічого немає'}`}
-                  accessibilityState={{ selected: selected === month }}
+                  accessibilityState={select && { selected: selected === column }}
                   style={styles.slot}
                 >
                   <View style={[styles.half, styles.upHalf, { height: baseline }]}>
@@ -196,17 +211,18 @@ export function MonthChart({ series, currency, selected, onSelect }: Props) {
           )}
         </View>
 
-        <View style={[styles.months, down.length > 0 && styles.monthsBelowLabel]}>
-          {MONTHS_SHORT.map((name, month) => (
+        <View style={[styles.labels, onSelect && down.length > 0 && styles.labelsBelowLabel]}>
+          {columns.map(({ label }, column) => (
             <Typography
-              key={name}
+              key={label}
               variant="caption2"
-              tone={selected === month ? 'primary' : 'secondary'}
-              weight={selected === month ? 'semibold' : undefined}
+              tone={selected === column ? 'primary' : 'secondary'}
+              weight={selected === column ? 'semibold' : undefined}
               align="center"
-              style={styles.month}
+              numberOfLines={1}
+              style={styles.label}
             >
-              {name}
+              {label}
             </Typography>
           ))}
         </View>
@@ -216,7 +232,9 @@ export function MonthChart({ series, currency, selected, onSelect }: Props) {
 }
 
 const styles = StyleSheet.create((theme) => ({
-  chart: { flexDirection: 'row', paddingTop: LABEL_SPACE, paddingRight: theme.space.xs },
+  chart: { flexDirection: 'row', paddingRight: theme.space.xs },
+  // Room past the tallest column for the selected column's value label.
+  labelRoom: { paddingTop: LABEL_SPACE },
   axis: { width: AXIS_WIDTH },
   tick: { position: 'absolute', right: theme.space.xs },
   plotColumn: { flex: 1 },
@@ -243,8 +261,8 @@ const styles = StyleSheet.create((theme) => ({
   valueBox: { position: 'absolute', width: VALUE_WIDTH },
   valueStart: { left: 0 },
   valueEnd: { right: 0 },
-  months: { flexDirection: 'row', marginTop: theme.space.sm },
-  // Room for the selected month's money-out label under the lowest column.
-  monthsBelowLabel: { marginTop: LABEL_SPACE },
-  month: { flex: 1 },
+  labels: { flexDirection: 'row', marginTop: theme.space.sm },
+  // Room for the selected column's money-out label under the lowest column.
+  labelsBelowLabel: { marginTop: LABEL_SPACE },
+  label: { flex: 1 },
 }));

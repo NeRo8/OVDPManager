@@ -1,60 +1,37 @@
-import { Fragment } from 'react';
-import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
-
-import { CURRENCY_NAMES } from '@/entities/portfolio';
-import { MONTHS_SHORT, currencySign, formatAmount } from '@/shared/lib';
-import { Card, SectionTitle, Separator } from '@/shared/ui';
-import type { CurrencyReport, Flows } from '../model/periodReport';
-import { FlowsTableRow } from './FlowsTableRow';
+import { MONTHS_SHORT } from '@/shared/lib';
+import type { CurrencyReport } from '../model/periodReport';
+import { FLOW_COLUMNS, flowCells, tableTitle } from './reportCells';
+import { ReportTable, type ReportTableLine } from './ReportTable';
 
 type Props = {
   report: CurrencyReport;
 };
 
-const cell = (value: number) => (value ? formatAmount(value) : '—');
-const cells = ({ invested, coupons, redemptions }: Flows): [string, string, string] => [
-  cell(invested),
-  cell(coupons),
-  cell(redemptions),
-];
 const yearOf = (month: string) => month.slice(0, 4);
 const monthName = (month: string) => MONTHS_SHORT[Number(month.slice(5, 7)) - 1];
 
 /**
- * Every month of the report in one currency, as a table that reads the same on paper. When the
- * months span several years, each year's months follow a row with the year.
+ * Every month of the report in one currency. When the months span several years, each year's
+ * months follow a row with the year.
  */
 export function ReportMonthsTable({ report }: Props) {
   const { months } = report;
   const severalYears = yearOf(months[0].month) !== yearOf(months.at(-1)?.month ?? '');
+  const rows = months.flatMap((month, index): ReportTableLine[] => {
+    const row = { key: month.month, label: monthName(month.month), cells: flowCells(month) };
+    const year = yearOf(month.month);
+    const startsYear = severalYears && year !== yearOf(months[index - 1]?.month ?? '');
+    return startsYear
+      ? [{ key: year, label: year, cells: FLOW_COLUMNS.map(() => ''), kind: 'total' }, row]
+      : [row];
+  });
 
   return (
-    <View style={styles.section}>
-      <SectionTitle
-        title={`По місяцях · ${CURRENCY_NAMES[report.currency]}, ${currencySign(report.currency)}`}
-      />
-      <Card>
-        <FlowsTableRow label="" cells={['Купівлі', 'Купони', 'Погашення']} kind="header" />
-        {months.map((month, index) => (
-          <Fragment key={month.month}>
-            {severalYears && yearOf(month.month) !== yearOf(months[index - 1]?.month ?? '') && (
-              <FlowsTableRow label={yearOf(month.month)} cells={['', '', '']} kind="total" />
-            )}
-            <FlowsTableRow label={monthName(month.month)} cells={cells(month)} />
-          </Fragment>
-        ))}
-        <View style={styles.separator}>
-          <Separator />
-        </View>
-        <FlowsTableRow label="Разом" cells={cells(report)} kind="total" />
-      </Card>
-    </View>
+    <ReportTable
+      title={tableTitle('По місяцях', report.currency)}
+      columns={FLOW_COLUMNS}
+      rows={rows}
+      total={{ label: 'Разом', cells: flowCells(report) }}
+    />
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  section: { gap: theme.space.sm },
-  // Cancels the separator's own inset, so the line runs the card's full width.
-  separator: { marginLeft: -theme.space.lg, marginVertical: theme.space.xs },
-}));

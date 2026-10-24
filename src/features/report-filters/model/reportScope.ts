@@ -38,6 +38,11 @@ export function effectiveScope<T extends ReportScope>(filters: T, options: Repor
   };
 }
 
+/** The bonds with the bond added, or without it when it is there. */
+export function toggledIsins(isins: string[], isin: string): string[] {
+  return isins.includes(isin) ? isins.filter((i) => i !== isin) : [...isins, isin];
+}
+
 /** How many of the scope's filters are on. */
 export function countScopeFilters({ currency, isins }: ReportScope): number {
   return [currency !== null, isins.length > 0].filter(Boolean).length;

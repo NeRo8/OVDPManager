@@ -1,0 +1,25 @@
+import { CURRENCY_NAMES, type Currency } from '@/entities/portfolio';
+import { currencySign, formatAmount } from '@/shared/lib';
+import type { Flows } from '../model/periodReport';
+
+/** An amount in a table whose title names the currency; a dash for none. */
+export const amountCell = (value: number) => (value ? formatAmount(value) : '—');
+
+/** A change in percent with its sign: +12%, −5%; a dash when there is nothing to compare. */
+export const changeCell = (change: number | null) => {
+  if (change === null) return '—';
+  const rounded = Math.round(change);
+  return `${rounded > 0 ? '+' : rounded < 0 ? '−' : ''}${Math.abs(rounded)}%`;
+};
+
+export const FLOW_COLUMNS = ['Купівлі', 'Купони', 'Погашення'];
+
+export const flowCells = ({ invested, coupons, redemptions }: Flows) => [
+  amountCell(invested),
+  amountCell(coupons),
+  amountCell(redemptions),
+];
+
+/** «По місяцях · Гривня, ₴» */
+export const tableTitle = (title: string, currency: Currency) =>
+  `${title} · ${CURRENCY_NAMES[currency]}, ${currencySign(currency)}`;

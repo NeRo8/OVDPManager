@@ -21,7 +21,7 @@ export * from './layout/screenContent';
 export * from './layout/ScreenScrollView';
 export * from './layout/FormScrollView';
 export * from './YearNav';
-export * from './chart/MonthChart';
+export * from './chart/ColumnChart';
 export * from './chart/Swatch';
 export * from './chart/LegendRow';
 export * from './chart/TotalRow';

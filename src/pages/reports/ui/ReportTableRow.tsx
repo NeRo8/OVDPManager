@@ -3,16 +3,18 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { Typography } from '@/shared/ui';
 
+export type ReportTableRowKind = 'header' | 'body' | 'total';
+
 type Props = {
   label: string;
-  /** Purchases, coupons, redemptions */
-  cells: [string, string, string];
-  /** `header` names the columns, `total` sums them up */
-  kind?: 'header' | 'body' | 'total';
+  /** One per column, right-aligned */
+  cells: string[];
+  /** `header` names the columns, `total` sums them up or heads a group */
+  kind?: ReportTableRowKind;
 };
 
-/** A row of the year's table: a label, then the purchases, coupons and redemptions. */
-export function FlowsTableRow({ label, cells, kind = 'body' }: Props) {
+/** A row of a report table: a label, then its numbers in equal columns. */
+export function ReportTableRow({ label, cells, kind = 'body' }: Props) {
   const tone = kind === 'header' ? 'secondary' : 'primary';
   const weight = kind === 'total' ? 'semibold' : undefined;
 

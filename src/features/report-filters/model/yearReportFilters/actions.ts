@@ -1,3 +1,4 @@
+import { toggledIsins } from '../reportScope';
 import { initialState, useYearReportFiltersStore } from './store';
 import type { YearReportFiltersState } from './types';
 
@@ -12,9 +13,7 @@ export function chooseYearReportYear(year: number, defaultYear: number): void {
 
 /** Adds the bond to the reported ones, or removes it. */
 export function toggleYearReportIsin(isin: string): void {
-  useYearReportFiltersStore.setState(({ isins }) => ({
-    isins: isins.includes(isin) ? isins.filter((i) => i !== isin) : [...isins, isin],
-  }));
+  useYearReportFiltersStore.setState(({ isins }) => ({ isins: toggledIsins(isins, isin) }));
 }
 
 export function resetYearReportFilters(): void {

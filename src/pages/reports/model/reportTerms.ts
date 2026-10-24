@@ -19,3 +19,9 @@ export const PERIOD_TERMS: ReportTerms = {
   income: 'Дохід за період',
   span: 'періоду',
 };
+
+export const ALL_YEARS_TERMS: ReportTerms = {
+  balance: 'Сальдо за всі роки',
+  income: 'Дохід за всі роки',
+  span: 'усіх років',
+};

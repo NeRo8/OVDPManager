@@ -1,17 +1,19 @@
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { MONTHS, formatMoney } from '@/shared/lib';
+import { MONTHS, MONTHS_SHORT, formatMoney } from '@/shared/lib';
 import {
   Card,
+  ColumnChart,
   LegendRow,
-  MonthChart,
   SectionTitle,
   Separator,
   TotalRow,
   Typography,
 } from '@/shared/ui';
 import type { YearSeries } from './yearSeries';
+
+const MONTH_COLUMNS = MONTHS.map((name, month) => ({ label: MONTHS_SHORT[month], name }));
 
 type Props = {
   series: YearSeries[];
@@ -38,7 +40,8 @@ export function MonthBreakdown({
     <View style={styles.section}>
       <SectionTitle title="По місяцях" />
       <Card>
-        <MonthChart
+        <ColumnChart
+          columns={MONTH_COLUMNS}
           series={series.map((s) => ({ ...s, label: s.label.toLowerCase() }))}
           currency={currency}
           selected={selectedMonth}

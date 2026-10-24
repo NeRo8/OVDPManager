@@ -1,3 +1,4 @@
+import { toggledIsins } from '../reportScope';
 import { initialState, usePeriodReportFiltersStore } from './store';
 import type { Period, PeriodOption, PeriodReportFiltersState } from './types';
 
@@ -14,9 +15,7 @@ export function choosePeriodReportPeriod(period: PeriodOption, shown: Period): v
 
 /** Adds the bond to the reported ones, or removes it. */
 export function togglePeriodReportIsin(isin: string): void {
-  usePeriodReportFiltersStore.setState(({ isins }) => ({
-    isins: isins.includes(isin) ? isins.filter((i) => i !== isin) : [...isins, isin],
-  }));
+  usePeriodReportFiltersStore.setState(({ isins }) => ({ isins: toggledIsins(isins, isin) }));
 }
 
 export function resetPeriodReportFilters(): void {
