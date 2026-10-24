@@ -77,14 +77,29 @@ function flows(events: ScheduleEvent[]): Flows {
 }
 
 /**
- * What the bonds a redemption repays cost: the amount paid for those held on its date, scaled by
- * the share of the nominal it repays (all of it for a bond redeemed at once).
+ * The nominal of one bond not yet repaid on a date. A redemption on that day goes to the previous
+ * owner, as any payment does.
+ */
+function nominalLeft(bond: Bond, date: string): number {
+  return bond.payments
+    .filter((payment) => payment.type === 'redemption' && payment.date <= date)
+    .reduce((left, payment) => left - payment.amount, bond.nominal);
+}
+
+/**
+ * What the bonds a redemption repays cost: of each purchase held on its date, the share of what
+ * was left of the nominal when it was bought that the redemption repays (all of it for a bond
+ * redeemed at once). A purchase's redemptions so add up to what it cost, a top-up between partial
+ * redemptions too.
  */
 function redemptionCost(purchases: Purchase[], payment: PositionPayment, bond: Bond): number {
-  const paid = purchases
+  return purchases
     .filter((purchase) => purchase.purchaseDate < payment.date)
-    .reduce((total, purchase) => total + purchase.amount, 0);
-  return (paid * payment.amount) / bond.nominal;
+    .reduce(
+      (total, purchase) =>
+        total + (purchase.amount * payment.amount) / nominalLeft(bond, purchase.purchaseDate),
+      0,
+    );
 }
 
 /** What a redemption brought over the cost of the bonds it repays. */
