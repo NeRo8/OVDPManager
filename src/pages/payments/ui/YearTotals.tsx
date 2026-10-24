@@ -1,103 +1,93 @@
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { formatCompactMoney, formatMoney } from '@/shared/lib';
-import { LegendRow, Typography } from '@/shared/ui';
-import type { ScheduleEventType } from '@/features/payment-filters';
+import { formatMoney, plural } from '@/shared/lib';
+import { Card, LegendRow, SectionTitle, Separator, Typography } from '@/shared/ui';
 import type { YearSummary } from '../model/yearSummary';
-import { Tile } from './Tile';
+import { TotalRow } from './TotalRow';
+import type { YearSeries } from './yearSeries';
 
-/**
- * Two tiles: payments received and money invested, each while the filters show its events. Their
- * legend rows also key the chart.
- */
 type Props = {
   summary: YearSummary;
-  types: readonly ScheduleEventType[];
+  series: YearSeries[];
 };
 
-export function YearTotals({ summary, types }: Props) {
-  const {
-    currency,
-    totalPayments,
-    received,
-    couponTotal,
-    redemptionTotal,
-    invested,
-    purchaseCount,
-    averageMonthlyPurchase,
-  } = summary;
-  const showsPayments = types.includes('coupon') || types.includes('redemption');
-  const showsPurchases = types.includes('purchase');
+/** The year's sums: payments, how much of them has come in, and the money invested. */
+export function YearTotals({ summary, series }: Props) {
+  const { currency, totalPayments, received, purchaseCount, averageMonthlyPurchase } = summary;
+  const payments = series.filter((s) => s.color !== 'purchase');
+  const purchases = series.filter((s) => s.color === 'purchase');
   const receivedPercent = totalPayments > 0 ? Math.round((received / totalPayments) * 100) : 0;
 
   return (
-    <View style={styles.tiles}>
-      {showsPayments && (
-        <Tile label="Виплати" value={formatMoney(totalPayments, currency)}>
-          {totalPayments > 0 ? (
-            <>
-              {types.includes('coupon') && (
-                <LegendRow
-                  color="coupon"
-                  label="Купони"
-                  value={formatCompactMoney(couponTotal, currency)}
-                />
-              )}
-              {types.includes('redemption') && (
-                <LegendRow
-                  color="redemption"
-                  label="Погашення"
-                  value={formatCompactMoney(redemptionTotal, currency)}
-                />
-              )}
-              {receivedPercent > 0 && receivedPercent < 100 && (
-                <View style={styles.progress}>
-                  <View
-                    accessibilityRole="progressbar"
-                    accessibilityLabel="Отримано"
-                    accessibilityValue={{ min: 0, max: 100, now: receivedPercent }}
-                    style={styles.track}
-                  >
-                    <View style={[styles.fill, { width: `${receivedPercent}%` }]} />
-                  </View>
-                  <Typography variant="caption1" tone="secondary">
-                    отримано {receivedPercent} %
-                  </Typography>
+    <View style={styles.section}>
+      <SectionTitle title="За рік" />
+      <Card>
+        {payments.length > 0 && (
+          <View style={styles.rows}>
+            {payments.map((s) => (
+              <LegendRow
+                key={s.color}
+                color={s.color}
+                label={s.label}
+                value={formatMoney(s.total, currency)}
+              />
+            ))}
+            {payments.length > 1 && (
+              <TotalRow label="Усього виплат" value={formatMoney(totalPayments, currency)} />
+            )}
+            {receivedPercent > 0 && receivedPercent < 100 && (
+              <View style={styles.progress}>
+                <View
+                  accessibilityRole="progressbar"
+                  accessibilityLabel="Отримано"
+                  accessibilityValue={{ min: 0, max: 100, now: receivedPercent }}
+                  style={styles.track}
+                >
+                  <View style={[styles.fill, { width: `${receivedPercent}%` }]} />
                 </View>
-              )}
-            </>
-          ) : (
-            <Typography variant="footnote" tone="secondary">
-              Виплат немає
-            </Typography>
-          )}
-        </Tile>
-      )}
+                <Typography variant="caption1" tone="secondary">
+                  отримано {receivedPercent} %
+                </Typography>
+              </View>
+            )}
+          </View>
+        )}
 
-      {showsPurchases && (
-        <Tile label="Вкладено" value={formatMoney(invested, currency)}>
-          {purchaseCount > 0 ? (
-            <>
-              <LegendRow color="purchase" label="Купівлі" value={`${purchaseCount}`} />
+        {payments.length > 0 && purchases.length > 0 && (
+          <View style={styles.separator}>
+            <Separator />
+          </View>
+        )}
+
+        {purchases.length > 0 && (
+          <View style={styles.rows}>
+            {purchases.map((s) => (
+              <LegendRow
+                key={s.color}
+                color={s.color}
+                label={s.label}
+                value={formatMoney(s.total, currency)}
+              />
+            ))}
+            {purchaseCount > 0 && (
               <Typography variant="caption1" tone="secondary">
-                ≈ {formatCompactMoney(averageMonthlyPurchase, currency)} на місяць
+                {purchaseCount} {plural(purchaseCount, 'купівля', 'купівлі', 'купівель')}, ≈{' '}
+                {formatMoney(averageMonthlyPurchase, currency)} на місяць
               </Typography>
-            </>
-          ) : (
-            <Typography variant="footnote" tone="secondary">
-              Купівель не було
-            </Typography>
-          )}
-        </Tile>
-      )}
+            )}
+          </View>
+        )}
+      </Card>
     </View>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  // Stacked: at half a phone width the legend labels wrap.
-  tiles: { gap: theme.space.md },
+  section: { gap: theme.space.sm },
+  rows: { gap: theme.space.sm },
+  // Cancels the separator's own inset, so the line runs the card's full width.
+  separator: { marginLeft: -theme.space.lg, marginVertical: theme.space.md },
   progress: { gap: theme.space.xs, marginTop: theme.space.xxs },
   track: {
     height: 4,

@@ -6,6 +6,12 @@ import { round2 } from '@/shared/lib';
 export const CURRENCIES = ['UAH', 'USD', 'EUR'] as const;
 export type Currency = (typeof CURRENCIES)[number];
 
+export const CURRENCY_NAMES: Record<Currency, string> = {
+  UAH: 'Гривня',
+  USD: 'Долар',
+  EUR: 'Євро',
+};
+
 export type PaymentType = 'coupon' | 'redemption';
 
 export type BondPayment = {

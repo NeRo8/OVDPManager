@@ -1,17 +1,17 @@
 import { useState } from 'react';
 
-import { CURRENCIES, type ScheduleEvent } from '@/entities/portfolio';
+import type { ScheduleEvent } from '@/entities/portfolio';
 import { SCHEDULE_EVENT_TYPES, filterSchedule } from '@/features/payment-filters';
-import { useOptionChoice } from '@/shared/lib';
 import { groupScheduleEventsByMonth } from './scheduleSections';
 import type { FilteredWallet } from './useFilteredWallet.hook';
 import { yearSummary } from './yearSummary';
 
 const yearOf = (event: ScheduleEvent) => Number(event.date.slice(0, 4));
+const monthOf = (event: ScheduleEvent) => Number(event.date.slice(5, 7)) - 1;
 
 /**
- * One year of the filtered wallet and what the screen has picked in it: the year, the currency of
- * the chart and the month spelled out under it.
+ * One year of the filtered wallet and what the screen has picked in it: the year and the month
+ * whose events are listed under the chart.
  */
 export function useYearSchedule({ wallet, filters }: FilteredWallet) {
   const currentYear = Number(wallet.today.slice(0, 4));
@@ -26,19 +26,17 @@ export function useYearSchedule({ wallet, filters }: FilteredWallet) {
   const year = chosenYear ?? Math.min(Math.max(currentYear, firstYear), lastYear);
   const yearEvents = events.filter((event) => yearOf(event) === year);
 
-  const currencies = [...new Set(yearEvents.map((event) => event.currency))].sort(
-    (a, b) => CURRENCIES.indexOf(a) - CURRENCIES.indexOf(b),
-  );
-  // The chart has one money scale, so a year in several currencies shows one at a time.
-  const [currency, setCurrency] = useOptionChoice(currencies);
-  const summary = currency ? yearSummary(yearEvents, currency) : null;
+  // The filters leave one currency, as the chart has one money scale.
+  const { currency } = filters;
+  const summary = currency && yearEvents.length > 0 ? yearSummary(yearEvents, currency) : null;
 
   const [chosenMonth, setChosenMonth] = useState<{ year: number; month: number } | null>(null);
   const month = chosenMonth?.year === year ? chosenMonth.month : (summary?.defaultMonth ?? null);
   const setMonth = (month: number) => setChosenMonth({ year, month });
 
+  // The list under the chart holds the selected month only; the chart covers the whole year.
   const sections = groupScheduleEventsByMonth(
-    yearEvents.filter((event) => event.currency === currency),
+    yearEvents.filter((event) => monthOf(event) === month),
   );
 
   return {
@@ -47,9 +45,6 @@ export function useYearSchedule({ wallet, filters }: FilteredWallet) {
     year,
     setYear,
     types,
-    currencies,
-    currency,
-    setCurrency,
     summary,
     month,
     setMonth,

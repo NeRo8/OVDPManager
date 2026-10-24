@@ -1,18 +1,44 @@
-import { type ScheduleEvent, type Wallet, compareScheduleEvents } from '@/entities/portfolio';
+import {
+  type Currency,
+  type ScheduleEvent,
+  type Wallet,
+  compareScheduleEvents,
+} from '@/entities/portfolio';
 import type { PaymentFilters } from './paymentFilters';
 
+/** What the wallet's schedule can be narrowed to. */
+export type PaymentFilterOptions = {
+  isins: string[];
+  /** In `CURRENCIES` order; the first one is the default */
+  currencies: Currency[];
+};
+
 /**
- * The saved filters with bonds that are no longer in the wallet dropped: a bond sold since must
- * not hide every payment.
+ * The saved filters fitted to the wallet: a bond sold since is dropped, and a currency the wallet
+ * no longer has gives way to the first one it has, so a saved filter never hides everything.
  */
-export function effectiveFilters(filters: PaymentFilters, isins: string[]): PaymentFilters {
-  return { ...filters, isins: filters.isins.filter((isin) => isins.includes(isin)) };
+export function effectiveFilters(
+  filters: PaymentFilters,
+  options: PaymentFilterOptions,
+): PaymentFilters {
+  return {
+    ...filters,
+    currency:
+      filters.currency && options.currencies.includes(filters.currency)
+        ? filters.currency
+        : (options.currencies[0] ?? null),
+    isins: filters.isins.filter((isin) => options.isins.includes(isin)),
+  };
 }
 
-export function countActiveFilters(filters: PaymentFilters): number {
-  return [filters.types.length > 0, filters.time !== 'all', filters.isins.length > 0].filter(
-    Boolean,
-  ).length;
+/** What differs from fresh filters; another currency than the first one counts too. */
+export function countActiveFilters(filters: PaymentFilters, options: PaymentFilterOptions): number {
+  return [
+    filters.types.length > 0,
+    filters.time !== 'all',
+    filters.currency !== (options.currencies[0] ?? null),
+    filters.isins.length > 0,
+  ].filter(Boolean).length;
 }
 
 /** A payment counts as past once received, a purchase once its date has come. */
@@ -36,6 +62,7 @@ export function filterSchedule(
   const events = all
     .filter(
       (event) =>
+        (filters.currency === null || event.currency === filters.currency) &&
         (filters.types.length === 0 || filters.types.includes(event.type)) &&
         (filters.isins.length === 0 || filters.isins.includes(event.isin)) &&
         (filters.time === 'all' || isPastEvent(event, wallet.today) === (filters.time === 'past')),

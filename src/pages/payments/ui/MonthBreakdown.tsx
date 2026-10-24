@@ -2,45 +2,30 @@ import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { MONTHS, formatMoney } from '@/shared/lib';
-import {
-  Card,
-  LegendRow,
-  MonthChart,
-  SectionTitle,
-  Separator,
-  Typography,
-  type ChartSeries,
-} from '@/shared/ui';
-import type { ScheduleEventType } from '@/features/payment-filters';
-import type { YearSummary } from '../model/yearSummary';
+import { Card, LegendRow, MonthChart, SectionTitle, Separator, Typography } from '@/shared/ui';
+import { TotalRow } from './TotalRow';
+import type { YearSeries } from './yearSeries';
 
-/** Chart of the year with the selected month spelled out underneath. */
 type Props = {
-  summary: YearSummary;
-  /** Event types the filters let through; each is a series of its own color */
-  types: readonly ScheduleEventType[];
+  series: YearSeries[];
+  currency: string;
   year: number;
   /** January = 0 */
   month: number | null;
   onSelectMonth: (month: number) => void;
 };
 
+/** Chart of the year with the selected month spelled out underneath. */
 export function MonthBreakdown({
-  summary,
-  types,
+  series,
+  currency,
   year,
   month: selectedMonth,
   onSelectMonth,
 }: Props) {
-  const { currency, monthlyCoupons, monthlyRedemptions, monthlyPurchases } = summary;
-  const series = (
-    [
-      { label: 'Купони', color: 'coupon', values: monthlyCoupons },
-      { label: 'Погашення', color: 'redemption', values: monthlyRedemptions },
-      { label: 'Купівлі', color: 'purchase', values: monthlyPurchases, direction: 'down' },
-    ] satisfies (ChartSeries & { color: ScheduleEventType })[]
-  ).filter((s) => types.includes(s.color));
   const monthRows = selectedMonth === null ? [] : series.filter((s) => s.values[selectedMonth] > 0);
+  const monthPayments = monthRows.filter((s) => s.color !== 'purchase');
+  const monthPurchases = monthRows.filter((s) => s.color === 'purchase');
 
   return (
     <View style={styles.section}>
@@ -53,7 +38,7 @@ export function MonthBreakdown({
           onSelect={onSelectMonth}
         />
 
-        {selectedMonth !== null && (
+        {selectedMonth !== null ? (
           <>
             <View style={styles.separator}>
               <Separator />
@@ -62,24 +47,39 @@ export function MonthBreakdown({
               {MONTHS[selectedMonth]} {year}
             </Typography>
             <View style={styles.monthRows}>
-              {monthRows.length > 0 ? (
-                monthRows.map((s) => (
-                  <LegendRow
-                    key={s.label}
-                    color={s.color}
-                    label={s.label}
-                    value={formatMoney(s.values[selectedMonth], currency)}
-                  />
-                ))
-              ) : (
+              {monthRows.length === 0 && (
                 <Typography variant="footnote" tone="secondary">
                   Виплат і купівель немає
                 </Typography>
               )}
+              {monthPayments.map((s) => (
+                <LegendRow
+                  key={s.color}
+                  color={s.color}
+                  label={s.label}
+                  value={formatMoney(s.values[selectedMonth], currency)}
+                />
+              ))}
+              {monthPayments.length > 1 && (
+                <TotalRow
+                  label="Усього виплат"
+                  value={formatMoney(
+                    monthPayments.reduce((sum, s) => sum + s.values[selectedMonth], 0),
+                    currency,
+                  )}
+                />
+              )}
+              {monthPurchases.map((s) => (
+                <LegendRow
+                  key={s.color}
+                  color={s.color}
+                  label={s.label}
+                  value={formatMoney(s.values[selectedMonth], currency)}
+                />
+              ))}
             </View>
           </>
-        )}
-        {selectedMonth === null && (
+        ) : (
           <Typography variant="caption1" tone="secondary" align="center">
             Торкніться місяця, щоб побачити деталі
           </Typography>

@@ -3,6 +3,7 @@ import { Fragment } from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
+import { CURRENCY_NAMES } from '@/entities/portfolio';
 import {
   type BondSort,
   resetBondPickerFilters,
@@ -19,7 +20,7 @@ import {
   Separator,
   Typography,
 } from '@/shared/ui';
-import { CURRENCY_NAMES, SORT_LABELS, TERM_LABELS } from './bondFilterLabels';
+import { SORT_LABELS, TERM_LABELS } from './bondFilterLabels';
 
 const SORT_OPTIONS = (['maturity', 'rate'] as const).map((value) => ({
   label: SORT_LABELS[value],
