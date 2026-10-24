@@ -135,7 +135,7 @@ export default function PlanScreen() {
                 />
                 <Separator />
                 <InfoRow
-                  label="Дохідність"
+                  label="Дохідність за весь строк"
                   hint="Чистий дохід у відсотках від вкладень за весь строк, без перерахунку на рік, податків і комісій"
                   value={total.returnPercent === null ? '—' : `${total.returnPercent}%`}
                 />

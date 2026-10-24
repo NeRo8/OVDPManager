@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 @AGENTS.md
 
-ОВДП Портфель (repo `OVDPManager`, bundle ID and package `com.nero.mobile.dev.ovdpmanager`) is an Expo SDK 58 app (iOS and Android only, no web) for tracking Ukrainian government bonds (ОВДП), their future payments, investment plans and local backups. UI strings are hardcoded in Ukrainian (no i18n layer); code comments are in English. This file and `AGENTS.md` are the project's map — read the architecture and persistence rules before changing data flow or storage.
+ОВДП Портфель (repo `OVDPManager`, bundle ID and package `com.nero.mobile.dev.ovdpmanager`) is an Expo SDK 58 app (iOS and Android only, no web) for tracking Ukrainian government bonds (ОВДП), their future payments, investment plans and local backups. UI strings are hardcoded in Ukrainian (no i18n layer); code comments are in English. This file and `AGENTS.md` are the project's map — read the architecture and persistence rules before changing data flow or storage. `GLOSSARY.md` is the domain's language: each term with the Ukrainian word the UI shows for it. Take UI labels from it, and update it when a term is added or its meaning changes.
 
 ## Commands
 

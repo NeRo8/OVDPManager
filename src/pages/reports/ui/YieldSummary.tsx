@@ -42,7 +42,7 @@ export function YieldSummary({ report }: Props) {
 
   return (
     <Section
-      title={`Дохідність · ${CURRENCY_NAMES[currency]}`}
+      title={`Річна дохідність · ${CURRENCY_NAMES[currency]}`}
       footer={[
         'Річна дохідність — за ціною купівлі й усіма виплатами до погашення, як у формі купівлі; середні зважені на суму купівель.',
         currency === KEY_RATE_CURRENCY

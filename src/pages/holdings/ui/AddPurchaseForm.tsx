@@ -155,7 +155,7 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
             </>
           ) : (
             <InfoRow
-              label="Дохідність"
+              label="Чистий дохід"
               hint="НБУ ще не опублікував погашення цієї ОВДП, тому виплати неповні"
               value="Немає повних даних НБУ"
             />

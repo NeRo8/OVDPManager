@@ -49,7 +49,7 @@ export function PortfolioSummary({ report }: Props) {
                     </Typography>
                   ),
                 },
-                { label: 'Дохідність', value: `${total.returnPercent ?? 0}%` },
+                { label: 'Дохідність за весь строк', value: `${total.returnPercent ?? 0}%` },
               ]
             : []),
         ]
@@ -60,7 +60,7 @@ export function PortfolioSummary({ report }: Props) {
     <Section
       title={`Підсумок · ${CURRENCY_NAMES[currency]}`}
       footer={[
-        'Чистий дохід — виплати мінус вкладення; дохідність — він у відсотках від вкладень за весь строк, без перерахунку на рік, податків і комісій.',
+        'Чистий дохід — виплати мінус вкладення; дохідність за весь строк — він у відсотках від вкладень, без перерахунку на рік, податків і комісій.',
         unknownCount > 0 &&
           `ОВДП, яких немає в даних НБУ (${unknownCount}), не враховано в підсумку.`,
       ]

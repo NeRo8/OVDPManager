@@ -44,8 +44,8 @@ const PORTFOLIO_REPORTS: Report[] = [
     href: '/reports/structure',
   },
   {
-    title: 'Дохідність',
-    description: 'Середньозважена дохідність портфеля поруч з обліковою ставкою НБУ.',
+    title: 'Річна дохідність',
+    description: 'Середньозважена річна дохідність портфеля поруч з обліковою ставкою НБУ.',
     href: '/reports/yield',
   },
   {
