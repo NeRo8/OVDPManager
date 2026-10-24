@@ -2,33 +2,25 @@ import {
   type Bond,
   CURRENCIES,
   type Currency,
-  type PurchaseResults,
+  type CurrencyResults,
+  type PositionResults,
+  type PositionState,
   type Wallet,
-  type WalletPosition,
-  isPlannedPurchase,
-  isRedeemed,
-  purchaseResults,
+  resultsByCurrency,
 } from '@/entities/portfolio';
 import type { PortfolioStatus } from '@/features/report-filters';
 import { round2 } from '@/shared/lib';
-import { positionYield } from './periodReport';
-
-/**
- * Where a bond of the wallet stands: every purchase still ahead, in circulation, redeemed (its
- * maturity date behind today), or unknown without the NBU data.
- */
-export type BondState = 'planned' | 'inCirculation' | 'redeemed' | 'unknown';
 
 /** One bond of the wallet held to maturity. */
 export type PortfolioBond = {
   isin: string;
   /** Missing when the NBU data has no such bond */
   bond?: Bond;
-  state: BondState;
+  state: PositionState;
   quantity: number;
   invested: number;
   /** Its payments and net income; missing without the NBU data */
-  results?: PurchaseResults;
+  results?: PositionResults;
   /** «Річна дохідність»; null until NBU publishes the redemption */
   annualYield: number | null;
   /** Its share of what the currency's bonds cost, % */
@@ -39,55 +31,41 @@ export type PortfolioBond = {
 export type CurrencyPortfolio = {
   currency: Currency;
   /** The bonds the NBU data has, summed up; missing when it has none of them */
-  total?: PurchaseResults;
+  total?: CurrencyResults;
   /** By maturity, those missing from the NBU data last */
   bonds: PortfolioBond[];
   /** Bonds missing from the NBU data, left out of the total */
   unknownCount: number;
 };
 
-/** Where a bond of the wallet stands today. */
-export function bondState({ position, bond }: WalletPosition, today: string): BondState {
-  if (!bond) return 'unknown';
-  if (position.purchases.every((purchase) => isPlannedPurchase(purchase, today))) return 'planned';
-  return isRedeemed(bond, today) ? 'redeemed' : 'inCirculation';
-}
-
 /** In circulation means everything not redeemed: planned, and unknown without the NBU data. */
-export const passesStatus = (state: BondState, status: PortfolioStatus) =>
+export const passesStatus = (state: PositionState, status: PortfolioStatus) =>
   status === 'all' || (status === 'redeemed') === (state === 'redeemed');
 
 /** The wallet's bonds in the status picked, per currency, each with what it costs and earns. */
 export function portfolioReport(wallet: Wallet, status: PortfolioStatus): CurrencyPortfolio[] {
-  const { byIsin, today } = wallet;
-  const bonds = wallet.positions.map((item) => ({ item, state: bondState(item, today) }));
-
   return CURRENCIES.flatMap((currency): CurrencyPortfolio[] => {
-    const inCurrency = bonds.filter(
-      ({ item, state }) => item.currency === currency && passesStatus(state, status),
+    const inCurrency = wallet.positions.filter(
+      (item) => item.currency === currency && passesStatus(item.state, status),
     );
     if (!inCurrency.length) return [];
-    const invested = inCurrency.reduce((sum, { item }) => sum + item.position.investedAmount, 0);
-    const purchases = inCurrency.flatMap(({ item }) => item.position.purchases);
+    const invested = inCurrency.reduce((sum, item) => sum + item.position.investedAmount, 0);
 
     return [
       {
         currency,
-        total: purchaseResults(purchases, byIsin, today).at(0),
+        total: resultsByCurrency(inCurrency).at(0),
         bonds: inCurrency
-          .map(({ item, state }): PortfolioBond => {
-            const { position, bond } = item;
-            return {
-              isin: position.isin,
-              bond,
-              state,
-              quantity: position.quantity,
-              invested: position.investedAmount,
-              results: purchaseResults(position.purchases, byIsin, today).at(0),
-              annualYield: positionYield(item, today),
-              investedShare: invested > 0 ? round2((position.investedAmount / invested) * 100) : 0,
-            };
-          })
+          .map(({ position, bond, state, results, annualYield }): PortfolioBond => ({
+            isin: position.isin,
+            bond,
+            state,
+            quantity: position.quantity,
+            invested: position.investedAmount,
+            results,
+            annualYield,
+            investedShare: invested > 0 ? round2((position.investedAmount / invested) * 100) : 0,
+          }))
           .sort((first, second) =>
             (first.bond?.maturityDate ?? '9999').localeCompare(second.bond?.maturityDate ?? '9999'),
           ),

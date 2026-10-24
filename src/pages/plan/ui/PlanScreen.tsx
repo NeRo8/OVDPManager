@@ -6,7 +6,7 @@ import {
   BondsUnavailableCard,
   NbuSourceNote,
   StaleBondsNotice,
-  purchaseResults,
+  resultsByCurrency,
   removeInvestmentPlan,
   useWallet,
 } from '@/entities/portfolio';
@@ -33,11 +33,11 @@ import {
  * wallet; here they add up to what the plan costs and earns over its whole term.
  */
 export default function PlanScreen() {
-  const { plan, bonds, byIsin, today, refresh, positions, purchases } = useWallet();
+  const { plan, bonds, refresh, positions, purchases } = useWallet();
   const numberOfPurchases = purchases.length;
   const pullToRefresh = usePullToRefresh(refresh);
   const planId = plan?.id ?? '';
-  const totals = purchaseResults(purchases, byIsin, today);
+  const totals = resultsByCurrency(positions);
   const unknownBonds = positions.filter((item) => !item.bond).length;
   // Totals come in CURRENCIES order.
   const currencies = totals.map((total) => total.currency);

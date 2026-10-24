@@ -1,7 +1,6 @@
 import {
   type Purchase,
   purchaseCurrency,
-  purchaseResults,
   removePurchase,
   removePositionFromActivePlan,
   useWallet,
@@ -18,7 +17,7 @@ export function useBondDetails(isin: string) {
   const currency = walletPosition?.currency;
   const hasTopUps = (position?.purchases.length ?? 0) > 1;
   /** Missing when the NBU data has no such bond */
-  const results = purchaseResults(position?.purchases ?? [], byIsin, today).at(0);
+  const results = walletPosition?.results;
   const canTopUp = !!bond && bond.maturityDate > today;
 
   function deletePurchase(purchase: Purchase) {

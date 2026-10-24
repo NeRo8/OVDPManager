@@ -48,14 +48,27 @@
     "zod": "^4.6.7",
     "zustand": "^5.0.15"
   },
+  "jest": {
+    "preset": "jest-expo",
+    "setupFiles": [
+      "<rootDir>/jest.setup.ts"
+    ],
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1"
+    }
+  },
   "devDependencies": {
     "@feature-sliced/steiger-plugin": "^0.8.0",
+    "@react-native/jest-preset": "^0.88.0",
+    "@types/jest": "30.0.0",
     "@types/react": "~19.3.0",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~58.0.4",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.7",
     "husky": "^9.1.7",
+    "jest": "~30.5.2",
+    "jest-expo": "~58.0.12",
     "prettier": "^3.9.10",
     "steiger": "^0.8.0",
     "typescript": "~6.0.3"
@@ -70,7 +83,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "validate": "yarn format:check && yarn lint && yarn lint:fsd && yarn typecheck",
+    "test": "jest",
+    "validate": "yarn format:check && yarn lint && yarn lint:fsd && yarn typecheck && yarn test",
     "prepare": "husky",
     "build:dev:ios": "npx eas-cli build --platform ios --profile development",
     "build:ios": "npx eas-cli build --platform ios --profile production",

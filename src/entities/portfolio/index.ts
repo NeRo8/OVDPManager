@@ -1,16 +1,11 @@
 export * from './model/portfolio';
 export * from './model/purchases';
-export {
-  useActivePurchases,
-  useWallet,
-  type Wallet,
-  type WalletPosition,
-} from './model/useWallet.hook';
+export { useActivePurchases, useWallet, type Wallet } from './model/useWallet.hook';
 export { useBonds } from './api/useBonds.hook';
 export { useKeyRate } from './api/useKeyRate.hook';
 export { useKeyRates } from './api/useKeyRates.hook';
 export { annualYield } from './model/yield';
-export * from './model/results';
+export * from './model/position';
 export * from './model/counts';
 export * from './model/plan';
 export * from './model/plans';

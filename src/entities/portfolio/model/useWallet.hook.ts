@@ -2,26 +2,8 @@ import { todayISO } from '@/shared/lib';
 import { useBonds } from '../api/useBonds.hook';
 import { useActivePlan } from './activePlan';
 import { usePurchases } from './purchases';
-import {
-  type Bond,
-  type Currency,
-  type Position,
-  type PositionPayment,
-  groupPositions,
-  nextPayment,
-  positionCurrency,
-  positionPayments,
-  purchaseEvents,
-} from './portfolio';
-
-export type WalletPosition = {
-  position: Position;
-  /** Missing when the NBU data has no such bond */
-  bond?: Bond;
-  currency: Currency;
-  payments: PositionPayment[];
-  nextPayment?: PositionPayment;
-};
+import { groupPositions, purchaseEvents } from './portfolio';
+import { walletPosition } from './position';
 
 /** Purchases in the wallet of the active plan. */
 export function useActivePurchases() {
@@ -39,17 +21,9 @@ export function useWallet() {
   const { bonds, byIsin, refresh } = useBonds();
   const today = todayISO();
 
-  const positions = groupPositions(purchases).map((position): WalletPosition => {
-    const bond = byIsin.get(position.isin);
-    const payments = bond ? positionPayments(position.purchases, bond, today) : [];
-    return {
-      position,
-      bond,
-      currency: positionCurrency(position, bond),
-      payments,
-      nextPayment: nextPayment(payments),
-    };
-  });
+  const positions = groupPositions(purchases).map((position) =>
+    walletPosition(position, byIsin.get(position.isin), today),
+  );
   const payments = positions
     .flatMap(({ payments }) => payments)
     .sort((a, b) => a.date.localeCompare(b.date));

@@ -1,7 +1,7 @@
 import {
   type Currency,
   type Position,
-  type PurchaseResults,
+  type PositionResults,
   pricePerBond,
 } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
@@ -13,7 +13,7 @@ type Props = {
   /** Bought in several purchases: the average price is worth showing */
   hasTopUps: boolean;
   /** Missing when the NBU data has no such bond */
-  results?: PurchaseResults;
+  results?: PositionResults;
 };
 
 /** What a bond in the wallet has cost, brought and will bring. */

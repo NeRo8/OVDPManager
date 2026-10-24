@@ -5,13 +5,11 @@ import {
   type Bond,
   type Purchase,
   addPurchaseToActivePlan,
-  annualYield,
+  groupPositions,
   isPlannedPurchase,
-  nextPayment,
   pricePerBond,
-  positionPayments,
-  purchaseResults,
   useBonds,
+  walletPosition,
   useKeyRate,
 } from '@/entities/portfolio';
 import { todayISO } from '@/shared/lib';
@@ -27,7 +25,7 @@ import { purchaseHints, purchaseVerdict } from './purchaseHints';
  * Validated on every change, so Save is enabled only for a purchase that can be stored.
  */
 export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
-  const { bonds, byIsin } = useBonds();
+  const { bonds } = useBonds();
   const today = todayISO();
   const schema = purchaseFormSchema(bond);
   const form = useForm<PurchaseFormInput, unknown, PurchaseFormValues>({
@@ -58,30 +56,31 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
       quantity: valid.quantity,
       currency: bond.currency,
     };
+    // The draft is a Position of one purchase, summed up as the wallet's are.
+    const { results, payments, nextPayment, annualYield } = walletPosition(
+      groupPositions([draft])[0],
+      bond,
+      today,
+    );
     // The bond comes from the NBU data, so its results are always there.
-    const results = purchaseResults([draft], byIsin, today).at(0);
     if (!results) return null;
-    const payments = positionPayments([draft], bond, today);
-    const yearly = results.complete
-      ? annualYield(valid.amount, valid.purchaseDate, payments)
-      : null;
     const hints = purchaseHints({
       bond,
       purchaseDate: valid.purchaseDate,
       pricePerBond: price,
       netIncome: results.netIncome,
       isComplete: results.complete,
-      annualYield: yearly,
+      annualYield,
       keyRate,
       bonds: bonds ?? [],
     });
     return {
-      nextPayment: nextPayment(payments),
+      nextPayment,
       couponsLeft: payments.filter((p) => p.type === 'coupon' && !p.isPaid).length,
       totalPayments: results.totalPayments,
       netIncome: results.netIncome,
       returnPercent: results.returnPercent,
-      annualYield: yearly,
+      annualYield,
       hints,
       verdict: purchaseVerdict(hints),
     };

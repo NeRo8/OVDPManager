@@ -119,7 +119,7 @@ export default function BondReportScreen() {
             <ReportListHeader>
               <ReportHeading
                 title={report.item.position.isin}
-                subtitle={`${CURRENCY_NAMES[report.item.currency]} · ${bondStateLabel(report.state, report.item.bond?.maturityDate)}`}
+                subtitle={`${CURRENCY_NAMES[report.item.currency]} · ${bondStateLabel(report.item.state, report.item.bond?.maturityDate)}`}
               />
               <Card>
                 {report.item.bond ? (

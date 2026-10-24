@@ -2,13 +2,13 @@ import {
   type Bond,
   CURRENCIES,
   type Currency,
+  type PositionState,
   type Purchase,
   type Wallet,
 } from '@/entities/portfolio';
 import type { PortfolioStatus } from '@/features/report-filters';
 import { round2 } from '@/shared/lib';
-import { positionYield } from './periodReport';
-import { type BondState, bondState, passesStatus } from './portfolioReport';
+import { passesStatus } from './portfolioReport';
 
 /** The NBU key rate is the hryvnia's: only hryvnia bonds compare with it. */
 export const KEY_RATE_CURRENCY: Currency = 'UAH';
@@ -21,7 +21,7 @@ export type YieldBond = {
   isin: string;
   /** Missing when the NBU data has no such bond */
   bond?: Bond;
-  state: BondState;
+  state: PositionState;
   invested: number;
   /** «Річна дохідність»; null until NBU publishes the redemption */
   annualYield: number | null;
@@ -80,19 +80,19 @@ export function yieldReport(
   const { today } = wallet;
 
   return CURRENCIES.flatMap((currency): CurrencyYield[] => {
-    const items = wallet.positions
-      .map((item) => ({ item, state: bondState(item, today) }))
-      .filter(({ item, state }) => item.currency === currency && passesStatus(state, status));
+    const items = wallet.positions.filter(
+      (item) => item.currency === currency && passesStatus(item.state, status),
+    );
     if (!items.length) return [];
     const comparesWithKeyRate = currency === KEY_RATE_CURRENCY;
 
     const bonds = items
-      .map(({ item, state }): YieldBond => ({
+      .map((item): YieldBond => ({
         isin: item.position.isin,
         bond: item.bond,
-        state,
+        state: item.state,
         invested: item.position.investedAmount,
-        annualYield: positionYield(item, today),
+        annualYield: item.annualYield,
         keyRateAtPurchase: comparesWithKeyRate
           ? keyRateAt(item.position.purchases, keyRateOn)
           : null,

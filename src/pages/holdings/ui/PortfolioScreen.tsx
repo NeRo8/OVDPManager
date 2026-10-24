@@ -13,18 +13,11 @@ import {
 } from '@/shared/ui';
 import { currencySign, formatDate, formatMoney, usePullToRefresh } from '@/shared/lib';
 import { currencyColor } from '@/shared/theme';
-import {
-  NbuSourceNote,
-  StaleBondsNotice,
-  WalletGate,
-  isPlannedPurchase,
-  isRedeemed,
-  useWallet,
-} from '@/entities/portfolio';
+import { NbuSourceNote, StaleBondsNotice, WalletGate, useWallet } from '@/entities/portfolio';
 
 export default function PortfolioScreen() {
   const wallet = useWallet();
-  const { refresh, positions, today } = wallet;
+  const { refresh, positions } = wallet;
   const pullToRefresh = usePullToRefresh(refresh);
   const openBond = (isin: string) => router.push({ pathname: '/bond/[isin]', params: { isin } });
   const addBond = () => router.push('/add');
@@ -45,11 +38,9 @@ export default function PortfolioScreen() {
               <SectionTitle title="Мої ОВДП" />
             </View>
           }
-          renderItem={({ item: { position, bond, currency }, index }) => {
+          renderItem={({ item: { position, bond, currency, state }, index }) => {
             // Nothing bought yet: every purchase of the position is still ahead.
-            const isPlanned = position.purchases.every((purchase) =>
-              isPlannedPurchase(purchase, today),
-            );
+            const isPlanned = state === 'planned';
             const tone = isPlanned ? 'accent' : 'secondary';
             return (
               <SectionCell index={index} count={positions.length}>
@@ -67,9 +58,7 @@ export default function PortfolioScreen() {
                     {bond ? (
                       <Typography variant="caption1" tone="secondary">
                         {bond.rate}% ·{' '}
-                        {isRedeemed(bond, today)
-                          ? 'погашено'
-                          : `до ${formatDate(bond.maturityDate)}`}
+                        {state === 'redeemed' ? 'погашено' : `до ${formatDate(bond.maturityDate)}`}
                       </Typography>
                     ) : (
                       <Typography variant="caption1" tone="warning">

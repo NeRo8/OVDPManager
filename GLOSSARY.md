@@ -81,7 +81,7 @@ _Avoid_: pending, unconfirmed
 A Purchase of a Bond the Plan already holds from an earlier Purchase.
 
 **Position**:
-All Purchases of one Bond within one Plan, taken together.
+All Purchases of one Bond within one Plan, taken together. It is planned while every Purchase in it is a Planned purchase; otherwise its Bond is In circulation or Redeemed.
 _Avoid_: holding
 
 **Wallet** (Гаманець, у гаманці; Портфель):

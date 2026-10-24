@@ -1,14 +1,10 @@
 import {
-  type Bond,
   CURRENCIES,
   type Currency,
   type PositionPayment,
-  type Purchase,
   type ScheduleEvent,
   type Wallet,
-  type WalletPosition,
-  annualYield,
-  positionPayments,
+  positionIncome,
   sumTotals,
 } from '@/entities/portfolio';
 import { monthsBetween, round2 } from '@/shared/lib';
@@ -76,53 +72,6 @@ function flows(events: ScheduleEvent[]): Flows {
   };
 }
 
-/**
- * The nominal of one bond not yet repaid on a date. A redemption on that day goes to the previous
- * owner, as any payment does.
- */
-function nominalLeft(bond: Bond, date: string): number {
-  return bond.payments
-    .filter((payment) => payment.type === 'redemption' && payment.date <= date)
-    .reduce((left, payment) => left - payment.amount, bond.nominal);
-}
-
-/**
- * What the bonds a redemption repays cost: of each purchase held on its date, the share of what
- * was left of the nominal when it was bought that the redemption repays (all of it for a bond
- * redeemed at once). A purchase's redemptions so add up to what it cost, a top-up between partial
- * redemptions too.
- */
-function redemptionCost(purchases: Purchase[], payment: PositionPayment, bond: Bond): number {
-  return purchases
-    .filter((purchase) => purchase.purchaseDate < payment.date)
-    .reduce(
-      (total, purchase) =>
-        total + (purchase.amount * payment.amount) / nominalLeft(bond, purchase.purchaseDate),
-      0,
-    );
-}
-
-/** What a redemption brought over the cost of the bonds it repays. */
-function redemptionGain(purchases: Purchase[], payment: PositionPayment, bond: Bond): number {
-  return payment.total - redemptionCost(purchases, payment, bond);
-}
-
-/**
- * «Річна дохідність» of a position: each purchase's yield, as the purchase form shows it, weighted
- * by the amount paid. Null while NBU has not published the redemption, as the payments fall short.
- */
-export function positionYield({ position, bond }: WalletPosition, today: string): number | null {
-  if (!bond?.payments.some((payment) => payment.type === 'redemption')) return null;
-  let weighted = 0;
-  for (const purchase of position.purchases) {
-    const payments = positionPayments([purchase], bond, today);
-    const yearly = annualYield(purchase.amount, purchase.purchaseDate, payments);
-    if (yearly === null) return null;
-    weighted += yearly * purchase.amount;
-  }
-  return round2(weighted / position.investedAmount);
-}
-
 function bondHighlights(bonds: BondReport[]): BondHighlights {
   const byYield = bonds
     .filter((bond) => bond.annualYield !== null)
@@ -153,21 +102,14 @@ export function periodReport(wallet: Wallet, from: string, to: string): Currency
     const bonds = wallet.positions
       .filter((item) => item.currency === currency)
       .flatMap((item): Omit<BondReport, 'incomeShare'>[] => {
-        const { position, bond } = item;
-        const bondEvents = inCurrency.filter((event) => event.isin === position.isin);
+        const bondEvents = inCurrency.filter((event) => event.isin === item.position.isin);
         if (!bondEvents.length) return [];
-        const bondFlows = flows(bondEvents);
-        const gains = bond
-          ? item.payments
-              .filter((payment) => payment.type === 'redemption' && inPeriod(payment))
-              .map((payment) => redemptionGain(position.purchases, payment, bond))
-          : [];
         return [
           {
-            isin: position.isin,
-            ...bondFlows,
-            income: round2(bondFlows.coupons + gains.reduce((sum, gain) => sum + gain, 0)),
-            annualYield: positionYield(item, wallet.today),
+            isin: item.position.isin,
+            ...flows(bondEvents),
+            income: positionIncome(item, from, to),
+            annualYield: item.annualYield,
           },
         ];
       });

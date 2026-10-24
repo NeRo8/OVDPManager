@@ -12,8 +12,8 @@ type Props = {
 
 /** What the bond cost, pays and earns over its whole term, and its yield next to the key rate. */
 export function BondReportSummary({ report }: Props) {
-  const { item, results, annualYield, keyRateAtPurchase } = report;
-  const { position, currency } = item;
+  const { item, keyRateAtPurchase } = report;
+  const { position, currency, results, annualYield } = item;
   const money = (value: number) => formatMoney(value, currency);
   const toned = (value: number, text: string) => (
     <Typography

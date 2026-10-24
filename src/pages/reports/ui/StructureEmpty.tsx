@@ -1,6 +1,5 @@
 import type { Wallet } from '@/entities/portfolio';
 import { EmptyState } from '@/shared/ui';
-import { bondState } from '../model/portfolioReport';
 
 type Props = {
   /** The wallet narrowed to the currency and bonds of the filters */
@@ -9,9 +8,7 @@ type Props = {
 
 /** Why the structure report has no money to split, and what would show some. */
 export function StructureEmpty({ wallet }: Props) {
-  const inCirculation = wallet.positions.filter(
-    (item) => bondState(item, wallet.today) !== 'redeemed',
-  );
+  const inCirculation = wallet.positions.filter(({ state }) => state !== 'redeemed');
 
   if (!wallet.positions.length) {
     return (
