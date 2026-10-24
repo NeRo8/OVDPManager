@@ -145,6 +145,16 @@ export default function PlanScreen() {
                   hint="Чистий дохід у відсотках від вкладень за весь строк, без перерахунку на рік, податків і комісій"
                   value={total.returnPercent === null ? '—' : `${total.returnPercent}%`}
                 />
+                {total.annualYield !== null && (
+                  <>
+                    <Separator />
+                    <InfoRow
+                      label="Річна дохідність"
+                      hint="Ціна купівлі й кожна виплата до погашення, перераховані на рік, — середня за ОВДП плану, зважена на суму купівель. Її можна порівнювати з депозитом і обліковою ставкою"
+                      value={`${total.annualYield}%`}
+                    />
+                  </>
+                )}
               </Section>
             )}
           </>

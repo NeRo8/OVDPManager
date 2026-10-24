@@ -179,4 +179,14 @@ describe('resultsByCurrency', () => {
     });
     expect(resultsByCurrency([incomplete])[0].netIncome).toBeNull();
   });
+
+  it('averages the annual yield by what each Position cost', () => {
+    const cheap = positionOf([purchase({ purchaseDate: '2025-01-01', amount: 900 })], '2026-03-15');
+    const dear = positionOf([purchase({ purchaseDate: '2025-01-01', amount: 1100 })], '2026-03-15');
+    const [total] = resultsByCurrency([cheap, dear]);
+    expect(total.annualYield).toBeCloseTo(
+      ((cheap.annualYield ?? 0) * 900 + (dear.annualYield ?? 0) * 1100) / 2000,
+      1,
+    );
+  });
 });

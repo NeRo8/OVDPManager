@@ -49,6 +49,8 @@ export type CurrencyResults = PositionResults & {
   currency: Currency;
   /** Positions whose redemption NBU has not published yet, left out of the net income */
   incompleteCount: number;
+  /** «Річна дохідність» of the Positions that have one, weighted by what they cost */
+  annualYield: number | null;
 };
 
 /** A Position of the Wallet joined with the NBU data, and what it comes to. */
@@ -191,9 +193,8 @@ export function positionIncome(
  */
 export function resultsByCurrency(positions: WalletPosition[]): CurrencyResults[] {
   return CURRENCIES.flatMap((currency): CurrencyResults[] => {
-    const results = positions.flatMap((item) =>
-      item.currency === currency && item.results ? [item.results] : [],
-    );
+    const known = positions.filter((item) => item.currency === currency && item.results);
+    const results = known.flatMap(({ results }) => (results ? [results] : []));
     if (!results.length) return [];
     const sum = (items: PositionResults[], value: (item: PositionResults) => number) =>
       round2(items.reduce((total, item) => total + value(item), 0));
@@ -208,6 +209,10 @@ export function resultsByCurrency(positions: WalletPosition[]): CurrencyResults[
       totalPayments: sum(published, (item) => item.totalPayments),
       complete: published.length > 0,
     });
+    const withYield = known.flatMap(({ annualYield, position }) =>
+      annualYield === null ? [] : [{ annualYield, invested: position.investedAmount }],
+    );
+    const yieldWeight = withYield.reduce((total, item) => total + item.invested, 0);
     return [
       {
         currency,
@@ -221,6 +226,12 @@ export function resultsByCurrency(positions: WalletPosition[]): CurrencyResults[
         netIncome,
         returnPercent,
         incompleteCount: results.length - published.length,
+        annualYield: yieldWeight
+          ? round2(
+              withYield.reduce((total, item) => total + item.annualYield * item.invested, 0) /
+                yieldWeight,
+            )
+          : null,
       },
     ];
   });

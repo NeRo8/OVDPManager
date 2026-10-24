@@ -5,6 +5,7 @@ import {
   type PositionState,
   type Purchase,
   type Wallet,
+  resultsByCurrency,
 } from '@/entities/portfolio';
 import type { PortfolioStatus } from '@/features/report-filters';
 import { round2 } from '@/shared/lib';
@@ -104,9 +105,8 @@ export function yieldReport(
     return [
       {
         currency,
-        averageYield: weightedAverage(
-          bonds.map(({ annualYield, invested }) => ({ value: annualYield, weight: invested })),
-        ),
+        // The same average the plan tab shows, over the bonds the status keeps.
+        averageYield: resultsByCurrency(items).at(0)?.annualYield ?? null,
         averageRate: weightedAverage(
           bonds.map(({ bond, invested }) => ({ value: bond?.rate ?? null, weight: invested })),
         ),
