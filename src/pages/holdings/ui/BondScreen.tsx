@@ -84,7 +84,7 @@ export default function BondScreen() {
       );
     return hasTopUps ? (
       <Typography variant="caption1" tone="secondary" style={styles.sectionFooter}>
-        Кожна виплата враховує лише облігації, куплені до її дати.
+        Кожна виплата враховує лише ОВДП, куплені до її дати.
       </Typography>
     ) : null;
   };

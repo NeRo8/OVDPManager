@@ -10,7 +10,7 @@ type Props = {
   onChange: (status: PortfolioStatus) => void;
 };
 
-const STATUS_OPTIONS = (['all', 'active', 'redeemed'] as const).map((value) => ({
+const STATUS_OPTIONS = (['all', 'inCirculation', 'redeemed'] as const).map((value) => ({
   label: PORTFOLIO_STATUS_LABELS[value],
   value,
 }));

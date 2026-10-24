@@ -20,7 +20,7 @@ export function purchaseFormSchema(bond: Bond) {
     quantity: z
       .string()
       .trim()
-      .min(1, { error: 'Вкажіть кількість облігацій' })
+      .min(1, { error: 'Вкажіть кількість ОВДП' })
       .transform(Number)
       .pipe(
         z

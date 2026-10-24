@@ -43,7 +43,7 @@ export default function YieldReportScreen() {
   }: {
     section: SectionListData<YieldBond, CurrencySection>;
   }) => (
-    <ReportSectionHeader rowsTitle={`По облігаціях · ${CURRENCY_NAMES[report.currency]}`}>
+    <ReportSectionHeader rowsTitle={`По ОВДП · ${CURRENCY_NAMES[report.currency]}`}>
       <YieldSummary report={report} />
       {report.averageYield !== null && report.keyRate !== null && (
         <YieldComparison

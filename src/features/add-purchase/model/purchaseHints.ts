@@ -165,7 +165,7 @@ function riskHints({ bond, purchaseDate, isComplete }: Input): PurchaseHint[] {
   if (!isComplete) {
     hints.push({
       tone: 'warning',
-      text: 'НБУ ще не опублікував погашення цієї ОВДП, тому дохідність не пораховано.',
+      text: 'НБУ ще не опублікував погашення цієї ОВДП, тому річну дохідність не пораховано.',
     });
   }
   if (termOf(bond, purchaseDate) === 'long') {

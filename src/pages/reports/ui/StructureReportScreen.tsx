@@ -45,7 +45,7 @@ export default function StructureReportScreen() {
   }: {
     section: SectionListData<StructureBond, CurrencySection>;
   }) => (
-    <ReportSectionHeader rowsTitle={`За облігаціями · ${CURRENCY_NAMES[report.currency]}`}>
+    <ReportSectionHeader rowsTitle={`За ОВДП · ${CURRENCY_NAMES[report.currency]}`}>
       <StructureSummary report={report} today={wallet.today} />
       <StructureTerms report={report} />
     </ReportSectionHeader>

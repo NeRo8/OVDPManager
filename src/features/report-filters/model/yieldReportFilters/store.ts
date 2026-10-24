@@ -8,7 +8,7 @@ const STORAGE_KEY = 'yield-report-filters-v1';
 
 /** The portfolio's yield is first of all that of the bonds it still holds. */
 export const initialState: YieldReportFiltersState = {
-  status: 'active',
+  status: 'inCirculation',
   currency: null,
   isins: [],
 };

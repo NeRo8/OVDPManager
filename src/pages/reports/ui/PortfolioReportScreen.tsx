@@ -42,7 +42,7 @@ export default function PortfolioReportScreen() {
   }: {
     section: SectionListData<PortfolioBond, CurrencySection>;
   }) => (
-    <ReportSectionHeader rowsTitle={`По облігаціях · ${CURRENCY_NAMES[report.currency]}`}>
+    <ReportSectionHeader rowsTitle={`По ОВДП · ${CURRENCY_NAMES[report.currency]}`}>
       <PortfolioSummary report={report} />
     </ReportSectionHeader>
   );

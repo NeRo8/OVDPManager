@@ -107,7 +107,7 @@ export default function PaymentFiltersScreen() {
         </View>
       </Section>
 
-      <Section title="ОВДП" footer="Позначте облігації, виплати й купівлі яких показувати.">
+      <Section title="ОВДП" footer="Позначте ОВДП, виплати й купівлі яких показувати.">
         <CheckRow title="Усі ОВДП" checked={filters.isins.length === 0} onPress={showAllBonds} />
         {options.isins.map((isin) => {
           const bond = wallet.byIsin.get(isin);

@@ -41,7 +41,7 @@ export function ReportScopeSections({ wallet, scope, options, onChange, onToggle
         </Section>
       )}
 
-      <Section title="ОВДП" footer="Позначте облігації, купівлі й виплати яких рахувати у звіті.">
+      <Section title="ОВДП" footer="Позначте ОВДП, купівлі й виплати яких рахувати у звіті.">
         <CheckRow title="Усі ОВДП" checked={scope.isins.length === 0} onPress={showAllBonds} />
         {options.isins.map((isin) => {
           const bond = wallet.byIsin.get(isin);

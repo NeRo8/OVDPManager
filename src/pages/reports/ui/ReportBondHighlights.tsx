@@ -36,7 +36,7 @@ export function ReportBondHighlights({ report, terms }: Props) {
 
   return (
     <Section
-      title={`Облігації ${terms.span} · ${CURRENCY_NAMES[currency]}`}
+      title={`ОВДП ${terms.span} · ${CURRENCY_NAMES[currency]}`}
       footer={`Річна дохідність — за ціною купівлі й усіма виплатами до погашення, як у формі купівлі; для кількох купівель — середня, зважена на суму. ${terms.income} — купони й прибуток від погашень ${terms.span}.`}
     >
       {rows.map((row, index) => (

@@ -102,7 +102,7 @@ export default function PlanScreen() {
             <Section title="Виплати">
               <InfoRow
                 label="Погашення"
-                hint="Номінал, який повернуть у дату погашення. Зазвичай він менший за ціну купівлі — різницю покривають купони"
+                hint="Повернення номіналу в дату погашення. Зазвичай воно менше за ціну купівлі — різницю покривають купони"
                 value={
                   total.complete
                     ? formatMoney(total.redemption, total.currency)

@@ -16,7 +16,7 @@ export function BondStatusEmpty({ wallet, status }: Props) {
     .sort((first, second) => first.maturityDate.localeCompare(second.maturityDate))
     .at(0);
 
-  if (wallet.positions.length > 0 && status === 'active') {
+  if (wallet.positions.length > 0 && status === 'inCirculation') {
     return (
       <EmptyState
         layout="inline"

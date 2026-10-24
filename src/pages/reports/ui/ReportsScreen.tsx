@@ -49,7 +49,7 @@ const PORTFOLIO_REPORTS: Report[] = [
     href: '/reports/yield',
   },
   {
-    title: 'Звіт по облігації',
+    title: 'Звіт по ОВДП',
     description: 'Купівлі, купони, погашення й чистий дохід однієї ОВДП з гаманця.',
     href: '/reports/bond',
   },

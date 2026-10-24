@@ -40,7 +40,7 @@ export function CurrencyReportList({ wallet, reports, terms, heading, empty }: P
   }: {
     section: SectionListData<BondReport, CurrencySection>;
   }) => (
-    <ReportSectionHeader rowsTitle={`По облігаціях · ${CURRENCY_NAMES[report.currency]}`}>
+    <ReportSectionHeader rowsTitle={`По ОВДП · ${CURRENCY_NAMES[report.currency]}`}>
       <ReportSummary report={report} terms={terms} />
       <ReportBondHighlights report={report} terms={terms} />
       <ReportMonthsTable report={report} />

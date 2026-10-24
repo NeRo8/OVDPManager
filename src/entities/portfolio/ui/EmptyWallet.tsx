@@ -10,7 +10,7 @@ export function EmptyWallet() {
     <EmptyState
       icon="wallet-outline"
       title="Гаманець порожній"
-      message="Додайте ОВДП за її номером (ISIN), датою купівлі та сумою — і побачите графік виплат купонів."
+      message="Додайте ОВДП за її номером (ISIN), датою купівлі та сумою — і побачите виплати купонів."
     >
       <Button title="Додати ОВДП" onPress={addBond} />
       <Button title="Відновити з копії" variant="secondary" onPress={openBackupImport} />

@@ -1,7 +1,7 @@
 import type { ReportScope } from '../reportScope';
 
-/** Bonds with payments still ahead, those already redeemed, or both. */
-export type PortfolioStatus = 'all' | 'active' | 'redeemed';
+/** Bonds in circulation, those already redeemed, or both. */
+export type PortfolioStatus = 'all' | 'inCirculation' | 'redeemed';
 
 export type PortfolioReportFiltersState = ReportScope & {
   status: PortfolioStatus;

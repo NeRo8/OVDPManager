@@ -4,7 +4,7 @@ export type ReportTerms = {
   balance: string;
   /** Coupons plus what redemptions brought over the cost */
   income: string;
-  /** The span in the genitive, as in «Облігації року» */
+  /** The span in the genitive, as in «ОВДП року» */
   span: string;
 };
 

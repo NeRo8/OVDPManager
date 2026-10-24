@@ -121,7 +121,7 @@ export default function RootLayout() {
                 options={{ title: 'Структура портфеля' }}
               />
               <NativeStack.Screen name="reports/yield" options={{ title: 'Річна дохідність' }} />
-              <NativeStack.Screen name="reports/bond" options={{ title: 'Звіт по облігації' }} />
+              <NativeStack.Screen name="reports/bond" options={{ title: 'Звіт по ОВДП' }} />
               <NativeStack.Screen name="backup/export" options={{ title: 'Створити копію' }} />
             </NativeStack.Protected>
             <NativeStack.Protected

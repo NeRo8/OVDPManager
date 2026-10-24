@@ -14,10 +14,10 @@ import { round2 } from '@/shared/lib';
 import { positionYield } from './periodReport';
 
 /**
- * Where a bond of the wallet stands: every purchase still ahead, payments still to come, all of
- * them received, or unknown without the NBU data.
+ * Where a bond of the wallet stands: every purchase still ahead, in circulation, redeemed (its
+ * maturity date behind today), or unknown without the NBU data.
  */
-export type BondState = 'planned' | 'active' | 'redeemed' | 'unknown';
+export type BondState = 'planned' | 'inCirculation' | 'redeemed' | 'unknown';
 
 /** One bond of the wallet held to maturity. */
 export type PortfolioBond = {
@@ -50,7 +50,7 @@ export type CurrencyPortfolio = {
 export function bondState({ position, bond }: WalletPosition, today: string): BondState {
   if (!bond) return 'unknown';
   if (position.purchases.every((purchase) => isPlannedPurchase(purchase, today))) return 'planned';
-  return isRedeemed(bond, today) ? 'redeemed' : 'active';
+  return isRedeemed(bond, today) ? 'redeemed' : 'inCirculation';
 }
 
 /** In circulation means everything not redeemed: planned, and unknown without the NBU data. */
