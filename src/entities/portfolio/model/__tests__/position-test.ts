@@ -162,7 +162,7 @@ describe('resultsByCurrency', () => {
     expect(totals[1]).toMatchObject({ invested: 950, netIncome: 250 });
   });
 
-  it('leaves the net income out when one Position is incomplete', () => {
+  it('counts the net income of the Positions whose redemption is published, and how many are not', () => {
     const unpublished = { ...bond, payments: bond.payments.filter((p) => p.type === 'coupon') };
     const incomplete = positionOf(
       [purchase({ purchaseDate: '2025-01-01', amount: 1000 })],
@@ -170,7 +170,13 @@ describe('resultsByCurrency', () => {
       unpublished,
     );
     const [total] = resultsByCurrency([uah, incomplete]);
-    expect(total.complete).toBe(false);
-    expect(total.netIncome).toBeNull();
+    expect(total).toMatchObject({
+      complete: false,
+      incompleteCount: 1,
+      invested: 2000,
+      netIncome: 200,
+      returnPercent: 20,
+    });
+    expect(resultsByCurrency([incomplete])[0].netIncome).toBeNull();
   });
 });

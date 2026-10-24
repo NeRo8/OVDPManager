@@ -40,8 +40,16 @@ export type PositionResults = {
   returnPercent: number | null;
 };
 
-/** The results of a currency's Positions summed up. */
-export type CurrencyResults = PositionResults & { currency: Currency };
+/**
+ * The results of a currency's Positions summed up. The net income and the return over the term
+ * cover only the Positions whose redemption NBU has published, so one still waiting for it does
+ * not hide the rest; `complete` says whether that is all of them.
+ */
+export type CurrencyResults = PositionResults & {
+  currency: Currency;
+  /** Positions whose redemption NBU has not published yet, left out of the net income */
+  incompleteCount: number;
+};
 
 /** A Position of the Wallet joined with the NBU data, and what it comes to. */
 export type WalletPosition = {
@@ -187,20 +195,32 @@ export function resultsByCurrency(positions: WalletPosition[]): CurrencyResults[
       item.currency === currency && item.results ? [item.results] : [],
     );
     if (!results.length) return [];
-    const sum = (value: (item: PositionResults) => number) =>
-      round2(results.reduce((total, item) => total + value(item), 0));
+    const sum = (items: PositionResults[], value: (item: PositionResults) => number) =>
+      round2(items.reduce((total, item) => total + value(item), 0));
+    const published = results.filter((item) => item.complete);
+    // The net income and the return over the term of the Positions with every payment known.
+    const { netIncome, returnPercent } = withNetIncome({
+      invested: sum(published, (item) => item.invested),
+      coupons: 0,
+      redemption: 0,
+      received: 0,
+      expected: 0,
+      totalPayments: sum(published, (item) => item.totalPayments),
+      complete: published.length > 0,
+    });
     return [
       {
         currency,
-        ...withNetIncome({
-          invested: sum((item) => item.invested),
-          coupons: sum((item) => item.coupons),
-          redemption: sum((item) => item.redemption),
-          received: sum((item) => item.received),
-          expected: sum((item) => item.expected),
-          totalPayments: sum((item) => item.totalPayments),
-          complete: results.every((item) => item.complete),
-        }),
+        invested: sum(results, (item) => item.invested),
+        coupons: sum(results, (item) => item.coupons),
+        redemption: sum(results, (item) => item.redemption),
+        received: sum(results, (item) => item.received),
+        expected: sum(results, (item) => item.expected),
+        totalPayments: sum(results, (item) => item.totalPayments),
+        complete: published.length === results.length,
+        netIncome,
+        returnPercent,
+        incompleteCount: results.length - published.length,
       },
     ];
   });

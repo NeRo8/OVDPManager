@@ -22,13 +22,8 @@ export function PortfolioSummary({ report }: Props) {
       ? [
           { label: 'Вкладено', value: money(total.invested) },
           { label: 'Купони', value: money(total.coupons) },
-          {
-            label: 'Погашення',
-            value: total.complete ? money(total.redemption) : 'Немає повних даних НБУ',
-          },
-          ...(total.complete
-            ? [{ label: 'Усього виплат', value: money(total.totalPayments) }]
-            : []),
+          { label: 'Погашення', value: money(total.redemption) },
+          { label: 'Усього виплат', value: money(total.totalPayments) },
           ...(total.received > 0 && total.expected > 0
             ? [
                 { label: 'Отримано', value: money(total.received) },
@@ -63,6 +58,9 @@ export function PortfolioSummary({ report }: Props) {
         'Чистий дохід — виплати мінус вкладення; дохідність за весь строк — він у відсотках від вкладень, без перерахунку на рік, податків і комісій.',
         unknownCount > 0 &&
           `ОВДП, яких немає в даних НБУ (${unknownCount}), не враховано в підсумку.`,
+        total &&
+          total.incompleteCount > 0 &&
+          `НБУ ще не опублікував погашення ${total.incompleteCount} ОВДП: у погашенні й виплатах їх немає, а чистий дохід і дохідність за весь строк рахуються без них.`,
       ]
         .filter(Boolean)
         .join(' ')}

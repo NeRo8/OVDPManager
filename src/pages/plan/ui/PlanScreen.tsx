@@ -99,15 +99,18 @@ export default function PlanScreen() {
                 value={formatMoney(total.invested, total.currency)}
               />
             </Section>
-            <Section title="Виплати">
+            <Section
+              title="Виплати"
+              footer={
+                total.incompleteCount > 0
+                  ? `НБУ ще не опублікував погашення ${total.incompleteCount} ОВДП, тож у погашенні й усього виплат їх немає.`
+                  : undefined
+              }
+            >
               <InfoRow
                 label="Погашення"
                 hint="Повернення номіналу в дату погашення. Зазвичай воно менше за ціну купівлі — різницю покривають купони"
-                value={
-                  total.complete
-                    ? formatMoney(total.redemption, total.currency)
-                    : 'Немає повних даних НБУ'
-                }
+                value={formatMoney(total.redemption, total.currency)}
               />
               <Separator />
               <InfoRow
@@ -115,19 +118,22 @@ export default function PlanScreen() {
                 hint="Відсотки, отримані й ще очікувані до погашення"
                 value={formatMoney(total.coupons, total.currency)}
               />
-              {total.complete && (
-                <>
-                  <Separator />
-                  <InfoRow
-                    label="Усього виплат"
-                    hint="Погашення разом із купонами"
-                    value={formatMoney(total.totalPayments, total.currency)}
-                  />
-                </>
-              )}
+              <Separator />
+              <InfoRow
+                label="Усього виплат"
+                hint="Погашення разом із купонами"
+                value={formatMoney(total.totalPayments, total.currency)}
+              />
             </Section>
             {total.netIncome !== null && (
-              <Section title="Результат">
+              <Section
+                title="Результат"
+                footer={
+                  total.incompleteCount > 0
+                    ? `ОВДП без опублікованого погашення (${total.incompleteCount}) у чистий дохід і дохідність за весь строк не враховано.`
+                    : undefined
+                }
+              >
                 <InfoRow
                   label="Чистий дохід"
                   hint="Виплати мінус вкладення — ваш заробіток"
