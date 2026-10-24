@@ -2,9 +2,16 @@ import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { formatMoney, plural } from '@/shared/lib';
-import { Card, LegendRow, SectionTitle, Separator, Typography } from '@/shared/ui';
+import {
+  Card,
+  LegendRow,
+  SectionTitle,
+  Separator,
+  ShareBar,
+  TotalRow,
+  Typography,
+} from '@/shared/ui';
 import type { YearSummary } from '../model/yearSummary';
-import { TotalRow } from './TotalRow';
 import type { YearSeries } from './yearSeries';
 
 type Props = {
@@ -38,14 +45,7 @@ export function YearTotals({ summary, series }: Props) {
             )}
             {receivedPercent > 0 && receivedPercent < 100 && (
               <View style={styles.progress}>
-                <View
-                  accessibilityRole="progressbar"
-                  accessibilityLabel="Отримано"
-                  accessibilityValue={{ min: 0, max: 100, now: receivedPercent }}
-                  style={styles.track}
-                >
-                  <View style={[styles.fill, { width: `${receivedPercent}%` }]} />
-                </View>
+                <ShareBar percent={receivedPercent} accessibilityLabel="Отримано" />
                 <Typography variant="caption1" tone="secondary">
                   отримано {receivedPercent} %
                 </Typography>
@@ -89,11 +89,4 @@ const styles = StyleSheet.create((theme) => ({
   // Cancels the separator's own inset, so the line runs the card's full width.
   separator: { marginLeft: -theme.space.lg, marginVertical: theme.space.md },
   progress: { gap: theme.space.xs, marginTop: theme.space.xxs },
-  track: {
-    height: 4,
-    borderRadius: theme.radius.full,
-    overflow: 'hidden',
-    backgroundColor: theme.border,
-  },
-  fill: { height: '100%', borderRadius: theme.radius.full, backgroundColor: theme.accent },
 }));

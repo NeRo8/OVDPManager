@@ -12,8 +12,13 @@ export function currencySign(currency: string): string {
   return CURRENCY_SIGNS[currency] ?? currency;
 }
 
+/** An amount without its currency, for tables whose heading names it: 10 200,50 */
+export function formatAmount(value: number): string {
+  return numberFormat.format(value);
+}
+
 export function formatMoney(value: number, currency: string): string {
-  return `${numberFormat.format(value)} ${currencySign(currency)}`;
+  return `${formatAmount(value)} ${currencySign(currency)}`;
 }
 
 /** Short amount with the currency sign, for tight spots: 12,5 тис ₴ */

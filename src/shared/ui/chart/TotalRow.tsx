@@ -1,15 +1,15 @@
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Typography } from '@/shared/ui';
+import { Typography } from '../typography/Typography';
 
-type Props = {
+export type TotalRowProps = {
   label: string;
   value: string;
 };
 
 /** The sum of the legend rows above it, its label lined up with theirs. */
-export function TotalRow({ label, value }: Props) {
+export function TotalRow({ label, value }: TotalRowProps) {
   return (
     <View style={styles.row}>
       <View style={styles.swatchSpace} />

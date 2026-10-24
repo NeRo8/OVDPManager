@@ -2,8 +2,15 @@ import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { MONTHS, formatMoney } from '@/shared/lib';
-import { Card, LegendRow, MonthChart, SectionTitle, Separator, Typography } from '@/shared/ui';
-import { TotalRow } from './TotalRow';
+import {
+  Card,
+  LegendRow,
+  MonthChart,
+  SectionTitle,
+  Separator,
+  TotalRow,
+  Typography,
+} from '@/shared/ui';
 import type { YearSeries } from './yearSeries';
 
 type Props = {

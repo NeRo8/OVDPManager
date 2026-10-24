@@ -23,6 +23,8 @@ export * from './YearNav';
 export * from './chart/MonthChart';
 export * from './chart/Swatch';
 export * from './chart/LegendRow';
+export * from './chart/TotalRow';
+export * from './chart/ShareBar';
 export * from './form/DateField';
 export * from './form/Input';
 export * from './form/PasswordInput';
