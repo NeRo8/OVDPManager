@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ОВДП Портфель — конфіденційність</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+      <p><a href="./">← ОВДП Портфель</a></p>
+      <h1>Політика конфіденційності</h1>
+      <p class="meta">Набуває чинності 24 жовтня 2026 року</p>
+
+      <p>
+        Ця політика описує, які дані обробляє застосунок «ОВДП Портфель» (далі — застосунок) і що з
+        ними відбувається. Розробник — Artur Duchenko.
+      </p>
+
+      <h2>Дані на пристрої</h2>
+      <p>
+        Плани, покупки ОВДП і налаштування зберігаються лише на вашому пристрої. Для роботи
+        застосунку реєстрація не потрібна. Видалення застосунку видаляє ці дані.
+      </p>
+
+      <h2>Запити до Національного банку України</h2>
+      <p>
+        Застосунок завантажує перелік ОВДП і облікову ставку з відкритого API НБУ (bank.gov.ua). Ці
+        запити не містять ваших даних про покупки чи плани.
+      </p>
+
+      <h2>Резервні копії</h2>
+      <p>
+        Ви можете зберегти резервну копію у файл. Вона шифрується на пристрої ключем, який ви
+        вводите (Argon2id + AES-256-GCM). Куди зберегти файл, вирішуєте ви.
+      </p>
+
+      <h2>Хмарна копія (необовʼязково)</h2>
+      <p>
+        Якщо ви ввійдете через Google у налаштуваннях, застосунок використовує Firebase
+        Authentication і Cloud Firestore (Google). Тоді зберігаються:
+      </p>
+      <ul>
+        <li>
+          адреса електронної пошти вашого облікового запису Google та ідентифікатор користувача
+          Firebase;
+        </li>
+        <li>
+          одна зашифрована резервна копія і дата її створення. Копія шифрується на пристрої до
+          відправлення, ключ не залишає пристрій, тому ні розробник, ні Google не можуть її
+          прочитати.
+        </li>
+      </ul>
+      <p>
+        Ці дані використовуються лише для того, щоб ви могли відновити копію на іншому пристрої.
+        Обробку виконує Google як постачальник Firebase; див.
+        <a href="https://firebase.google.com/support/privacy">Firebase Privacy</a>.
+      </p>
+
+      <h2 id="delete">Видалення даних</h2>
+      <p>
+        Налаштування → «Видалити дані з хмари» видаляє хмарну копію і ваш обліковий запис у
+        Firebase. Дані на пристрої видаляються разом із застосунком.
+      </p>
+
+      <h2>Чого застосунок не робить</h2>
+      <ul>
+        <li>не показує рекламу;</li>
+        <li>не використовує аналітику й не відстежує вас між застосунками та сайтами;</li>
+        <li>не продає і не передає ваші дані третім особам, окрім описаного вище.</li>
+      </ul>
+
+      <h2>Діти</h2>
+      <p>Застосунок не призначений для дітей і свідомо не збирає їхніх даних.</p>
+
+      <h2>Зміни та контакти</h2>
+      <p>
+        Про зміни в політиці буде повідомлено на цій сторінці. Питання щодо конфіденційності
+        надсилайте на <a href="mailto:SUPPORT_EMAIL">SUPPORT_EMAIL</a>.
+      </p>
+
+      <hr />
+
+      <section id="en" lang="en">
+        <h1>Privacy Policy</h1>
+        <p class="meta">Effective 24 October 2026</p>
+
+        <p>
+          This policy describes what data the «ОВДП Портфель» app (the app) handles and what happens
+          to it. The developer is Artur Duchenko.
+        </p>
+
+        <h2>Data on the device</h2>
+        <p>
+          Plans, bond purchases and settings are stored only on your device. No sign-up is needed to
+          use the app. Deleting the app deletes this data.
+        </p>
+
+        <h2>Requests to the National Bank of Ukraine</h2>
+        <p>
+          The app downloads the list of government bonds and the key rate from the NBU open data API
+          (bank.gov.ua). These requests carry none of your purchases or plans.
+        </p>
+
+        <h2>Backups</h2>
+        <p>
+          You can save a backup to a file. It is encrypted on the device with a key you type
+          (Argon2id + AES-256-GCM). You choose where the file goes.
+        </p>
+
+        <h2>Cloud copy (optional)</h2>
+        <p>
+          If you sign in with Google in the settings, the app uses Firebase Authentication and Cloud
+          Firestore (Google). The following is then stored:
+        </p>
+        <ul>
+          <li>your Google account's email address and your Firebase user ID;</li>
+          <li>
+            one encrypted backup and the date it was made. The backup is encrypted on the device
+            before it is sent and the key never leaves the device, so neither the developer nor
+            Google can read it.
+          </li>
+        </ul>
+        <p>
+          This data is used only to let you restore the backup on another device. Google processes
+          it as the Firebase provider; see
+          <a href="https://firebase.google.com/support/privacy">Firebase Privacy</a>.
+        </p>
+
+        <h2 id="delete-en">Deleting your data</h2>
+        <p>
+          Settings → «Видалити дані з хмари» (Delete cloud data) deletes the cloud copy and your
+          Firebase account. Data on the device is deleted with the app.
+        </p>
+
+        <h2>What the app does not do</h2>
+        <ul>
+          <li>show ads;</li>
+          <li>use analytics or track you across apps and websites;</li>
+          <li>sell or share your data with third parties, other than as described above.</li>
+        </ul>
+
+        <h2>Children</h2>
+        <p>The app is not directed at children and does not knowingly collect their data.</p>
+
+        <h2>Changes and contact</h2>
+        <p>
+          Changes to this policy will be posted on this page. Send privacy questions to
+          <a href="mailto:SUPPORT_EMAIL">SUPPORT_EMAIL</a>.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

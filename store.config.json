@@ -1,0 +1,98 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "version": "1.0.0",
+    "copyright": "2026 Artur Duchenko",
+    "categories": ["FINANCE"],
+    "info": {
+      "uk": {
+        "title": "ОВДП Портфель",
+        "subtitle": "Купони, погашення і плани",
+        "description": "ОВДП Портфель — облік ваших облігацій внутрішньої державної позики України: що куплено, що заплановано і скільки грошей повернеться купонами та погашеннями.\n\nДодайте покупку — дату, кількість і сплачену суму, — і застосунок сам розрахує всі майбутні виплати за графіком, який публікує Національний банк України.\n\nВИПЛАТИ\n• Рік на одному екрані: підсумки року, графік по місяцях і виплати обраного місяця\n• Купони, погашення й покупки з фільтрами за валютою, типом, часом і облігаціями\n\nКАТАЛОГ ОВДП\n• Випуски в обігу з відкритих даних НБУ — у гривнях, доларах і євро\n• Фільтри за валютою та строком до погашення, сортування за датою погашення чи ставкою, пошук за ISIN\n\nПЛАНИ\n• Кілька інвестиційних планів: здійснені покупки й заплановані на майбутні дати\n• Вкладено, виплати, чистий дохід і дохідність за весь строк\n• Дохідність покупки поруч з обліковою ставкою НБУ на її дату\n\nЗВІТИ\n• Звіт за рік: сальдо, дохід, дохідність, таблиця по місяцях і внесок кожної облігації\n\nВАШІ ДАНІ — У ВАС\n• Усе зберігається на пристрої, реєстрація не потрібна\n• Резервна копія у файл або в хмару через обліковий запис Google, завжди зашифрована ключем, який знаєте лише ви\n• Без реклами й аналітики\n\nЗастосунок не є брокером і не купує облігації: він допомагає вести облік і планувати. Дані про випуски й облікову ставку — з відкритих даних Національного банку України.",
+        "keywords": [
+          "облігації",
+          "держоблігації",
+          "купон",
+          "погашення",
+          "інвестиції",
+          "дохідність",
+          "НБУ",
+          "військові",
+          "гривня",
+          "долар",
+          "облік",
+          "бонди"
+        ],
+        "promoText": "Усі купони й погашення ваших ОВДП на одному екрані. Дані НБУ, без реєстрації, з зашифрованою резервною копією.",
+        "marketingUrl": "https://GITHUB_USER.github.io/ovdp-portfel/",
+        "supportUrl": "https://GITHUB_USER.github.io/ovdp-portfel/",
+        "privacyPolicyUrl": "https://GITHUB_USER.github.io/ovdp-portfel/privacy.html",
+        "privacyChoicesUrl": "https://GITHUB_USER.github.io/ovdp-portfel/privacy.html#delete"
+      },
+      "en-US": {
+        "title": "ОВДП Портфель",
+        "subtitle": "Ukrainian government bonds",
+        "description": "ОВДП Портфель keeps track of your Ukrainian domestic government bonds (OVDP): what you bought, what you plan to buy, and how much will come back as coupons and redemptions.\n\nAdd a purchase — date, quantity and the amount paid — and the app works out every future payment from the schedule published by the National Bank of Ukraine.\n\nPAYMENTS\n• A whole year on one screen: the year's totals, a monthly chart and the chosen month's payments\n• Coupons, redemptions and purchases, filtered by currency, type, time and bond\n\nBOND CATALOG\n• Bonds in circulation from the NBU open data — in hryvnias, dollars and euros\n• Filter by currency and term to maturity, sort by maturity or rate, search by ISIN\n\nPLANS\n• Several investment plans: purchases made and purchases planned for future dates\n• Invested, payments, net income and return over the whole term\n• Each purchase's yield next to the NBU key rate on its date\n\nREPORTS\n• Year report: balance, income, yield, a table by month and each bond's share\n\nYOUR DATA STAYS WITH YOU\n• Everything is stored on the device, no sign-up needed\n• Back up to a file or to the cloud with a Google account, always encrypted with a key only you know\n• No ads, no analytics\n\nThe app is not a broker and does not buy bonds: it helps you keep records and plan. Bond and key rate data come from the National Bank of Ukraine open data. The app's interface is in Ukrainian.",
+        "keywords": [
+          "OVDP",
+          "bonds",
+          "Ukraine",
+          "government",
+          "coupon",
+          "redemption",
+          "yield",
+          "NBU",
+          "portfolio",
+          "investment",
+          "tracker",
+          "hryvnia"
+        ],
+        "promoText": "Every coupon and redemption of your Ukrainian government bonds on one screen. NBU data, no sign-up, encrypted backups.",
+        "marketingUrl": "https://GITHUB_USER.github.io/ovdp-portfel/",
+        "supportUrl": "https://GITHUB_USER.github.io/ovdp-portfel/",
+        "privacyPolicyUrl": "https://GITHUB_USER.github.io/ovdp-portfel/privacy.html#en",
+        "privacyChoicesUrl": "https://GITHUB_USER.github.io/ovdp-portfel/privacy.html#delete-en"
+      }
+    },
+    "advisory": {
+      "alcoholTobaccoOrDrugUseOrReferences": "NONE",
+      "contests": "NONE",
+      "gamblingSimulated": "NONE",
+      "gunsOrOtherWeapons": "NONE",
+      "horrorOrFearThemes": "NONE",
+      "matureOrSuggestiveThemes": "NONE",
+      "medicalOrTreatmentInformation": "NONE",
+      "profanityOrCrudeHumor": "NONE",
+      "sexualContentGraphicAndNudity": "NONE",
+      "sexualContentOrNudity": "NONE",
+      "violenceCartoonOrFantasy": "NONE",
+      "violenceRealistic": "NONE",
+      "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+      "kidsAgeBand": null,
+      "ageRatingOverride": "NONE",
+      "ageRatingOverrideV2": "NONE",
+      "koreaAgeRatingOverride": "NONE",
+      "advertising": false,
+      "ageAssurance": false,
+      "gambling": false,
+      "healthOrWellnessTopics": false,
+      "lootBox": false,
+      "messagingAndChat": false,
+      "parentalControls": false,
+      "unrestrictedWebAccess": false,
+      "userGeneratedContent": false
+    },
+    "release": {
+      "automaticRelease": false,
+      "phasedRelease": false
+    },
+    "review": {
+      "firstName": "Artur",
+      "lastName": "Duchenko",
+      "email": "REVIEW_EMAIL",
+      "phone": "REVIEW_PHONE",
+      "demoRequired": false,
+      "notes": "No account or sign-in is needed to use the app. The interface is in Ukrainian.\n\nTo try it:\n1. On the first screen enter any plan name and continue.\n2. On the «Гаманець» (Wallet) tab tap + and pick any bond from the list.\n3. Enter a date, a quantity and the amount paid, then save.\n4. The «Виплати» (Payments), «Звіти» (Reports) and «План» (Plan) tabs now show the bond's coupons and redemption.\n\nBond and key rate data come from the National Bank of Ukraine open data API (bank.gov.ua), which is free to reuse under Ukrainian law.\n\n«Увійти через Google» in «Налаштування» (Settings) is optional and is not an app account: it only stores one encrypted backup copy in Firebase. The backup is encrypted on the device with a key the user types (Argon2id + AES-256-GCM); the developer cannot read it. «Видалити дані з хмари» in Settings deletes the cloud copy and the Firebase account."
+    }
+  }
+}
