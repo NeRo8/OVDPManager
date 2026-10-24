@@ -93,7 +93,7 @@ function redemptionGain(purchases: Purchase[], payment: PositionPayment, bond: B
  * «Річна дохідність» of a position: each purchase's yield, as the purchase form shows it, weighted
  * by the amount paid. Null while NBU has not published the redemption, as the payments fall short.
  */
-function positionYield({ position, bond }: WalletPosition, today: string): number | null {
+export function positionYield({ position, bond }: WalletPosition, today: string): number | null {
   if (!bond?.payments.some((payment) => payment.type === 'redemption')) return null;
   let weighted = 0;
   for (const purchase of position.purchases) {
