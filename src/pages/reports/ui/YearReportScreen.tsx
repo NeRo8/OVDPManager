@@ -4,9 +4,9 @@ import { RefreshControl, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { NbuSourceNote, StaleBondsNotice, WalletGate } from '@/entities/portfolio';
-import { filterWallet } from '@/features/report-filters';
+import { countScopeFilters, filterWallet } from '@/features/report-filters';
 import { usePullToRefresh } from '@/shared/lib';
-import { ScreenScrollView, Typography } from '@/shared/ui';
+import { EmptyState, ScreenScrollView } from '@/shared/ui';
 import { YEAR_TERMS } from '../model/reportTerms';
 import { useYearReport } from '../model/useYearReport.hook';
 import { yearReport } from '../model/yearReport';
@@ -54,9 +54,20 @@ export default function YearReportScreen() {
             </Fragment>
           ))
         ) : (
-          <Typography variant="subhead" tone="secondary" align="center">
-            У {year} році купівель і виплат немає.
-          </Typography>
+          <EmptyState
+            layout="inline"
+            {...(countScopeFilters(filters) > 0
+              ? {
+                  icon: 'funnel-outline',
+                  title: 'Купівель і виплат немає',
+                  message: `Обрані у фільтрах валюта чи ОВДП не мали у ${year} році ні купівель, ні виплат. Змініть їх або оберіть інший рік у фільтрах.`,
+                }
+              : {
+                  icon: 'calendar-outline',
+                  title: 'Купівель і виплат немає',
+                  message: `У ${year} році за планом немає ні купівель, ні виплат купонів і погашень. Оберіть інший рік у фільтрах.`,
+                })}
+          />
         )}
         <View style={styles.footer}>
           <NbuSourceNote />

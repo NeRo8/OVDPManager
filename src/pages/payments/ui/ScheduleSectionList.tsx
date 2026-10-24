@@ -2,7 +2,13 @@ import { SectionList, View, type SectionListProps } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { ScheduleEventRow, type ScheduleEvent } from '@/entities/portfolio';
-import { SectionCell, Typography, screenContent } from '@/shared/ui';
+import {
+  EmptyState,
+  type EmptyStateProps,
+  SectionCell,
+  Typography,
+  screenContent,
+} from '@/shared/ui';
 import type { ScheduleSection } from '../model/scheduleSections';
 
 type Props = Pick<
@@ -10,12 +16,12 @@ type Props = Pick<
   'ListHeaderComponent' | 'ListFooterComponent' | 'refreshControl'
 > & {
   sections: ScheduleSection[];
-  /** Shown instead of the months when there are no payments */
-  emptyMessage: string;
+  /** Shown instead of the months when there are no events: why, and what would show some */
+  empty: Omit<EmptyStateProps, 'layout' | 'children'>;
 };
 
 /** Events grouped by month: the shared list of the payments and schedule screens. */
-export function ScheduleSectionList({ emptyMessage, ...props }: Props) {
+export function ScheduleSectionList({ empty, ...props }: Props) {
   return (
     <SectionList
       {...props}
@@ -36,11 +42,7 @@ export function ScheduleSectionList({ emptyMessage, ...props }: Props) {
           </Typography>
         </View>
       )}
-      ListEmptyComponent={
-        <Typography variant="subhead" tone="secondary" align="center" style={styles.empty}>
-          {emptyMessage}
-        </Typography>
-      }
+      ListEmptyComponent={<EmptyState layout="inline" {...empty} />}
       renderItem={({ item, index, section }) => (
         <SectionCell index={index} count={section.data.length}>
           <ScheduleEventRow event={item} showIsin />
@@ -53,7 +55,6 @@ export function ScheduleSectionList({ emptyMessage, ...props }: Props) {
 const styles = StyleSheet.create((theme) => ({
   list: { backgroundColor: theme.background },
   content: { gap: 0 },
-  empty: { marginTop: theme.space.xl },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

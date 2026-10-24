@@ -19,7 +19,7 @@ import {
 } from '@/shared/lib';
 import {
   ActionRow,
-  Card,
+  EmptyState,
   InfoRow,
   ScreenScrollView,
   Section,
@@ -73,13 +73,12 @@ export default function PlanScreen() {
         </Typography>
 
         {numberOfPurchases === 0 && (
-          <Card>
-            <Typography variant="headline">План порожній</Typography>
-            <Typography variant="subhead" tone="secondary">
-              Додайте ОВДП у гаманці: дату купівлі, кількість і суму. Купівля з’явиться в гаманці та
-              у виплатах.
-            </Typography>
-          </Card>
+          <EmptyState
+            layout="inline"
+            icon="bar-chart-outline"
+            title="План порожній"
+            message="У плані ще немає купівель, тож підсумовувати нічого. Додайте ОВДП у гаманці: дату купівлі, кількість і суму — купівля з’явиться в гаманці та у виплатах."
+          />
         )}
         {/* The totals need the NBU data; without it this stands in their place. */}
         {numberOfPurchases > 0 && <BondsUnavailableCard />}

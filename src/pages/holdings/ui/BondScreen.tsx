@@ -150,9 +150,12 @@ export default function BondScreen() {
             }
           >
             {payments.length === 0 ? (
-              <Typography variant="subhead" align="center" tone="secondary" style={styles.empty}>
-                Після дати купівлі виплат немає
-              </Typography>
+              <EmptyState
+                layout="inline"
+                icon="calendar-outline"
+                title="Виплат немає"
+                message="Усі виплати за графіком НБУ припадають на дати до купівлі, тож цій купівлі вони не належать."
+              />
             ) : (
               payments.map((payment, index) => (
                 <Fragment key={`${payment.date}-${payment.type}`}>
@@ -185,5 +188,4 @@ const styles = StyleSheet.create((theme) => ({
   },
   purchaseInfo: { flex: 1, gap: theme.space.xxs },
   pressed: { opacity: 0.5 },
-  empty: { padding: theme.space.lg },
 }));

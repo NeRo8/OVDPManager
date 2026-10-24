@@ -4,9 +4,9 @@ import { RefreshControl, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { NbuSourceNote, StaleBondsNotice, WalletGate } from '@/entities/portfolio';
-import { filterWallet, reportYears } from '@/features/report-filters';
+import { countScopeFilters, filterWallet, reportYears } from '@/features/report-filters';
 import { usePullToRefresh } from '@/shared/lib';
-import { ScreenScrollView, Typography } from '@/shared/ui';
+import { EmptyState, ScreenScrollView } from '@/shared/ui';
 import { ALL_YEARS_TERMS } from '../model/reportTerms';
 import { useYearOverYearReport } from '../model/useYearOverYearReport.hook';
 import { yearOverYearReport } from '../model/yearOverYearReport';
@@ -47,29 +47,41 @@ export default function YearOverYearReportScreen() {
           }}
         />
         <StaleBondsNotice />
-        <ReportHeading
-          title={firstYear === lastYear ? String(firstYear) : `${firstYear} – ${lastYear}`}
-          subtitle="Від першої купівлі до останньої виплати"
-        />
         {currencies.length > 0 ? (
-          currencies.map((report) => (
-            <Fragment key={report.currency}>
-              <ReportSummary report={report.total} terms={ALL_YEARS_TERMS} />
-              <YearHighlights report={report} />
-              {report.years.length > 1 && (
-                <>
-                  <YearsMoneyChart report={report} />
-                  <YearsIncomeBars report={report} />
-                </>
-              )}
-              <YearsFlowsTable report={report} />
-              <YearsResultsTable report={report} />
-            </Fragment>
-          ))
+          <>
+            <ReportHeading
+              title={firstYear === lastYear ? String(firstYear) : `${firstYear} – ${lastYear}`}
+              subtitle="Від першої купівлі до останньої виплати"
+            />
+            {currencies.map((report) => (
+              <Fragment key={report.currency}>
+                <ReportSummary report={report.total} terms={ALL_YEARS_TERMS} />
+                <YearHighlights report={report} />
+                {report.years.length > 1 && (
+                  <>
+                    <YearsMoneyChart report={report} />
+                    <YearsIncomeBars report={report} />
+                  </>
+                )}
+                <YearsFlowsTable report={report} />
+                <YearsResultsTable report={report} />
+              </Fragment>
+            ))}
+          </>
+        ) : countScopeFilters(filters) > 0 ? (
+          <EmptyState
+            layout="inline"
+            icon="funnel-outline"
+            title="Купівель і виплат немає"
+            message="Обрані у фільтрах валюта чи ОВДП не мають жодної купівлі чи виплати. Змініть фільтри."
+          />
         ) : (
-          <Typography variant="subhead" tone="secondary" align="center">
-            Купівель і виплат немає.
-          </Typography>
+          <EmptyState
+            layout="inline"
+            icon="calendar-outline"
+            title="Купівель і виплат немає"
+            message="У плані ще немає купівель, тож і років для порівняння немає. Додайте ОВДП у гаманці."
+          />
         )}
         <View style={styles.footer}>
           <NbuSourceNote />

@@ -4,12 +4,13 @@ import { RefreshControl, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { NbuSourceNote, StaleBondsNotice, WalletGate } from '@/entities/portfolio';
-import { filterWallet } from '@/features/report-filters';
+import { countScopeFilters, filterWallet } from '@/features/report-filters';
 import { usePullToRefresh } from '@/shared/lib';
-import { ScreenScrollView, Typography } from '@/shared/ui';
+import { ScreenScrollView } from '@/shared/ui';
 import { redemptionsReport } from '../model/redemptionsReport';
 import { useRedemptionsReport } from '../model/useRedemptionsReport.hook';
-import { NO_REDEMPTIONS, REDEMPTION_TIME_LABELS } from './redemptionLabels';
+import { REDEMPTION_TIME_LABELS } from './redemptionLabels';
+import { RedemptionsEmpty } from './RedemptionsEmpty';
 import { RedemptionsChart } from './RedemptionsChart';
 import { RedemptionsList } from './RedemptionsList';
 import { RedemptionsSummary } from './RedemptionsSummary';
@@ -25,7 +26,8 @@ import { ReportHeading } from './ReportHeading';
  */
 export default function RedemptionsReportScreen() {
   const { wallet, filters, activeFilterCount } = useRedemptionsReport();
-  const currencies = redemptionsReport(filterWallet(wallet, filters), filters.time);
+  const filtered = filterWallet(wallet, filters);
+  const currencies = redemptionsReport(filtered, filters.time);
   const years = currencies.flatMap((report) => report.years.map(({ year }) => year));
   const firstYear = Math.min(...years);
   const lastYear = Math.max(...years);
@@ -61,9 +63,11 @@ export default function RedemptionsReportScreen() {
             ))}
           </>
         ) : (
-          <Typography variant="subhead" tone="secondary" align="center">
-            {NO_REDEMPTIONS[filters.time]}
-          </Typography>
+          <RedemptionsEmpty
+            wallet={filtered}
+            time={filters.time}
+            isScoped={countScopeFilters(filters) > 0}
+          />
         )}
         <View style={styles.footer}>
           <NbuSourceNote />
