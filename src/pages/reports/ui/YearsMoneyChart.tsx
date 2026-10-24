@@ -13,13 +13,11 @@ import {
   Typography,
 } from '@/shared/ui';
 import type { CurrencyYears } from '../model/yearOverYearReport';
+import { yearColumns } from './yearColumns';
 
 type Props = {
   report: CurrencyYears;
 };
-
-/** More years than fit full under the columns: '26 instead of 2026. */
-const FULL_YEAR_LABELS = 6;
 
 /**
  * Each year's payments above the baseline and purchases below it, in one currency; the legend
@@ -27,10 +25,7 @@ const FULL_YEAR_LABELS = 6;
  */
 export function YearsMoneyChart({ report }: Props) {
   const { currency, years, total } = report;
-  const columns = years.map(({ year }) => ({
-    label: years.length > FULL_YEAR_LABELS ? `’${String(year).slice(2)}` : String(year),
-    name: `${year} рік`,
-  }));
+  const columns = yearColumns(years.map(({ year }) => year));
   const series: ChartSeries[] = [
     { label: 'купони', color: 'coupon', values: years.map((year) => year.coupons) },
     { label: 'погашення', color: 'redemption', values: years.map((year) => year.redemptions) },

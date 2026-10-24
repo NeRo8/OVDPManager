@@ -12,6 +12,9 @@ export const changeCell = (change: number | null) => {
   return `${rounded > 0 ? '+' : rounded < 0 ? '−' : ''}${Math.abs(rounded)}%`;
 };
 
+/** A share in whole percent; one that rounds to zero still shows it is there. */
+export const shareCell = (share: number) => (share < 0.5 ? '<1%' : `${Math.round(share)}%`);
+
 export const FLOW_COLUMNS = ['Купівлі', 'Купони', 'Погашення'];
 
 export const flowCells = ({ invested, coupons, redemptions }: Flows) => [

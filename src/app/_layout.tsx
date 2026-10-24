@@ -81,6 +81,10 @@ export default function RootLayout() {
                 options={{ title: 'Фільтри звіту', ...FILTERS_MODAL }}
               />
               <NativeStack.Screen
+                name="redemptions-report-filters"
+                options={{ title: 'Фільтри звіту', ...FILTERS_MODAL }}
+              />
+              <NativeStack.Screen
                 name="period-report-filters"
                 options={{ title: 'Фільтри звіту', ...FILTERS_MODAL }}
               />

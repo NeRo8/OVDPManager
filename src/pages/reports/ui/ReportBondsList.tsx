@@ -7,14 +7,12 @@ import { formatMoney } from '@/shared/lib';
 import { LegendRow, Section, Separator, ShareBar, TotalRow, Typography } from '@/shared/ui';
 import type { CurrencyReport } from '../model/periodReport';
 import type { ReportTerms } from '../model/reportTerms';
+import { shareCell } from './reportCells';
 
 type Props = {
   report: CurrencyReport;
   terms: ReportTerms;
 };
-
-/** Whole percent; a share that rounds to zero still shows it is there. */
-const formatShare = (share: number) => (share < 0.5 ? '<1%' : `${Math.round(share)}%`);
 
 /**
  * What each bond paid, cost and earned in the report, in one currency, with its yield and its share
@@ -68,7 +66,7 @@ export function ReportBondsList({ report, terms }: Props) {
                   accessibilityLabel={`Частка в доході ${terms.span}`}
                 />
                 <Typography variant="caption1" tone="secondary" tabular>
-                  {formatShare(bond.incomeShare)} доходу {terms.span}
+                  {shareCell(bond.incomeShare)} доходу {terms.span}
                 </Typography>
               </View>
             )}
