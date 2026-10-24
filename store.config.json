@@ -24,10 +24,10 @@
           "бонди"
         ],
         "promoText": "Усі купони й погашення ваших ОВДП на одному екрані. Дані НБУ, без реєстрації, з зашифрованою резервною копією.",
-        "marketingUrl": "https://GITHUB_USER.github.io/ovdp-portfel/",
-        "supportUrl": "https://GITHUB_USER.github.io/ovdp-portfel/",
-        "privacyPolicyUrl": "https://GITHUB_USER.github.io/ovdp-portfel/privacy.html",
-        "privacyChoicesUrl": "https://GITHUB_USER.github.io/ovdp-portfel/privacy.html#delete"
+        "marketingUrl": "https://nero8.github.io/OVDPManager/",
+        "supportUrl": "https://nero8.github.io/OVDPManager/",
+        "privacyPolicyUrl": "https://nero8.github.io/OVDPManager/privacy.html",
+        "privacyChoicesUrl": "https://nero8.github.io/OVDPManager/privacy.html#delete"
       },
       "en-US": {
         "title": "ОВДП Портфель",
@@ -48,10 +48,10 @@
           "hryvnia"
         ],
         "promoText": "Every coupon and redemption of your Ukrainian government bonds on one screen. NBU data, no sign-up, encrypted backups.",
-        "marketingUrl": "https://GITHUB_USER.github.io/ovdp-portfel/",
-        "supportUrl": "https://GITHUB_USER.github.io/ovdp-portfel/",
-        "privacyPolicyUrl": "https://GITHUB_USER.github.io/ovdp-portfel/privacy.html#en",
-        "privacyChoicesUrl": "https://GITHUB_USER.github.io/ovdp-portfel/privacy.html#delete-en"
+        "marketingUrl": "https://nero8.github.io/OVDPManager/",
+        "supportUrl": "https://nero8.github.io/OVDPManager/",
+        "privacyPolicyUrl": "https://nero8.github.io/OVDPManager/privacy.html#en",
+        "privacyChoicesUrl": "https://nero8.github.io/OVDPManager/privacy.html#delete-en"
       }
     },
     "advisory": {
@@ -85,14 +85,6 @@
     "release": {
       "automaticRelease": false,
       "phasedRelease": false
-    },
-    "review": {
-      "firstName": "Artur",
-      "lastName": "Duchenko",
-      "email": "REVIEW_EMAIL",
-      "phone": "REVIEW_PHONE",
-      "demoRequired": false,
-      "notes": "No account or sign-in is needed to use the app. The interface is in Ukrainian.\n\nTo try it:\n1. On the first screen enter any plan name and continue.\n2. On the «Гаманець» (Wallet) tab tap + and pick any bond from the list.\n3. Enter a date, a quantity and the amount paid, then save.\n4. The «Виплати» (Payments), «Звіти» (Reports) and «План» (Plan) tabs now show the bond's coupons and redemption.\n\nBond and key rate data come from the National Bank of Ukraine open data API (bank.gov.ua), which is free to reuse under Ukrainian law.\n\n«Увійти через Google» in «Налаштування» (Settings) is optional and is not an app account: it only stores one encrypted backup copy in Firebase. The backup is encrypted on the device with a key the user types (Argon2id + AES-256-GCM); the developer cannot read it. «Видалити дані з хмари» in Settings deletes the cloud copy and the Firebase account."
     }
   }
 }
