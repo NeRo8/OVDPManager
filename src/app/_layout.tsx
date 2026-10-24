@@ -5,6 +5,7 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useUnistyles } from 'react-native-unistyles';
 
 import { useInvestmentPlans } from '@/entities/portfolio';
+import { useIsOnboardingCompleted } from '@/features/onboarding';
 import { QueryProvider } from '@/shared/api';
 import { HeaderButton, LaunchSplash, NativeStack, ToastHost } from '@/shared/ui';
 import { goBackOrHome } from '@/shared/lib';
@@ -22,6 +23,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const { theme, rt } = useUnistyles();
+  const isOnboarded = useIsOnboardingCompleted();
   const hasPlans = useInvestmentPlans().length > 0;
   const base = rt.themeName === 'dark' ? DarkTheme : DefaultTheme;
   // Navigator surfaces use the app palette; NativeStack sets the header colors itself.
@@ -43,8 +45,15 @@ export default function RootLayout() {
         <ThemeProvider value={navigationTheme}>
           <StatusBar style="auto" />
           <NativeStack>
+            {/* The introduction comes first, once; then the first plan, then the app. */}
+            <NativeStack.Protected guard={!isOnboarded} redirectTo={hasPlans ? '/' : '/welcome'}>
+              <NativeStack.Screen name="onboarding" options={{ headerShown: false }} />
+            </NativeStack.Protected>
             {/* Purchases live in plans, so the app opens only once there is one. */}
-            <NativeStack.Protected guard={hasPlans} redirectTo="/welcome">
+            <NativeStack.Protected
+              guard={isOnboarded && hasPlans}
+              redirectTo={isOnboarded ? '/welcome' : '/onboarding'}
+            >
               {/* Each tab draws its own header in its own stack. */}
               <NativeStack.Screen name="(tabs)" options={{ headerShown: false }} />
               {/* Adding a purchase to the active plan: choose a bond, then enter the purchase. */}
@@ -83,7 +92,10 @@ export default function RootLayout() {
               <NativeStack.Screen name="reports/bond" options={{ title: 'Звіт по облігації' }} />
               <NativeStack.Screen name="backup/export" options={{ title: 'Створити копію' }} />
             </NativeStack.Protected>
-            <NativeStack.Protected guard={!hasPlans} redirectTo="/">
+            <NativeStack.Protected
+              guard={isOnboarded && !hasPlans}
+              redirectTo={isOnboarded ? '/' : '/onboarding'}
+            >
               <NativeStack.Screen name="welcome" options={{ title: 'Перший план' }} />
             </NativeStack.Protected>
             {/* Reachable without plans too: a backup brings its plans along. */}
