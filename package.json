@@ -54,6 +54,7 @@
       "<rootDir>/jest.setup.ts"
     ],
     "moduleNameMapper": {
+      "^@/shared/ui$": "<rootDir>/jest.sharedUiStub.ts",
       "^@/(.*)$": "<rootDir>/src/$1"
     }
   },

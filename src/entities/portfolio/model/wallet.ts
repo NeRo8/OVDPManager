@@ -1,5 +1,6 @@
 import {
   type Bond,
+  CURRENCIES,
   type Currency,
   type PositionPayment,
   type Purchase,
@@ -62,4 +63,36 @@ export function narrowWallet(wallet: Wallet, { currency, isins }: WalletScope): 
       (isins.length === 0 || isins.includes(purchase.isin)),
   );
   return buildWallet(kept, byIsin, today);
+}
+
+/** What a Wallet can be narrowed to. */
+export type WalletScopeOptions = {
+  /** Bonds the NBU data has, by ISIN */
+  isins: string[];
+  /** In `CURRENCIES` order */
+  currencies: Currency[];
+};
+
+export function walletScopeOptions(wallet: Wallet): WalletScopeOptions {
+  return {
+    isins: wallet.positions
+      .filter(({ bond }) => bond)
+      .map(({ position }) => position.isin)
+      .sort(),
+    currencies: CURRENCIES.filter((currency) =>
+      [...wallet.payments, ...wallet.purchaseEvents].some((event) => event.currency === currency),
+    ),
+  };
+}
+
+/**
+ * A saved scope fitted to the Wallet: bonds it no longer has are dropped, and a currency it no
+ * longer has gives way to every currency, so a saved scope never hides everything.
+ */
+export function fitScope<T extends WalletScope>(scope: T, options: WalletScopeOptions): T {
+  return {
+    ...scope,
+    currency: scope.currency && options.currencies.includes(scope.currency) ? scope.currency : null,
+    isins: scope.isins.filter((isin) => options.isins.includes(isin)),
+  };
 }
