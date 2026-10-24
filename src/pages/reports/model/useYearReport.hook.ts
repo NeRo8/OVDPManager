@@ -1,21 +1,26 @@
-import { useState } from 'react';
-
 import { useWallet } from '@/entities/portfolio';
-import { reportYears, yearReport } from './yearReport';
+import {
+  countYearReportFilters,
+  effectiveScope,
+  reportScopeOptions,
+  reportYear,
+  reportYears,
+  useYearReportFilters,
+} from '@/features/report-filters';
 
-/** The year report of the active plan and the year picked on it, the current one at first. */
+/** The saved year and filters of the year report, fitted to the active plan's wallet. */
 export function useYearReport() {
   const wallet = useWallet();
-  const { firstYear, lastYear, currentYear } = reportYears(wallet);
-  const [chosenYear, setYear] = useState<number | null>(null);
-  const year = chosenYear ?? Math.min(Math.max(currentYear, firstYear), lastYear);
+  const options = reportScopeOptions(wallet);
+  const filters = effectiveScope(useYearReportFilters(), options);
+  const years = reportYears(wallet);
 
   return {
     wallet,
-    firstYear,
-    lastYear,
-    year,
-    setYear,
-    currencies: yearReport(wallet, year),
+    filters,
+    options,
+    years,
+    year: reportYear(filters, years),
+    activeFilterCount: countYearReportFilters(filters, years),
   };
 }

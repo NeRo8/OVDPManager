@@ -20,11 +20,13 @@ const ThemedDateTimePicker = withUnistyles<typeof DateTimePicker, IOSNativeProps
 type Props = {
   value: string;
   onChange: (isoDate: string) => void;
+  minimumDate?: string;
   maximumDate?: string;
 };
 
-export function DateField({ value, onChange, maximumDate }: Props) {
+export function DateField({ value, onChange, minimumDate, maximumDate }: Props) {
   const date = fromISODate(value);
+  const min = minimumDate ? fromISODate(minimumDate) : undefined;
   const max = maximumDate ? fromISODate(maximumDate) : undefined;
 
   const changeDate = (_: unknown, selectedDate: Date) => onChange(toISODate(selectedDate));
@@ -35,6 +37,7 @@ export function DateField({ value, onChange, maximumDate }: Props) {
         value={date}
         mode="date"
         display="compact"
+        minimumDate={min}
         maximumDate={max}
         onValueChange={changeDate}
         style={styles.iosPicker}
@@ -47,6 +50,7 @@ export function DateField({ value, onChange, maximumDate }: Props) {
     DateTimePickerAndroid.open({
       value: date,
       mode: 'date',
+      minimumDate: min,
       maximumDate: max,
       onValueChange: changeDate,
     });
