@@ -16,7 +16,7 @@ _Avoid_: Номінал for the total returned at maturity (that is the Redempti
 The day the bond is first placed; no purchase can be dated before it.
 
 **Maturity date** (Дата погашення):
-The day the bond pays its Redemption and stops existing; no purchase can be dated after it.
+The day the bond pays its Redemption and stops existing. The Bond is still In circulation that day, but no Purchase can be dated on or after it, as that day's Payments go to the previous owner.
 
 **Coupon rate** (Ставка купону):
 The bond's annual interest on its Nominal, paid in coupons.

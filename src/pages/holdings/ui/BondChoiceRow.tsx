@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import type { Bond } from '@/entities/portfolio';
+import { type Bond, canBuyOn, isRedeemed } from '@/entities/portfolio';
 import { formatDate, formatTimeLeft } from '@/shared/lib';
 import { ThemedIcon, Typography } from '@/shared/ui';
 
@@ -17,12 +17,14 @@ type BondChoiceRowProps = {
 
 /** A bond to choose: what it pays on the right, when it matures and what is owned on the left. */
 export function BondChoiceRow({ bond, today, owned, showCurrency, onPress }: BondChoiceRowProps) {
-  const isActive = bond.maturityDate > today;
+  const isActive = canBuyOn(bond, today);
   const details = [
     showCurrency && bond.currency,
     isActive
       ? `до ${formatDate(bond.maturityDate)} · ${formatTimeLeft(today, bond.maturityDate)}`
-      : `погашена ${formatDate(bond.maturityDate)}`,
+      : isRedeemed(bond, today)
+        ? `погашена ${formatDate(bond.maturityDate)}`
+        : 'погашається сьогодні',
     owned && `у гаманці ${owned} шт`,
   ]
     .filter(Boolean)

@@ -4,9 +4,10 @@ import {
   type Currency,
   type Wallet,
   isPlannedPurchase,
+  maturesWithin,
 } from '@/entities/portfolio';
 import type { StructurePurchases } from '@/features/report-filters';
-import { addDaysISO, addMonthsISO, daysBetween, round2 } from '@/shared/lib';
+import { addDaysISO, daysBetween, round2 } from '@/shared/lib';
 
 /** Time left until maturity, the bond picker's one and three years split finer. */
 export type TermBucket = 'halfYear' | 'year' | 'twoYears' | 'threeYears' | 'longer';
@@ -53,11 +54,11 @@ export type StructureReport = {
   unknownCount: number;
 };
 
-function termOf(maturityDate: string, today: string): TermBucket {
-  if (maturityDate <= addMonthsISO(today, 6)) return 'halfYear';
-  if (maturityDate <= addMonthsISO(today, 12)) return 'year';
-  if (maturityDate <= addMonthsISO(today, 24)) return 'twoYears';
-  if (maturityDate <= addMonthsISO(today, 36)) return 'threeYears';
+function termOf(bond: Bond, today: string): TermBucket {
+  if (maturesWithin(bond, today, 6)) return 'halfYear';
+  if (maturesWithin(bond, today, 12)) return 'year';
+  if (maturesWithin(bond, today, 24)) return 'twoYears';
+  if (maturesWithin(bond, today, 36)) return 'threeYears';
   return 'longer';
 }
 
@@ -95,7 +96,7 @@ export function structureReport(wallet: Wallet, purchases: StructurePurchases): 
         ),
         averageRate: round2(weighted((bond) => bond.rate)),
         terms: TERM_BUCKETS.map((term) => {
-          const inTerm = bonds.filter(({ bond }) => termOf(bond.maturityDate, today) === term);
+          const inTerm = bonds.filter(({ bond }) => termOf(bond, today) === term);
           const amount = round2(inTerm.reduce((sum, item) => sum + item.amount, 0));
           return { term, amount, share: shareOf(amount), count: inTerm.length };
         }),
