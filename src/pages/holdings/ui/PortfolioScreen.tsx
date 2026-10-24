@@ -12,6 +12,7 @@ import {
   screenContent,
 } from '@/shared/ui';
 import { currencySign, formatDate, formatMoney, usePullToRefresh } from '@/shared/lib';
+import { currencyColor } from '@/shared/theme';
 import {
   NbuSourceNote,
   StaleBondsNotice,
@@ -56,8 +57,8 @@ export default function PortfolioScreen() {
                   accessibilityRole="link"
                   style={({ pressed }) => [styles.position, pressed && styles.pressed]}
                 >
-                  {/* Money invested: the purchase color of the schedule chart. */}
-                  <Avatar label={currencySign(currency)} color="purchase" />
+                  {/* Each currency in its own color, so mixed holdings sort out at a glance. */}
+                  <Avatar label={currencySign(currency)} color={currencyColor(currency)} />
                   <View style={styles.positionInfo}>
                     <Typography variant="headline" tabular>
                       {position.isin}

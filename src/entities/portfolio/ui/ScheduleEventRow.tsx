@@ -55,7 +55,8 @@ export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
 
   return (
     <View style={[styles.row, isPaid && styles.paid]}>
-      <Avatar label={currencySign(event.currency)} color={series} />
+      {/* The text step of the hue, not the chart mark: white on the lighter marks drops below 3:1. */}
+      <Avatar label={currencySign(event.currency)} color={SERIES_COLORS[series].text} />
       <View style={styles.eventDetails}>
         {showIsin && (
           <Typography variant="callout" weight="semibold">

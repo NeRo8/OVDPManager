@@ -50,6 +50,14 @@ export const light = {
   seriesCouponText: '#046865',
   seriesRedemptionText: '#4A5FD0',
   seriesPurchaseText: '#C23300',
+  /**
+   * Each currency's badge, with `accentText` on top (5.1:1 and more): hryvnia berry, dollar green,
+   * euro indigo. Checked with the dataviz palette validator on `card` and `background`; the
+   * berry–green pair is 7.3 for deutan readers, which the currency sign on the badge backs up.
+   */
+  currencyUah: '#8A2E66',
+  currencyUsd: '#0A7C5C',
+  currencyEur: '#6A4FD0',
   shadowCard: '0 1px 2px rgba(4, 48, 46, 0.08), 0 4px 8px -2px rgba(4, 48, 46, 0.08)',
   shadowRaised: '0 8px 20px rgba(229, 61, 0, 0.32)',
   /** Floating layers above the screen, such as toasts */
@@ -90,6 +98,10 @@ export const dark: AppTheme = {
   seriesCouponText: '#3CC9C3',
   seriesRedemptionText: '#8C98F5',
   seriesPurchaseText: '#FF6A33',
+  // Lighter steps for the black `accentText` (5.1:1 and more), checked on `card` and black.
+  currencyUah: '#C2569A',
+  currencyUsd: '#2EAA78',
+  currencyEur: '#8A78E8',
   // A drop shadow does not read on black; the lighter card surface sets cards apart instead.
   shadowCard: '0 0 0 0 transparent',
   shadowRaised: '0 8px 24px rgba(229, 61, 0, 0.35)',
