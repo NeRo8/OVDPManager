@@ -6,6 +6,7 @@ export { default as PeriodReportFiltersScreen } from './ui/PeriodReportFiltersSc
 export { default as YearOverYearReportScreen } from './ui/YearOverYearReportScreen';
 export { default as YearOverYearReportFiltersScreen } from './ui/YearOverYearReportFiltersScreen';
 export { default as StructureReportScreen } from './ui/StructureReportScreen';
+export { default as StructureReportFiltersScreen } from './ui/StructureReportFiltersScreen';
 export { default as RedemptionsReportScreen } from './ui/RedemptionsReportScreen';
 export { default as RedemptionsReportFiltersScreen } from './ui/RedemptionsReportFiltersScreen';
 export { default as PortfolioReportScreen } from './ui/PortfolioReportScreen';
