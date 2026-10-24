@@ -1,4 +1,4 @@
-// EAS Metadata config (`cli.metadataPath` in eas.json). The public listing lives in
+// EAS Metadata config (`submit.production.ios.metadataPath` in eas.json). The public listing lives in
 // store.config.json; the App Review contact is added here, with the phone read from .env
 // so it stays out of git (see .env.example).
 const fs = require('node:fs');

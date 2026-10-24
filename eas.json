@@ -2,8 +2,7 @@
   "cli": {
     "version": ">= 24.8.0",
     "appVersionSource": "remote",
-    "promptToConfigurePushNotifications": false,
-    "metadataPath": "./store.config.js"
+    "promptToConfigurePushNotifications": false
   },
   "build": {
     "base": {
@@ -29,7 +28,8 @@
     "production": {
       "ios": {
         "ascAppId": "6826422237",
-        "appleTeamId": "W25YBRT2T2"
+        "appleTeamId": "W25YBRT2T2",
+        "metadataPath": "./store.config.js"
       }
     }
   }
