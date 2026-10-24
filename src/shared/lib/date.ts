@@ -3,6 +3,7 @@ import {
   addMonths,
   differenceInCalendarDays,
   differenceInMonths,
+  eachMonthOfInterval,
   format,
   parseISO,
 } from 'date-fns';
@@ -48,6 +49,13 @@ export function addMonthsISO(isoDate: string, months: number): string {
 /** The calendar date `days` later; negative goes back. */
 export function addDaysISO(isoDate: string, days: number): string {
   return toISODate(addDays(parseISO(isoDate), days));
+}
+
+/** Every month from the first date's to the last's, as YYYY-MM. */
+export function monthsBetween(fromISO: string, toISO: string): string[] {
+  return eachMonthOfInterval({ start: parseISO(fromISO), end: parseISO(toISO) }).map((month) =>
+    format(month, 'yyyy-MM'),
+  );
 }
 
 export function daysBetween(fromISO: string, toISO: string): number {

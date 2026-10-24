@@ -3,14 +3,16 @@ import { Fragment } from 'react';
 import { CURRENCY_NAMES } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
 import { InfoRow, Section, Separator } from '@/shared/ui';
-import type { CurrencyYear } from '../model/yearReport';
+import type { CurrencyReport } from '../model/periodReport';
+import type { ReportTerms } from '../model/reportTerms';
 
 type Props = {
-  report: CurrencyYear;
+  report: CurrencyReport;
+  terms: ReportTerms;
 };
 
-/** The bonds that stand out in the year: the highest and the lowest yield, the largest income. */
-export function YearBondHighlights({ report }: Props) {
+/** The bonds that stand out in the report: the highest and the lowest yield, the largest income. */
+export function ReportBondHighlights({ report, terms }: Props) {
   const { currency, highlights } = report;
   const { highestYield, lowestYield, highestIncome } = highlights;
   const rows = [
@@ -25,7 +27,7 @@ export function YearBondHighlights({ report }: Props) {
       value: `${lowestYield.annualYield}%`,
     },
     highestIncome && {
-      label: 'Найбільший дохід за рік',
+      label: `Найбільший ${terms.income.toLowerCase()}`,
       bond: highestIncome,
       value: formatMoney(highestIncome.income, currency),
     },
@@ -34,8 +36,8 @@ export function YearBondHighlights({ report }: Props) {
 
   return (
     <Section
-      title={`Облігації року · ${CURRENCY_NAMES[currency]}`}
-      footer="Річна дохідність — за ціною купівлі й усіма виплатами до погашення, як у формі купівлі; для кількох купівель — середня, зважена на суму. Дохід за рік — купони й прибуток від погашень цього року."
+      title={`Облігації ${terms.span} · ${CURRENCY_NAMES[currency]}`}
+      footer={`Річна дохідність — за ціною купівлі й усіма виплатами до погашення, як у формі купівлі; для кількох купівель — середня, зважена на суму. ${terms.income} — купони й прибуток від погашень ${terms.span}.`}
     >
       {rows.map((row, index) => (
         <Fragment key={row.label}>

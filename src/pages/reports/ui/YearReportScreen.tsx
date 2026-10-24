@@ -5,12 +5,13 @@ import { StyleSheet } from 'react-native-unistyles';
 import { NbuSourceNote, StaleBondsNotice, WalletGate } from '@/entities/portfolio';
 import { usePullToRefresh } from '@/shared/lib';
 import { ScreenScrollView, Typography, YearNav } from '@/shared/ui';
+import { YEAR_TERMS } from '../model/reportTerms';
 import { useYearReport } from '../model/useYearReport.hook';
+import { ReportBondHighlights } from './ReportBondHighlights';
+import { ReportBondsList } from './ReportBondsList';
 import { ReportCaption } from './ReportCaption';
-import { YearBondHighlights } from './YearBondHighlights';
-import { YearBondsList } from './YearBondsList';
-import { YearMonthsTable } from './YearMonthsTable';
-import { YearSummary } from './YearSummary';
+import { ReportMonthsTable } from './ReportMonthsTable';
+import { ReportSummary } from './ReportSummary';
 
 /**
  * One year of the active plan, every currency apart: the sums, the bonds that stand out, a table
@@ -28,10 +29,10 @@ export default function YearReportScreen() {
         {currencies.length > 0 ? (
           currencies.map((report) => (
             <Fragment key={report.currency}>
-              <YearSummary report={report} />
-              <YearBondHighlights report={report} />
-              <YearMonthsTable report={report} />
-              <YearBondsList report={report} />
+              <ReportSummary report={report} terms={YEAR_TERMS} />
+              <ReportBondHighlights report={report} terms={YEAR_TERMS} />
+              <ReportMonthsTable report={report} />
+              <ReportBondsList report={report} terms={YEAR_TERMS} />
             </Fragment>
           ))
         ) : (

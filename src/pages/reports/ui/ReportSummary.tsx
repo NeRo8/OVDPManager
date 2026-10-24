@@ -4,14 +4,16 @@ import { StyleSheet } from 'react-native-unistyles';
 import { CURRENCY_NAMES } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
 import { Card, LegendRow, SectionTitle, Separator, TotalRow, Typography } from '@/shared/ui';
-import type { CurrencyYear } from '../model/yearReport';
+import type { CurrencyReport } from '../model/periodReport';
+import type { ReportTerms } from '../model/reportTerms';
 
 type Props = {
-  report: CurrencyYear;
+  report: CurrencyReport;
+  terms: ReportTerms;
 };
 
-/** The year's sums in one currency: payments, purchases, and what the year came to. */
-export function YearSummary({ report }: Props) {
+/** The report's sums in one currency: payments, purchases, and what they came to. */
+export function ReportSummary({ report, terms }: Props) {
   const { currency, coupons, redemptions, totalPayments, received, expected, invested } = report;
   const { balance, income } = report;
 
@@ -42,13 +44,13 @@ export function YearSummary({ report }: Props) {
           <Separator />
         </View>
         <View style={styles.rows}>
-          <TotalRow label="Сальдо року" value={formatMoney(balance, currency)} />
-          <TotalRow label="Дохід за рік" value={formatMoney(income, currency)} />
+          <TotalRow label={terms.balance} value={formatMoney(balance, currency)} />
+          <TotalRow label={terms.income} value={formatMoney(income, currency)} />
         </View>
       </Card>
       <Typography variant="caption1" tone="secondary" style={styles.footer}>
-        Сальдо року — виплати мінус купівлі. Дохід за рік — купони та різниця між погашенням і ціною
-        купівлі погашених ОВДП.
+        {terms.balance} — виплати мінус купівлі. {terms.income} — купони та різниця між погашенням і
+        ціною купівлі погашених ОВДП.
       </Typography>
     </View>
   );

@@ -5,20 +5,22 @@ import { StyleSheet } from 'react-native-unistyles';
 import { CURRENCY_NAMES } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
 import { LegendRow, Section, Separator, ShareBar, TotalRow, Typography } from '@/shared/ui';
-import type { CurrencyYear } from '../model/yearReport';
+import type { CurrencyReport } from '../model/periodReport';
+import type { ReportTerms } from '../model/reportTerms';
 
 type Props = {
-  report: CurrencyYear;
+  report: CurrencyReport;
+  terms: ReportTerms;
 };
 
 /** Whole percent; a share that rounds to zero still shows it is there. */
 const formatShare = (share: number) => (share < 0.5 ? '<1%' : `${Math.round(share)}%`);
 
 /**
- * What each bond paid, cost and earned in the year, in one currency, with its yield and its share
- * of the year's income; of the payments and purchases only the sums it had are listed.
+ * What each bond paid, cost and earned in the report, in one currency, with its yield and its share
+ * of the report's income; of the payments and purchases only the sums it had are listed.
  */
-export function YearBondsList({ report }: Props) {
+export function ReportBondsList({ report, terms }: Props) {
   const { currency, bonds } = report;
 
   return (
@@ -58,15 +60,15 @@ export function YearBondsList({ report }: Props) {
                 value={formatMoney(bond.invested, currency)}
               />
             )}
-            <TotalRow label="Дохід за рік" value={formatMoney(bond.income, currency)} />
+            <TotalRow label={terms.income} value={formatMoney(bond.income, currency)} />
             {bond.incomeShare !== null && (
               <View style={styles.share}>
                 <ShareBar
                   percent={Math.min(bond.incomeShare, 100)}
-                  accessibilityLabel="Частка в доході року"
+                  accessibilityLabel={`Частка в доході ${terms.span}`}
                 />
                 <Typography variant="caption1" tone="secondary" tabular>
-                  {formatShare(bond.incomeShare)} доходу року
+                  {formatShare(bond.incomeShare)} доходу {terms.span}
                 </Typography>
               </View>
             )}
