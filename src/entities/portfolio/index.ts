@@ -5,6 +5,8 @@ export * from './model/wallet';
 export { useBonds } from './api/useBonds.hook';
 export { useKeyRate } from './api/useKeyRate.hook';
 export { useKeyRates } from './api/useKeyRates.hook';
+export { useExchangeRates } from './api/useExchangeRates.hook';
+export type { ExchangeCurrency } from './api/nbuExchangeRates';
 export { annualYield } from './model/yield';
 export * from './model/position';
 export * from './model/counts';
