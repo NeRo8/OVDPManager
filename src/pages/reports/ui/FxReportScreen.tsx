@@ -59,7 +59,11 @@ export default function FxReportScreen() {
         {section.result !== null && (
           <>
             <Separator />
-            <InfoRow label="Результат" value={formatMoney(section.result, targetCurrency)} />
+            <InfoRow
+              label="Результат"
+              value={formatMoney(section.result, targetCurrency)}
+              signedValue={section.result}
+            />
           </>
         )}
       </Section>
@@ -128,6 +132,7 @@ export default function FxReportScreen() {
                     <InfoRow
                       label="Сальдо подій року"
                       value={formatMoney(report.yearBalance, targetCurrency)}
+                      signedValue={report.yearBalance}
                     />
                   </Section>
                   <FxMonthsChart report={report} currency={targetCurrency} />
@@ -148,6 +153,7 @@ export default function FxReportScreen() {
                           ? formatMoney(report.completedResult, targetCurrency)
                           : '—'
                       }
+                      signedValue={report.completedCount > 0 ? report.completedResult : undefined}
                     />
                   </Section>
                 </>

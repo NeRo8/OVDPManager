@@ -10,7 +10,7 @@ import {
   todayISO,
 } from '@/shared/lib';
 import { SERIES_COLORS, type SeriesColor } from '@/shared/theme';
-import { Avatar, Typography } from '@/shared/ui';
+import { Avatar, SignedValue, Typography } from '@/shared/ui';
 
 import type { ScheduleEvent } from '../model/portfolio';
 
@@ -42,6 +42,8 @@ export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
   const isPurchase = event.type === 'purchase';
   const isPaid = !isPurchase && event.isPaid;
   const isUpcoming = !isPurchase && !event.isPaid;
+  const signedTotal = isPurchase ? -event.total : event.total;
+  const sign = signedTotal > 0 ? '+' : signedTotal < 0 ? '−' : '';
   const tone = isPaid ? 'secondary' : 'primary';
   const kind = [
     isPurchase ? (event.isTopUp ? 'Докупівля' : 'Купівля') : KINDS[event.type],
@@ -55,7 +57,7 @@ export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
 
   return (
     <View style={[styles.row, isPaid && styles.paid]}>
-      {/* The text step of the hue, not the chart mark: white on the lighter marks drops below 3:1. */}
+      {/* The avatar keeps the event type's series color; the amount follows its sign. */}
       <Avatar label={currencySign(event.currency)} color={SERIES_COLORS[series].text} />
       <View style={styles.eventDetails}>
         {showIsin && (
@@ -71,16 +73,10 @@ export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
         <Typography variant="caption1" tone={tone} tabular align="right">
           {formatDate(event.date)}
         </Typography>
-        <Typography
-          variant="callout"
-          weight="semibold"
-          tabular
-          align="right"
-          style={styles.amount(series)}
-        >
-          {isPurchase ? '−' : '+'}
+        <SignedValue value={signedTotal} variant="callout" weight="semibold" tabular align="right">
+          {sign}
           {formatMoney(event.total, event.currency)}
-        </Typography>
+        </SignedValue>
       </View>
     </View>
   );
@@ -99,6 +95,4 @@ const styles = StyleSheet.create((theme) => ({
   paid: { opacity: 0.6 },
   eventDetails: { gap: theme.space.xxs, flex: 1 },
   eventAmount: { gap: theme.space.xxs, flexShrink: 0 },
-  // Amounts take the text-contrast step of the series hue.
-  amount: (series: SeriesColor) => ({ color: theme[SERIES_COLORS[series].text] }),
 }));

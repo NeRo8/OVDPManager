@@ -5,7 +5,7 @@ import {
   pricePerBond,
 } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
-import { InfoRow, Section, Separator, Typography } from '@/shared/ui';
+import { InfoRow, Section, Separator, SignedValue } from '@/shared/ui';
 
 type Props = {
   position: Position;
@@ -45,13 +45,9 @@ export function PositionSummary({ position, currency, hasTopUps, results }: Prop
               results.netIncome === null ? (
                 'Немає повних даних НБУ'
               ) : (
-                <Typography
-                  variant="subhead"
-                  weight="semibold"
-                  tone={results.netIncome >= 0 ? 'positive' : 'danger'}
-                >
+                <SignedValue value={results.netIncome} variant="subhead" weight="semibold">
                   {formatMoney(results.netIncome, currency)}
-                </Typography>
+                </SignedValue>
               )
             }
           />

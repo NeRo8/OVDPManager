@@ -20,16 +20,19 @@ export function ReportBondHighlights({ report, terms }: Props) {
       label: 'Найвища річна дохідність',
       bond: highestYield,
       value: `${highestYield.annualYield}%`,
+      signedValue: undefined,
     },
     lowestYield && {
       label: 'Найнижча річна дохідність',
       bond: lowestYield,
       value: `${lowestYield.annualYield}%`,
+      signedValue: undefined,
     },
     highestIncome && {
       label: `Найбільший ${terms.income.toLowerCase()}`,
       bond: highestIncome,
       value: formatMoney(highestIncome.income, currency),
+      signedValue: highestIncome.income,
     },
   ].filter((row) => !!row);
   if (!rows.length) return null;
@@ -42,7 +45,12 @@ export function ReportBondHighlights({ report, terms }: Props) {
       {rows.map((row, index) => (
         <Fragment key={row.label}>
           {index > 0 && <Separator />}
-          <InfoRow label={row.label} hint={row.bond.isin} value={row.value} />
+          <InfoRow
+            label={row.label}
+            hint={row.bond.isin}
+            value={row.value}
+            signedValue={row.signedValue}
+          />
         </Fragment>
       ))}
     </Section>

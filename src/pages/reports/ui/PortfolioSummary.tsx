@@ -2,7 +2,7 @@ import { Fragment, type ReactNode } from 'react';
 
 import { CURRENCY_NAMES } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
-import { InfoRow, Section, Separator, Typography } from '@/shared/ui';
+import { InfoRow, Section, Separator, SignedValue } from '@/shared/ui';
 import type { CurrencyPortfolio } from '../model/portfolioReport';
 
 type Props = {
@@ -35,13 +35,9 @@ export function PortfolioSummary({ report }: Props) {
                 {
                   label: 'Чистий дохід',
                   value: (
-                    <Typography
-                      variant="subhead"
-                      weight="semibold"
-                      tone={total.netIncome >= 0 ? 'positive' : 'danger'}
-                    >
+                    <SignedValue value={total.netIncome} variant="subhead" weight="semibold">
                       {money(total.netIncome)}
-                    </Typography>
+                    </SignedValue>
                   ),
                 },
                 { label: 'Дохідність за весь строк', value: `${total.returnPercent ?? 0}%` },

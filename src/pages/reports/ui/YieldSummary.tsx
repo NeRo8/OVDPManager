@@ -1,7 +1,7 @@
 import { Fragment, type ReactNode } from 'react';
 
 import { CURRENCY_NAMES } from '@/entities/portfolio';
-import { InfoRow, Section, Separator, Typography } from '@/shared/ui';
+import { InfoRow, Section, Separator, SignedValue } from '@/shared/ui';
 import { type CurrencyYield, KEY_RATE_CURRENCY } from '../model/yieldReport';
 import { pointsCell } from './reportCells';
 
@@ -24,14 +24,14 @@ export function YieldSummary({ report }: Props) {
           {
             label: 'Різниця з обліковою ставкою',
             value: (
-              <Typography
+              <SignedValue
+                value={Math.round(gap * 10) / 10}
                 variant="subhead"
                 weight="semibold"
-                tone={gap >= 0 ? 'positive' : 'danger'}
                 tabular
               >
                 {pointsCell(gap)}
-              </Typography>
+              </SignedValue>
             ),
           },
         ]

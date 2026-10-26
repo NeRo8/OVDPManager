@@ -138,6 +138,7 @@ export default function PlanScreen() {
                   label="Чистий дохід"
                   hint="Виплати мінус вкладення — ваш заробіток"
                   value={formatMoney(total.netIncome, total.currency)}
+                  signedValue={total.netIncome}
                 />
                 <Separator />
                 <InfoRow

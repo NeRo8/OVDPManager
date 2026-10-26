@@ -44,8 +44,16 @@ export function ReportSummary({ report, terms }: Props) {
           <Separator />
         </View>
         <View style={styles.rows}>
-          <TotalRow label={terms.balance} value={formatMoney(balance, currency)} />
-          <TotalRow label={terms.income} value={formatMoney(income, currency)} />
+          <TotalRow
+            label={terms.balance}
+            value={formatMoney(balance, currency)}
+            signedValue={balance}
+          />
+          <TotalRow
+            label={terms.income}
+            value={formatMoney(income, currency)}
+            signedValue={income}
+          />
         </View>
       </Card>
       <Typography variant="caption1" tone="secondary" style={styles.footer}>

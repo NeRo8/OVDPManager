@@ -8,6 +8,7 @@ export type ReportTableLine = {
   key: string;
   label: string;
   cells: string[];
+  signedCells?: (number | null)[];
   kind?: ReportTableRowKind;
 };
 
@@ -16,7 +17,7 @@ type Props = {
   columns: string[];
   rows: ReportTableLine[];
   /** The last row, under a line */
-  total: Pick<ReportTableLine, 'label' | 'cells'>;
+  total: Pick<ReportTableLine, 'label' | 'cells' | 'signedCells'>;
   footer?: string;
 };
 
@@ -33,7 +34,12 @@ export function ReportTable({ title, columns, rows, total, footer }: Props) {
         <View style={styles.separator}>
           <Separator />
         </View>
-        <ReportTableRow label={total.label} cells={total.cells} kind="total" />
+        <ReportTableRow
+          label={total.label}
+          cells={total.cells}
+          signedCells={total.signedCells}
+          kind="total"
+        />
       </Card>
       {footer && (
         <Typography variant="caption1" tone="secondary" style={styles.footer}>

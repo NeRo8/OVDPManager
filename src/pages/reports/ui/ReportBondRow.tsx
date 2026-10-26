@@ -44,7 +44,11 @@ export function ReportBondRow({ bond, currency, terms }: Props) {
       {bond.invested > 0 && (
         <LegendRow color="purchase" label="Купівлі" value={formatMoney(bond.invested, currency)} />
       )}
-      <TotalRow label={terms.income} value={formatMoney(bond.income, currency)} />
+      <TotalRow
+        label={terms.income}
+        value={formatMoney(bond.income, currency)}
+        signedValue={bond.income}
+      />
       {bond.incomeShare !== null && (
         <View style={styles.share}>
           <ShareBar

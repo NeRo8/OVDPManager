@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { CURRENCY_NAMES } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
-import { Card, SectionTitle, ShareBar, Typography } from '@/shared/ui';
+import { Card, SectionTitle, ShareBar, SignedValue, Typography } from '@/shared/ui';
 import type { CurrencyYears } from '../model/yearOverYearReport';
 
 type Props = {
@@ -26,9 +26,9 @@ export function YearsIncomeBars({ report }: Props) {
                 <Typography variant="footnote" tone="secondary" tabular>
                   {year}
                 </Typography>
-                <Typography variant="footnote" weight="semibold" tabular>
+                <SignedValue value={income} variant="footnote" weight="semibold" tabular>
                   {formatMoney(income, currency)}
-                </Typography>
+                </SignedValue>
               </View>
               <ShareBar
                 percent={largest > 0 && income > 0 ? (income / largest) * 100 : 0}

@@ -18,16 +18,19 @@ export function YearHighlights({ report }: Props) {
       label: 'Найбільший дохід',
       year: highestIncome.year,
       value: highestIncome.income,
+      signedValue: highestIncome.income,
     },
     highestPayments && {
       label: 'Найбільше виплат',
       year: highestPayments.year,
       value: highestPayments.totalPayments,
+      signedValue: undefined,
     },
     highestInvested && {
       label: 'Найбільше вкладено',
       year: highestInvested.year,
       value: highestInvested.invested,
+      signedValue: undefined,
     },
   ].filter((row) => !!row);
   if (!rows.length) return null;
@@ -41,6 +44,7 @@ export function YearHighlights({ report }: Props) {
             label={row.label}
             hint={`${row.year} рік`}
             value={formatMoney(row.value, currency)}
+            signedValue={row.signedValue}
           />
         </Fragment>
       ))}

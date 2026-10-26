@@ -1,5 +1,6 @@
+import { formatAmount } from '@/shared/lib';
 import type { CurrencyYears } from '../model/yearOverYearReport';
-import { amountCell, changeCell, tableTitle } from './reportCells';
+import { changeCell, tableTitle } from './reportCells';
 import { ReportTable } from './ReportTable';
 
 type Props = {
@@ -17,9 +18,22 @@ export function YearsResultsTable({ report }: Props) {
       rows={years.map((year) => ({
         key: String(year.year),
         label: String(year.year),
-        cells: [amountCell(year.balance), amountCell(year.income), changeCell(year.incomeChange)],
+        cells: [
+          formatAmount(year.balance),
+          formatAmount(year.income),
+          changeCell(year.incomeChange),
+        ],
+        signedCells: [
+          year.balance,
+          year.income,
+          year.incomeChange === null ? null : Math.round(year.incomeChange),
+        ],
       }))}
-      total={{ label: 'Разом', cells: [amountCell(total.balance), amountCell(total.income), ''] }}
+      total={{
+        label: 'Разом',
+        cells: [formatAmount(total.balance), formatAmount(total.income), ''],
+        signedCells: [total.balance, total.income, null],
+      }}
       footer="Зміна доходу — дохід року проти попереднього. Майбутні роки — за графіком виплат і запланованими купівлями."
     />
   );

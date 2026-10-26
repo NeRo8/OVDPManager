@@ -13,7 +13,7 @@ import {
   FormScrollView,
   Section,
   Separator,
-  Typography,
+  SignedValue,
 } from '@/shared/ui';
 import { PurchaseHints } from './PurchaseHints';
 
@@ -129,13 +129,9 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
               <InfoRow
                 label="Чистий дохід"
                 value={
-                  <Typography
-                    variant="subhead"
-                    weight="medium"
-                    tone={preview.netIncome < 0 ? 'danger' : 'primary'}
-                  >
+                  <SignedValue value={preview.netIncome} variant="subhead" weight="medium">
                     {formatMoney(preview.netIncome, currency)}
-                  </Typography>
+                  </SignedValue>
                 }
               />
               <Separator />

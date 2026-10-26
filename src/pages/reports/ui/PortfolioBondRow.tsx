@@ -63,6 +63,7 @@ export function PortfolioBondRow({ bond: row, currency }: Props) {
           <TotalRow
             label="Чистий дохід"
             value={results.netIncome === null ? '—' : money(results.netIncome)}
+            signedValue={results.netIncome ?? undefined}
           />
           {results.received > 0 && results.expected > 0 && (
             <Typography variant="caption1" tone="secondary">

@@ -2,7 +2,7 @@ import { Fragment, type ReactNode } from 'react';
 
 import { pricePerBond } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
-import { InfoRow, Section, Separator, Typography } from '@/shared/ui';
+import { InfoRow, Section, Separator, SignedValue } from '@/shared/ui';
 import type { BondReport } from '../model/bondReport';
 import { pointsCell } from './reportCells';
 
@@ -16,14 +16,9 @@ export function BondReportSummary({ report }: Props) {
   const { position, currency, results, annualYield } = item;
   const money = (value: number) => formatMoney(value, currency);
   const toned = (value: number, text: string) => (
-    <Typography
-      variant="subhead"
-      weight="semibold"
-      tone={value >= 0 ? 'positive' : 'danger'}
-      tabular
-    >
+    <SignedValue value={value} variant="subhead" weight="semibold" tabular>
       {text}
-    </Typography>
+    </SignedValue>
   );
   const rows: { label: string; value: ReactNode }[] = [
     { label: 'Кількість', value: `${position.quantity} шт` },
@@ -66,7 +61,7 @@ export function BondReportSummary({ report }: Props) {
           {
             label: 'Різниця з обліковою ставкою',
             value: toned(
-              annualYield - keyRateAtPurchase,
+              Math.round((annualYield - keyRateAtPurchase) * 10) / 10,
               pointsCell(annualYield - keyRateAtPurchase),
             ),
           },
