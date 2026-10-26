@@ -1,10 +1,6 @@
+import { useState } from 'react';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
-import {
-  SectionList,
-  type SectionListData,
-  type SectionListRenderItemInfo,
-  View,
-} from 'react-native';
+import { FlatList, type ListRenderItemInfo, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
@@ -20,7 +16,7 @@ import {
   FAB_CLEARANCE,
   FloatingActionButton,
   SectionCell,
-  SectionTitle,
+  SegmentedSelect,
   Typography,
   screenContent,
 } from '@/shared/ui';
@@ -29,16 +25,15 @@ import { PositionSummary } from './PositionSummary';
 import { PurchaseRow } from './PurchaseRow';
 
 type BondRow = Purchase | PositionPayment;
-
-/** The purchases, then the payments, each a card of list rows. */
-type BondSection = { key: 'purchases' | 'payments'; title: string; data: BondRow[] };
+type BondTab = 'purchases' | 'payments';
 
 const isPurchase = (row: BondRow): row is Purchase => 'purchaseDate' in row;
 const keyOf = (row: BondRow) => (isPurchase(row) ? row.id : `${row.date}-${row.type}`);
 
-/** A bond in the wallet: the issue's terms, what the position has cost and earned, its purchases and payments. */
+/** A bond in the wallet: its terms and result, with purchases and payments on separate tabs. */
 export default function BondScreen() {
   const { isin } = useLocalSearchParams<{ isin: string }>();
+  const [tab, setTab] = useState<BondTab>('payments');
   const {
     today,
     position,
@@ -55,45 +50,17 @@ export default function BondScreen() {
   if (!position || !currency)
     return <EmptyState icon="search-outline" message="У гаманці немає цієї ОВДП" />;
 
-  const sections: BondSection[] = [
-    { key: 'purchases', title: `Купівлі (${position.purchases.length})`, data: position.purchases },
-    // Without the NBU data there is no schedule to list.
-    ...(bond
-      ? [{ key: 'payments' as const, title: `Виплати (${payments.length})`, data: payments }]
-      : []),
+  const tabs: { label: string; value: BondTab }[] = [
+    { label: `Виплати (${payments.length})`, value: 'payments' },
+    { label: `Купівлі (${position.purchases.length})`, value: 'purchases' },
   ];
+  const rows: BondRow[] = tab === 'purchases' ? position.purchases : payments;
 
   const topUp = () =>
     router.push({ pathname: '/add/[isin]/purchase', params: { isin: position.isin } });
 
-  const renderSectionHeader = ({ section }: { section: SectionListData<BondRow, BondSection> }) => (
-    <View style={styles.sectionHeader}>
-      <SectionTitle title={section.title} />
-    </View>
-  );
-  const renderSectionFooter = ({ section }: { section: SectionListData<BondRow, BondSection> }) => {
-    if (section.key !== 'payments') return null;
-    if (!section.data.length)
-      return (
-        <EmptyState
-          layout="inline"
-          icon="calendar-outline"
-          title="Виплат немає"
-          message="Усі виплати за графіком НБУ припадають на дати до купівлі, тож цій купівлі вони не належать."
-        />
-      );
-    return hasTopUps ? (
-      <Typography variant="caption1" tone="secondary" style={styles.sectionFooter}>
-        Кожна виплата враховує лише ОВДП, куплені до її дати.
-      </Typography>
-    ) : null;
-  };
-  const renderItem = ({
-    item,
-    index,
-    section,
-  }: SectionListRenderItemInfo<BondRow, BondSection>) => (
-    <SectionCell index={index} count={section.data.length}>
+  const renderItem = ({ item, index }: ListRenderItemInfo<BondRow>) => (
+    <SectionCell index={index} count={rows.length}>
       {isPurchase(item) ? (
         <PurchaseRow purchase={item} bond={bond} today={today} onDelete={deletePurchase} />
       ) : (
@@ -105,12 +72,11 @@ export default function BondScreen() {
   return (
     <View style={styles.screen}>
       <Stack.Screen options={{ title: position.isin }} />
-      <SectionList
-        sections={sections}
+      <FlatList
+        data={rows}
         style={styles.list}
         contentContainerStyle={[screenContent, styles.content, canTopUp && styles.withFab]}
         contentInsetAdjustmentBehavior="automatic"
-        stickySectionHeadersEnabled={false}
         keyExtractor={keyOf}
         ListHeaderComponent={
           <View style={styles.listHeader}>
@@ -129,15 +95,32 @@ export default function BondScreen() {
               hasTopUps={hasTopUps}
               results={results}
             />
+            <SegmentedSelect options={tabs} value={tab} onChange={setTab} />
           </View>
         }
-        renderSectionHeader={renderSectionHeader}
-        renderSectionFooter={renderSectionFooter}
         renderItem={renderItem}
+        ListEmptyComponent={
+          <EmptyState
+            layout="inline"
+            icon={bond ? 'calendar-outline' : 'cloud-offline-outline'}
+            title={bond ? 'Виплат немає' : 'Немає даних НБУ'}
+            message={
+              bond
+                ? 'Усі виплати за графіком НБУ припадають на дати до купівлі, тож цій купівлі вони не належать.'
+                : 'Цієї ОВДП немає в даних НБУ, тож графіка виплат немає. Він з’явиться, щойно дані оновляться.'
+            }
+          />
+        }
         ListFooterComponent={
-          <View style={styles.listFooter}>
-            <Button title="Видалити з гаманця" variant="destructive" onPress={deletePosition} />
-          </View>
+          tab === 'purchases' ? (
+            <View style={styles.listFooter}>
+              <Button title="Видалити з гаманця" variant="destructive" onPress={deletePosition} />
+            </View>
+          ) : hasTopUps && payments.length > 0 ? (
+            <Typography variant="caption1" tone="secondary" style={styles.sectionFooter}>
+              Кожна виплата враховує лише ОВДП, куплені до її дати.
+            </Typography>
+          ) : undefined
         }
       />
       {canTopUp && (
@@ -150,11 +133,9 @@ export default function BondScreen() {
 const styles = StyleSheet.create((theme) => ({
   screen: { flex: 1 },
   list: { backgroundColor: theme.background },
-  // The list has no gaps of its own: the section headers and the footer space themselves.
   content: { gap: 0 },
   withFab: { paddingBottom: FAB_CLEARANCE },
-  listHeader: { gap: theme.space.xl },
-  sectionHeader: { marginTop: theme.space.xl, marginBottom: theme.space.sm },
+  listHeader: { gap: theme.space.xl, marginBottom: theme.space.md },
   sectionFooter: { lineHeight: 18, marginHorizontal: theme.space.lg, marginTop: theme.space.sm },
   listFooter: { marginTop: theme.space.xl },
 }));
