@@ -21,7 +21,7 @@ import {
 import { purchaseHints, purchaseVerdict } from './purchaseHints';
 
 /**
- * The second step of adding a purchase to the active plan: when, how many and for how much.
+ * The final step of adding a purchase to the active plan: when, how many and for how much.
  * Validated on every change, so Save is enabled only for a purchase that can be stored.
  */
 export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {

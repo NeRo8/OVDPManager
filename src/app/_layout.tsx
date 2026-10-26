@@ -56,9 +56,13 @@ export default function RootLayout() {
             >
               {/* Each tab draws its own header in its own stack. */}
               <NativeStack.Screen name="(tabs)" options={{ headerShown: false }} />
-              {/* Adding a purchase to the active plan: choose a bond, then enter the purchase. */}
+              {/* Adding a purchase to the active plan: choose a bond, review it, then enter the purchase. */}
               <NativeStack.Screen name="add/index" options={{ title: 'Оберіть ОВДП' }} />
-              <NativeStack.Screen name="add/[isin]" options={{ title: 'Додати ОВДП' }} />
+              <NativeStack.Screen name="add/[isin]/index" options={{ title: 'ОВДП' }} />
+              <NativeStack.Screen
+                name="add/[isin]/purchase"
+                options={{ title: 'Додати купівлю' }}
+              />
               <NativeStack.Screen name="plan/name" options={{ title: 'Новий план' }} />
               <NativeStack.Screen name="plan/list" options={{ title: 'Мої плани' }} />
               <NativeStack.Screen

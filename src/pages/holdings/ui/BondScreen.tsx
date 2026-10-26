@@ -64,7 +64,7 @@ export default function BondScreen() {
   ];
 
   const topUp = () =>
-    router.push({ pathname: '/add/[isin]', params: { isin: position.isin, topUp: '1' } });
+    router.push({ pathname: '/add/[isin]/purchase', params: { isin: position.isin } });
 
   const renderSectionHeader = ({ section }: { section: SectionListData<BondRow, BondSection> }) => (
     <View style={styles.sectionHeader}>

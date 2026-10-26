@@ -1,7 +1,7 @@
 import { Controller } from 'react-hook-form';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { BondParameters, type Bond } from '@/entities/portfolio';
+import { type Bond } from '@/entities/portfolio';
 import { useAddPurchaseForm } from '@/features/add-purchase';
 import { formatDate, formatMoney } from '@/shared/lib';
 import {
@@ -46,8 +46,6 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
       >
         <InfoRow label="ISIN" value={bond.isin} />
       </Section>
-
-      <BondParameters bond={bond} />
 
       <Section
         title={isPlanned ? 'Запланована купівля' : 'Купівля'}
