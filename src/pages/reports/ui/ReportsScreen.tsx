@@ -16,6 +16,11 @@ const MONEY_FLOW_REPORTS: Report[] = [
     href: '/reports/year',
   },
   {
+    title: 'Валютний еквівалент',
+    description: 'Гривневі ОВДП за рік у доларах або євро за курсом НБУ на дати подій.',
+    href: '/reports/fx',
+  },
+  {
     title: 'Звіт за період',
     description: 'Купівлі, купони, погашення й чистий дохід між двома обраними датами.',
     href: '/reports/period',

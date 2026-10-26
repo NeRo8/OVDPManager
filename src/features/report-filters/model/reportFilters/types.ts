@@ -2,7 +2,15 @@ import type { WalletScope } from '@/entities/portfolio';
 
 /** The reports with filters, by name: the route `/report-filters/[report]` takes one. */
 export type ReportName =
-  'year' | 'period' | 'yearOverYear' | 'redemptions' | 'portfolio' | 'structure' | 'yield' | 'bond';
+  | 'year'
+  | 'fx'
+  | 'period'
+  | 'yearOverYear'
+  | 'redemptions'
+  | 'portfolio'
+  | 'structure'
+  | 'yield'
+  | 'bond';
 
 /** The reports narrowed by currency and bonds; the bond report is about one bond instead. */
 export type ScopedReportName = Exclude<ReportName, 'bond'>;
@@ -37,6 +45,8 @@ export type ReportScope = WalletScope;
 export type ReportFiltersState = {
   /** A null year, or one the wallet no longer spans: the current year, or the nearest it has */
   year: ReportScope & { year: number | null };
+  /** UAH bond cash flows measured in one foreign currency, through the chosen past year. */
+  fx: { currency: 'UAH'; isins: string[]; year: number | null; targetCurrency: 'USD' | 'EUR' };
   /** `custom` holds the own period's dates, taken from the period shown when it is chosen */
   period: ReportScope & { period: PeriodOption; custom: Period | null };
   yearOverYear: ReportScope;

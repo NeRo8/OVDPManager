@@ -90,6 +90,21 @@ _Avoid_: holdings, Портфель for a Plan, Wallet for a Plan that isn't act
 
 ## Results
 
+**Currency equivalent** (Валютний еквівалент):
+The value of a past hryvnia Purchase or Payment in USD or EUR at the official NBU rate effective on its date. It is an estimate of value, not a record of an actual currency exchange.
+
+**Cumulative investment in currency** (Вкладено):
+The sum of past hryvnia Purchases converted to USD or EUR at each Purchase's own date. This is the reference line in the FX report's monthly chart.
+
+**Remaining cost with payouts** (Залишок + виплати):
+The remaining hryvnia Purchase cost converted at the month-end NBU rate, plus Coupons and Redemptions already received and converted at their dates. Partial Redemptions reduce the remaining cost proportionally. It is an estimate based on Purchase cost, not a market price for Bonds still held.
+
+**Year cash balance** (Сальдо подій року):
+Past Payments in the selected calendar year minus its Purchases, each converted at its own date. It is not the gain on Bonds still held.
+
+**Completed bond FX result** (Результат у валюті):
+The currency equivalents of all Payments received through the selected year minus all Purchases since the first one. Shown only for a Bond whose Redemption is complete by the year end.
+
 **Invested** (Вкладено):
 The total amount paid for Purchases.
 _Avoid_: Інвестовано, cost

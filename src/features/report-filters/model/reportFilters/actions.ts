@@ -29,8 +29,8 @@ export function resetReportFilters(report: ReportName): void {
 }
 
 /** Picks the year; the default one is saved as none, so the report follows the calendar again. */
-export function chooseReportYear(year: number, defaultYear: number): void {
-  updateReportFilters('year', { year: year === defaultYear ? null : year });
+export function chooseReportYear(report: 'year' | 'fx', year: number, defaultYear: number): void {
+  updateReportFilters(report, { year: year === defaultYear ? null : year });
 }
 
 /** Picks the period; the own one starts from the dates shown, so they are there to adjust. */

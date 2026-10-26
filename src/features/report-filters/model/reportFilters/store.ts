@@ -10,6 +10,7 @@ const ALL_BONDS = { currency: null, isins: [] };
 
 export const initialState: ReportFiltersState = {
   year: { ...ALL_BONDS, year: null },
+  fx: { currency: 'UAH', isins: [], year: null, targetCurrency: 'USD' },
   period: { ...ALL_BONDS, period: 'last12Months', custom: null },
   yearOverYear: ALL_BONDS,
   redemptions: { ...ALL_BONDS, time: 'upcoming' },

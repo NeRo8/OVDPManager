@@ -1,6 +1,7 @@
 import type { ReportName } from '@/features/report-filters';
 import { BondChoiceSection } from './BondChoiceSection';
 import { BondStatusFiltersSection } from './BondStatusFiltersSection';
+import { FxFiltersSection } from './FxFiltersSection';
 import { PeriodFiltersSection } from './PeriodFiltersSection';
 import { RedemptionTimeSection } from './RedemptionTimeSection';
 import { StructurePurchasesSection } from './StructurePurchasesSection';
@@ -14,7 +15,9 @@ type Props = {
 export function ReportOwnFiltersSection({ report }: Props) {
   switch (report) {
     case 'year':
-      return <YearFiltersSection />;
+      return <YearFiltersSection report="year" />;
+    case 'fx':
+      return <FxFiltersSection />;
     case 'period':
       return <PeriodFiltersSection />;
     case 'redemptions':
