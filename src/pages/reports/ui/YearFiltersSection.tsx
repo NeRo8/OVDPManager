@@ -4,7 +4,7 @@ import { chooseReportYear } from '@/features/report-filters';
 import { CheckRow, Section, Separator } from '@/shared/ui';
 import { useReport } from '../model/useReport.hook';
 
-type Props = { report: 'year' | 'fx' };
+type Props = { report: 'year' };
 
 /** The year selected for an annual report. */
 export function YearFiltersSection({ report }: Props) {
@@ -21,11 +21,7 @@ export function YearFiltersSection({ report }: Props) {
   return (
     <Section
       title="Рік"
-      footer={
-        report === 'fx'
-          ? 'Роки — від першої купівлі гривневої ОВДП до поточного року. Спершу показано цей рік.'
-          : 'Роки — від першої купівлі плану до його останньої виплати. Спершу показано цей рік.'
-      }
+      footer="Роки — від першої купівлі плану до його останньої виплати. Спершу показано цей рік."
     >
       {yearList.map((option, index) => (
         <Fragment key={option}>

@@ -16,7 +16,8 @@ import {
 import { fxEventDates, fxReport, type FxBond, type FxEvent } from '../model/fxReport';
 import { useReport } from '../model/useReport.hook';
 import { FxEventRow } from './FxEventRow';
-import { FxMonthsChart } from './FxMonthsChart';
+import { FxTimelineChart } from './FxTimelineChart';
+import { FxYearsTable } from './FxYearsTable';
 import { ReportFiltersButton } from './ReportFiltersButton';
 import { ReportHeading } from './ReportHeading';
 import { ReportList } from './ReportList';
@@ -25,7 +26,7 @@ import { ReportSectionHeader } from './ReportSectionHeader';
 
 type FxSection = FxBond & { data: FxEvent[] };
 
-/** A calendar year's past UAH bond cash flows, converted at each event's NBU exchange rate. */
+/** Past UAH bond cash flows for all time or one year, converted at each event's NBU rate. */
 export default function FxReportScreen() {
   const { wallet, narrowed, filters, activeFilterCount } = useReport('fx');
   const { year, targetCurrency } = filters;
@@ -38,7 +39,9 @@ export default function FxReportScreen() {
   };
 
   const renderSectionHeader = ({ section }: { section: SectionListData<FxEvent, FxSection> }) => (
-    <ReportSectionHeader rowsTitle={`Події року · ${section.isin}`}>
+    <ReportSectionHeader
+      rowsTitle={`Події ${year === null ? 'за весь час' : 'року'} · ${section.isin}`}
+    >
       <Section
         title={section.isin}
         footer={
@@ -52,10 +55,7 @@ export default function FxReportScreen() {
           value={formatMoney(section.invested, targetCurrency)}
         />
         <Separator />
-        <InfoRow
-          label="Отримано до кінця року"
-          value={formatMoney(section.received, targetCurrency)}
-        />
+        <InfoRow label="Отримано виплатами" value={formatMoney(section.received, targetCurrency)} />
         {section.result !== null && (
           <>
             <Separator />
@@ -104,8 +104,8 @@ export default function FxReportScreen() {
           ListHeaderComponent={
             <ReportListHeader>
               <ReportHeading
-                title={String(year)}
-                subtitle={`Гривневі ОВДП · еквівалент у ${targetCurrency} · до ${formatDate(report.throughDate)}`}
+                title={year === null ? 'Увесь час' : String(year)}
+                subtitle={`Гривневі ОВДП · еквівалент у ${targetCurrency} · ${year === null ? `з ${formatDate(report.fromDate)} до` : 'до'} ${formatDate(report.throughDate)}`}
               />
               <Typography variant="caption1" tone="secondary">
                 Кожну купівлю й фактично минулу виплату перераховано за офіційним курсом НБУ на її
@@ -114,8 +114,47 @@ export default function FxReportScreen() {
               {report.bonds.length > 0 && (
                 <>
                   <Section
-                    title="Рух грошей за рік"
-                    footer="Сальдо — отримані виплати мінус купівлі цього року. Воно не є прибутком для ОВДП, що ще не погашені."
+                    title={`Стан вкладень на ${formatDate(report.throughDate)}`}
+                    footer={
+                      <>
+                        {report.snapshot.received >= report.snapshot.invested
+                          ? 'Вкладене вже повернулося виплатами. '
+                          : 'Вкладене ще не повернулося виплатами. '}
+                        Залишок ОВДП оцінено за собівартістю, а не за ціною продажу. Виплати
+                        рахуються як отримані, навіть якщо їх згодом реінвестовано; нові купівлі
+                        входять до «Вкладено». Сума виплат і залишку не є грошима на рахунку.
+                      </>
+                    }
+                  >
+                    <InfoRow
+                      label="Вкладено від першої купівлі"
+                      value={formatMoney(report.snapshot.invested, targetCurrency)}
+                    />
+                    <Separator />
+                    <InfoRow
+                      label="Повернулося виплатами"
+                      value={formatMoney(report.snapshot.received, targetCurrency)}
+                    />
+                    <Separator />
+                    <InfoRow
+                      label="Залишок ОВДП (оцінка)"
+                      value={formatMoney(report.snapshot.remainingCost, targetCurrency)}
+                    />
+                    <Separator />
+                    <InfoRow
+                      label="Виплати + залишок (оцінка)"
+                      value={formatMoney(report.snapshot.payoutsAndRemaining, targetCurrency)}
+                    />
+                    <Separator />
+                    <InfoRow
+                      label={report.openCount > 0 ? 'Різниця (оцінка)' : 'Різниця з вкладеним'}
+                      value={formatMoney(report.snapshot.estimatedDifference, targetCurrency)}
+                      signedValue={report.snapshot.estimatedDifference}
+                    />
+                  </Section>
+                  <Section
+                    title={year === null ? 'Рух грошей за весь час' : 'Рух грошей за рік'}
+                    footer="Сальдо — отримані виплати мінус купівлі за обраний період. Воно не є прибутком для ОВДП, що ще не погашені."
                   >
                     <InfoRow
                       label="Купівлі"
@@ -130,12 +169,15 @@ export default function FxReportScreen() {
                     />
                     <Separator />
                     <InfoRow
-                      label="Сальдо подій року"
-                      value={formatMoney(report.yearBalance, targetCurrency)}
-                      signedValue={report.yearBalance}
+                      label={year === null ? 'Сальдо подій' : 'Сальдо подій року'}
+                      value={formatMoney(report.balance, targetCurrency)}
+                      signedValue={report.balance}
                     />
                   </Section>
-                  <FxMonthsChart report={report} currency={targetCurrency} />
+                  <FxTimelineChart report={report} currency={targetCurrency} />
+                  {year === null && report.years.length > 1 && (
+                    <FxYearsTable report={report} currency={targetCurrency} />
+                  )}
                   <Section
                     title="Завершені ОВДП"
                     footer={
@@ -167,7 +209,11 @@ export default function FxReportScreen() {
               layout="inline"
               icon={filters.isins.length > 0 ? 'funnel-outline' : 'calendar-outline'}
               title="Купівель і виплат немає"
-              message={`У ${year} році за обраними гривневими ОВДП немає купівель і вже отриманих виплат. Оберіть інший рік або ОВДП у фільтрах.`}
+              message={
+                year === null
+                  ? 'За обраними гривневими ОВДП ще немає минулих купівель і отриманих виплат. Оберіть інші ОВДП у фільтрах.'
+                  : `У ${year} році за обраними гривневими ОВДП немає купівель і вже отриманих виплат. Оберіть інший рік або ОВДП у фільтрах.`
+              }
             />
           }
         />

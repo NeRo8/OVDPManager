@@ -50,9 +50,11 @@ describe('fitReportFilters', () => {
     expect(activeFilterCount).toBe(0);
   });
 
-  it('limits the FX report to UAH bonds and years that have begun', () => {
+  it('shows all-time UAH bonds by default and fits optional past-year filters', () => {
     const fitted = fitReportFilters('fx', initialState.fx, wallet);
     expect(fitted.filters.years).toEqual({ firstYear: 2025, lastYear: 2026, defaultYear: 2026 });
+    expect(fitted.filters.year).toBeNull();
+    expect(fitted.activeFilterCount).toBe(0);
     expect(fitted.options.isins).toEqual([later.isin]);
     expect(fitted.narrowed.positions.map(({ position }) => position.isin)).toEqual([later.isin]);
     expect(
@@ -65,6 +67,9 @@ describe('fitReportFilters', () => {
       filters: { year: 2025, targetCurrency: 'EUR', isins: [later.isin] },
       activeFilterCount: 3,
     });
+    expect(
+      fitReportFilters('fx', { ...initialState.fx, year: 2031 }, wallet).filters.year,
+    ).toBeNull();
   });
 
   it('keeps a saved year the wallet spans, and counts it; one it no longer spans gives way', () => {

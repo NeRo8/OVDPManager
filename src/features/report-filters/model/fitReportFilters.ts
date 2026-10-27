@@ -19,7 +19,7 @@ export type FittedReportFilters = {
     year: number;
     years: ReportYears;
   };
-  fx: Omit<ReportFiltersState['fx'], 'year'> & { year: number; years: ReportYears };
+  fx: ReportFiltersState['fx'] & { years: ReportYears };
   period: ReportFiltersState['period'] & { dates: Period };
   yearOverYear: ReportFiltersState['yearOverYear'];
   redemptions: ReportFiltersState['redemptions'];
@@ -78,7 +78,7 @@ const FITTERS: { [R in ReportName]: Fitter<R> } = {
     const year =
       saved.year !== null && saved.year >= firstYear && saved.year <= currentYear
         ? saved.year
-        : currentYear;
+        : null;
     return {
       filters: {
         currency: 'UAH',
@@ -87,7 +87,7 @@ const FITTERS: { [R in ReportName]: Fitter<R> } = {
         year,
         years,
       },
-      changed: Number(year !== currentYear) + Number(saved.targetCurrency !== 'USD'),
+      changed: Number(year !== null) + Number(saved.targetCurrency !== 'USD'),
     };
   },
   period: (saved, wallet, options) => ({

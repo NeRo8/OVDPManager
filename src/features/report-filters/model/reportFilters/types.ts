@@ -45,7 +45,7 @@ export type ReportScope = WalletScope;
 export type ReportFiltersState = {
   /** A null year, or one the wallet no longer spans: the current year, or the nearest it has */
   year: ReportScope & { year: number | null };
-  /** UAH bond cash flows measured in one foreign currency, through the chosen past year. */
+  /** UAH bond cash flows measured in one foreign currency, for all time or one year. */
   fx: { currency: 'UAH'; isins: string[]; year: number | null; targetCurrency: 'USD' | 'EUR' };
   /** `custom` holds the own period's dates, taken from the period shown when it is chosen */
   period: ReportScope & { period: PeriodOption; custom: Period | null };
