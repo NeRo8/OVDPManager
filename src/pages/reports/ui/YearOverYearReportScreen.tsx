@@ -8,10 +8,11 @@ import { isScopeOn, reportYears } from '@/features/report-filters';
 import { usePullToRefresh } from '@/shared/lib';
 import { EmptyState, ScreenScrollView } from '@/shared/ui';
 import { ALL_YEARS_TERMS } from '../model/reportTerms';
+import { yearsPdf } from '../model/reportPdf';
 import { useReport } from '../model/useReport.hook';
 import { yearOverYearReport } from '../model/yearOverYearReport';
 import { ReportCaption } from './ReportCaption';
-import { ReportFiltersButton } from './ReportFiltersButton';
+import { ReportHeaderActions } from './ReportHeaderActions';
 import { ReportHeading } from './ReportHeading';
 import { ReportSummary } from './ReportSummary';
 import { YearHighlights } from './YearHighlights';
@@ -38,7 +39,11 @@ export default function YearOverYearReportScreen() {
         <Stack.Screen
           options={{
             headerRight: () => (
-              <ReportFiltersButton activeFilterCount={activeFilterCount} report="yearOverYear" />
+              <ReportHeaderActions
+                activeFilterCount={activeFilterCount}
+                report="yearOverYear"
+                createDocument={() => yearsPdf(wallet, currencies)}
+              />
             ),
           }}
         />

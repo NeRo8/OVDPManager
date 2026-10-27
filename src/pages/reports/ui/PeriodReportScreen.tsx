@@ -4,11 +4,12 @@ import { WalletGate } from '@/entities/portfolio';
 import { isScopeOn } from '@/features/report-filters';
 import { EmptyState } from '@/shared/ui';
 import { periodReport } from '../model/periodReport';
+import { periodPdf } from '../model/reportPdf';
 import { PERIOD_TERMS } from '../model/reportTerms';
 import { useReport } from '../model/useReport.hook';
 import { CurrencyReportList } from './CurrencyReportList';
 import { PERIOD_LABELS, formatPeriod } from './periodLabels';
-import { ReportFiltersButton } from './ReportFiltersButton';
+import { ReportHeaderActions } from './ReportHeaderActions';
 import { ReportHeading } from './ReportHeading';
 
 /**
@@ -26,7 +27,20 @@ export default function PeriodReportScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <ReportFiltersButton activeFilterCount={activeFilterCount} report="period" />
+            <ReportHeaderActions
+              activeFilterCount={activeFilterCount}
+              report="period"
+              createDocument={() =>
+                periodPdf(
+                  'Звіт за період',
+                  formatPeriod(period),
+                  'period',
+                  wallet,
+                  currencies,
+                  PERIOD_TERMS,
+                )
+              }
+            />
           ),
         }}
       />

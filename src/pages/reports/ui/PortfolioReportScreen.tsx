@@ -9,13 +9,14 @@ import {
   type PortfolioBond,
   portfolioReport,
 } from '../model/portfolioReport';
+import { portfolioPdf } from '../model/reportPdf';
 import { useReport } from '../model/useReport.hook';
 import { BondStatusEmpty } from './BondStatusEmpty';
 import { PORTFOLIO_STATUS_TITLES } from './portfolioLabels';
 import { PortfolioBondRow } from './PortfolioBondRow';
 import { PortfolioInvestmentChart } from './PortfolioInvestmentChart';
 import { PortfolioSummary } from './PortfolioSummary';
-import { ReportFiltersButton } from './ReportFiltersButton';
+import { ReportHeaderActions } from './ReportHeaderActions';
 import { ReportHeading } from './ReportHeading';
 import { ReportList } from './ReportList';
 import { ReportListHeader } from './ReportListHeader';
@@ -61,7 +62,13 @@ export default function PortfolioReportScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <ReportFiltersButton activeFilterCount={activeFilterCount} report="portfolio" />
+            <ReportHeaderActions
+              activeFilterCount={activeFilterCount}
+              report="portfolio"
+              createDocument={() =>
+                portfolioPdf(wallet, PORTFOLIO_STATUS_TITLES[filters.status], currencies)
+              }
+            />
           ),
         }}
       />

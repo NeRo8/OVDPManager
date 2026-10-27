@@ -14,11 +14,12 @@ import {
   Typography,
 } from '@/shared/ui';
 import { fxEventDates, fxReport, type FxBond, type FxEvent } from '../model/fxReport';
+import { fxPdf } from '../model/reportPdf';
 import { useReport } from '../model/useReport.hook';
 import { FxEventRow } from './FxEventRow';
 import { FxTimelineChart } from './FxTimelineChart';
 import { FxYearsTable } from './FxYearsTable';
-import { ReportFiltersButton } from './ReportFiltersButton';
+import { ReportHeaderActions } from './ReportHeaderActions';
 import { ReportHeading } from './ReportHeading';
 import { ReportList } from './ReportList';
 import { ReportListHeader } from './ReportListHeader';
@@ -80,7 +81,12 @@ export default function FxReportScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <ReportFiltersButton activeFilterCount={activeFilterCount} report="fx" />
+            <ReportHeaderActions
+              activeFilterCount={activeFilterCount}
+              report="fx"
+              createDocument={() => (report ? fxPdf(wallet, report, targetCurrency) : null)}
+              available={!!report}
+            />
           ),
         }}
       />

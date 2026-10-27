@@ -5,11 +5,12 @@ import { type PositionPayment, ScheduleEventRow, WalletGate } from '@/entities/p
 import { isScopeOn } from '@/features/report-filters';
 import { SectionCell } from '@/shared/ui';
 import { type CurrencyRedemptions, redemptionsReport } from '../model/redemptionsReport';
+import { redemptionsPdf } from '../model/reportPdf';
 import { useReport } from '../model/useReport.hook';
 import { REDEMPTION_TIME_LABELS } from './redemptionLabels';
 import { RedemptionsCurrencyHeader } from './RedemptionsCurrencyHeader';
 import { RedemptionsEmpty } from './RedemptionsEmpty';
-import { ReportFiltersButton } from './ReportFiltersButton';
+import { ReportHeaderActions } from './ReportHeaderActions';
 import { ReportHeading } from './ReportHeading';
 import { ReportList } from './ReportList';
 import { ReportListHeader } from './ReportListHeader';
@@ -52,7 +53,13 @@ export default function RedemptionsReportScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <ReportFiltersButton activeFilterCount={activeFilterCount} report="redemptions" />
+            <ReportHeaderActions
+              activeFilterCount={activeFilterCount}
+              report="redemptions"
+              createDocument={() =>
+                redemptionsPdf(wallet, REDEMPTION_TIME_LABELS[filters.time], currencies)
+              }
+            />
           ),
         }}
       />

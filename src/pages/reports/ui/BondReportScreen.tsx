@@ -13,11 +13,12 @@ import {
 } from '@/entities/portfolio';
 import { Card, EmptyState, SectionCell, Typography } from '@/shared/ui';
 import { bondReport } from '../model/bondReport';
+import { bondPdf } from '../model/reportPdf';
 import { useBondReport } from '../model/useBondReport.hook';
 import { BondReportPurchaseRow } from './BondReportPurchaseRow';
 import { BondReportSummary } from './BondReportSummary';
 import { bondStateLabel } from './portfolioLabels';
-import { ReportFiltersButton } from './ReportFiltersButton';
+import { ReportHeaderActions } from './ReportHeaderActions';
 import { ReportHeading } from './ReportHeading';
 import { ReportList } from './ReportList';
 import { ReportListHeader } from './ReportListHeader';
@@ -103,7 +104,12 @@ export default function BondReportScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <ReportFiltersButton activeFilterCount={activeFilterCount} report="bond" />
+            <ReportHeaderActions
+              activeFilterCount={activeFilterCount}
+              report="bond"
+              createDocument={() => (report ? bondPdf(wallet, report) : null)}
+              available={!!report}
+            />
           ),
         }}
       />

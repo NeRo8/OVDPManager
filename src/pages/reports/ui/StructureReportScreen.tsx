@@ -10,8 +10,9 @@ import {
   type StructureBond,
   structureReport,
 } from '../model/structureReport';
+import { structurePdf } from '../model/reportPdf';
 import { useReport } from '../model/useReport.hook';
-import { ReportFiltersButton } from './ReportFiltersButton';
+import { ReportHeaderActions } from './ReportHeaderActions';
 import { ReportHeading } from './ReportHeading';
 import { ReportList } from './ReportList';
 import { ReportListHeader } from './ReportListHeader';
@@ -35,7 +36,8 @@ const keyOf = (bond: StructureBond) => bond.isin;
  */
 export default function StructureReportScreen() {
   const { wallet, narrowed, filters, activeFilterCount } = useReport('structure');
-  const { currencies, unknownCount } = structureReport(narrowed, filters.purchases);
+  const structure = structureReport(narrowed, filters.purchases);
+  const { currencies, unknownCount } = structure;
   const sections = currencies.map((report): CurrencySection => ({ report, data: report.bonds }));
 
   const renderSectionHeader = ({
@@ -63,7 +65,13 @@ export default function StructureReportScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <ReportFiltersButton activeFilterCount={activeFilterCount} report="structure" />
+            <ReportHeaderActions
+              activeFilterCount={activeFilterCount}
+              report="structure"
+              createDocument={() =>
+                structurePdf(wallet, STRUCTURE_PURCHASES_TITLES[filters.purchases], structure)
+              }
+            />
           ),
         }}
       />
