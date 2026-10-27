@@ -69,6 +69,9 @@ const styles = StyleSheet.create((theme) => ({
     paddingVertical: theme.space.sm,
     borderRadius: theme.radius.sm,
     borderCurve: 'continuous',
+    // Outlined like the inline inputs next to it, so it reads as a field to tap.
+    borderWidth: 1,
+    borderColor: theme.fieldBorder,
     backgroundColor: theme.muted,
   },
 }));

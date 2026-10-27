@@ -35,6 +35,11 @@ export const light = {
   dangerSurface: '#FCE6DC',
   /** Fields, the segmented control's track and pressed rows */
   muted: '#E4EBE5',
+  /**
+   * The outline of a field that takes input (3.3:1 on `card`, 2.7:1 on `muted`), so it reads as
+   * something to tap; `border` only separates rows.
+   */
+  fieldBorder: '#7F918C',
   /** A surface raised above `muted` */
   raised: '#FCFFF7',
   /**
@@ -97,6 +102,7 @@ export const dark: AppTheme = {
   warningSurface: '#2E2309',
   dangerSurface: '#33160B',
   muted: '#18211F',
+  fieldBorder: '#5E6F6B',
   // Lighter than the track: in the dark a raised surface is lighter, not shadowed.
   raised: '#33413E',
   fab: '#E53D00',
