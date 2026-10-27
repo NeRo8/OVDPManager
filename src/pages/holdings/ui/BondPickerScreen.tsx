@@ -61,7 +61,6 @@ export default function BondPickerScreen() {
               bond={bond}
               today={today}
               owned={ownedQuantity.get(bond.isin)}
-              showCurrency={isSearching}
               onPress={() => chooseBond(bond.isin)}
             />
           </SectionCell>

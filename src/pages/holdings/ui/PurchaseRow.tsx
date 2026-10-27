@@ -8,8 +8,9 @@ import {
   pricePerBond,
   purchaseCurrency,
 } from '@/entities/portfolio';
-import { formatDate, formatMoney } from '@/shared/lib';
-import { Typography } from '@/shared/ui';
+import { currencySign, formatDate, formatMoney } from '@/shared/lib';
+import { SERIES_COLORS } from '@/shared/theme';
+import { Avatar, Typography } from '@/shared/ui';
 
 type Props = {
   purchase: Purchase;
@@ -26,6 +27,8 @@ export function PurchaseRow({ purchase, bond, today, onDelete }: Props) {
 
   return (
     <View style={styles.purchase}>
+      {/* Badged as the payments' rows below it, in the purchases' color. */}
+      <Avatar label={currencySign(currency)} color={SERIES_COLORS.purchase.badge} />
       <View style={styles.purchaseInfo}>
         <Typography variant="callout" tabular>
           {formatDate(purchase.purchaseDate)} · {purchase.quantity} шт

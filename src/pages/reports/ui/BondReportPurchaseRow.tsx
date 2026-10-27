@@ -7,8 +7,9 @@ import {
   isPlannedPurchase,
   pricePerBond,
 } from '@/entities/portfolio';
-import { formatDate, formatMoney } from '@/shared/lib';
-import { Typography } from '@/shared/ui';
+import { currencySign, formatDate, formatMoney } from '@/shared/lib';
+import { SERIES_COLORS } from '@/shared/theme';
+import { Avatar, Typography } from '@/shared/ui';
 
 type Props = {
   purchase: Purchase;
@@ -20,28 +21,35 @@ type Props = {
 export function BondReportPurchaseRow({ purchase, currency, today }: Props) {
   return (
     <View style={styles.purchase}>
-      <View style={styles.title}>
-        <Typography variant="callout" tabular>
-          {formatDate(purchase.purchaseDate)} · {purchase.quantity} шт
-        </Typography>
-        <Typography variant="callout" weight="semibold" tabular>
-          {formatMoney(purchase.amount, currency)}
+      {/* Badged as the payments' rows after it, in the purchases' color. */}
+      <Avatar label={currencySign(currency)} color={SERIES_COLORS.purchase.badge} />
+      <View style={styles.details}>
+        <View style={styles.title}>
+          <Typography variant="callout" tabular>
+            {formatDate(purchase.purchaseDate)} · {purchase.quantity} шт
+          </Typography>
+          <Typography variant="callout" weight="semibold" tabular>
+            {formatMoney(purchase.amount, currency)}
+          </Typography>
+        </View>
+        <Typography variant="caption1" tone="secondary" tabular>
+          по {formatMoney(pricePerBond(purchase.amount, purchase.quantity), currency)} за 1 шт
+          {isPlannedPurchase(purchase, today) && ' · заплановано'}
         </Typography>
       </View>
-      <Typography variant="caption1" tone="secondary" tabular>
-        по {formatMoney(pricePerBond(purchase.amount, purchase.quantity), currency)} за 1 шт
-        {isPlannedPurchase(purchase, today) && ' · заплановано'}
-      </Typography>
     </View>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
   purchase: {
-    gap: theme.space.xxs,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.space.md,
     paddingHorizontal: theme.space.lg,
     paddingVertical: theme.space.md,
   },
+  details: { flex: 1, gap: theme.space.xxs },
   title: {
     flexDirection: 'row',
     alignItems: 'baseline',

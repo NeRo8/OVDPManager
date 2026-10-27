@@ -2,8 +2,9 @@ import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import type { ExchangeCurrency } from '@/entities/portfolio';
-import { formatDate, formatMoney } from '@/shared/lib';
-import { SignedValue, Typography } from '@/shared/ui';
+import { currencySign, formatDate, formatMoney } from '@/shared/lib';
+import { SERIES_COLORS } from '@/shared/theme';
+import { Avatar, SignedValue, Typography } from '@/shared/ui';
 import type { FxEvent } from '../model/fxReport';
 
 type Props = { event: FxEvent; currency: ExchangeCurrency };
@@ -21,6 +22,8 @@ export function FxEventRow({ event, currency }: Props) {
   const sign = signedEquivalent > 0 ? '+' : signedEquivalent < 0 ? '−' : '';
   return (
     <View style={styles.row}>
+      {/* The flow is in hryvnia; the badge takes its type's color, as in the payments' rows. */}
+      <Avatar label={currencySign('UAH')} color={SERIES_COLORS[event.type].badge} />
       <View style={styles.details}>
         <Typography variant="callout" weight="medium">
           {NAMES[event.type]} · {formatDate(event.date)}
@@ -47,7 +50,7 @@ const styles = StyleSheet.create((theme) => ({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.space.sm,
+    gap: theme.space.md,
     paddingHorizontal: theme.space.lg,
     paddingVertical: theme.space.md,
   },
