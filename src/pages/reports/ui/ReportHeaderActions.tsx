@@ -42,6 +42,8 @@ export function ReportHeaderActions({
         html: reportPdfHtml(document),
         width: 595,
         height: 842,
+        // iOS uses the native printable rectangle; @page in the HTML covers Android.
+        margins: { left: 37, right: 37, top: 43, bottom: 43 },
       });
       const source = new File(uri);
       const target = new File(
