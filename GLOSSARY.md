@@ -94,16 +94,19 @@ _Avoid_: holdings, Портфель for a Plan, Wallet for a Plan that isn't act
 The value of a past hryvnia Purchase or Payment in USD or EUR at the official NBU rate effective on its date. It is an estimate of value, not a record of an actual currency exchange.
 
 **Cumulative investment in currency** (Вкладено):
-The sum of past hryvnia Purchases converted to USD or EUR at each Purchase's own date. This is the reference line in the FX report's monthly chart.
+The sum of past hryvnia Purchases converted to USD or EUR at each Purchase's own date. This is one line in the FX report's selected-year chart and the baseline for its all-time difference chart.
 
 **Remaining cost with payouts** (Залишок + виплати):
-The remaining hryvnia Purchase cost converted at the month-end NBU rate, plus Coupons and Redemptions already received and converted at their dates. Partial Redemptions reduce the remaining cost proportionally. It is an estimate based on Purchase cost, not a market price for Bonds still held.
+The remaining hryvnia Purchase cost converted at the chart point's NBU rate, plus Coupons and Redemptions already received and converted at their dates. Chart points are at month end, or today for the current month. Partial Redemptions reduce the remaining cost proportionally. Reinvested Payments remain in the cumulative payouts and their new Purchases add to cost; this sum is not cash currently available. It is an estimate based on Purchase cost, not a market price for Bonds still held.
 
-**Year cash balance** (Сальдо подій року):
-Past Payments in the selected calendar year minus its Purchases, each converted at its own date. It is not the gain on Bonds still held.
+**Currency comparison as of date** (Стан вкладень):
+All Purchases of the selected Bonds through the report date, including earlier years, against all received Payments through that date. «Повернулося виплатами» is cash received in hryvnia expressed at the NBU rates on payment dates, including payouts later reinvested. «Залишок ОВДП (оцінка)» is unrepaid Purchase cost expressed at the report-date rate. «Виплати + залишок (оцінка)» adds the two cumulative amounts; it is not cash available now. «Різниця з вкладеним» subtracts all Purchases, including new Purchases made with payouts; the all-time chart plots this difference monthly around zero. The estimate is not a sale value or realized gain while Bonds remain in circulation.
+
+**FX cash balance** (Сальдо подій, Сальдо подій року):
+Past Payments in the selected period minus its Purchases, each converted at its own date. The period is all time or one calendar year. It is not the gain on Bonds still held.
 
 **Completed bond FX result** (Результат у валюті):
-The currency equivalents of all Payments received through the selected year minus all Purchases since the first one. Shown only for a Bond whose Redemption is complete by the year end.
+The currency equivalents of all Payments received through the report date minus all Purchases since the first one. Shown only for a Bond whose Redemption is complete by the report date.
 
 **Invested** (Вкладено):
 The total amount paid for Purchases.
