@@ -10,6 +10,7 @@ import { ReportBondRow } from './ReportBondRow';
 import { ReportList } from './ReportList';
 import { ReportListHeader } from './ReportListHeader';
 import { ReportMonthsTable } from './ReportMonthsTable';
+import { PeriodFlowsChart } from './PeriodFlowsChart';
 import { ReportSectionHeader } from './ReportSectionHeader';
 import { ReportSummary } from './ReportSummary';
 
@@ -43,6 +44,7 @@ export function CurrencyReportList({ wallet, reports, terms, heading, empty }: P
     <ReportSectionHeader rowsTitle={`По ОВДП · ${CURRENCY_NAMES[report.currency]}`}>
       <ReportSummary report={report} terms={terms} />
       <ReportBondHighlights report={report} terms={terms} />
+      <PeriodFlowsChart report={report} />
       <ReportMonthsTable report={report} />
     </ReportSectionHeader>
   );

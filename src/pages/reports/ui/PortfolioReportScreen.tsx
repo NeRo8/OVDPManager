@@ -13,6 +13,7 @@ import { useReport } from '../model/useReport.hook';
 import { BondStatusEmpty } from './BondStatusEmpty';
 import { PORTFOLIO_STATUS_TITLES } from './portfolioLabels';
 import { PortfolioBondRow } from './PortfolioBondRow';
+import { PortfolioInvestmentChart } from './PortfolioInvestmentChart';
 import { PortfolioSummary } from './PortfolioSummary';
 import { ReportFiltersButton } from './ReportFiltersButton';
 import { ReportHeading } from './ReportHeading';
@@ -42,6 +43,7 @@ export default function PortfolioReportScreen() {
   }) => (
     <ReportSectionHeader rowsTitle={`По ОВДП · ${CURRENCY_NAMES[report.currency]}`}>
       <PortfolioSummary report={report} />
+      <PortfolioInvestmentChart report={report} />
     </ReportSectionHeader>
   );
   const renderItem = ({

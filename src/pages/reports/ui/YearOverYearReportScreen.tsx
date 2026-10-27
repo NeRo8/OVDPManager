@@ -53,7 +53,7 @@ export default function YearOverYearReportScreen() {
               <Fragment key={report.currency}>
                 <ReportSummary report={report.total} terms={ALL_YEARS_TERMS} />
                 <YearHighlights report={report} />
-                {report.years.length > 1 && (
+                {report.years.length > 0 && (
                   <>
                     <YearsMoneyChart report={report} />
                     <YearsIncomeBars report={report} />

@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { CURRENCY_NAMES } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
-import { Card, SectionTitle, ShareBar, Typography } from '@/shared/ui';
+import { Card, ColumnChart, SectionTitle, Typography } from '@/shared/ui';
 import type { CurrencyStructure } from '../model/structureReport';
 import { shareCell } from './reportCells';
 import { TERM_BUCKET_LABELS } from './structureLabels';
@@ -21,6 +21,17 @@ export function StructureTerms({ report }: Props) {
       <SectionTitle title={`За строком до погашення · ${CURRENCY_NAMES[currency]}`} />
       <Card>
         <View style={styles.terms}>
+          <ColumnChart
+            orientation="horizontal"
+            columns={terms.map(({ term }) => ({
+              label: TERM_BUCKET_LABELS[term],
+              name: TERM_BUCKET_LABELS[term],
+            }))}
+            series={[
+              { label: 'вкладено', color: 'purchase', values: terms.map(({ amount }) => amount) },
+            ]}
+            currency={currency}
+          />
           {terms.map(({ term, amount, share, count }) => (
             <View key={term} style={styles.term}>
               <View style={styles.row}>
@@ -32,7 +43,6 @@ export function StructureTerms({ report }: Props) {
                   {amount > 0 ? `${formatMoney(amount, currency)} · ${shareCell(share)}` : '—'}
                 </Typography>
               </View>
-              <ShareBar percent={share} accessibilityLabel={TERM_BUCKET_LABELS[term]} />
             </View>
           ))}
         </View>

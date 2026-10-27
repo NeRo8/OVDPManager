@@ -128,7 +128,7 @@ export default function BondReportScreen() {
                 )}
               </Card>
               <BondReportSummary report={report} />
-              {report.money && report.money.years.length > 1 && (
+              {report.money && report.money.years.length > 0 && (
                 <YearsMoneyChart report={report.money} />
               )}
             </ReportListHeader>

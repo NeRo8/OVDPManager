@@ -14,6 +14,7 @@ import { ReportList } from './ReportList';
 import { ReportListHeader } from './ReportListHeader';
 import { ReportSectionHeader } from './ReportSectionHeader';
 import { YieldBondRow } from './YieldBondRow';
+import { YieldBondChart } from './YieldBondChart';
 import { YieldComparison } from './YieldComparison';
 import { YieldSummary } from './YieldSummary';
 
@@ -50,6 +51,7 @@ export default function YieldReportScreen() {
           keyRate={report.keyRate}
         />
       )}
+      <YieldBondChart report={report} />
     </ReportSectionHeader>
   );
   const renderItem = ({
