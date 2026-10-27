@@ -15,7 +15,10 @@ export const light = {
   secondaryText: '#52625E',
   border: '#D5E0DA',
   accent: '#046865',
+  /** The label on every filled control and badge: `accentFill`, the series' badges, currencies */
   accentText: '#FCFFF7',
+  /** The primary button's and the selected segment's fill (6.5:1 under `accentText`) */
+  accentFill: '#046865',
   /** Tints the disc and the glow behind an illustration icon drawn in `accent` (5.4:1) */
   accentSurface: '#D6ECE8',
   positive: '#046865',
@@ -50,6 +53,10 @@ export const light = {
   seriesCouponText: '#046865',
   seriesRedemptionText: '#4A5FD0',
   seriesPurchaseText: '#C23300',
+  // The badges of the schedule's rows, with `accentText` on top (5.4:1 and more).
+  seriesCouponBadge: '#046865',
+  seriesRedemptionBadge: '#4A5FD0',
+  seriesPurchaseBadge: '#C23300',
   /**
    * Each currency's badge, with `accentText` on top (5.1:1 and more): hryvnia berry, dollar green,
    * euro indigo. Checked with the dataviz palette validator on `card` and `background`; the
@@ -77,7 +84,10 @@ export const dark: AppTheme = {
   border: '#24302D',
   // #046865 is 2.7:1 on black, so the lighter teal takes its place.
   accent: '#21A0A0',
-  accentText: '#000000',
+  accentText: '#FCFFF7',
+  // A darker teal than `accent`, so the light label reads on it (4.7:1) and the fill itself still
+  // stands out on black (4.4:1) and on `card` (3.8:1). The badges below take the same steps.
+  accentFill: '#0F807D',
   accentSurface: '#0B2B2A',
   positive: '#3CC9C3',
   danger: '#FF6A33',
@@ -98,10 +108,14 @@ export const dark: AppTheme = {
   seriesCouponText: '#3CC9C3',
   seriesRedemptionText: '#8C98F5',
   seriesPurchaseText: '#FF6A33',
-  // Lighter steps for the black `accentText` (5.1:1 and more), checked on `card` and black.
-  currencyUah: '#C2569A',
-  currencyUsd: '#2EAA78',
-  currencyEur: '#8A78E8',
+  seriesCouponBadge: '#00827D',
+  seriesRedemptionBadge: '#5768E5',
+  seriesPurchaseBadge: '#D04410',
+  // Steps under the light `accentText` (4.6:1) that still stand out on `card` and black (3.9:1),
+  // checked with the dataviz palette validator; berry–green is 7.0 for deutan readers.
+  currencyUah: '#BD4892',
+  currencyUsd: '#24835D',
+  currencyEur: '#745FE4',
   // A drop shadow does not read on black; the lighter card surface sets cards apart instead.
   shadowCard: '0 0 0 0 transparent',
   shadowRaised: '0 8px 24px rgba(229, 61, 0, 0.35)',

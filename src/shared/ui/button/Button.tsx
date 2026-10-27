@@ -52,7 +52,7 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
     variants: {
       variant: {
-        primary: { backgroundColor: theme.accent },
+        primary: { backgroundColor: theme.accentFill },
         // Card-colored buttons lift off the background like the cards around them.
         secondary: { backgroundColor: theme.card, boxShadow: theme.shadowCard },
         // A minor choice next to a primary button, such as skipping a step.

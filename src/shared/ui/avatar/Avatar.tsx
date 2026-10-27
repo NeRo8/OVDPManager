@@ -9,7 +9,7 @@ const SIZE = 36;
 type Props = {
   /** One or two characters, such as a currency sign */
   label: string;
-  /** A fill that `accentText` reads on: a series' text step or a currency's color */
+  /** A fill that `accentText` reads on: a series' badge or a currency's color */
   color: keyof AppTheme;
 };
 

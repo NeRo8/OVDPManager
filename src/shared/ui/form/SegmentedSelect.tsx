@@ -68,7 +68,7 @@ export function SegmentedSelect<T extends string | number>({
         <Animated.View style={[styles.thumb(segmentWidth), thumbMotion]}>
           {hasLiquidGlass && (
             <ThemedGlassView
-              uniProps={(theme) => ({ tintColor: theme.accent })}
+              uniProps={(theme) => ({ tintColor: theme.accentFill })}
               style={styles.thumbGlass}
             />
           )}
@@ -122,7 +122,7 @@ const styles = StyleSheet.create((theme) => ({
     width,
     borderRadius: theme.radius[THUMB_RADIUS],
     borderCurve: 'continuous',
-    ...(!hasLiquidGlass && { backgroundColor: theme.accent, boxShadow: theme.shadowCard }),
+    ...(!hasLiquidGlass && { backgroundColor: theme.accentFill, boxShadow: theme.shadowCard }),
   }),
   thumbGlass: { flex: 1, borderRadius: theme.radius.full },
   option: {
