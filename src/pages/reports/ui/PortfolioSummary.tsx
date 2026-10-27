@@ -1,8 +1,8 @@
-import { Fragment, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
 import { CURRENCY_NAMES } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
-import { InfoRow, Section, Separator, SignedValue } from '@/shared/ui';
+import { InfoRow, Section, SignedValue } from '@/shared/ui';
 import type { CurrencyPortfolio } from '../model/portfolioReport';
 
 type Props = {
@@ -61,11 +61,8 @@ export function PortfolioSummary({ report }: Props) {
         .filter(Boolean)
         .join(' ')}
     >
-      {rows.map((row, index) => (
-        <Fragment key={row.label}>
-          {index > 0 && <Separator />}
-          <InfoRow label={row.label} value={row.value} />
-        </Fragment>
+      {rows.map((row) => (
+        <InfoRow key={row.label} label={row.label} value={row.value} />
       ))}
     </Section>
   );

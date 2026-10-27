@@ -71,6 +71,13 @@ Feature-Sliced Design, imports only point down: `app` (routes in `src/app/`) →
 - Each currency has its own badge color (`currencyUah` berry, `currencyUsd` green, `currencyEur` indigo; `currencyColor(currency)` from `@/shared/theme`), used by the `Avatar` of the wallet's and the bond picker's rows; rows of a purchase or a payment (the schedule, the bond card's purchases, the bond and FX reports) badge it with `Avatar` in the event type's series `badge` color. A row that leads with such a badge takes `Avatar`, never a copy of it. `Avatar` takes any palette key that `accentText` reads on: the light label sits on these fills, on `accentFill` (the primary button, the selected segment) in both themes, each at 4.5:1 or more. The currencies were checked with the dataviz validator in both themes — re-run it when changing them.
 - Chart series colors use `SeriesColor` keys (`coupon`, `redemption`, `purchase`) from `src/shared/theme/series.ts`, not color strings.
 - One React component per `.tsx` file; shared types/utilities go in separate `.ts` files next to their consumers.
+- `src/shared/ui/` is the app's UI kit; screens are put together from it, and a pattern that repeats across slices becomes a kit component rather than a copy. Build from these before writing a layout of your own:
+  - `Section` is a titled card of rows: it puts a `Separator` between each two rows itself, opening fragments, maps and conditions, so callers never add one. `Card` is a padded card of free content (figures, charts, legends); both take `title` and `footer` (`SectionFrame`), so no screen wraps a `SectionTitle` and a card in a view of its own. Inside a `Card`, parts are split by `<Separator variant="card" />` (`table` between table rows).
+  - `ListRow` is every list row: `leading` (an `Avatar`), `title` / `subtitle` (strings take the standard text, nodes their own), `children`, `trailing`; with `onPress` it is pressable with the shared pressed state. `LinkRow`, `CheckRow` and `ActionRow` are built on it, and so are the wallet's, the picker's, the schedule's, the purchases' and the FX report's rows.
+  - `SegmentedSection` is a filter section of one choice out of a few; `ResetFiltersHeader` is a filters screen's header with its reset button; `ShareBar` takes a `caption` for the share in words under it.
+  - In reports, a row that reads top to bottom (a bond's figures, legend rows, its share) is a `ReportItem` (`pages/reports/ui/`).
+  - Charts share their stacking and their words for screen readers through `chart/columnStacks.ts` (tested), whichever orientation draws them.
+- A component stays under 300 lines; past that, its pure calculations move to a `.ts` file next to it (with tests) and repeated parts to components of their own.
 
 ## Notes
 

@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Controller } from 'react-hook-form';
 
 import { useBackupExport } from '@/features/backup';
-import { Button, PasswordInput, FormScrollView, Section, Separator, Typography } from '@/shared/ui';
+import { Button, PasswordInput, FormScrollView, Section, Typography } from '@/shared/ui';
 
 /**
  * Making a backup: the key that encrypts it, typed twice, then the Google account's cloud copy or
@@ -54,7 +54,6 @@ export default function BackupExportScreen() {
             />
           )}
         />
-        <Separator />
         <Controller
           control={control}
           name="confirmation"

@@ -1,8 +1,5 @@
-import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
-
 import { CURRENCY_NAMES } from '@/entities/portfolio';
-import { Card, ColumnChart, SectionTitle } from '@/shared/ui';
+import { Card, ColumnChart } from '@/shared/ui';
 import type { CurrencyRedemptions } from '../model/redemptionsReport';
 import { yearColumns } from './yearColumns';
 
@@ -15,21 +12,14 @@ export function RedemptionsChart({ report }: Props) {
   const { currency, years } = report;
 
   return (
-    <View style={styles.section}>
-      <SectionTitle title={`Погашення по роках · ${CURRENCY_NAMES[currency]}`} />
-      <Card>
-        <ColumnChart
-          columns={yearColumns(years.map(({ year }) => year))}
-          series={[
-            { label: 'погашення', color: 'redemption', values: years.map(({ total }) => total) },
-          ]}
-          currency={currency}
-        />
-      </Card>
-    </View>
+    <Card title={`Погашення по роках · ${CURRENCY_NAMES[currency]}`}>
+      <ColumnChart
+        columns={yearColumns(years.map(({ year }) => year))}
+        series={[
+          { label: 'погашення', color: 'redemption', values: years.map(({ total }) => total) },
+        ]}
+        currency={currency}
+      />
+    </Card>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  section: { gap: theme.space.sm },
-}));

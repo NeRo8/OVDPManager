@@ -1,6 +1,6 @@
 import { useCloudAccount } from '@/features/backup';
 import { formatDateTime } from '@/shared/lib';
-import { ActionRow, InfoRow, Section, Separator } from '@/shared/ui';
+import { ActionRow, InfoRow, Section } from '@/shared/ui';
 
 /**
  * The Google account that holds the cloud backup: signing in and out, the copy's date, and removing
@@ -43,11 +43,8 @@ export function CloudAccountSection() {
       footer="Зберегти копію в хмарі можна в «Створити копію», відновити — у «Відновити з копії» на будь-якому пристрої з цим акаунтом."
     >
       <InfoRow label="Google-акаунт" value={account.email} />
-      <Separator />
       <InfoRow label="Копія в хмарі" value={backupDate} />
-      <Separator />
       <ActionRow title="Вийти з акаунта" onPress={signOut} disabled={isBusy} />
-      <Separator />
       <ActionRow
         title="Видалити дані з хмари"
         tone="danger"

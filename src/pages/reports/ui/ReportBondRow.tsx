@@ -1,11 +1,9 @@
-import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
-
 import type { Currency } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
 import { LegendRow, ShareBar, TotalRow, Typography } from '@/shared/ui';
 import type { BondReport } from '../model/periodReport';
 import type { ReportTerms } from '../model/reportTerms';
+import { ReportItem } from './ReportItem';
 import { shareCell } from './reportCells';
 
 type Props = {
@@ -20,17 +18,16 @@ type Props = {
  */
 export function ReportBondRow({ bond, currency, terms }: Props) {
   return (
-    <View style={styles.bond}>
-      <View style={styles.title}>
-        <Typography variant="subhead" weight="semibold" tabular>
-          {bond.isin}
-        </Typography>
-        {bond.annualYield !== null && (
+    <ReportItem
+      title={bond.isin}
+      aside={
+        bond.annualYield !== null && (
           <Typography variant="caption1" tone="secondary" tabular>
             {bond.annualYield}% річних
           </Typography>
-        )}
-      </View>
+        )
+      }
+    >
       {bond.coupons > 0 && (
         <LegendRow color="coupon" label="Купони" value={formatMoney(bond.coupons, currency)} />
       )}
@@ -50,31 +47,12 @@ export function ReportBondRow({ bond, currency, terms }: Props) {
         signedValue={bond.income}
       />
       {bond.incomeShare !== null && (
-        <View style={styles.share}>
-          <ShareBar
-            percent={Math.min(bond.incomeShare, 100)}
-            accessibilityLabel={`Частка в доході ${terms.span}`}
-          />
-          <Typography variant="caption1" tone="secondary" tabular>
-            {shareCell(bond.incomeShare)} доходу {terms.span}
-          </Typography>
-        </View>
+        <ShareBar
+          percent={Math.min(bond.incomeShare, 100)}
+          accessibilityLabel={`Частка в доході ${terms.span}`}
+          caption={`${shareCell(bond.incomeShare)} доходу ${terms.span}`}
+        />
       )}
-    </View>
+    </ReportItem>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  bond: {
-    gap: theme.space.xs,
-    paddingHorizontal: theme.space.lg,
-    paddingVertical: theme.space.md,
-  },
-  title: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    gap: theme.space.md,
-  },
-  share: { gap: theme.space.xs, marginTop: theme.space.xxs },
-}));

@@ -1,8 +1,5 @@
-import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
-
 import { type RedemptionTime, updateReportFilters } from '@/features/report-filters';
-import { Section, SegmentedSelect } from '@/shared/ui';
+import { SegmentedSection } from '@/shared/ui';
 import { useReport } from '../model/useReport.hook';
 import { REDEMPTION_TIME_LABELS } from './redemptionLabels';
 
@@ -18,17 +15,12 @@ export function RedemptionTimeSection() {
   const changeTime = (time: RedemptionTime) => updateReportFilters('redemptions', { time });
 
   return (
-    <Section
+    <SegmentedSection
       title="Час"
       footer="Майбутні — погашення, яких ще не отримано; отримані — ті, що вже надійшли."
-    >
-      <View style={styles.picker}>
-        <SegmentedSelect options={TIME_OPTIONS} value={filters.time} onChange={changeTime} />
-      </View>
-    </Section>
+      options={TIME_OPTIONS}
+      value={filters.time}
+      onChange={changeTime}
+    />
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  picker: { padding: theme.space.md },
-}));

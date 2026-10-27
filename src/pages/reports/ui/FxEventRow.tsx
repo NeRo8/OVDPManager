@@ -1,10 +1,7 @@
-import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
-
 import type { ExchangeCurrency } from '@/entities/portfolio';
 import { currencySign, formatDate, formatMoney } from '@/shared/lib';
 import { SERIES_COLORS } from '@/shared/theme';
-import { Avatar, SignedValue, Typography } from '@/shared/ui';
+import { Avatar, ListRow, SignedValue, Typography } from '@/shared/ui';
 import type { FxEvent } from '../model/fxReport';
 
 type Props = { event: FxEvent; currency: ExchangeCurrency };
@@ -21,38 +18,27 @@ export function FxEventRow({ event, currency }: Props) {
   const signedEquivalent = isPurchase ? -event.equivalent : event.equivalent;
   const sign = signedEquivalent > 0 ? '+' : signedEquivalent < 0 ? '−' : '';
   return (
-    <View style={styles.row}>
-      {/* The flow is in hryvnia; the badge takes its type's color, as in the payments' rows. */}
-      <Avatar label={currencySign('UAH')} color={SERIES_COLORS[event.type].badge} />
-      <View style={styles.details}>
+    <ListRow
+      // The flow is in hryvnia; the badge takes its type's color, as in the payments' rows.
+      leading={<Avatar label={currencySign('UAH')} color={SERIES_COLORS[event.type].badge} />}
+      title={
         <Typography variant="callout" weight="medium">
           {NAMES[event.type]} · {formatDate(event.date)}
         </Typography>
-        <Typography variant="caption1" tone="secondary">
-          {formatMoney(event.amount, 'UAH')} · курс {rateFormat.format(event.rate)} ₴/{currency}
-        </Typography>
-      </View>
-      <SignedValue
-        value={signedEquivalent}
-        variant="callout"
-        weight="semibold"
-        tabular
-        align="right"
-      >
-        {sign}
-        {formatMoney(event.equivalent, currency)}
-      </SignedValue>
-    </View>
+      }
+      subtitle={`${formatMoney(event.amount, 'UAH')} · курс ${rateFormat.format(event.rate)} ₴/${currency}`}
+      trailing={
+        <SignedValue
+          value={signedEquivalent}
+          variant="callout"
+          weight="semibold"
+          tabular
+          align="right"
+        >
+          {sign}
+          {formatMoney(event.equivalent, currency)}
+        </SignedValue>
+      }
+    />
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.space.md,
-    paddingHorizontal: theme.space.lg,
-    paddingVertical: theme.space.md,
-  },
-  details: { flex: 1, gap: theme.space.xxs },
-}));

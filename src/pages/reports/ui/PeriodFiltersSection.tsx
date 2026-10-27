@@ -1,5 +1,3 @@
-import { Fragment } from 'react';
-
 import {
   PERIOD_OPTIONS,
   type PeriodOption,
@@ -7,7 +5,7 @@ import {
   periodDates,
   updateReportFilters,
 } from '@/features/report-filters';
-import { CheckRow, DateField, FieldRow, Section, Separator } from '@/shared/ui';
+import { CheckRow, DateField, FieldRow, Section } from '@/shared/ui';
 import { useReport } from '../model/useReport.hook';
 import { PERIOD_LABELS, formatPeriod } from './periodLabels';
 
@@ -26,28 +24,24 @@ export function PeriodFiltersSection() {
       title="Період"
       footer="Місяць і квартал — цілі, з виплатами, що ще попереду; рік і 12 місяців — по сьогодні включно; увесь план — від першої купівлі до останньої виплати."
     >
-      {PERIOD_OPTIONS.map((option, index) => (
-        <Fragment key={option}>
-          {index > 0 && <Separator />}
-          <CheckRow
-            title={PERIOD_LABELS[option]}
-            subtitle={
-              option === 'custom'
-                ? undefined
-                : formatPeriod(periodDates(option, wallet, filters.custom))
-            }
-            checked={option === filters.period}
-            onPress={() => choosePeriod(option)}
-          />
-        </Fragment>
+      {PERIOD_OPTIONS.map((option) => (
+        <CheckRow
+          key={option}
+          title={PERIOD_LABELS[option]}
+          subtitle={
+            option === 'custom'
+              ? undefined
+              : formatPeriod(periodDates(option, wallet, filters.custom))
+          }
+          checked={option === filters.period}
+          onPress={() => choosePeriod(option)}
+        />
       ))}
       {filters.period === 'custom' && (
         <>
-          <Separator />
           <FieldRow label="З">
             <DateField value={dates.from} onChange={changeFrom} maximumDate={dates.to} />
           </FieldRow>
-          <Separator />
           <FieldRow label="По">
             <DateField value={dates.to} onChange={changeTo} minimumDate={dates.from} />
           </FieldRow>

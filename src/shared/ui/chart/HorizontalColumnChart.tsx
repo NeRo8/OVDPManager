@@ -3,11 +3,17 @@ import { Pressable, View } from 'react-native';
 import { Canvas, Rect, RoundedRect } from '@shopify/react-native-skia';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { formatCompact, formatMoney } from '@/shared/lib';
+import { formatCompact } from '@/shared/lib';
 import { Typography } from '../typography/Typography';
-import type { ChartColumn, ChartSeries } from './ColumnChart';
-import { chartGrid, formatGridTick } from './chartGrid';
+import { formatGridTick } from './chartGrid';
 import type { ChartPalette } from './chartTheme';
+import {
+  type ChartColumn,
+  type ChartSeries,
+  type ChartValueFormat,
+  columnStacks,
+  describeColumn,
+} from './columnStacks';
 
 const ROW_HEIGHT = 40;
 const BAR_HEIGHT = 16;
@@ -20,7 +26,7 @@ type Props = {
   columns: ChartColumn[];
   series: ChartSeries[];
   currency: string;
-  valueFormat: 'money' | 'percent';
+  valueFormat: ChartValueFormat;
   selected: number | null;
   onSelect?: (column: number) => void;
   palette: ChartPalette;
@@ -37,21 +43,11 @@ export function HorizontalColumnChart({
   palette,
 }: Props) {
   const [plotWidth, setPlotWidth] = useState(0);
-  const up = series.filter((item) => item.direction !== 'down');
-  const down = series.filter((item) => item.direction === 'down');
-  const total = (group: ChartSeries[], index: number) =>
-    group.reduce((sum, item) => sum + Math.max(0, item.values[index] ?? 0), 0);
-  const upMax = Math.max(0, ...columns.map((_, index) => total(up, index)));
-  const downMax = Math.max(0, ...columns.map((_, index) => total(down, index)));
-  const grid = chartGrid(-downMax, upMax);
+  const { up, down, upTotals, downTotals, grid } = columnStacks(columns, series);
   const plotHeight = columns.length * ROW_HEIGHT;
   const unit = Math.max(0, plotWidth - PLOT_INSET * 2) / (grid.max - grid.min);
   const xOf = (value: number) => PLOT_INSET + (value - grid.min) * unit;
   const baseline = xOf(0);
-  const formatValue = (value: number) =>
-    valueFormat === 'percent'
-      ? `${new Intl.NumberFormat('uk-UA', { maximumFractionDigits: 2 }).format(value)} %`
-      : formatMoney(value, currency);
   const formatShort = (value: number) =>
     valueFormat === 'percent'
       ? `${formatGridTick(value, grid.step)} %`
@@ -145,13 +141,7 @@ export function HorizontalColumnChart({
             </Canvas>
           )}
           <View style={styles.slots}>
-            {columns.map(({ name }, index) => {
-              const parts = series
-                .filter((item) => item.values[index] > 0)
-                .map(
-                  (item) =>
-                    `${item.label} ${item.direction === 'down' ? '−' : ''}${formatValue(item.values[index])}`,
-                );
+            {columns.map((column, index) => {
               const select = onSelect && (() => onSelect(index));
               return (
                 <Pressable
@@ -159,7 +149,7 @@ export function HorizontalColumnChart({
                   disabled={!select}
                   onPress={select}
                   accessibilityRole={select ? 'button' : 'text'}
-                  accessibilityLabel={`${name}: ${parts.length ? parts.join(', ') : 'нічого немає'}`}
+                  accessibilityLabel={describeColumn(column, index, series, valueFormat, currency)}
                   accessibilityState={select && { selected: selected === index }}
                   style={styles.slot}
                 />
@@ -196,8 +186,8 @@ export function HorizontalColumnChart({
       </View>
       <View style={styles.values}>
         {columns.map((_, index) => {
-          const positive = total(up, index);
-          const negative = total(down, index);
+          const positive = upTotals[index];
+          const negative = downTotals[index];
           return (
             <Typography
               key={index}

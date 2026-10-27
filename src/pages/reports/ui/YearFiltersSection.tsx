@@ -1,7 +1,5 @@
-import { Fragment } from 'react';
-
 import { chooseReportYear } from '@/features/report-filters';
-import { CheckRow, Section, Separator } from '@/shared/ui';
+import { CheckRow, Section } from '@/shared/ui';
 import { useReport } from '../model/useReport.hook';
 
 type Props = { report: 'year' };
@@ -23,16 +21,14 @@ export function YearFiltersSection({ report }: Props) {
       title="Рік"
       footer="Роки — від першої купівлі плану до його останньої виплати. Спершу показано цей рік."
     >
-      {yearList.map((option, index) => (
-        <Fragment key={option}>
-          {index > 0 && <Separator />}
-          <CheckRow
-            title={String(option)}
-            subtitle={option === currentYear ? 'Цей рік' : undefined}
-            checked={option === filters.year}
-            onPress={() => chooseYear(option)}
-          />
-        </Fragment>
+      {yearList.map((option) => (
+        <CheckRow
+          key={option}
+          title={String(option)}
+          subtitle={option === currentYear ? 'Цей рік' : undefined}
+          checked={option === filters.year}
+          onPress={() => chooseYear(option)}
+        />
       ))}
     </Section>
   );

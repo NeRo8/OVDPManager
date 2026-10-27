@@ -1,7 +1,7 @@
-import { Fragment, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
 import { CURRENCY_NAMES } from '@/entities/portfolio';
-import { InfoRow, Section, Separator, SignedValue } from '@/shared/ui';
+import { InfoRow, Section, SignedValue } from '@/shared/ui';
 import { type CurrencyYield, KEY_RATE_CURRENCY } from '../model/yieldReport';
 import { pointsCell } from './reportCells';
 
@@ -54,11 +54,8 @@ export function YieldSummary({ report }: Props) {
         .filter(Boolean)
         .join(' ')}
     >
-      {rows.map((row, index) => (
-        <Fragment key={row.label}>
-          {index > 0 && <Separator />}
-          <InfoRow label={row.label} value={row.value} />
-        </Fragment>
+      {rows.map((row) => (
+        <InfoRow key={row.label} label={row.label} value={row.value} />
       ))}
     </Section>
   );

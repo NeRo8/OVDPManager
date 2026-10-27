@@ -1,9 +1,8 @@
-import { Fragment } from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import type { PurchaseHint, PurchaseHintTone, PurchaseVerdict } from '@/features/add-purchase';
-import { type IconName, Section, Separator, ThemedIcon, Typography } from '@/shared/ui';
+import { type IconName, Section, ThemedIcon, Typography } from '@/shared/ui';
 
 const ICONS = {
   success: 'checkmark-circle',
@@ -47,20 +46,17 @@ export function PurchaseHints({ hints, verdict }: Props) {
           </Typography>
         </View>
       )}
-      {hints.map((hint, index) => (
-        <Fragment key={hint.text}>
-          {(index > 0 || verdict) && <Separator />}
-          <View style={styles.hint}>
-            <ThemedIcon
-              name={ICONS[hint.tone]}
-              size={20}
-              uniProps={(theme) => ({ color: toneColor(theme, hint.tone) })}
-            />
-            <Typography variant="subhead" style={styles.text}>
-              {hint.text}
-            </Typography>
-          </View>
-        </Fragment>
+      {hints.map((hint) => (
+        <View key={hint.text} style={styles.hint}>
+          <ThemedIcon
+            name={ICONS[hint.tone]}
+            size={20}
+            uniProps={(theme) => ({ color: toneColor(theme, hint.tone) })}
+          />
+          <Typography variant="subhead" style={styles.text}>
+            {hint.text}
+          </Typography>
+        </View>
       ))}
     </Section>
   );

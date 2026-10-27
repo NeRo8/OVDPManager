@@ -1,11 +1,9 @@
-import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
-
 import type { Currency } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
 import { LegendRow, ShareBar, TotalRow, Typography } from '@/shared/ui';
 import type { PortfolioBond } from '../model/portfolioReport';
 import { bondStateLabel } from './portfolioLabels';
+import { ReportItem } from './ReportItem';
 import { shareCell } from './reportCells';
 
 type Props = {
@@ -29,12 +27,10 @@ export function PortfolioBondRow({ bond: row, currency }: Props) {
     .join(' · ');
 
   return (
-    <View style={styles.bond}>
-      <View style={styles.title}>
-        <Typography variant="subhead" weight="semibold" tabular>
-          {isin}
-        </Typography>
-        {state === 'unknown' ? (
+    <ReportItem
+      title={isin}
+      aside={
+        state === 'unknown' ? (
           <Typography variant="caption1" tone="warning">
             Немає в даних НБУ
           </Typography>
@@ -46,8 +42,9 @@ export function PortfolioBondRow({ bond: row, currency }: Props) {
           >
             {bondStateLabel(state, bond?.maturityDate)}
           </Typography>
-        )}
-      </View>
+        )
+      }
+    >
       <Typography variant="caption1" tone="secondary" tabular>
         {details}
       </Typography>
@@ -72,27 +69,11 @@ export function PortfolioBondRow({ bond: row, currency }: Props) {
           )}
         </>
       )}
-      <View style={styles.share}>
-        <ShareBar percent={investedShare} accessibilityLabel="Частка у вкладеннях" />
-        <Typography variant="caption1" tone="secondary" tabular>
-          {shareCell(investedShare)} вкладень
-        </Typography>
-      </View>
-    </View>
+      <ShareBar
+        percent={investedShare}
+        accessibilityLabel="Частка у вкладеннях"
+        caption={`${shareCell(investedShare)} вкладень`}
+      />
+    </ReportItem>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  bond: {
-    gap: theme.space.xs,
-    paddingHorizontal: theme.space.lg,
-    paddingVertical: theme.space.md,
-  },
-  title: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    gap: theme.space.md,
-  },
-  share: { gap: theme.space.xs, marginTop: theme.space.xxs },
-}));

@@ -1,9 +1,4 @@
-import { Stack } from 'expo-router';
-import { Fragment } from 'react';
-import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
-
-import { CURRENCY_NAMES, type Currency } from '@/entities/portfolio';
+import { currencyTitle, type Currency } from '@/entities/portfolio';
 import {
   SCHEDULE_EVENT_TYPES,
   filterSchedule,
@@ -14,14 +9,13 @@ import {
   type ScheduleEventType,
   type ScheduleTimeFilter,
 } from '@/features/payment-filters';
-import { currencySign, formatDate } from '@/shared/lib';
+import { formatDate } from '@/shared/lib';
 import {
   CheckRow,
-  HeaderButton,
+  ResetFiltersHeader,
   ScreenScrollView,
   Section,
-  SegmentedSelect,
-  Separator,
+  SegmentedSection,
   Typography,
 } from '@/shared/ui';
 import { useFilteredWallet } from '../model/useFilteredWallet.hook';
@@ -50,30 +44,17 @@ export default function PaymentFiltersScreen() {
 
   return (
     <ScreenScrollView>
-      <Stack.Screen
-        options={{
-          headerRight: () => (
-            <HeaderButton
-              icon="refresh"
-              accessibilityLabel="Скинути фільтри"
-              onPress={resetPaymentFilters}
-              disabled={activeFilterCount === 0}
-            />
-          ),
-        }}
-      />
+      <ResetFiltersHeader activeFilterCount={activeFilterCount} onReset={resetPaymentFilters} />
       {options.currencies.length > 1 && (
         <Section title="Валюта" footer="Графік має одну шкалу сум, тому показує одну валюту.">
-          {options.currencies.map((currency, index) => (
-            <Fragment key={currency}>
-              {index > 0 && <Separator />}
-              <CheckRow
-                title={`${currencySign(currency)} ${CURRENCY_NAMES[currency]}`}
-                subtitle={`Подій: ${currencyCount(currency)}`}
-                checked={currency === filters.currency}
-                onPress={() => updatePaymentFilters({ currency })}
-              />
-            </Fragment>
+          {options.currencies.map((currency) => (
+            <CheckRow
+              key={currency}
+              title={currencyTitle(currency)}
+              subtitle={`Подій: ${currencyCount(currency)}`}
+              checked={currency === filters.currency}
+              onPress={() => updatePaymentFilters({ currency })}
+            />
           ))}
         </Section>
       )}
@@ -86,41 +67,36 @@ export default function PaymentFiltersScreen() {
           onPress={showAllTypes}
         />
         {SCHEDULE_EVENT_TYPES.map((type) => (
-          <Fragment key={type}>
-            <Separator />
-            <CheckRow
-              title={EVENT_TYPE_LABELS[type]}
-              subtitle={`Подій: ${typeCount(type)}`}
-              checked={filters.types.includes(type)}
-              onPress={() => togglePaymentFilterType(type)}
-            />
-          </Fragment>
+          <CheckRow
+            key={type}
+            title={EVENT_TYPE_LABELS[type]}
+            subtitle={`Подій: ${typeCount(type)}`}
+            checked={filters.types.includes(type)}
+            onPress={() => togglePaymentFilterType(type)}
+          />
         ))}
       </Section>
 
-      <Section
+      <SegmentedSection
         title="Час"
         footer="Майбутні — виплати, яких ще не отримано, і заплановані купівлі; минулі — отримані виплати та зроблені купівлі."
-      >
-        <View style={styles.picker}>
-          <SegmentedSelect options={TIME_OPTIONS} value={filters.time} onChange={changeTime} />
-        </View>
-      </Section>
+        options={TIME_OPTIONS}
+        value={filters.time}
+        onChange={changeTime}
+      />
 
       <Section title="ОВДП" footer="Позначте ОВДП, виплати й купівлі яких показувати.">
         <CheckRow title="Усі ОВДП" checked={filters.isins.length === 0} onPress={showAllBonds} />
         {options.isins.map((isin) => {
           const bond = wallet.byIsin.get(isin);
           return (
-            <Fragment key={isin}>
-              <Separator />
-              <CheckRow
-                title={isin}
-                subtitle={bond && `${bond.rate}% · до ${formatDate(bond.maturityDate)}`}
-                checked={filters.isins.includes(isin)}
-                onPress={() => togglePaymentFilterIsin(isin)}
-              />
-            </Fragment>
+            <CheckRow
+              key={isin}
+              title={isin}
+              subtitle={bond && `${bond.rate}% · до ${formatDate(bond.maturityDate)}`}
+              checked={filters.isins.includes(isin)}
+              onPress={() => togglePaymentFilterIsin(isin)}
+            />
           );
         })}
       </Section>
@@ -133,7 +109,3 @@ export default function PaymentFiltersScreen() {
     </ScreenScrollView>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  picker: { padding: theme.space.md },
-}));

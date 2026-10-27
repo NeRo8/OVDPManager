@@ -1,7 +1,6 @@
 import { router, type Href } from 'expo-router';
-import { Fragment } from 'react';
 
-import { LinkRow, ScreenScrollView, Section, Separator } from '@/shared/ui';
+import { LinkRow, ScreenScrollView, Section } from '@/shared/ui';
 
 type Report = {
   title: string;
@@ -70,15 +69,13 @@ export default function ReportsScreen() {
     <ScreenScrollView>
       {SECTIONS.map((section) => (
         <Section key={section.title} title={section.title}>
-          {section.reports.map((report, index) => (
-            <Fragment key={report.title}>
-              {index > 0 && <Separator />}
-              <LinkRow
-                title={report.title}
-                subtitle={report.description}
-                onPress={() => router.push(report.href)}
-              />
-            </Fragment>
+          {section.reports.map((report) => (
+            <LinkRow
+              key={report.title}
+              title={report.title}
+              subtitle={report.description}
+              onPress={() => router.push(report.href)}
+            />
           ))}
         </Section>
       ))}

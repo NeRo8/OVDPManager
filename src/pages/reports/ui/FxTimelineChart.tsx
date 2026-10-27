@@ -8,7 +8,6 @@ import {
   LegendRow,
   LineChart,
   type LineChartSeries,
-  SectionTitle,
   Separator,
   SignedValue,
   Swatch,
@@ -73,68 +72,60 @@ export function FxTimelineChart({ report, currency }: Props) {
     : `Лінійний графік за ${report.year} рік. ${points.map(({ period, investedFx, currentFx }) => `${monthName(period)}: вкладено ${formatMoney(investedFx, currency)}, залишок з виплатами ${formatMoney(currentFx, currency)}`).join('; ')}`;
 
   return (
-    <View style={styles.section}>
-      <SectionTitle
-        title={
-          allTime
-            ? `Різниця з вкладеним · ${currency}`
-            : `Вкладення у валютному еквіваленті · ${currency}`
-        }
-      />
-      <Card>
-        <LineChart
-          key={`${currency}-${report.year ?? 'all'}-${points[0].period}-${lastPoint.period}`}
-          labels={labels}
-          names={names}
-          series={series}
-          currency={currency}
-          min={min}
-          max={max}
-          sparseLabels={allTime}
-          accessibilityLabel={accessibilityLabel}
-        />
-        <View style={styles.separator}>
-          <Separator />
-        </View>
-        {allTime ? (
-          <View style={styles.resultRow}>
-            <Swatch color="redemption" />
-            <Typography variant="footnote" tone="secondary" style={styles.resultLabel}>
-              Різниця на останню дату
-            </Typography>
-            <SignedValue value={lastDifference} variant="footnote" weight="semibold" tabular>
-              {signedMoney(lastDifference)}
-            </SignedValue>
-          </View>
-        ) : (
-          <View style={styles.legend}>
-            <LegendRow
-              color="purchase"
-              label="Вкладено"
-              value={formatMoney(lastPoint.investedFx, currency)}
-            />
-            <LegendRow
-              color="redemption"
-              label="Залишок + виплати"
-              value={formatMoney(lastPoint.currentFx, currency)}
-            />
-          </View>
-        )}
-      </Card>
-      <Typography variant="caption1" tone="secondary" style={styles.footer}>
-        {allTime
+    <Card
+      title={
+        allTime
+          ? `Різниця з вкладеним · ${currency}`
+          : `Вкладення у валютному еквіваленті · ${currency}`
+      }
+      footer={
+        allTime
           ? 'Кожна точка — кінець місяця, для поточного — сьогодні. Різниця = отримані виплати + залишок ОВДП за собівартістю − усі купівлі у валютному еквіваленті. Реінвестовані виплати й нові купівлі враховано окремо. Для непогашених ОВДП це оцінка, а не остаточний дохід.'
-          : '«Вкладено» — накопичені купівлі за курсом їхніх дат. Друга лінія — залишок гривневих вкладень за курсом на кінець місяця та отримані виплати за курсом їхніх дат. Ринкову ціну ОВДП не враховано. Реінвестовані виплати залишаються у сумі виплат, тому друга лінія не є сумою грошей, доступних зараз.'}
-      </Typography>
-    </View>
+          : '«Вкладено» — накопичені купівлі за курсом їхніх дат. Друга лінія — залишок гривневих вкладень за курсом на кінець місяця та отримані виплати за курсом їхніх дат. Ринкову ціну ОВДП не враховано. Реінвестовані виплати залишаються у сумі виплат, тому друга лінія не є сумою грошей, доступних зараз.'
+      }
+    >
+      <LineChart
+        key={`${currency}-${report.year ?? 'all'}-${points[0].period}-${lastPoint.period}`}
+        labels={labels}
+        names={names}
+        series={series}
+        currency={currency}
+        min={min}
+        max={max}
+        sparseLabels={allTime}
+        accessibilityLabel={accessibilityLabel}
+      />
+      <Separator variant="card" />
+      {allTime ? (
+        <View style={styles.resultRow}>
+          <Swatch color="redemption" />
+          <Typography variant="footnote" tone="secondary" style={styles.resultLabel}>
+            Різниця на останню дату
+          </Typography>
+          <SignedValue value={lastDifference} variant="footnote" weight="semibold" tabular>
+            {signedMoney(lastDifference)}
+          </SignedValue>
+        </View>
+      ) : (
+        <View style={styles.legend}>
+          <LegendRow
+            color="purchase"
+            label="Вкладено"
+            value={formatMoney(lastPoint.investedFx, currency)}
+          />
+          <LegendRow
+            color="redemption"
+            label="Залишок + виплати"
+            value={formatMoney(lastPoint.currentFx, currency)}
+          />
+        </View>
+      )}
+    </Card>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  section: { gap: theme.space.sm },
-  separator: { marginLeft: -theme.space.lg, marginVertical: theme.space.md },
   legend: { gap: theme.space.sm },
   resultRow: { flexDirection: 'row', alignItems: 'center', gap: theme.space.sm },
   resultLabel: { flex: 1 },
-  footer: { lineHeight: 18, marginHorizontal: theme.space.lg },
 }));

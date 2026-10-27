@@ -3,41 +3,37 @@ import { Pressable, View } from 'react-native';
 import { Canvas, Rect, RoundedRect } from '@shopify/react-native-skia';
 import { StyleSheet, withUnistyles } from 'react-native-unistyles';
 
-import { formatCompact, formatMoney } from '@/shared/lib';
-import type { SeriesColor } from '@/shared/theme';
+import { formatCompact } from '@/shared/lib';
 import { Typography } from '../typography/Typography';
-import { chartGrid, formatGridTick, gridBoundaries } from './chartGrid';
+import { formatGridTick, gridBoundaries } from './chartGrid';
 import { chartPalette, type ChartPalette } from './chartTheme';
+import {
+  type ChartColumn,
+  type ChartSeries,
+  type ChartValueFormat,
+  columnStacks,
+  describeColumn,
+} from './columnStacks';
+import { ColumnValueLabel } from './ColumnValueLabel';
 import { HorizontalColumnChart } from './HorizontalColumnChart';
+
+export type { ChartColumn, ChartSeries } from './columnStacks';
 
 const PLOT_HEIGHT = 160;
 const SPLIT_PLOT_HEIGHT = 200;
 const PLOT_INSET = 8;
 const AXIS_WIDTH = 52;
-const VALUE_WIDTH = 72;
 const LABEL_SPACE = 22;
 const SEGMENT_GAP = 2;
 const MIN_SEGMENT = 3;
 const MAX_BAR_WIDTH = 24;
-
-export type ChartSeries = {
-  label: string;
-  color: SeriesColor;
-  values: number[];
-  direction?: 'up' | 'down';
-};
-
-export type ChartColumn = {
-  label: string;
-  name: string;
-};
 
 type Props = {
   columns: ChartColumn[];
   series: ChartSeries[];
   currency: string;
   orientation?: 'vertical' | 'horizontal';
-  valueFormat?: 'money' | 'percent';
+  valueFormat?: ChartValueFormat;
   selected?: number | null;
   onSelect?: (column: number) => void;
 };
@@ -56,16 +52,8 @@ function ColumnChartView({
   palette,
 }: ThemedProps) {
   const [plotWidth, setPlotWidth] = useState(0);
-  const up = series.filter((item) => item.direction !== 'down');
-  const down = series.filter((item) => item.direction === 'down');
-  const totals = (group: ChartSeries[]) =>
-    columns.map((_, column) => group.reduce((sum, item) => sum + item.values[column], 0));
-  const upTotals = totals(up);
-  const downTotals = totals(down);
-  const upMax = Math.max(0, ...upTotals);
-  const downMax = Math.max(0, ...downTotals);
+  const { up, down, upTotals, downTotals, grid } = columnStacks(columns, series);
   const plotHeight = down.length ? SPLIT_PLOT_HEIGHT : PLOT_HEIGHT;
-  const grid = chartGrid(-downMax, upMax);
   const unit = (plotHeight - PLOT_INSET * 2) / (grid.max - grid.min);
   const baseline = PLOT_INSET + grid.max * unit;
   const yOf = (value: number) => baseline - value * unit;
@@ -82,22 +70,6 @@ function ColumnChartView({
   };
   const slotWidth = columns.length ? plotWidth / columns.length : 0;
   const barWidth = Math.min(slotWidth * 0.62, MAX_BAR_WIDTH);
-  const lastColumn = columns.length - 1;
-  const labelPosition = (column: number) =>
-    column === 0
-      ? styles.valueStart
-      : column === lastColumn
-        ? styles.valueEnd
-        : {
-            left: `${((column + 0.5) / columns.length) * 100}%` as const,
-            marginLeft: -VALUE_WIDTH / 2,
-          };
-  const labelAlign = (column: number) =>
-    column === 0 ? 'left' : column === lastColumn ? 'right' : 'center';
-  const formatValue = (value: number) =>
-    valueFormat === 'percent'
-      ? `${new Intl.NumberFormat('uk-UA', { maximumFractionDigits: 2 }).format(value)} %`
-      : formatMoney(value, currency);
   const formatTick = (value: number) =>
     `${formatGridTick(value, grid.step)}${valueFormat === 'percent' ? ' %' : ''}`;
   const formatSelected = (value: number) =>
@@ -200,22 +172,16 @@ function ColumnChartView({
             </Canvas>
           )}
           <View style={styles.slots}>
-            {columns.map(({ name }, column) => {
-              const parts = series
-                .filter((item) => item.values[column] > 0)
-                .map(
-                  (item) =>
-                    `${item.label} ${item.direction === 'down' ? '−' : ''}${formatValue(item.values[column])}`,
-                );
+            {columns.map((item, column) => {
               const select = onSelect && (() => onSelect(column));
               return (
                 <Pressable
-                  key={name}
+                  key={item.name}
                   disabled={!select}
                   onPress={select}
                   onHoverIn={select}
                   accessibilityRole={select ? 'button' : 'text'}
-                  accessibilityLabel={`${name}: ${parts.length ? parts.join(', ') : 'нічого немає'}`}
+                  accessibilityLabel={describeColumn(item, column, series, valueFormat, currency)}
                   accessibilityState={select && { selected: selected === column }}
                   style={styles.slot}
                 />
@@ -223,44 +189,20 @@ function ColumnChartView({
             })}
           </View>
           {selected !== null && upTotals[selected] > 0 && (
-            <View
-              pointerEvents="none"
-              style={[
-                styles.valueBox,
-                { bottom: plotHeight - baseline + stackHeight(up, selected) + 4 },
-                labelPosition(selected),
-              ]}
-            >
-              <Typography
-                variant="caption2"
-                weight="semibold"
-                tabular
-                numberOfLines={1}
-                align={labelAlign(selected)}
-              >
-                {formatSelected(upTotals[selected])}
-              </Typography>
-            </View>
+            <ColumnValueLabel
+              text={formatSelected(upTotals[selected])}
+              column={selected}
+              count={columns.length}
+              bottom={plotHeight - baseline + stackHeight(up, selected) + 4}
+            />
           )}
           {selected !== null && downTotals[selected] > 0 && (
-            <View
-              pointerEvents="none"
-              style={[
-                styles.valueBox,
-                { top: baseline + stackHeight(down, selected) + SEGMENT_GAP + 4 },
-                labelPosition(selected),
-              ]}
-            >
-              <Typography
-                variant="caption2"
-                weight="semibold"
-                tabular
-                numberOfLines={1}
-                align={labelAlign(selected)}
-              >
-                −{formatSelected(downTotals[selected])}
-              </Typography>
-            </View>
+            <ColumnValueLabel
+              text={`−${formatSelected(downTotals[selected])}`}
+              column={selected}
+              count={columns.length}
+              top={baseline + stackHeight(down, selected) + SEGMENT_GAP + 4}
+            />
           )}
         </View>
         <View style={[styles.labels, onSelect && down.length > 0 && styles.labelsBelowLabel]}>
@@ -296,9 +238,6 @@ const styles = StyleSheet.create((theme) => ({
   canvas: { flex: 1 },
   slots: { position: 'absolute', inset: 0, flexDirection: 'row' },
   slot: { flex: 1, height: '100%' },
-  valueBox: { position: 'absolute', width: VALUE_WIDTH },
-  valueStart: { left: 0 },
-  valueEnd: { right: 0 },
   labels: { flexDirection: 'row', marginTop: theme.space.sm },
   labelsBelowLabel: { marginTop: LABEL_SPACE },
   label: { flex: 1 },

@@ -10,7 +10,6 @@ import {
   LoadingState,
   Section,
   SectionCell,
-  Separator,
   Typography,
 } from '@/shared/ui';
 import { fxEventDates, fxReport, type FxBond, type FxEvent } from '../model/fxReport';
@@ -55,17 +54,13 @@ export default function FxReportScreen() {
           label="Вкладено від першої купівлі"
           value={formatMoney(section.invested, targetCurrency)}
         />
-        <Separator />
         <InfoRow label="Отримано виплатами" value={formatMoney(section.received, targetCurrency)} />
         {section.result !== null && (
-          <>
-            <Separator />
-            <InfoRow
-              label="Результат"
-              value={formatMoney(section.result, targetCurrency)}
-              signedValue={section.result}
-            />
-          </>
+          <InfoRow
+            label="Результат"
+            value={formatMoney(section.result, targetCurrency)}
+            signedValue={section.result}
+          />
         )}
       </Section>
     </ReportSectionHeader>
@@ -136,22 +131,18 @@ export default function FxReportScreen() {
                       label="Вкладено від першої купівлі"
                       value={formatMoney(report.snapshot.invested, targetCurrency)}
                     />
-                    <Separator />
                     <InfoRow
                       label="Повернулося виплатами"
                       value={formatMoney(report.snapshot.received, targetCurrency)}
                     />
-                    <Separator />
                     <InfoRow
                       label="Залишок ОВДП (оцінка)"
                       value={formatMoney(report.snapshot.remainingCost, targetCurrency)}
                     />
-                    <Separator />
                     <InfoRow
                       label="Виплати + залишок (оцінка)"
                       value={formatMoney(report.snapshot.payoutsAndRemaining, targetCurrency)}
                     />
-                    <Separator />
                     <InfoRow
                       label={report.openCount > 0 ? 'Різниця (оцінка)' : 'Різниця з вкладеним'}
                       value={formatMoney(report.snapshot.estimatedDifference, targetCurrency)}
@@ -166,14 +157,11 @@ export default function FxReportScreen() {
                       label="Купівлі"
                       value={formatMoney(report.purchases, targetCurrency)}
                     />
-                    <Separator />
                     <InfoRow label="Купони" value={formatMoney(report.coupons, targetCurrency)} />
-                    <Separator />
                     <InfoRow
                       label="Погашення"
                       value={formatMoney(report.redemptions, targetCurrency)}
                     />
-                    <Separator />
                     <InfoRow
                       label={year === null ? 'Сальдо подій' : 'Сальдо подій року'}
                       value={formatMoney(report.balance, targetCurrency)}
@@ -193,7 +181,6 @@ export default function FxReportScreen() {
                     }
                   >
                     <InfoRow label="Кількість" value={String(report.completedCount)} />
-                    <Separator />
                     <InfoRow
                       label="Результат у валюті"
                       value={

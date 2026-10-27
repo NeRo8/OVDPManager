@@ -24,7 +24,6 @@ import {
   ScreenScrollView,
   Section,
   SegmentedSelect,
-  Separator,
   Typography,
 } from '@/shared/ui';
 
@@ -112,13 +111,11 @@ export default function PlanScreen() {
                 hint="Повернення номіналу в дату погашення. Зазвичай воно менше за ціну купівлі — різницю покривають купони"
                 value={formatMoney(total.redemption, total.currency)}
               />
-              <Separator />
               <InfoRow
                 label="Купони"
                 hint="Відсотки, отримані й ще очікувані до погашення"
                 value={formatMoney(total.coupons, total.currency)}
               />
-              <Separator />
               <InfoRow
                 label="Усього виплат"
                 hint="Погашення разом із купонами"
@@ -140,21 +137,17 @@ export default function PlanScreen() {
                   value={formatMoney(total.netIncome, total.currency)}
                   signedValue={total.netIncome}
                 />
-                <Separator />
                 <InfoRow
                   label="Дохідність за весь строк"
                   hint="Чистий дохід у відсотках від вкладень за весь строк, без перерахунку на рік, податків і комісій"
                   value={total.returnPercent === null ? '—' : `${total.returnPercent}%`}
                 />
                 {total.annualYield !== null && (
-                  <>
-                    <Separator />
-                    <InfoRow
-                      label="Річна дохідність"
-                      hint="Ціна купівлі й кожна виплата до погашення, перераховані на рік, — середня за ОВДП плану, зважена на суму купівель. Її можна порівнювати з депозитом і обліковою ставкою"
-                      value={`${total.annualYield}%`}
-                    />
-                  </>
+                  <InfoRow
+                    label="Річна дохідність"
+                    hint="Ціна купівлі й кожна виплата до погашення, перераховані на рік, — середня за ОВДП плану, зважена на суму купівель. Її можна порівнювати з депозитом і обліковою ставкою"
+                    value={`${total.annualYield}%`}
+                  />
                 )}
               </Section>
             )}
@@ -167,7 +160,6 @@ export default function PlanScreen() {
         )}
         <Section title="Керування планом">
           <ActionRow title="Перейменувати план" onPress={renamePlan} />
-          <Separator />
           <ActionRow title="Видалити план" tone="danger" onPress={confirmRemovePlan} />
         </Section>
         <NbuSourceNote />

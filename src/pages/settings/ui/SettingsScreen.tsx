@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { planCount, purchaseCount, useInvestmentPlans, usePurchases } from '@/entities/portfolio';
 import { setThemePreference, useThemePreference, type ThemePreference } from '@/shared/theme';
-import { LinkRow, ScreenScrollView, Section, SegmentedSelect, Separator } from '@/shared/ui';
+import { LinkRow, ScreenScrollView, Section, SegmentedSelect } from '@/shared/ui';
 import { CloudAccountSection } from './CloudAccountSection';
 
 const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
@@ -27,7 +27,6 @@ export default function SettingsScreen() {
         footer={`Створено ${planCount(numberOfPlans)}, ${numberOfPlans === 1 ? 'у ньому' : 'у них'} ${purchaseCount(numberOfPurchases)}. Дані зберігаються на цьому пристрої; зашифрована вашим ключем копія — у хмарі чи у JSON-файлі — дає змогу відновити їх тут чи на іншому пристрої.`}
       >
         <LinkRow title="Створити копію" onPress={openBackupExport} />
-        <Separator />
         <LinkRow title="Відновити з копії" onPress={openBackupImport} />
       </Section>
 

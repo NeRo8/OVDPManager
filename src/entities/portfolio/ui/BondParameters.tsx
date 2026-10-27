@@ -1,5 +1,5 @@
 import { formatDate, formatMoney } from '@/shared/lib';
-import { InfoRow, Section, Separator } from '@/shared/ui';
+import { InfoRow, Section } from '@/shared/ui';
 import type { Bond } from '../model/portfolio';
 
 type Props = {
@@ -12,18 +12,13 @@ export function BondParameters({ bond }: Props) {
   return (
     <Section title="Параметри випуску">
       <InfoRow label="Ставка купону" value={`${bond.rate}% річних`} />
-      <Separator />
       <InfoRow label="Номінал" value={formatMoney(bond.nominal, bond.currency)} />
-      <Separator />
       <InfoRow
         label="Купон на 1 шт"
         value={coupon ? formatMoney(coupon.amount, bond.currency) : 'без купону'}
       />
-      <Separator />
       <InfoRow label="Дата розміщення" value={formatDate(bond.issueDate)} />
-      <Separator />
       <InfoRow label="Дата погашення" value={formatDate(bond.maturityDate)} />
-      <Separator />
       <InfoRow label="Тип" value={bond.description} />
     </Section>
   );

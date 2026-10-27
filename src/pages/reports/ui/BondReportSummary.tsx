@@ -1,8 +1,8 @@
-import { Fragment, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
 import { pricePerBond } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
-import { InfoRow, Section, Separator, SignedValue } from '@/shared/ui';
+import { InfoRow, Section, SignedValue } from '@/shared/ui';
 import type { BondReport } from '../model/bondReport';
 import { pointsCell } from './reportCells';
 
@@ -74,11 +74,8 @@ export function BondReportSummary({ report }: Props) {
       title="Підсумок"
       footer="Чистий дохід — виплати мінус вкладення; дохідність за весь строк — він у відсотках від вкладень. Річна дохідність — за ціною купівлі й усіма виплатами до погашення, як у формі купівлі; облікова ставка — НБУ на дату купівлі (для запланованої — сьогоднішня), для кількох купівель зважена на суму."
     >
-      {rows.map((row, index) => (
-        <Fragment key={row.label}>
-          {index > 0 && <Separator />}
-          <InfoRow label={row.label} value={row.value} />
-        </Fragment>
+      {rows.map((row) => (
+        <InfoRow key={row.label} label={row.label} value={row.value} />
       ))}
     </Section>
   );

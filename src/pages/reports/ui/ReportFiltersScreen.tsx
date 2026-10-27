@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 
 import {
   type ReportName,
@@ -7,7 +7,7 @@ import {
   toggleReportIsin,
   updateReportFilters,
 } from '@/features/report-filters';
-import { HeaderButton, ScreenScrollView } from '@/shared/ui';
+import { ResetFiltersHeader, ScreenScrollView } from '@/shared/ui';
 import { useReport } from '../model/useReport.hook';
 import { ReportOwnFiltersSection } from './ReportOwnFiltersSection';
 import { ReportScopeSections } from './ReportScopeSections';
@@ -29,18 +29,7 @@ export default function ReportFiltersScreen() {
 
   return (
     <ScreenScrollView>
-      <Stack.Screen
-        options={{
-          headerRight: () => (
-            <HeaderButton
-              icon="refresh"
-              accessibilityLabel="Скинути фільтри"
-              onPress={reset}
-              disabled={activeFilterCount === 0}
-            />
-          ),
-        }}
-      />
+      <ResetFiltersHeader activeFilterCount={activeFilterCount} onReset={reset} />
       <ReportOwnFiltersSection report={report} />
       {scopedReport && 'isins' in filters && (
         <ReportScopeSections

@@ -1,6 +1,6 @@
 /** Government bonds (ОВДП) and portfolio calculations. */
 
-import { addMonthsISO, round2 } from '@/shared/lib';
+import { addMonthsISO, currencySign, round2 } from '@/shared/lib';
 
 /** Currencies of the NBU bonds, in the order the schedule lists them. */
 export const CURRENCIES = ['UAH', 'USD', 'EUR'] as const;
@@ -11,6 +11,11 @@ export const CURRENCY_NAMES: Record<Currency, string> = {
   USD: 'Долар',
   EUR: 'Євро',
 };
+
+/** The currency as a choice reads: its sign and name, «₴ Гривня» */
+export function currencyTitle(currency: Currency): string {
+  return `${currencySign(currency)} ${CURRENCY_NAMES[currency]}`;
+}
 
 export type PaymentType = 'coupon' | 'redemption';
 

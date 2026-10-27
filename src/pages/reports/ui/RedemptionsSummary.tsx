@@ -1,8 +1,6 @@
-import { Fragment } from 'react';
-
 import { CURRENCY_NAMES, type PositionPayment } from '@/entities/portfolio';
 import { formatDate, formatMoney } from '@/shared/lib';
-import { InfoRow, Section, Separator } from '@/shared/ui';
+import { InfoRow, Section } from '@/shared/ui';
 import type { CurrencyRedemptions } from '../model/redemptionsReport';
 
 type Props = {
@@ -24,11 +22,8 @@ export function RedemptionsSummary({ report }: Props) {
 
   return (
     <Section title={`Підсумок · ${CURRENCY_NAMES[currency]}`}>
-      {rows.map((row, index) => (
-        <Fragment key={row.label}>
-          {index > 0 && <Separator />}
-          <InfoRow {...row} />
-        </Fragment>
+      {rows.map((row) => (
+        <InfoRow key={row.label} {...row} />
       ))}
     </Section>
   );

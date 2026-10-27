@@ -1,8 +1,6 @@
-import { Fragment } from 'react';
-
 import { CURRENCY_NAMES } from '@/entities/portfolio';
 import { formatDate, formatMoney, formatTimeLeft } from '@/shared/lib';
-import { InfoRow, Section, Separator } from '@/shared/ui';
+import { InfoRow, Section } from '@/shared/ui';
 import type { CurrencyStructure } from '../model/structureReport';
 import { shareCell } from './reportCells';
 
@@ -36,11 +34,8 @@ export function StructureSummary({ report, today }: Props) {
       title={`Підсумок · ${CURRENCY_NAMES[currency]}`}
       footer="Вкладено — ціна купівель ОВДП, що ще в обігу. Середні строк і ставка зважені на суму купівель."
     >
-      {rows.map((row, index) => (
-        <Fragment key={row.label}>
-          {index > 0 && <Separator />}
-          <InfoRow {...row} />
-        </Fragment>
+      {rows.map((row) => (
+        <InfoRow key={row.label} {...row} />
       ))}
     </Section>
   );

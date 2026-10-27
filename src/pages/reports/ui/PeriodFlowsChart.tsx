@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { CURRENCY_NAMES } from '@/entities/portfolio';
 import { formatMoney, MONTHS_SHORT } from '@/shared/lib';
-import { Card, type ChartSeries, ColumnChart, LegendRow, SectionTitle } from '@/shared/ui';
+import { Card, type ChartSeries, ColumnChart, LegendRow } from '@/shared/ui';
 import { periodChartPeriods } from '../model/periodChart';
 import type { CurrencyReport } from '../model/periodReport';
 
@@ -33,38 +33,34 @@ export function PeriodFlowsChart({ report }: Props) {
   ];
 
   return (
-    <View style={styles.section}>
-      <SectionTitle
-        title={`Грошові потоки по ${byYear ? 'роках' : 'місяцях'} · ${CURRENCY_NAMES[report.currency]}`}
-      />
-      <Card>
-        <View style={styles.content}>
-          <ColumnChart columns={columns} series={series} currency={report.currency} />
-          <View style={styles.legend}>
-            <LegendRow
-              color="coupon"
-              label="Купони"
-              value={formatMoney(report.coupons, report.currency)}
-            />
-            <LegendRow
-              color="redemption"
-              label="Погашення"
-              value={formatMoney(report.redemptions, report.currency)}
-            />
-            <LegendRow
-              color="purchase"
-              label="Купівлі"
-              value={formatMoney(report.invested, report.currency)}
-            />
-          </View>
+    <Card
+      title={`Грошові потоки по ${byYear ? 'роках' : 'місяцях'} · ${CURRENCY_NAMES[report.currency]}`}
+    >
+      <View style={styles.content}>
+        <ColumnChart columns={columns} series={series} currency={report.currency} />
+        <View style={styles.legend}>
+          <LegendRow
+            color="coupon"
+            label="Купони"
+            value={formatMoney(report.coupons, report.currency)}
+          />
+          <LegendRow
+            color="redemption"
+            label="Погашення"
+            value={formatMoney(report.redemptions, report.currency)}
+          />
+          <LegendRow
+            color="purchase"
+            label="Купівлі"
+            value={formatMoney(report.invested, report.currency)}
+          />
         </View>
-      </Card>
-    </View>
+      </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  section: { gap: theme.space.sm },
   content: { gap: theme.space.lg },
   legend: { gap: theme.space.sm },
 }));

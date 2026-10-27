@@ -1,10 +1,7 @@
-import { Pressable, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
-
 import { type Bond, CURRENCY_NAMES, canBuyOn, isRedeemed } from '@/entities/portfolio';
 import { currencySign, formatDate, formatTimeLeft } from '@/shared/lib';
 import { currencyColor } from '@/shared/theme';
-import { Avatar, ThemedIcon, Typography } from '@/shared/ui';
+import { Avatar, ListRow, ThemedIcon, Typography } from '@/shared/ui';
 
 type BondChoiceRowProps = {
   bond: Bond;
@@ -32,42 +29,25 @@ export function BondChoiceRow({ bond, today, owned, onPress }: BondChoiceRowProp
     .join(' · ');
 
   return (
-    <Pressable
+    <ListRow
       onPress={onPress}
       accessibilityRole="link"
       accessibilityLabel={`${bond.isin}, ${CURRENCY_NAMES[bond.currency]}, ${bond.rate}% річних, ${details}`}
-      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-    >
-      <Avatar label={currencySign(bond.currency)} color={currencyColor(bond.currency)} />
-      <View style={styles.rowText}>
-        <Typography variant="body" tabular>
-          {bond.isin}
-        </Typography>
-        <Typography variant="caption1" tone="secondary">
-          {details}
-        </Typography>
-      </View>
-      <Typography variant="headline" tabular tone={isActive ? 'primary' : 'secondary'}>
-        {bond.rate}%
-      </Typography>
-      <ThemedIcon
-        name="chevron-forward"
-        size={16}
-        uniProps={(theme) => ({ color: theme.secondaryText })}
-      />
-    </Pressable>
+      leading={<Avatar label={currencySign(bond.currency)} color={currencyColor(bond.currency)} />}
+      title={bond.isin}
+      subtitle={details}
+      trailing={
+        <>
+          <Typography variant="headline" tabular tone={isActive ? 'primary' : 'secondary'}>
+            {bond.rate}%
+          </Typography>
+          <ThemedIcon
+            name="chevron-forward"
+            size={16}
+            uniProps={(theme) => ({ color: theme.secondaryText })}
+          />
+        </>
+      }
+    />
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.space.md,
-    paddingHorizontal: theme.space.lg,
-    paddingVertical: theme.space.md,
-    minHeight: 56,
-  },
-  rowText: { flex: 1, gap: theme.space.xxs },
-  pressed: { backgroundColor: theme.muted },
-}));

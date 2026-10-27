@@ -1,4 +1,4 @@
-import { Pressable, View } from 'react-native';
+import { Pressable } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
@@ -10,7 +10,7 @@ import {
 } from '@/entities/portfolio';
 import { currencySign, formatDate, formatMoney } from '@/shared/lib';
 import { SERIES_COLORS } from '@/shared/theme';
-import { Avatar, Typography } from '@/shared/ui';
+import { Avatar, ListRow, Typography } from '@/shared/ui';
 
 type Props = {
   purchase: Purchase;
@@ -26,46 +26,41 @@ export function PurchaseRow({ purchase, bond, today, onDelete }: Props) {
   const remove = () => onDelete(purchase);
 
   return (
-    <View style={styles.purchase}>
-      {/* Badged as the payments' rows below it, in the purchases' color. */}
-      <Avatar label={currencySign(currency)} color={SERIES_COLORS.purchase.badge} />
-      <View style={styles.purchaseInfo}>
+    <ListRow
+      // Badged as the payments' rows below it, in the purchases' color.
+      leading={<Avatar label={currencySign(currency)} color={SERIES_COLORS.purchase.badge} />}
+      title={
         <Typography variant="callout" tabular>
           {formatDate(purchase.purchaseDate)} · {purchase.quantity} шт
         </Typography>
-        {isPlannedPurchase(purchase, today) && (
-          <Typography variant="caption1" tone="accent">
-            Заплановано — виплати після цієї дати
+      }
+      trailing={
+        <Pressable
+          onPress={remove}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={`Видалити купівлю від ${formatDate(purchase.purchaseDate)}`}
+          style={({ pressed }) => pressed && styles.pressed}
+        >
+          <Typography variant="subhead" tone="danger">
+            Видалити
           </Typography>
-        )}
-        <Typography variant="caption1" tone="secondary">
-          {formatMoney(purchase.amount, currency)} · по{' '}
-          {formatMoney(pricePerBond(purchase.amount, purchase.quantity), currency)}
+        </Pressable>
+      }
+    >
+      {isPlannedPurchase(purchase, today) && (
+        <Typography variant="caption1" tone="accent">
+          Заплановано — виплати після цієї дати
         </Typography>
-      </View>
-      <Pressable
-        onPress={remove}
-        hitSlop={8}
-        accessibilityRole="button"
-        accessibilityLabel={`Видалити купівлю від ${formatDate(purchase.purchaseDate)}`}
-        style={({ pressed }) => pressed && styles.pressed}
-      >
-        <Typography variant="subhead" tone="danger">
-          Видалити
-        </Typography>
-      </Pressable>
-    </View>
+      )}
+      <Typography variant="caption1" tone="secondary">
+        {formatMoney(purchase.amount, currency)} · по{' '}
+        {formatMoney(pricePerBond(purchase.amount, purchase.quantity), currency)}
+      </Typography>
+    </ListRow>
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
-  purchase: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.space.md,
-    paddingHorizontal: theme.space.lg,
-    paddingVertical: theme.space.md,
-  },
-  purchaseInfo: { flex: 1, gap: theme.space.xxs },
+const styles = StyleSheet.create({
   pressed: { opacity: 0.5 },
-}));
+});

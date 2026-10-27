@@ -1,14 +1,12 @@
-import { Fragment } from 'react';
-
 import {
-  CURRENCY_NAMES,
+  currencyTitle,
   type Currency,
   type Wallet,
   type WalletScope,
   type WalletScopeOptions,
 } from '@/entities/portfolio';
-import { currencySign, formatDate } from '@/shared/lib';
-import { CheckRow, Section, Separator } from '@/shared/ui';
+import { formatDate } from '@/shared/lib';
+import { CheckRow, Section } from '@/shared/ui';
 
 type Props = {
   wallet: Wallet;
@@ -34,14 +32,12 @@ export function ReportScopeSections({ wallet, scope, options, onChange, onToggle
             onPress={showAllCurrencies}
           />
           {options.currencies.map((currency) => (
-            <Fragment key={currency}>
-              <Separator />
-              <CheckRow
-                title={`${currencySign(currency)} ${CURRENCY_NAMES[currency]}`}
-                checked={currency === scope.currency}
-                onPress={() => showCurrency(currency)}
-              />
-            </Fragment>
+            <CheckRow
+              key={currency}
+              title={currencyTitle(currency)}
+              checked={currency === scope.currency}
+              onPress={() => showCurrency(currency)}
+            />
           ))}
         </Section>
       )}
@@ -51,15 +47,13 @@ export function ReportScopeSections({ wallet, scope, options, onChange, onToggle
         {options.isins.map((isin) => {
           const bond = wallet.byIsin.get(isin);
           return (
-            <Fragment key={isin}>
-              <Separator />
-              <CheckRow
-                title={isin}
-                subtitle={bond && `${bond.rate}% · до ${formatDate(bond.maturityDate)}`}
-                checked={scope.isins.includes(isin)}
-                onPress={() => onToggleIsin(isin)}
-              />
-            </Fragment>
+            <CheckRow
+              key={isin}
+              title={isin}
+              subtitle={bond && `${bond.rate}% · до ${formatDate(bond.maturityDate)}`}
+              checked={scope.isins.includes(isin)}
+              onPress={() => onToggleIsin(isin)}
+            />
           );
         })}
       </Section>

@@ -1,8 +1,6 @@
-import { Fragment } from 'react';
-
 import { CURRENCY_NAMES } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
-import { InfoRow, Section, Separator } from '@/shared/ui';
+import { InfoRow, Section } from '@/shared/ui';
 import type { CurrencyYears } from '../model/yearOverYearReport';
 
 type Props = {
@@ -37,16 +35,14 @@ export function YearHighlights({ report }: Props) {
 
   return (
     <Section title={`Роки, що вирізняються · ${CURRENCY_NAMES[currency]}`}>
-      {rows.map((row, index) => (
-        <Fragment key={row.label}>
-          {index > 0 && <Separator />}
-          <InfoRow
-            label={row.label}
-            hint={`${row.year} рік`}
-            value={formatMoney(row.value, currency)}
-            signedValue={row.signedValue}
-          />
-        </Fragment>
+      {rows.map((row) => (
+        <InfoRow
+          key={row.label}
+          label={row.label}
+          hint={`${row.year} рік`}
+          value={formatMoney(row.value, currency)}
+          signedValue={row.signedValue}
+        />
       ))}
     </Section>
   );

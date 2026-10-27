@@ -12,7 +12,6 @@ import {
   Input,
   FormScrollView,
   Section,
-  Separator,
   SignedValue,
 } from '@/shared/ui';
 import { PurchaseHints } from './PurchaseHints';
@@ -64,7 +63,6 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
             </FieldRow>
           )}
         />
-        <Separator />
         <Controller
           control={control}
           name="quantity"
@@ -82,7 +80,6 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
             </FieldRow>
           )}
         />
-        <Separator />
         <Controller
           control={control}
           name="amount"
@@ -100,7 +97,6 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
             </FieldRow>
           )}
         />
-        <Separator />
         <InfoRow
           label="Ціна 1 шт"
           value={pricePerBond === null ? '—' : formatMoney(pricePerBond, currency)}
@@ -119,11 +115,8 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
                 : '—'
             }
           />
-          <Separator />
           <InfoRow label="Купонів попереду" value={String(preview.couponsLeft)} />
-          <Separator />
           <InfoRow label="Усього виплат" value={formatMoney(preview.totalPayments, currency)} />
-          <Separator />
           {preview.netIncome !== null ? (
             <>
               <InfoRow
@@ -134,13 +127,11 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
                   </SignedValue>
                 }
               />
-              <Separator />
               <InfoRow
                 label="Дохідність за весь строк"
                 hint="Чистий дохід у відсотках від суми купівлі"
                 value={preview.returnPercent === null ? '—' : `${preview.returnPercent}%`}
               />
-              <Separator />
               <InfoRow
                 label="Річна дохідність"
                 hint={`Ваша ціна й кожна виплата до погашення ${formatDate(bond.maturityDate)} у свій день, перераховані на рік. Її можна порівнювати з депозитом`}

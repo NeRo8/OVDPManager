@@ -5,7 +5,7 @@ import {
   pricePerBond,
 } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
-import { InfoRow, Section, Separator, SignedValue } from '@/shared/ui';
+import { InfoRow, Section, SignedValue } from '@/shared/ui';
 
 type Props = {
   position: Position;
@@ -21,24 +21,17 @@ export function PositionSummary({ position, currency, hasTopUps, results }: Prop
   return (
     <Section title="Підсумок">
       <InfoRow label="Кількість" value={`${position.quantity} шт`} />
-      <Separator />
       <InfoRow label="Вкладено" value={formatMoney(position.investedAmount, currency)} />
       {hasTopUps && (
-        <>
-          <Separator />
-          <InfoRow
-            label="Середня ціна 1 шт"
-            value={formatMoney(pricePerBond(position.investedAmount, position.quantity), currency)}
-          />
-        </>
+        <InfoRow
+          label="Середня ціна 1 шт"
+          value={formatMoney(pricePerBond(position.investedAmount, position.quantity), currency)}
+        />
       )}
       {results && (
         <>
-          <Separator />
           <InfoRow label="Отримано" value={formatMoney(results.received, currency)} />
-          <Separator />
           <InfoRow label="Очікується" value={formatMoney(results.expected, currency)} />
-          <Separator />
           <InfoRow
             label="Чистий дохід"
             value={

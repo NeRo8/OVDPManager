@@ -10,7 +10,7 @@ import {
   todayISO,
 } from '@/shared/lib';
 import { SERIES_COLORS, type SeriesColor } from '@/shared/theme';
-import { Avatar, SignedValue, Typography } from '@/shared/ui';
+import { Avatar, ListRow, SignedValue, Typography } from '@/shared/ui';
 
 import type { ScheduleEvent } from '../model/portfolio';
 
@@ -56,43 +56,40 @@ export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
     .join(' · ');
 
   return (
-    <View style={[styles.row, isPaid && styles.paid]}>
-      {/* The avatar keeps the event type's series color; the amount follows its sign. */}
-      <Avatar label={currencySign(event.currency)} color={SERIES_COLORS[series].badge} />
-      <View style={styles.eventDetails}>
-        {showIsin && (
+    <ListRow
+      style={isPaid && styles.paid}
+      // The avatar keeps the event type's series color; the amount follows its sign.
+      leading={<Avatar label={currencySign(event.currency)} color={SERIES_COLORS[series].badge} />}
+      title={
+        showIsin && (
           <Typography variant="callout" weight="semibold">
             {event.isin}
           </Typography>
-        )}
-        <Typography variant="caption1" tone="secondary">
-          {kind}
-        </Typography>
-      </View>
-      <View style={styles.eventAmount}>
-        <Typography variant="caption1" tone={tone} tabular align="right">
-          {formatDate(event.date)}
-        </Typography>
-        <SignedValue value={signedTotal} variant="callout" weight="semibold" tabular align="right">
-          {sign}
-          {formatMoney(event.total, event.currency)}
-        </SignedValue>
-      </View>
-    </View>
+        )
+      }
+      subtitle={kind}
+      trailing={
+        <View style={styles.amount}>
+          <Typography variant="caption1" tone={tone} tabular align="right">
+            {formatDate(event.date)}
+          </Typography>
+          <SignedValue
+            value={signedTotal}
+            variant="callout"
+            weight="semibold"
+            tabular
+            align="right"
+          >
+            {sign}
+            {formatMoney(event.total, event.currency)}
+          </SignedValue>
+        </View>
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: theme.space.md,
-    paddingHorizontal: theme.space.lg,
-    paddingVertical: theme.space.md,
-    minHeight: 48,
-  },
   paid: { opacity: 0.6 },
-  eventDetails: { gap: theme.space.xxs, flex: 1 },
-  eventAmount: { gap: theme.space.xxs, flexShrink: 0 },
+  amount: { gap: theme.space.xxs, flexShrink: 0 },
 }));

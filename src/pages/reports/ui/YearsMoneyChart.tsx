@@ -3,15 +3,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { CURRENCY_NAMES } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
-import {
-  Card,
-  type ChartSeries,
-  ColumnChart,
-  LegendRow,
-  SectionTitle,
-  Separator,
-  Typography,
-} from '@/shared/ui';
+import { Card, type ChartSeries, ColumnChart, LegendRow, Separator } from '@/shared/ui';
 import type { CurrencyYears } from '../model/yearOverYearReport';
 import { yearColumns } from './yearColumns';
 
@@ -38,38 +30,26 @@ export function YearsMoneyChart({ report }: Props) {
   ];
 
   return (
-    <View style={styles.section}>
-      <SectionTitle title={`Гроші по роках · ${CURRENCY_NAMES[currency]}`} />
-      <Card>
-        <ColumnChart columns={columns} series={series} currency={currency} />
-        <View style={styles.separator}>
-          <Separator />
-        </View>
-        <View style={styles.legend}>
-          <LegendRow color="coupon" label="Купони" value={formatMoney(total.coupons, currency)} />
-          <LegendRow
-            color="redemption"
-            label="Погашення"
-            value={formatMoney(total.redemptions, currency)}
-          />
-          <LegendRow
-            color="purchase"
-            label="Купівлі"
-            value={formatMoney(total.invested, currency)}
-          />
-        </View>
-      </Card>
-      <Typography variant="caption1" tone="secondary" style={styles.footer}>
-        Виплати — над лінією, купівлі — під нею; суми в легенді — за всі роки.
-      </Typography>
-    </View>
+    <Card
+      title={`Гроші по роках · ${CURRENCY_NAMES[currency]}`}
+      footer="Виплати — над лінією, купівлі — під нею; суми в легенді — за всі роки."
+    >
+      <ColumnChart columns={columns} series={series} currency={currency} />
+      <Separator variant="card" />
+      <View style={styles.legend}>
+        <LegendRow color="coupon" label="Купони" value={formatMoney(total.coupons, currency)} />
+        <LegendRow
+          color="redemption"
+          label="Погашення"
+          value={formatMoney(total.redemptions, currency)}
+        />
+        <LegendRow color="purchase" label="Купівлі" value={formatMoney(total.invested, currency)} />
+      </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  section: { gap: theme.space.sm },
   // Cancels the separator's own inset, so the line runs the card's full width.
-  separator: { marginLeft: -theme.space.lg, marginVertical: theme.space.md },
   legend: { gap: theme.space.sm },
-  footer: { lineHeight: 18, marginHorizontal: theme.space.lg },
 }));

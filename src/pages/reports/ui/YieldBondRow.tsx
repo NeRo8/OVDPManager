@@ -1,11 +1,9 @@
-import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
-
 import type { Currency } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
 import { ShareBar, Typography } from '@/shared/ui';
 import type { YieldBond } from '../model/yieldReport';
 import { bondStateLabel } from './portfolioLabels';
+import { ReportItem } from './ReportItem';
 import { pointsCell } from './reportCells';
 
 type Props = {
@@ -27,15 +25,14 @@ export function YieldBondRow({ bond: row, currency, highestYield }: Props) {
     .join(' · ');
 
   return (
-    <View style={styles.bond}>
-      <View style={styles.title}>
-        <Typography variant="subhead" weight="semibold" tabular>
-          {isin}
-        </Typography>
+    <ReportItem
+      title={isin}
+      aside={
         <Typography variant="subhead" weight="semibold" tabular>
           {annualYield === null ? '—' : `${annualYield}%`}
         </Typography>
-      </View>
+      }
+    >
       <Typography variant="caption1" tone={state === 'unknown' ? 'warning' : 'secondary'} tabular>
         {details}
       </Typography>
@@ -51,20 +48,6 @@ export function YieldBondRow({ bond: row, currency, highestYield }: Props) {
           {pointsCell(annualYield - keyRateAtPurchase)}
         </Typography>
       )}
-    </View>
+    </ReportItem>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  bond: {
-    gap: theme.space.xs,
-    paddingHorizontal: theme.space.lg,
-    paddingVertical: theme.space.md,
-  },
-  title: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    gap: theme.space.md,
-  },
-}));

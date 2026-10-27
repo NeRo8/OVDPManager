@@ -1,8 +1,6 @@
-import { Fragment } from 'react';
-
 import { CURRENCY_NAMES } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
-import { InfoRow, Section, Separator } from '@/shared/ui';
+import { InfoRow, Section } from '@/shared/ui';
 import type { CurrencyReport } from '../model/periodReport';
 import type { ReportTerms } from '../model/reportTerms';
 
@@ -42,16 +40,14 @@ export function ReportBondHighlights({ report, terms }: Props) {
       title={`ОВДП ${terms.span} · ${CURRENCY_NAMES[currency]}`}
       footer={`Річна дохідність — за ціною купівлі й усіма виплатами до погашення, як у формі купівлі; для кількох купівель — середня, зважена на суму. ${terms.income} — купони й прибуток від погашень ${terms.span}.`}
     >
-      {rows.map((row, index) => (
-        <Fragment key={row.label}>
-          {index > 0 && <Separator />}
-          <InfoRow
-            label={row.label}
-            hint={row.bond.isin}
-            value={row.value}
-            signedValue={row.signedValue}
-          />
-        </Fragment>
+      {rows.map((row) => (
+        <InfoRow
+          key={row.label}
+          label={row.label}
+          hint={row.bond.isin}
+          value={row.value}
+          signedValue={row.signedValue}
+        />
       ))}
     </Section>
   );

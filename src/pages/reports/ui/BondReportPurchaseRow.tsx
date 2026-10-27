@@ -1,4 +1,3 @@
-import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
@@ -9,7 +8,7 @@ import {
 } from '@/entities/portfolio';
 import { currencySign, formatDate, formatMoney } from '@/shared/lib';
 import { SERIES_COLORS } from '@/shared/theme';
-import { Avatar, Typography } from '@/shared/ui';
+import { Avatar, ListRow, Typography } from '@/shared/ui';
 
 type Props = {
   purchase: Purchase;
@@ -20,40 +19,29 @@ type Props = {
 /** One purchase of the bond: when, how many and for how much. */
 export function BondReportPurchaseRow({ purchase, currency, today }: Props) {
   return (
-    <View style={styles.purchase}>
-      {/* Badged as the payments' rows after it, in the purchases' color. */}
-      <Avatar label={currencySign(currency)} color={SERIES_COLORS.purchase.badge} />
-      <View style={styles.details}>
-        <View style={styles.title}>
-          <Typography variant="callout" tabular>
-            {formatDate(purchase.purchaseDate)} · {purchase.quantity} шт
-          </Typography>
-          <Typography variant="callout" weight="semibold" tabular>
-            {formatMoney(purchase.amount, currency)}
-          </Typography>
-        </View>
+    <ListRow
+      // Badged as the payments' rows after it, in the purchases' color.
+      leading={<Avatar label={currencySign(currency)} color={SERIES_COLORS.purchase.badge} />}
+      title={
+        <Typography variant="callout" tabular>
+          {formatDate(purchase.purchaseDate)} · {purchase.quantity} шт
+        </Typography>
+      }
+      subtitle={
         <Typography variant="caption1" tone="secondary" tabular>
           по {formatMoney(pricePerBond(purchase.amount, purchase.quantity), currency)} за 1 шт
           {isPlannedPurchase(purchase, today) && ' · заплановано'}
         </Typography>
-      </View>
-    </View>
+      }
+      trailing={
+        <Typography variant="callout" weight="semibold" tabular style={styles.amount}>
+          {formatMoney(purchase.amount, currency)}
+        </Typography>
+      }
+    />
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
-  purchase: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.space.md,
-    paddingHorizontal: theme.space.lg,
-    paddingVertical: theme.space.md,
-  },
-  details: { flex: 1, gap: theme.space.xxs },
-  title: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    gap: theme.space.md,
-  },
-}));
+const styles = StyleSheet.create({
+  amount: { flexShrink: 0 },
+});
