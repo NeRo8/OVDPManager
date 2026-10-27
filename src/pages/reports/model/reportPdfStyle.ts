@@ -1,19 +1,23 @@
 import { light } from '@/shared/theme';
 
-/** Paper-sized interpretation of the report UI's light palette, cards and type hierarchy. */
+/**
+ * Paper-sized interpretation of the report UI's light palette, cards and type hierarchy. The page
+ * stays white, so the 10 mm margin shows on paper and no ink goes on a fill; a block keeps its
+ * title with its card on one page, and a card too long for a page draws its frame on each one.
+ */
 export const reportPdfStyle = `
-  @page { size: A4; margin: 15mm 13mm; }
+  @page { size: A4; margin: 10mm; }
   * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  body { margin: 0; background: ${light.background}; color: ${light.text}; font-family: -apple-system, BlinkMacSystemFont, 'Arial', sans-serif; font-size: 11px; line-height: 1.4; }
+  body { margin: 0; color: ${light.text}; font-family: -apple-system, BlinkMacSystemFont, 'Arial', sans-serif; font-size: 11px; line-height: 1.4; }
   .report-head { text-align: center; padding: 18px 12px 16px; margin-bottom: 16px; }
   .eyebrow, h2 { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .65px; color: ${light.secondaryText}; }
   .eyebrow { color: ${light.accent}; margin: 0 0 8px; }
   h1 { font-size: 23px; line-height: 1.2; margin: 0 0 5px; font-weight: 700; }
   .report-name { margin: 0; font-size: 13px; color: ${light.secondaryText}; }
   .meta { margin-top: 13px; color: ${light.secondaryText}; font-size: 10px; }
-  section { margin: 0 0 18px; break-inside: auto; page-break-inside: auto; }
+  section { margin: 0 0 18px; break-inside: avoid; page-break-inside: avoid; }
   h2 { margin: 0 0 7px 14px; break-after: avoid; page-break-after: avoid; }
-  .card { background: ${light.card}; border: 1px solid ${light.border}; border-radius: 12px; padding: 13px 15px; }
+  .card { background: ${light.card}; border: 1px solid ${light.border}; border-radius: 12px; padding: 13px 15px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
   .summary-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 7px 0; border-bottom: 1px solid ${light.border}; break-inside: avoid; }
   .summary-row:last-child { border: 0; }.summary-row.important { font-size: 12px; font-weight: 600; }
   .summary-label { display: inline-flex; align-items: center; gap: 7px; color: ${light.secondaryText}; }
