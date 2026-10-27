@@ -8,6 +8,7 @@ import type { SeriesColor } from '@/shared/theme';
 import { Typography } from '../typography/Typography';
 import { chartGrid, formatGridTick, gridBoundaries } from './chartGrid';
 import { chartPalette, type ChartPalette } from './chartTheme';
+import { HorizontalColumnChart } from './HorizontalColumnChart';
 
 const PLOT_HEIGHT = 160;
 const SPLIT_PLOT_HEIGHT = 200;
@@ -35,6 +36,8 @@ type Props = {
   columns: ChartColumn[];
   series: ChartSeries[];
   currency: string;
+  orientation?: 'vertical' | 'horizontal';
+  valueFormat?: 'money' | 'percent';
   selected?: number | null;
   onSelect?: (column: number) => void;
 };
@@ -46,6 +49,8 @@ function ColumnChartView({
   columns,
   series,
   currency,
+  orientation = 'vertical',
+  valueFormat = 'money',
   selected = null,
   onSelect,
   palette,
@@ -89,6 +94,28 @@ function ColumnChartView({
           };
   const labelAlign = (column: number) =>
     column === 0 ? 'left' : column === lastColumn ? 'right' : 'center';
+  const formatValue = (value: number) =>
+    valueFormat === 'percent'
+      ? `${new Intl.NumberFormat('uk-UA', { maximumFractionDigits: 2 }).format(value)} %`
+      : formatMoney(value, currency);
+  const formatTick = (value: number) =>
+    `${formatGridTick(value, grid.step)}${valueFormat === 'percent' ? ' %' : ''}`;
+  const formatSelected = (value: number) =>
+    valueFormat === 'percent' ? formatTick(value) : formatCompact(value);
+
+  if (orientation === 'horizontal') {
+    return (
+      <HorizontalColumnChart
+        columns={columns}
+        series={series}
+        currency={currency}
+        valueFormat={valueFormat}
+        selected={selected}
+        onSelect={onSelect}
+        palette={palette}
+      />
+    );
+  }
 
   return (
     <View style={[styles.chart, onSelect && styles.labelRoom]}>
@@ -102,7 +129,7 @@ function ColumnChartView({
             numberOfLines={1}
             style={[styles.tick, { top: yOf(tick) - 7 }]}
           >
-            {formatGridTick(tick, grid.step)}
+            {formatTick(tick)}
           </Typography>
         ))}
       </View>
@@ -176,7 +203,10 @@ function ColumnChartView({
             {columns.map(({ name }, column) => {
               const parts = series
                 .filter((item) => item.values[column] > 0)
-                .map((item) => `${item.label} ${formatMoney(item.values[column], currency)}`);
+                .map(
+                  (item) =>
+                    `${item.label} ${item.direction === 'down' ? '−' : ''}${formatValue(item.values[column])}`,
+                );
               const select = onSelect && (() => onSelect(column));
               return (
                 <Pressable
@@ -208,7 +238,7 @@ function ColumnChartView({
                 numberOfLines={1}
                 align={labelAlign(selected)}
               >
-                {formatCompact(upTotals[selected])}
+                {formatSelected(upTotals[selected])}
               </Typography>
             </View>
           )}
@@ -228,7 +258,7 @@ function ColumnChartView({
                 numberOfLines={1}
                 align={labelAlign(selected)}
               >
-                −{formatCompact(downTotals[selected])}
+                −{formatSelected(downTotals[selected])}
               </Typography>
             </View>
           )}
