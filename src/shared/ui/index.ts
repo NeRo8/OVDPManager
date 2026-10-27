@@ -23,6 +23,7 @@ export * from './layout/ScreenScrollView';
 export * from './layout/FormScrollView';
 export * from './YearNav';
 export * from './chart/ColumnChart';
+export * from './chart/LineChart';
 export * from './chart/Swatch';
 export * from './chart/LegendRow';
 export * from './chart/TotalRow';
