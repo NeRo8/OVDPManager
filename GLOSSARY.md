@@ -24,6 +24,9 @@ The bond's annual interest on its Nominal, paid in coupons.
 **Key rate** (Облікова ставка НБУ):
 The NBU policy rate in effect on a given date; the benchmark a purchase is compared with. It is the hryvnia's rate, so only hryvnia Bonds are compared with it.
 
+**New bond** (нова ОВДП):
+A Bond placed in the 12 months before a Purchase; its Coupon rate is close to what the market paid that day, so a Purchase's Annual yield is compared with it.
+
 **Redeemed** (погашено, погашені):
 A Bond whose Maturity date is behind today, even while the NBU has not published its Redemption.
 _Avoid_: inactive, closed

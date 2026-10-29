@@ -18,7 +18,7 @@ import {
   type PurchaseFormValues,
   purchaseFormSchema,
 } from './purchaseForm.schema';
-import { purchaseHints, purchaseVerdict } from './purchaseHints';
+import { annualYieldText, assessPurchase } from './purchaseHints';
 
 /**
  * The final step of adding a purchase to the active plan: when, how many and for how much.
@@ -64,13 +64,12 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
     );
     // The bond comes from the NBU data, so its results are always there.
     if (!results) return null;
-    const hints = purchaseHints({
+    const yieldInput = { annualYield, netIncome: results.netIncome, isComplete: results.complete };
+    const { hints, verdict } = assessPurchase({
+      ...yieldInput,
       bond,
       purchaseDate: valid.purchaseDate,
       pricePerBond: price,
-      netIncome: results.netIncome,
-      isComplete: results.complete,
-      annualYield,
       keyRate,
       bonds: bonds ?? [],
     });
@@ -80,9 +79,9 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
       totalPayments: results.totalPayments,
       netIncome: results.netIncome,
       returnPercent: results.returnPercent,
-      annualYield,
+      annualYield: annualYieldText(yieldInput),
       hints,
-      verdict: purchaseVerdict(hints),
+      verdict,
     };
   })();
 

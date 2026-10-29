@@ -135,7 +135,7 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
               <InfoRow
                 label="Річна дохідність"
                 hint={`Ваша ціна й кожна виплата до погашення ${formatDate(bond.maturityDate)} у свій день, перераховані на рік. Її можна порівнювати з депозитом`}
-                value={preview.annualYield === null ? '—' : `${preview.annualYield}%`}
+                value={preview.annualYield}
               />
             </>
           ) : (
