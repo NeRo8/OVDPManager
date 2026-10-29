@@ -1,13 +1,17 @@
 import { RefreshControl, View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { NbuSourceNote, StaleBondsNotice, WalletGate } from '@/entities/portfolio';
+
 import { MONTHS, usePullToRefresh } from '@/shared/lib';
 import { YearNav } from '@/shared/ui';
+
 import { useFilteredWallet } from '../model/useFilteredWallet.hook';
 import { useYearSchedule } from '../model/useYearSchedule.hook';
-import { ScheduleSectionList } from './ScheduleSectionList';
+
 import { MonthBreakdown } from './MonthBreakdown';
+import { ScheduleSectionList } from './ScheduleSectionList';
 import { yearSeries } from './yearSeries';
 import { YearTotals } from './YearTotals';
 
@@ -23,7 +27,9 @@ export default function PaymentsScreen() {
     useYearSchedule(filtered);
   const isFiltered = activeFilterCount > 0;
   const series = summary ? yearSeries(summary, types) : [];
-  const period = month === null ? `У ${year} році` : `${MONTHS[month]} ${year}:`;
+  const period =
+    month === null ? `За ${year} рік` : `За ${MONTHS[month].toLowerCase()} ${year} року`;
+  const other = month === null ? 'інший рік' : 'інший місяць на графіку';
 
   return (
     <WalletGate>
@@ -49,7 +55,19 @@ export default function PaymentsScreen() {
             )}
           </View>
         }
-        emptyMessage={`${period} ${isFiltered ? 'за цими фільтрами нічого немає' : 'виплат і купівель немає'}.`}
+        empty={
+          isFiltered
+            ? {
+                icon: 'funnel-outline',
+                title: 'Нічого не знайдено',
+                message: `${period} немає подій, що підходять під фільтри. Змініть фільтри або оберіть ${other}.`,
+              }
+            : {
+                icon: 'calendar-outline',
+                title: 'Виплат і купівель немає',
+                message: `${period} за планом немає ні виплат купонів і погашень, ні купівель. Оберіть ${other}.`,
+              }
+        }
         ListFooterComponent={<NbuSourceNote />}
       />
     </WalletGate>

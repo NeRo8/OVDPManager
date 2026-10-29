@@ -1,6 +1,7 @@
-import { QueryClientProvider, focusManager } from '@tanstack/react-query';
 import { type ReactNode, useEffect } from 'react';
 import { AppState } from 'react-native';
+
+import { QueryClientProvider, focusManager } from '@tanstack/react-query';
 
 import { queryClient } from './queryClient';
 

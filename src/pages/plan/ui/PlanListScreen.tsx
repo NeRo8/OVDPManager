@@ -1,5 +1,7 @@
+import { FlatList, type ListRenderItemInfo } from 'react-native';
+
 import { Stack, router } from 'expo-router';
-import { Fragment } from 'react';
+import { StyleSheet } from 'react-native-unistyles';
 
 import {
   isPlannedPurchase,
@@ -10,8 +12,11 @@ import {
   usePurchases,
   type InvestmentPlan,
 } from '@/entities/portfolio';
+
 import { plural, todayISO } from '@/shared/lib';
-import { CheckRow, HeaderButton, ScreenScrollView, Section, Separator } from '@/shared/ui';
+import { CheckRow, HeaderButton, SectionCell, Typography, screenContent } from '@/shared/ui';
+
+const keyOf = (plan: InvestmentPlan) => plan.id;
 
 /** All plans; the checked one is what the app shows, now and on the next launch. */
 export default function PlanListScreen() {
@@ -33,8 +38,22 @@ export default function PlanListScreen() {
       .join(' · ');
   }
 
+  const renderItem = ({ item: plan, index }: ListRenderItemInfo<InvestmentPlan>) => {
+    const choose = () => setActivePlan(plan.id);
+    return (
+      <SectionCell index={index} count={plans.length}>
+        <CheckRow
+          title={plan.name}
+          subtitle={subtitle(plan)}
+          checked={plan.id === activePlan?.id}
+          onPress={choose}
+        />
+      </SectionCell>
+    );
+  };
+
   return (
-    <ScreenScrollView>
+    <>
       <Stack.Screen
         options={{
           headerRight: () => (
@@ -42,19 +61,26 @@ export default function PlanListScreen() {
           ),
         }}
       />
-      <Section footer="Виплати й гаманець показують вибраний план. Він відкривається і при наступному запуску.">
-        {plans.map((plan, index) => (
-          <Fragment key={plan.id}>
-            {index > 0 && <Separator />}
-            <CheckRow
-              title={plan.name}
-              subtitle={subtitle(plan)}
-              checked={plan.id === activePlan?.id}
-              onPress={() => setActivePlan(plan.id)}
-            />
-          </Fragment>
-        ))}
-      </Section>
-    </ScreenScrollView>
+      <FlatList
+        data={plans}
+        style={styles.list}
+        contentContainerStyle={[screenContent, styles.content]}
+        contentInsetAdjustmentBehavior="automatic"
+        keyExtractor={keyOf}
+        renderItem={renderItem}
+        ListFooterComponent={
+          <Typography variant="caption1" tone="secondary" style={styles.footer}>
+            Виплати й гаманець показують вибраний план. Він відкривається і при наступному запуску.
+          </Typography>
+        }
+      />
+    </>
   );
 }
+
+const styles = StyleSheet.create((theme) => ({
+  list: { backgroundColor: theme.background },
+  // The plans sit together as one card.
+  content: { gap: 0 },
+  footer: { lineHeight: 18, marginHorizontal: theme.space.lg, marginTop: theme.space.sm },
+}));

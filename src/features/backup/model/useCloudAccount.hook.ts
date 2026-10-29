@@ -1,7 +1,9 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
+import { useQueryClient } from '@tanstack/react-query';
+
 import { confirmDestructive, showToast } from '@/shared/lib';
+
 import { deleteCloudBackup } from '../api/cloudBackup';
 import {
   deleteSignedInUser,
@@ -11,6 +13,7 @@ import {
   signOutOfGoogle,
 } from '../api/googleAccount';
 import { cloudBackupQueryKey, useCloudBackup } from '../api/useCloudBackup.hook';
+
 import { errorMessage } from './errorMessage';
 import { useGoogleAccount } from './useGoogleAccount.hook';
 

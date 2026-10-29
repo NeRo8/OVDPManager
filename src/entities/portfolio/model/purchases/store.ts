@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { mmkvStorage } from '@/shared/lib';
+
 import type { PurchasesState } from './types';
 
 const STORAGE_KEY = 'holdings-v1';

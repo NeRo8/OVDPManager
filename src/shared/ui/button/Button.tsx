@@ -1,13 +1,15 @@
 import { Pressable, type StyleProp, type ViewStyle } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { Typography, type TypographyTone } from '../typography/Typography';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'destructive';
+export type ButtonVariant = 'primary' | 'secondary' | 'plain' | 'destructive';
 
 const TITLE_TONES = {
   primary: 'onAccent',
   secondary: 'accent',
+  plain: 'accent',
   destructive: 'danger',
 } as const satisfies Record<ButtonVariant, TypographyTone>;
 
@@ -51,9 +53,11 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
     variants: {
       variant: {
-        primary: { backgroundColor: theme.accent },
+        primary: { backgroundColor: theme.accentFill },
         // Card-colored buttons lift off the background like the cards around them.
         secondary: { backgroundColor: theme.card, boxShadow: theme.shadowCard },
+        // A minor choice next to a primary button, such as skipping a step.
+        plain: { backgroundColor: 'transparent' },
         destructive: { backgroundColor: theme.card, boxShadow: theme.shadowCard },
       },
     },

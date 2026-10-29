@@ -1,4 +1,5 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
@@ -10,7 +11,7 @@ import {
   todayISO,
 } from '@/shared/lib';
 import { SERIES_COLORS, type SeriesColor } from '@/shared/theme';
-import { Avatar, Typography } from '@/shared/ui';
+import { Avatar, ListRow, SignedValue, Typography } from '@/shared/ui';
 
 import type { ScheduleEvent } from '../model/portfolio';
 
@@ -42,6 +43,8 @@ export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
   const isPurchase = event.type === 'purchase';
   const isPaid = !isPurchase && event.isPaid;
   const isUpcoming = !isPurchase && !event.isPaid;
+  const signedTotal = isPurchase ? -event.total : event.total;
+  const sign = signedTotal > 0 ? '+' : signedTotal < 0 ? '−' : '';
   const tone = isPaid ? 'secondary' : 'primary';
   const kind = [
     isPurchase ? (event.isTopUp ? 'Докупівля' : 'Купівля') : KINDS[event.type],
@@ -54,50 +57,40 @@ export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
     .join(' · ');
 
   return (
-    <View style={[styles.row, isPaid && styles.paid]}>
-      <Avatar label={currencySign(event.currency)} color={series} />
-      <View style={styles.eventDetails}>
-        {showIsin && (
+    <ListRow
+      style={isPaid && styles.paid}
+      // The avatar keeps the event type's series color; the amount follows its sign.
+      leading={<Avatar label={currencySign(event.currency)} color={SERIES_COLORS[series].badge} />}
+      title={
+        showIsin && (
           <Typography variant="callout" weight="semibold">
             {event.isin}
           </Typography>
-        )}
-        <Typography variant="caption1" tone="secondary">
-          {kind}
-        </Typography>
-      </View>
-      <View style={styles.eventAmount}>
-        <Typography variant="caption1" tone={tone} tabular align="right">
-          {formatDate(event.date)}
-        </Typography>
-        <Typography
-          variant="callout"
-          weight="semibold"
-          tabular
-          align="right"
-          style={styles.amount(series)}
-        >
-          {isPurchase ? '−' : '+'}
-          {formatMoney(event.total, event.currency)}
-        </Typography>
-      </View>
-    </View>
+        )
+      }
+      subtitle={kind}
+      trailing={
+        <View style={styles.amount}>
+          <Typography variant="caption1" tone={tone} tabular align="right">
+            {formatDate(event.date)}
+          </Typography>
+          <SignedValue
+            value={signedTotal}
+            variant="callout"
+            weight="semibold"
+            tabular
+            align="right"
+          >
+            {sign}
+            {formatMoney(event.total, event.currency)}
+          </SignedValue>
+        </View>
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: theme.space.md,
-    paddingHorizontal: theme.space.lg,
-    paddingVertical: theme.space.md,
-    minHeight: 48,
-  },
   paid: { opacity: 0.6 },
-  eventDetails: { gap: theme.space.xxs, flex: 1 },
-  eventAmount: { gap: theme.space.xxs, flexShrink: 0 },
-  // Amounts take the text-contrast step of the series hue.
-  amount: (series: SeriesColor) => ({ color: theme[SERIES_COLORS[series].text] }),
+  amount: { gap: theme.space.xxs, flexShrink: 0 },
 }));

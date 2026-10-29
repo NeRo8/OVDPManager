@@ -3,8 +3,14 @@ import {
   addMonths,
   differenceInCalendarDays,
   differenceInMonths,
+  addQuarters,
+  eachMonthOfInterval,
+  endOfMonth,
+  endOfQuarter,
   format,
   parseISO,
+  startOfMonth,
+  startOfQuarter,
 } from 'date-fns';
 
 import { plural } from './format';
@@ -48,6 +54,25 @@ export function addMonthsISO(isoDate: string, months: number): string {
 /** The calendar date `days` later; negative goes back. */
 export function addDaysISO(isoDate: string, days: number): string {
   return toISODate(addDays(parseISO(isoDate), days));
+}
+
+/** The first and the last day of the date's month, or of the one `offset` months away. */
+export function monthRange(isoDate: string, offset = 0): { from: string; to: string } {
+  const month = addMonths(parseISO(isoDate), offset);
+  return { from: toISODate(startOfMonth(month)), to: toISODate(endOfMonth(month)) };
+}
+
+/** The first and the last day of the date's quarter, or of the one `offset` quarters away. */
+export function quarterRange(isoDate: string, offset = 0): { from: string; to: string } {
+  const quarter = addQuarters(parseISO(isoDate), offset);
+  return { from: toISODate(startOfQuarter(quarter)), to: toISODate(endOfQuarter(quarter)) };
+}
+
+/** Every month from the first date's to the last's, as YYYY-MM. */
+export function monthsBetween(fromISO: string, toISO: string): string[] {
+  return eachMonthOfInterval({ start: parseISO(fromISO), end: parseISO(toISO) }).map((month) =>
+    format(month, 'yyyy-MM'),
+  );
 }
 
 export function daysBetween(fromISO: string, toISO: string): number {

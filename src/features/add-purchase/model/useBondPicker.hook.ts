@@ -1,8 +1,15 @@
 import { useState } from 'react';
 
-import { CURRENCIES, type Currency, bondChoices, useWallet } from '@/entities/portfolio';
-import { type BondTerm, termOf } from './bondTerm';
+import {
+  CURRENCIES,
+  type Currency,
+  bondChoices,
+  maturityTerm,
+  useWallet,
+} from '@/entities/portfolio';
+
 import { useBondPickerFilters } from './bondPickerFilters';
+import { type BondTerm } from './bondTerm';
 
 export type { BondTerm };
 
@@ -36,11 +43,13 @@ export function useBondPicker() {
       count:
         value === 'all'
           ? ofCurrency.length
-          : ofCurrency.filter((bond) => termOf(bond, today) === value).length,
+          : ofCurrency.filter((bond) => maturityTerm(bond, today) === value).length,
     }),
   );
 
-  const filtered = ofCurrency.filter((bond) => term === 'all' || termOf(bond, today) === term);
+  const filtered = ofCurrency.filter(
+    (bond) => term === 'all' || maturityTerm(bond, today) === term,
+  );
   const sorted =
     sort === 'rate'
       ? [...filtered].sort(

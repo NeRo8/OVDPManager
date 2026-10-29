@@ -1,31 +1,39 @@
+import { FlatList, type ListRenderItemInfo, RefreshControl, View } from 'react-native';
+
 import { router } from 'expo-router';
-import { FlatList, Pressable, RefreshControl, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import {
-  Avatar,
-  FAB_CLEARANCE,
-  FloatingActionButton,
-  SectionCell,
-  SectionTitle,
-  Typography,
-  screenContent,
-} from '@/shared/ui';
-import { currencySign, formatDate, formatMoney, usePullToRefresh } from '@/shared/lib';
 import {
   NbuSourceNote,
   StaleBondsNotice,
   WalletGate,
-  isPlannedPurchase,
+  type WalletPosition,
   useWallet,
 } from '@/entities/portfolio';
 
+import { usePullToRefresh } from '@/shared/lib';
+import {
+  FAB_CLEARANCE,
+  FloatingActionButton,
+  SectionCell,
+  SectionTitle,
+  screenContent,
+} from '@/shared/ui';
+
+import { PositionRow } from './PositionRow';
+
 export default function PortfolioScreen() {
   const wallet = useWallet();
-  const { refresh, positions, today } = wallet;
+  const { refresh, positions } = wallet;
   const pullToRefresh = usePullToRefresh(refresh);
   const openBond = (isin: string) => router.push({ pathname: '/bond/[isin]', params: { isin } });
   const addBond = () => router.push('/add');
+
+  const renderPosition = ({ item, index }: ListRenderItemInfo<WalletPosition>) => (
+    <SectionCell index={index} count={positions.length}>
+      <PositionRow item={item} onPress={() => openBond(item.position.isin)} />
+    </SectionCell>
+  );
 
   return (
     <WalletGate>
@@ -43,48 +51,7 @@ export default function PortfolioScreen() {
               <SectionTitle title="Мої ОВДП" />
             </View>
           }
-          renderItem={({ item: { position, bond, currency, nextPayment }, index }) => {
-            // Nothing bought yet: every purchase of the position is still ahead.
-            const isPlanned = position.purchases.every((purchase) =>
-              isPlannedPurchase(purchase, today),
-            );
-            const tone = isPlanned ? 'accent' : 'secondary';
-            return (
-              <SectionCell index={index} count={positions.length}>
-                <Pressable
-                  onPress={() => openBond(position.isin)}
-                  accessibilityRole="link"
-                  style={({ pressed }) => [styles.position, pressed && styles.pressed]}
-                >
-                  {/* Money invested: the purchase color of the schedule chart. */}
-                  <Avatar label={currencySign(currency)} color="purchase" />
-                  <View style={styles.positionInfo}>
-                    <Typography variant="headline" tabular>
-                      {position.isin}
-                    </Typography>
-                    {bond ? (
-                      <Typography variant="caption1" tone="secondary">
-                        {bond.rate}% ·{' '}
-                        {nextPayment ? `до ${formatDate(bond.maturityDate)}` : 'погашено'}
-                      </Typography>
-                    ) : (
-                      <Typography variant="caption1" tone="warning">
-                        Немає в даних НБУ
-                      </Typography>
-                    )}
-                  </View>
-                  <View style={styles.positionAmount}>
-                    <Typography variant="callout" weight="semibold" tabular align="right">
-                      {formatMoney(position.investedAmount, currency)}
-                    </Typography>
-                    <Typography variant="caption1" tone={tone} tabular align="right">
-                      {position.quantity} шт{isPlanned && ' · заплановано'}
-                    </Typography>
-                  </View>
-                </Pressable>
-              </SectionCell>
-            );
-          }}
+          renderItem={renderPosition}
           ListFooterComponent={<NbuSourceNote />}
         />
         <FloatingActionButton accessibilityLabel="Додати ОВДП" onPress={addBond} />
@@ -98,14 +65,4 @@ const styles = StyleSheet.create((theme) => ({
   list: { backgroundColor: theme.background },
   listContent: { gap: 0, paddingBottom: FAB_CLEARANCE },
   listHeader: { gap: theme.space.xl, marginBottom: theme.space.sm },
-  position: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.space.md,
-    paddingHorizontal: theme.space.lg,
-    paddingVertical: theme.space.md,
-  },
-  positionInfo: { flex: 1, gap: theme.space.xxs },
-  positionAmount: { flexShrink: 0, gap: theme.space.xxs },
-  pressed: { backgroundColor: theme.muted },
 }));

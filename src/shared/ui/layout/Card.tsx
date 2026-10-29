@@ -1,14 +1,24 @@
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
-type Props = {
+import { SectionFrame, type SectionFrameProps } from './SectionFrame';
+
+type Props = SectionFrameProps & {
   children: ReactNode;
 };
 
-/** Padded summary card: a headline figure with its details. */
-export function Card({ children }: Props) {
-  return <View style={styles.card}>{children}</View>;
+/**
+ * Padded card of free content, such as a headline figure with its details or a chart, under an
+ * optional title and over an optional footer, as a Section is.
+ */
+export function Card({ title, footer, children }: Props) {
+  return (
+    <SectionFrame title={title} footer={footer}>
+      <View style={styles.card}>{children}</View>
+    </SectionFrame>
+  );
 }
 
 const styles = StyleSheet.create((theme) => ({

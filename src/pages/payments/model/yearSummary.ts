@@ -4,6 +4,7 @@ import {
   type ScheduleEvent,
   sumTotals,
 } from '@/entities/portfolio';
+
 import { MONTHS, round2 } from '@/shared/lib';
 
 /** One year in one currency, as the chart and the totals show it. */

@@ -1,5 +1,7 @@
 import type { InvestmentPlan, PlanPurchase } from '@/entities/portfolio';
+
 import { todayISO } from '@/shared/lib';
+
 import { type BackupEncryption, decryptBackup, encryptBackup } from '../lib/backupCipher';
 
 const FORMAT = 'ovdp-manager-backup';

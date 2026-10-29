@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { ThemedIcon } from '../icon/ThemedIcon';
+
 import { Input, type InputProps } from './Input';
 
 export type PasswordInputProps = Omit<InputProps, 'variant' | 'type' | 'secureTextEntry'>;

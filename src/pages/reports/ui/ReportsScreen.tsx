@@ -1,7 +1,6 @@
 import { router, type Href } from 'expo-router';
-import { Fragment } from 'react';
 
-import { LinkRow, ScreenScrollView, Section, Separator } from '@/shared/ui';
+import { LinkRow, ScreenScrollView, Section } from '@/shared/ui';
 
 type Report = {
   title: string;
@@ -14,6 +13,11 @@ const MONEY_FLOW_REPORTS: Report[] = [
     title: 'Звіт за рік',
     description: 'Купівлі, купони, погашення й чистий дохід за обраний рік.',
     href: '/reports/year',
+  },
+  {
+    title: 'Валютний еквівалент',
+    description: 'Гривневі ОВДП за весь час або рік: купівлі, виплати й залишок у валюті.',
+    href: '/reports/fx',
   },
   {
     title: 'Звіт за період',
@@ -44,12 +48,12 @@ const PORTFOLIO_REPORTS: Report[] = [
     href: '/reports/structure',
   },
   {
-    title: 'Дохідність',
-    description: 'Середньозважена дохідність портфеля поруч з обліковою ставкою НБУ.',
+    title: 'Річна дохідність',
+    description: 'Середньозважена річна дохідність портфеля поруч з обліковою ставкою НБУ.',
     href: '/reports/yield',
   },
   {
-    title: 'Звіт по облігації',
+    title: 'Звіт по ОВДП',
     description: 'Купівлі, купони, погашення й чистий дохід однієї ОВДП з гаманця.',
     href: '/reports/bond',
   },
@@ -65,15 +69,13 @@ export default function ReportsScreen() {
     <ScreenScrollView>
       {SECTIONS.map((section) => (
         <Section key={section.title} title={section.title}>
-          {section.reports.map((report, index) => (
-            <Fragment key={report.title}>
-              {index > 0 && <Separator />}
-              <LinkRow
-                title={report.title}
-                subtitle={report.description}
-                onPress={() => router.push(report.href)}
-              />
-            </Fragment>
+          {section.reports.map((report) => (
+            <LinkRow
+              key={report.title}
+              title={report.title}
+              subtitle={report.description}
+              onPress={() => router.push(report.href)}
+            />
           ))}
         </Section>
       ))}

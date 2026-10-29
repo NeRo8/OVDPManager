@@ -1,3 +1,11 @@
 import { YieldReportScreen } from '@/pages/reports';
 
-export default YieldReportScreen;
+import { DeferredScreen } from '@/shared/ui';
+
+export default function YieldReportRoute() {
+  return (
+    <DeferredScreen skeleton="report">
+      <YieldReportScreen />
+    </DeferredScreen>
+  );
+}

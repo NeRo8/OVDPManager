@@ -1,18 +1,22 @@
+import { useState } from 'react';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
 import { useForm, useFormState } from 'react-hook-form';
 import { z } from 'zod';
 
 import { getInvestmentPlans, getPurchases } from '@/entities/portfolio';
+
 import { askDestructive, formatDateTime, showToast } from '@/shared/lib';
+
 import { exportBackupFile } from '../api/backupFile';
 import { fetchCloudBackup, saveCloudBackup } from '../api/cloudBackup';
 import { ensureGoogleAccount } from '../api/googleAccount';
 import { cloudBackupQueryKey } from '../api/useCloudBackup.hook';
+
 import { backupFileName, serializeBackup } from './backup';
-import { errorMessage } from './errorMessage';
 import { BackupKeySchema } from './backupKey.schema';
+import { errorMessage } from './errorMessage';
 import { useGoogleAccount } from './useGoogleAccount.hook';
 
 // The key cannot be recovered, so it is typed twice: a typo would lock the backup for good.

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { mmkvStorage } from '@/shared/lib';
+
 import type { ActivePlanState } from './types';
 
 const STORAGE_KEY = 'active-plan-v1';

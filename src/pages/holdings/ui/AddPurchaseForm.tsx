@@ -1,8 +1,10 @@
 import { Controller } from 'react-hook-form';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { BondParameters, type Bond } from '@/entities/portfolio';
 import { useAddPurchaseForm } from '@/features/add-purchase';
+
+import { type Bond } from '@/entities/portfolio';
+
 import { formatDate, formatMoney } from '@/shared/lib';
 import {
   Button,
@@ -12,10 +14,10 @@ import {
   Input,
   FormScrollView,
   Section,
-  Separator,
-  Typography,
+  SignedValue,
 } from '@/shared/ui';
-import { PurchaseHints } from './PurchaseHints';
+
+import { HintsSection } from './HintsSection';
 
 type Props = {
   bond: Bond;
@@ -47,8 +49,6 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
         <InfoRow label="ISIN" value={bond.isin} />
       </Section>
 
-      <BondParameters bond={bond} />
-
       <Section
         title={isPlanned ? 'Запланована купівля' : 'Купівля'}
         footer={
@@ -66,7 +66,6 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
             </FieldRow>
           )}
         />
-        <Separator />
         <Controller
           control={control}
           name="quantity"
@@ -84,7 +83,6 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
             </FieldRow>
           )}
         />
-        <Separator />
         <Controller
           control={control}
           name="amount"
@@ -102,14 +100,20 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
             </FieldRow>
           )}
         />
-        <Separator />
         <InfoRow
           label="Ціна 1 шт"
           value={pricePerBond === null ? '—' : formatMoney(pricePerBond, currency)}
         />
       </Section>
 
-      {preview && <PurchaseHints hints={preview.hints} verdict={preview.verdict} />}
+      {preview && (
+        <HintsSection
+          title="Наскільки це вигідно"
+          footer="Оцінка — за річною дохідністю, якщо тримати ОВДП до погашення. Облікова ставка НБУ — на дату купівлі (для запланованої купівлі — поточна). Нові ОВДП — розміщені за 12 місяців до купівлі: ставка купону нової ОВДП близька до ринкової дохідності на день розміщення."
+          hints={preview.hints}
+          verdict={preview.verdict}
+        />
+      )}
 
       {preview && (
         <Section title={ownedQuantity > 0 ? 'Що дасть ця купівля' : 'Що ви отримаєте'}>
@@ -121,41 +125,32 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
                 : '—'
             }
           />
-          <Separator />
           <InfoRow label="Купонів попереду" value={String(preview.couponsLeft)} />
-          <Separator />
           <InfoRow label="Усього виплат" value={formatMoney(preview.totalPayments, currency)} />
-          <Separator />
           {preview.netIncome !== null ? (
             <>
               <InfoRow
                 label="Чистий дохід"
                 value={
-                  <Typography
-                    variant="subhead"
-                    weight="medium"
-                    tone={preview.netIncome < 0 ? 'danger' : 'primary'}
-                  >
+                  <SignedValue value={preview.netIncome} variant="subhead" weight="medium">
                     {formatMoney(preview.netIncome, currency)}
-                  </Typography>
+                  </SignedValue>
                 }
               />
-              <Separator />
               <InfoRow
                 label="Дохідність за весь строк"
                 hint="Чистий дохід у відсотках від суми купівлі"
                 value={preview.returnPercent === null ? '—' : `${preview.returnPercent}%`}
               />
-              <Separator />
               <InfoRow
                 label="Річна дохідність"
                 hint={`Ваша ціна й кожна виплата до погашення ${formatDate(bond.maturityDate)} у свій день, перераховані на рік. Її можна порівнювати з депозитом`}
-                value={preview.annualYield === null ? '—' : `${preview.annualYield}%`}
+                value={preview.annualYield}
               />
             </>
           ) : (
             <InfoRow
-              label="Дохідність"
+              label="Чистий дохід"
               hint="НБУ ще не опублікував погашення цієї ОВДП, тому виплати неповні"
               value="Немає повних даних НБУ"
             />

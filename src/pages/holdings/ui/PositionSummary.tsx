@@ -1,0 +1,52 @@
+import {
+  type Currency,
+  type Position,
+  type PositionResults,
+  pricePerBond,
+} from '@/entities/portfolio';
+
+import { formatMoney } from '@/shared/lib';
+import { InfoRow, Section, SignedValue } from '@/shared/ui';
+
+type Props = {
+  position: Position;
+  currency: Currency;
+  /** Bought in several purchases: the average price is worth showing */
+  hasTopUps: boolean;
+  /** Missing when the NBU data has no such bond */
+  results?: PositionResults;
+};
+
+/** What a bond in the wallet has cost, brought and will bring. */
+export function PositionSummary({ position, currency, hasTopUps, results }: Props) {
+  return (
+    <Section title="Підсумок">
+      <InfoRow label="Кількість" value={`${position.quantity} шт`} />
+      <InfoRow label="Вкладено" value={formatMoney(position.investedAmount, currency)} />
+      {hasTopUps && (
+        <InfoRow
+          label="Середня ціна 1 шт"
+          value={formatMoney(pricePerBond(position.investedAmount, position.quantity), currency)}
+        />
+      )}
+      {results && (
+        <>
+          <InfoRow label="Отримано" value={formatMoney(results.received, currency)} />
+          <InfoRow label="Очікується" value={formatMoney(results.expected, currency)} />
+          <InfoRow
+            label="Чистий дохід"
+            value={
+              results.netIncome === null ? (
+                'Немає повних даних НБУ'
+              ) : (
+                <SignedValue value={results.netIncome} variant="subhead" weight="semibold">
+                  {formatMoney(results.netIncome, currency)}
+                </SignedValue>
+              )
+            }
+          />
+        </>
+      )}
+    </Section>
+  );
+}

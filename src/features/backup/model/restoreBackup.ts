@@ -5,7 +5,9 @@ import {
   purchaseCount,
   restorePortfolio,
 } from '@/entities/portfolio';
+
 import { confirmDestructive, showToast } from '@/shared/lib';
+
 import type { BackupData } from './backup';
 
 /** Where the backup came from: the cloud copy, a picked file or pasted JSON. */

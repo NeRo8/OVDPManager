@@ -1,33 +1,49 @@
+import { useState } from 'react';
+import { FlatList, type ListRenderItemInfo, View } from 'react-native';
+
 import { Stack, router, useLocalSearchParams } from 'expo-router';
-import { Fragment } from 'react';
-import { Pressable, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
   BondTerms,
+  type PositionPayment,
+  type Purchase,
   ScheduleEventRow,
-  isPlannedPurchase,
-  pricePerBond,
-  purchaseCurrency,
 } from '@/entities/portfolio';
-import { formatDate, formatMoney } from '@/shared/lib';
+
 import {
   Button,
   Card,
   EmptyState,
   FAB_CLEARANCE,
   FloatingActionButton,
-  InfoRow,
-  ScreenScrollView,
-  Section,
-  Separator,
+  SectionCell,
+  SegmentedSelect,
   Typography,
+  screenContent,
 } from '@/shared/ui';
-import { useBondDetails } from '../model/useBondDetails.hook';
 
-/** A bond in the wallet: the issue's terms, what the position has cost and earned, its purchases and payments. */
+import { useBondDetails } from '../model/useBondDetails.hook';
+import { useHoldOrSell } from '../model/useHoldOrSell.hook';
+
+import { HintsSection } from './HintsSection';
+import { PositionSummary } from './PositionSummary';
+import { PurchaseRow } from './PurchaseRow';
+import { SaleButton } from './SaleButton';
+
+type BondRow = Purchase | PositionPayment;
+type BondTab = 'purchases' | 'payments';
+
+const isPurchase = (row: BondRow): row is Purchase => 'purchaseDate' in row;
+const keyOf = (row: BondRow) => (isPurchase(row) ? row.id : `${row.date}-${row.type}`);
+
+/**
+ * A bond in the wallet: its terms, result and whether to keep or sell it, with purchases and
+ * payments on separate tabs.
+ */
 export default function BondScreen() {
   const { isin } = useLocalSearchParams<{ isin: string }>();
+  const [tab, setTab] = useState<BondTab>('payments');
   const {
     today,
     position,
@@ -40,131 +56,97 @@ export default function BondScreen() {
     deletePurchase,
     deletePosition,
   } = useBondDetails(isin);
+  const { assessment } = useHoldOrSell(isin, null);
 
-  if (!position || !currency) return <EmptyState message="У гаманці немає цієї ОВДП" />;
+  if (!position || !currency)
+    return <EmptyState icon="search-outline" message="У гаманці немає цієї ОВДП" />;
+
+  const tabs: { label: string; value: BondTab }[] = [
+    { label: `Виплати (${payments.length})`, value: 'payments' },
+    { label: `Купівлі (${position.purchases.length})`, value: 'purchases' },
+  ];
+  const rows: BondRow[] = tab === 'purchases' ? position.purchases : payments;
 
   const topUp = () =>
-    router.push({ pathname: '/add/[isin]', params: { isin: position.isin, topUp: '1' } });
+    router.push({ pathname: '/add/[isin]/purchase', params: { isin: position.isin } });
+
+  const renderItem = ({ item, index }: ListRenderItemInfo<BondRow>) => (
+    <SectionCell index={index} count={rows.length}>
+      {isPurchase(item) ? (
+        <PurchaseRow purchase={item} bond={bond} today={today} onDelete={deletePurchase} />
+      ) : (
+        <ScheduleEventRow event={item} showQuantity={hasTopUps} />
+      )}
+    </SectionCell>
+  );
 
   return (
     <View style={styles.screen}>
-      <Stack.Screen options={{ title: position.isin }} />
-      <ScreenScrollView contentContainerStyle={canTopUp && styles.withFab}>
-        <Card>
-          {bond ? (
-            <BondTerms bond={bond} />
-          ) : (
-            <Typography variant="footnote" tone="warning">
-              Цієї ОВДП немає в даних НБУ — параметри випуску й графік виплат недоступні.
-            </Typography>
-          )}
-        </Card>
-
-        <Section title="Підсумок">
-          <InfoRow label="Кількість" value={`${position.quantity} шт`} />
-          <Separator />
-          <InfoRow label="Вкладено" value={formatMoney(position.investedAmount, currency)} />
-          {hasTopUps && (
-            <>
-              <Separator />
-              <InfoRow
-                label="Середня ціна 1 шт"
-                value={formatMoney(
-                  pricePerBond(position.investedAmount, position.quantity),
-                  currency,
-                )}
+      <Stack.Screen
+        options={{
+          title: position.isin,
+          headerRight: assessment ? () => <SaleButton isin={position.isin} /> : undefined,
+        }}
+      />
+      <FlatList
+        data={rows}
+        style={styles.list}
+        contentContainerStyle={[screenContent, styles.content, canTopUp && styles.withFab]}
+        contentInsetAdjustmentBehavior="automatic"
+        keyExtractor={keyOf}
+        ListHeaderComponent={
+          <View style={styles.listHeader}>
+            <Card>
+              {bond ? (
+                <BondTerms bond={bond} />
+              ) : (
+                <Typography variant="footnote" tone="warning">
+                  Цієї ОВДП немає в даних НБУ — параметри випуску й графік виплат недоступні.
+                </Typography>
+              )}
+            </Card>
+            <PositionSummary
+              position={position}
+              currency={currency}
+              hasTopUps={hasTopUps}
+              results={results}
+            />
+            {assessment && (
+              <HintsSection
+                title="Тримати чи продати"
+                footer="Порівняння з новими ОВДП тієї ж валюти й строку, розміщеними за останні 12 місяців; без них — з обліковою ставкою НБУ сьогодні. Ціни, за яких продаж вигідний, — на екрані продажу, кнопкою вгорі."
+                hints={assessment.hints}
+                verdict={assessment.verdict}
               />
-            </>
-          )}
-          {results && (
-            <>
-              <Separator />
-              <InfoRow label="Отримано" value={formatMoney(results.received, currency)} />
-              <Separator />
-              <InfoRow label="Очікується" value={formatMoney(results.expected, currency)} />
-              <Separator />
-              <InfoRow
-                label="Чистий дохід"
-                value={
-                  results.netIncome === null ? (
-                    'Немає повних даних НБУ'
-                  ) : (
-                    <Typography
-                      variant="subhead"
-                      weight="semibold"
-                      tone={results.netIncome >= 0 ? 'positive' : 'danger'}
-                    >
-                      {formatMoney(results.netIncome, currency)}
-                    </Typography>
-                  )
-                }
-              />
-            </>
-          )}
-        </Section>
-
-        <Section title={`Купівлі (${position.purchases.length})`}>
-          {position.purchases.map((purchase, index) => (
-            <Fragment key={purchase.id}>
-              {index > 0 && <Separator />}
-              <View style={styles.purchase}>
-                <View style={styles.purchaseInfo}>
-                  <Typography variant="callout" tabular>
-                    {formatDate(purchase.purchaseDate)} · {purchase.quantity} шт
-                  </Typography>
-                  {isPlannedPurchase(purchase, today) && (
-                    <Typography variant="caption1" tone="accent">
-                      Заплановано — виплати після цієї дати
-                    </Typography>
-                  )}
-                  <Typography variant="caption1" tone="secondary">
-                    {formatMoney(purchase.amount, purchaseCurrency(purchase, bond))} · по{' '}
-                    {formatMoney(
-                      pricePerBond(purchase.amount, purchase.quantity),
-                      purchaseCurrency(purchase, bond),
-                    )}
-                  </Typography>
-                </View>
-                <Pressable
-                  onPress={() => deletePurchase(purchase)}
-                  hitSlop={8}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Видалити купівлю від ${formatDate(purchase.purchaseDate)}`}
-                  style={({ pressed }) => pressed && styles.pressed}
-                >
-                  <Typography variant="subhead" tone="danger">
-                    Видалити
-                  </Typography>
-                </Pressable>
-              </View>
-            </Fragment>
-          ))}
-        </Section>
-
-        {bond && (
-          <Section
-            title={`Виплати (${payments.length})`}
-            footer={
-              hasTopUps ? 'Кожна виплата враховує лише облігації, куплені до її дати.' : undefined
-            }
-          >
-            {payments.length === 0 ? (
-              <Typography variant="subhead" align="center" tone="secondary" style={styles.empty}>
-                Після дати купівлі виплат немає
-              </Typography>
-            ) : (
-              payments.map((payment, index) => (
-                <Fragment key={`${payment.date}-${payment.type}`}>
-                  {index > 0 && <Separator />}
-                  <ScheduleEventRow event={payment} showQuantity={hasTopUps} />
-                </Fragment>
-              ))
             )}
-          </Section>
-        )}
-
-        <Button title="Видалити з гаманця" variant="destructive" onPress={deletePosition} />
-      </ScreenScrollView>
+            <SegmentedSelect options={tabs} value={tab} onChange={setTab} />
+          </View>
+        }
+        renderItem={renderItem}
+        ListEmptyComponent={
+          <EmptyState
+            layout="inline"
+            icon={bond ? 'calendar-outline' : 'cloud-offline-outline'}
+            title={bond ? 'Виплат немає' : 'Немає даних НБУ'}
+            message={
+              bond
+                ? 'Усі виплати за графіком НБУ припадають на дати до купівлі, тож цій купівлі вони не належать.'
+                : 'Цієї ОВДП немає в даних НБУ, тож графіка виплат немає. Він з’явиться, щойно дані оновляться.'
+            }
+          />
+        }
+        ListFooterComponent={
+          tab === 'purchases' ? (
+            <View style={styles.listFooter}>
+              <Button title="Видалити з гаманця" variant="destructive" onPress={deletePosition} />
+            </View>
+          ) : hasTopUps && payments.length > 0 ? (
+            <Typography variant="caption1" tone="secondary" style={styles.sectionFooter}>
+              Кожна виплата враховує лише ОВДП, куплені до її дати.
+            </Typography>
+          ) : undefined
+        }
+      />
       {canTopUp && (
         <FloatingActionButton accessibilityLabel={`Докупити ${position.isin}`} onPress={topUp} />
       )}
@@ -174,15 +156,10 @@ export default function BondScreen() {
 
 const styles = StyleSheet.create((theme) => ({
   screen: { flex: 1 },
+  list: { backgroundColor: theme.background },
+  content: { gap: 0 },
   withFab: { paddingBottom: FAB_CLEARANCE },
-  purchase: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.space.md,
-    paddingHorizontal: theme.space.lg,
-    paddingVertical: theme.space.md,
-  },
-  purchaseInfo: { flex: 1, gap: theme.space.xxs },
-  pressed: { opacity: 0.5 },
-  empty: { padding: theme.space.lg },
+  listHeader: { gap: theme.space.xl, marginBottom: theme.space.md },
+  sectionFooter: { lineHeight: 18, marginHorizontal: theme.space.lg, marginTop: theme.space.sm },
+  listFooter: { marginTop: theme.space.xl },
 }));

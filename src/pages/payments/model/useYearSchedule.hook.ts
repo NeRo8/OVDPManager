@@ -1,7 +1,9 @@
 import { useState } from 'react';
 
-import type { ScheduleEvent } from '@/entities/portfolio';
 import { SCHEDULE_EVENT_TYPES, filterSchedule } from '@/features/payment-filters';
+
+import type { ScheduleEvent } from '@/entities/portfolio';
+
 import { groupScheduleEventsByMonth } from './scheduleSections';
 import type { FilteredWallet } from './useFilteredWallet.hook';
 import { yearSummary } from './yearSummary';

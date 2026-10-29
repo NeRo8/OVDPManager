@@ -1,3 +1,11 @@
 import { YearOverYearReportScreen } from '@/pages/reports';
 
-export default YearOverYearReportScreen;
+import { DeferredScreen } from '@/shared/ui';
+
+export default function YearOverYearReportRoute() {
+  return (
+    <DeferredScreen skeleton="report">
+      <YearOverYearReportScreen />
+    </DeferredScreen>
+  );
+}

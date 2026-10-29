@@ -1,6 +1,6 @@
 /** Government bonds (ОВДП) and portfolio calculations. */
 
-import { round2 } from '@/shared/lib';
+import { addMonthsISO, currencySign, round2 } from '@/shared/lib';
 
 /** Currencies of the NBU bonds, in the order the schedule lists them. */
 export const CURRENCIES = ['UAH', 'USD', 'EUR'] as const;
@@ -11,6 +11,11 @@ export const CURRENCY_NAMES: Record<Currency, string> = {
   USD: 'Долар',
   EUR: 'Євро',
 };
+
+/** The currency as a choice reads: its sign and name, «₴ Гривня» */
+export function currencyTitle(currency: Currency): string {
+  return `${currencySign(currency)} ${CURRENCY_NAMES[currency]}`;
+}
 
 export type PaymentType = 'coupon' | 'redemption';
 
@@ -87,19 +92,19 @@ export type PurchaseEvent = {
 export type ScheduleEvent = PositionPayment | PurchaseEvent;
 
 /**
- * Bonds to pick a purchase from. Without a query: those still in circulation. With one: every bond
- * whose ISIN contains it, so a past purchase of a redeemed bond can be added too. Active bonds
- * first, then by maturity.
+ * Bonds to pick a purchase from. Without a query: those that can still be bought today. With one:
+ * every bond whose ISIN contains it, so a past purchase of a redeemed bond can be added too. Those
+ * that can still be bought first, then by maturity.
  */
 export function bondChoices(bonds: Bond[], query: string, today: string): Bond[] {
   const normalizedQuery = query.replace(/\s+/g, '').toUpperCase();
   return bonds
     .filter((bond) =>
-      normalizedQuery ? bond.isin.includes(normalizedQuery) : bond.maturityDate > today,
+      normalizedQuery ? bond.isin.includes(normalizedQuery) : canBuyOn(bond, today),
     )
     .sort((first, second) => {
-      const firstActive = first.maturityDate >= today;
-      const secondActive = second.maturityDate >= today;
+      const firstActive = canBuyOn(first, today);
+      const secondActive = canBuyOn(second, today);
       if (firstActive !== secondActive) return firstActive ? -1 : 1;
       return first.maturityDate.localeCompare(second.maturityDate);
     });
@@ -127,6 +132,31 @@ export function isPlannedPurchase(
   today: string,
 ): boolean {
   return purchase.purchaseDate > today;
+}
+
+/**
+ * Redeemed once the maturity date has passed: on the day itself the redemption is still to come,
+ * as any payment is. It holds even while NBU has not published the redemption.
+ */
+export function isRedeemed(bond: Pick<Bond, 'maturityDate'>, today: string): boolean {
+  return bond.maturityDate < today;
+}
+
+/**
+ * A purchase can still be dated `date`: only before the maturity date. On that day the bond is
+ * still in circulation, but its last payments go to the previous owner, so nothing is left to earn.
+ */
+export function canBuyOn(bond: Pick<Bond, 'maturityDate'>, date: string): boolean {
+  return date < bond.maturityDate;
+}
+
+/** The bond matures within `months` of `date`, the last day included. */
+export function maturesWithin(
+  bond: Pick<Bond, 'maturityDate'>,
+  date: string,
+  months: number,
+): boolean {
+  return bond.maturityDate <= addMonthsISO(date, months);
 }
 
 /** What one bond cost: the amount paid for the purchase (or the position) ÷ quantity. */

@@ -1,4 +1,5 @@
 import { SCHEDULE_EVENT_TYPES } from '../scheduleEventTypes';
+
 import { initialState, usePaymentFiltersStore } from './store';
 import type { PaymentFilters, ScheduleEventType } from './types';
 

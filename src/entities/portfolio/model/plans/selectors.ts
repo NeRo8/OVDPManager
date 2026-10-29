@@ -1,4 +1,5 @@
 import type { InvestmentPlan } from '../plan';
+
 import { usePlansStore } from './store';
 
 export function useInvestmentPlans(): InvestmentPlan[] {

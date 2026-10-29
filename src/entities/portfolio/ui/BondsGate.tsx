@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { useBonds } from '../api/useBonds.hook';
+
 import { BondsUnavailable } from './BondsUnavailable';
 
 type Props = {

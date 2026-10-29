@@ -1,4 +1,5 @@
 import { Text, type TextProps } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { fontWeights, typography, type FontWeight, type TypographyVariant } from '@/shared/theme';

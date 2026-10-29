@@ -1,3 +1,11 @@
 import { BondReportScreen } from '@/pages/reports';
 
-export default BondReportScreen;
+import { DeferredScreen } from '@/shared/ui';
+
+export default function BondReportRoute() {
+  return (
+    <DeferredScreen skeleton="report">
+      <BondReportScreen />
+    </DeferredScreen>
+  );
+}

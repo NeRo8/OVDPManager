@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-import type { Bond } from '@/entities/portfolio';
+import { type Bond, canBuyOn } from '@/entities/portfolio';
+
 import { formatDate, parseAmount, round2 } from '@/shared/lib';
 
 /**
@@ -14,13 +15,13 @@ export function purchaseFormSchema(bond: Bond) {
       .refine((date) => date >= bond.issueDate, {
         error: `ОВДП розміщена ${formatDate(bond.issueDate)} — дата купівлі не може бути раніше`,
       })
-      .refine((date) => date < bond.maturityDate, {
+      .refine((date) => canBuyOn(bond, date), {
         error: `ОВДП погашається ${formatDate(bond.maturityDate)} — купівля має бути раніше`,
       }),
     quantity: z
       .string()
       .trim()
-      .min(1, { error: 'Вкажіть кількість облігацій' })
+      .min(1, { error: 'Вкажіть кількість ОВДП' })
       .transform(Number)
       .pipe(
         z

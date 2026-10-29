@@ -1,15 +1,17 @@
-import { router, Stack } from 'expo-router';
 import { RefreshControl } from 'react-native';
+
+import { router, Stack } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
   BondsUnavailableCard,
   NbuSourceNote,
   StaleBondsNotice,
-  purchaseResults,
+  resultsByCurrency,
   removeInvestmentPlan,
   useWallet,
 } from '@/entities/portfolio';
+
 import {
   confirmDestructive,
   formatMoney,
@@ -19,12 +21,11 @@ import {
 } from '@/shared/lib';
 import {
   ActionRow,
-  Card,
+  EmptyState,
   InfoRow,
   ScreenScrollView,
   Section,
   SegmentedSelect,
-  Separator,
   Typography,
 } from '@/shared/ui';
 
@@ -33,11 +34,11 @@ import {
  * wallet; here they add up to what the plan costs and earns over its whole term.
  */
 export default function PlanScreen() {
-  const { plan, bonds, byIsin, today, refresh, positions, purchases } = useWallet();
+  const { plan, bonds, refresh, positions, purchases } = useWallet();
   const numberOfPurchases = purchases.length;
   const pullToRefresh = usePullToRefresh(refresh);
   const planId = plan?.id ?? '';
-  const totals = purchaseResults(purchases, byIsin, today);
+  const totals = resultsByCurrency(positions);
   const unknownBonds = positions.filter((item) => !item.bond).length;
   // Totals come in CURRENCIES order.
   const currencies = totals.map((total) => total.currency);
@@ -73,13 +74,12 @@ export default function PlanScreen() {
         </Typography>
 
         {numberOfPurchases === 0 && (
-          <Card>
-            <Typography variant="headline">План порожній</Typography>
-            <Typography variant="subhead" tone="secondary">
-              Додайте ОВДП у гаманці: дату купівлі, кількість і суму. Купівля з’явиться в гаманці та
-              у виплатах.
-            </Typography>
-          </Card>
+          <EmptyState
+            layout="inline"
+            icon="bar-chart-outline"
+            title="План порожній"
+            message="У плані ще немає купівель, тож підсумовувати нічого. Додайте ОВДП у гаманці: дату купівлі, кількість і суму — купівля з’явиться в гаманці та у виплатах."
+          />
         )}
         {/* The totals need the NBU data; without it this stands in their place. */}
         {numberOfPurchases > 0 && <BondsUnavailableCard />}
@@ -100,46 +100,57 @@ export default function PlanScreen() {
                 value={formatMoney(total.invested, total.currency)}
               />
             </Section>
-            <Section title="Виплати">
+            <Section
+              title="Виплати"
+              footer={
+                total.incompleteCount > 0
+                  ? `НБУ ще не опублікував погашення ${total.incompleteCount} ОВДП, тож у погашенні й усього виплат їх немає.`
+                  : undefined
+              }
+            >
               <InfoRow
                 label="Погашення"
-                hint="Номінал, який повернуть у дату погашення. Зазвичай він менший за ціну купівлі — різницю покривають купони"
-                value={
-                  total.complete
-                    ? formatMoney(total.redemption, total.currency)
-                    : 'Немає повних даних НБУ'
-                }
+                hint="Повернення номіналу в дату погашення. Зазвичай воно менше за ціну купівлі — різницю покривають купони"
+                value={formatMoney(total.redemption, total.currency)}
               />
-              <Separator />
               <InfoRow
                 label="Купони"
                 hint="Відсотки, отримані й ще очікувані до погашення"
                 value={formatMoney(total.coupons, total.currency)}
               />
-              {total.complete && (
-                <>
-                  <Separator />
-                  <InfoRow
-                    label="Усього виплат"
-                    hint="Погашення разом із купонами"
-                    value={formatMoney(total.totalPayments, total.currency)}
-                  />
-                </>
-              )}
+              <InfoRow
+                label="Усього виплат"
+                hint="Погашення разом із купонами"
+                value={formatMoney(total.totalPayments, total.currency)}
+              />
             </Section>
             {total.netIncome !== null && (
-              <Section title="Результат">
+              <Section
+                title="Результат"
+                footer={
+                  total.incompleteCount > 0
+                    ? `ОВДП без опублікованого погашення (${total.incompleteCount}) у чистий дохід і дохідність за весь строк не враховано.`
+                    : undefined
+                }
+              >
                 <InfoRow
                   label="Чистий дохід"
                   hint="Виплати мінус вкладення — ваш заробіток"
                   value={formatMoney(total.netIncome, total.currency)}
+                  signedValue={total.netIncome}
                 />
-                <Separator />
                 <InfoRow
-                  label="Дохідність"
+                  label="Дохідність за весь строк"
                   hint="Чистий дохід у відсотках від вкладень за весь строк, без перерахунку на рік, податків і комісій"
                   value={total.returnPercent === null ? '—' : `${total.returnPercent}%`}
                 />
+                {total.annualYield !== null && (
+                  <InfoRow
+                    label="Річна дохідність"
+                    hint="Ціна купівлі й кожна виплата до погашення, перераховані на рік, — середня за ОВДП плану, зважена на суму купівель. Її можна порівнювати з депозитом і обліковою ставкою"
+                    value={`${total.annualYield}%`}
+                  />
+                )}
               </Section>
             )}
           </>
@@ -151,7 +162,6 @@ export default function PlanScreen() {
         )}
         <Section title="Керування планом">
           <ActionRow title="Перейменувати план" onPress={renamePlan} />
-          <Separator />
           <ActionRow title="Видалити план" tone="danger" onPress={confirmRemovePlan} />
         </Section>
         <NbuSourceNote />

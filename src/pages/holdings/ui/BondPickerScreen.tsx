@@ -1,13 +1,17 @@
-import { Stack, router } from 'expo-router';
 import { FlatList } from 'react-native';
+
+import { Stack, router } from 'expo-router';
 import { StyleSheet, withUnistyles } from 'react-native-unistyles';
 
-import { BondsGate } from '@/entities/portfolio';
 import { useBondPicker } from '@/features/add-purchase';
-import { SectionCell, Typography, screenContent } from '@/shared/ui';
+
+import { BondsGate } from '@/entities/portfolio';
+
+import { EmptyState, SectionCell, Typography, screenContent } from '@/shared/ui';
+
 import { BondChoiceRow } from './BondChoiceRow';
-import { BondFiltersButton } from './BondFiltersButton';
 import { SORT_LABELS, TERM_LABELS } from './bondFilterLabels';
+import { BondFiltersButton } from './BondFiltersButton';
 
 // The search field follows the app's theme, which may differ from the system one.
 const HeaderSearchBar = withUnistyles(Stack.SearchBar, (theme) => ({
@@ -61,15 +65,26 @@ export default function BondPickerScreen() {
               bond={bond}
               today={today}
               owned={ownedQuantity.get(bond.isin)}
-              showCurrency={isSearching}
               onPress={() => chooseBond(bond.isin)}
             />
           </SectionCell>
         )}
         ListEmptyComponent={
-          <Typography variant="subhead" tone="secondary" align="center" style={styles.empty}>
-            {query.trim() ? 'ОВДП з таким номером не знайдено' : 'За цими фільтрами ОВДП немає'}
-          </Typography>
+          isSearching ? (
+            <EmptyState
+              layout="inline"
+              icon="search-outline"
+              title="ОВДП не знайдено"
+              message={`Немає ОВДП, номер якої містить «${query.trim()}». Пошук іде серед усіх ОВДП, без фільтрів, — перевірте ISIN.`}
+            />
+          ) : (
+            <EmptyState
+              layout="inline"
+              icon="funnel-outline"
+              title="За цими фільтрами ОВДП немає"
+              message="Жодна ОВДП в обігу не підходить під обрані валюту й строк до погашення. Змініть фільтри."
+            />
+          )
         }
       />
     </BondsGate>
@@ -80,5 +95,4 @@ const styles = StyleSheet.create((theme) => ({
   list: { backgroundColor: theme.background },
   content: { gap: 0 },
   summary: { marginHorizontal: theme.space.lg, marginBottom: theme.space.md },
-  empty: { marginTop: theme.space.xl },
 }));

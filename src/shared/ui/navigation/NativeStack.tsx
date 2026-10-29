@@ -1,5 +1,6 @@
-import { Stack } from 'expo-router';
 import type { ComponentProps } from 'react';
+
+import { Stack } from 'expo-router';
 import { useUnistyles } from 'react-native-unistyles';
 
 import { hasLiquidGlass } from '@/shared/lib';

@@ -1,3 +1,11 @@
 import { PlanNameScreen } from '@/pages/plan';
 
-export default PlanNameScreen;
+import { DeferredScreen } from '@/shared/ui';
+
+export default function PlanNameRoute() {
+  return (
+    <DeferredScreen skeleton="form">
+      <PlanNameScreen />
+    </DeferredScreen>
+  );
+}

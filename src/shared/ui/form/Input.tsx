@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { type StyleProp, type TextInputProps, type TextStyle } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { typography } from '@/shared/theme';
+
 import { ThemedTextInput } from './ThemedTextInput';
 
 const types = {
@@ -14,8 +17,8 @@ const types = {
 } as const;
 
 /**
- * `field` fills a section row, `inline` is a right-aligned value inside an InfoRow, `area` is
- * multiline text such as pasted JSON.
+ * `field` fills a section row, `inline` is a right-aligned outlined box inside a FieldRow (its
+ * outline turns `accent` while typing), `area` is multiline text such as pasted JSON.
  */
 export type InputVariant = 'field' | 'inline' | 'area';
 
@@ -33,19 +36,33 @@ export function Input({
   variant = 'field',
   type = 'text',
   onChangeText,
+  onFocus,
+  onBlur,
   style,
   ...props
 }: InputProps) {
+  const [isFocused, setIsFocused] = useState(false);
   const { keyboardType, sanitize } = types[type];
   styles.useVariants({ variant });
+
+  const focus: InputProps['onFocus'] = (event) => {
+    setIsFocused(true);
+    onFocus?.(event);
+  };
+  const blur: InputProps['onBlur'] = (event) => {
+    setIsFocused(false);
+    onBlur?.(event);
+  };
 
   return (
     <ThemedTextInput
       {...props}
       onChangeText={onChangeText && ((text) => onChangeText(sanitize(text)))}
+      onFocus={focus}
+      onBlur={blur}
       keyboardType={keyboardType}
       multiline={variant === 'area'}
-      style={[styles.input, style]}
+      style={[styles.input, variant === 'inline' && isFocused && styles.focused, style]}
     />
   );
 }
@@ -65,7 +82,14 @@ const styles = StyleSheet.create((theme) => ({
           ...typography.body,
           textAlign: 'right',
           minWidth: 80,
-          paddingVertical: theme.space.xs,
+          minHeight: 36,
+          paddingHorizontal: theme.space.md,
+          paddingVertical: theme.space.sm,
+          borderRadius: theme.radius.sm,
+          borderCurve: 'continuous',
+          borderWidth: 1,
+          borderColor: theme.fieldBorder,
+          backgroundColor: theme.muted,
           fontVariant: ['tabular-nums'],
         },
         area: {
@@ -79,4 +103,5 @@ const styles = StyleSheet.create((theme) => ({
       },
     },
   },
+  focused: { borderColor: theme.accent },
 }));

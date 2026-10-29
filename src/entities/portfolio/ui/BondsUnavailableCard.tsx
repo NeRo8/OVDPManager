@@ -1,7 +1,9 @@
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Button, Card, Typography } from '@/shared/ui';
+import { Button, Card, SkeletonCard, SkeletonGroup, Typography } from '@/shared/ui';
+
 import { useBonds } from '../api/useBonds.hook';
 
 /**
@@ -15,14 +17,9 @@ export function BondsUnavailableCard() {
   if (bonds) return null;
   if (!error) {
     return (
-      <Card>
-        <View style={styles.loading}>
-          <ActivityIndicator />
-          <Typography variant="subhead" tone="secondary">
-            Завантажуємо дані НБУ…
-          </Typography>
-        </View>
-      </Card>
+      <SkeletonGroup label="Завантажуємо дані НБУ…">
+        <SkeletonCard />
+      </SkeletonGroup>
     );
   }
   return (
@@ -39,6 +36,5 @@ export function BondsUnavailableCard() {
 }
 
 const styles = StyleSheet.create((theme) => ({
-  loading: { flexDirection: 'row', alignItems: 'center', gap: theme.space.sm },
   action: { marginTop: theme.space.sm },
 }));

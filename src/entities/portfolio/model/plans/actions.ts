@@ -1,6 +1,7 @@
 import type { InvestmentPlan } from '../plan';
 import type { PlanPurchase } from '../portfolio';
 import { removePlanPurchases, replacePurchases } from '../purchases';
+
 import { usePlansStore } from './store';
 
 function updatePlans(update: (current: InvestmentPlan[]) => InvestmentPlan[]): void {

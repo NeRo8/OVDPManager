@@ -1,8 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-import { fetchBonds } from './nbuBonds';
+import { useQuery } from '@tanstack/react-query';
+
 import { getCachedBonds, saveBonds, useCachedBonds } from './bonds';
+import { fetchBonds } from './nbuBonds';
 
 /** The NBU list changes only when new bonds are issued, so a few hours of staleness is fine. */
 const STALE_AFTER_MS = 6 * 60 * 60 * 1000;

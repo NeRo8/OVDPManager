@@ -1,5 +1,11 @@
 import { BackupExportScreen } from '@/pages/backup';
 
+import { DeferredScreen } from '@/shared/ui';
+
 export default function BackupExportRoute() {
-  return <BackupExportScreen />;
+  return (
+    <DeferredScreen skeleton="form">
+      <BackupExportScreen />
+    </DeferredScreen>
+  );
 }

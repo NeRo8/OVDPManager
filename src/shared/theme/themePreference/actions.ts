@@ -1,4 +1,5 @@
 import { Appearance } from 'react-native';
+
 import { UnistylesRuntime } from 'react-native-unistyles';
 
 import { useThemePreferenceStore } from './store';

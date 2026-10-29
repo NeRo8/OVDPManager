@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, View, type LayoutChangeEvent } from 'react-native';
+
 import Animated, {
   Easing,
   ReduceMotion,
@@ -11,6 +12,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { hasLiquidGlass } from '@/shared/lib';
 import { space } from '@/shared/theme';
+
 import { ThemedGlassView } from '../glass/ThemedGlassView';
 import { Typography } from '../typography/Typography';
 
@@ -68,7 +70,7 @@ export function SegmentedSelect<T extends string | number>({
         <Animated.View style={[styles.thumb(segmentWidth), thumbMotion]}>
           {hasLiquidGlass && (
             <ThemedGlassView
-              uniProps={(theme) => ({ tintColor: theme.accent })}
+              uniProps={(theme) => ({ tintColor: theme.accentFill })}
               style={styles.thumbGlass}
             />
           )}
@@ -122,7 +124,7 @@ const styles = StyleSheet.create((theme) => ({
     width,
     borderRadius: theme.radius[THUMB_RADIUS],
     borderCurve: 'continuous',
-    ...(!hasLiquidGlass && { backgroundColor: theme.accent, boxShadow: theme.shadowCard }),
+    ...(!hasLiquidGlass && { backgroundColor: theme.accentFill, boxShadow: theme.shadowCard }),
   }),
   thumbGlass: { flex: 1, borderRadius: theme.radius.full },
   option: {

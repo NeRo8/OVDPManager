@@ -1,53 +1,78 @@
-import { Fragment } from 'react';
-import { RefreshControl, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { Stack } from 'expo-router';
 
-import { NbuSourceNote, StaleBondsNotice, WalletGate } from '@/entities/portfolio';
-import { usePullToRefresh } from '@/shared/lib';
-import { ScreenScrollView, Typography, YearNav } from '@/shared/ui';
-import { useYearReport } from '../model/useYearReport.hook';
-import { ReportCaption } from './ReportCaption';
-import { YearBondHighlights } from './YearBondHighlights';
-import { YearBondsList } from './YearBondsList';
-import { YearMonthsTable } from './YearMonthsTable';
-import { YearSummary } from './YearSummary';
+import { isScopeOn } from '@/features/report-filters';
+
+import { WalletGate } from '@/entities/portfolio';
+
+import { EmptyState } from '@/shared/ui';
+
+import { periodPdf } from '../model/reportPdf';
+import { YEAR_TERMS } from '../model/reportTerms';
+import { useReport } from '../model/useReport.hook';
+import { yearReport } from '../model/yearReport';
+
+import { CurrencyReportList } from './CurrencyReportList';
+import { ReportHeaderActions } from './ReportHeaderActions';
+import { ReportHeading } from './ReportHeading';
 
 /**
- * One year of the active plan, every currency apart: the sums, the bonds that stand out, a table
- * by month and what each bond brought. Everything shows at once, with no taps or filters, so it reads the same on paper.
+ * One year of the active plan, with the currency and bonds picked in its filters, every currency
+ * apart: the sums, the bonds that stand out, a table by month and what each bond brought.
+ * Everything shows at once, with no taps, so it reads the same on paper.
  */
 export default function YearReportScreen() {
-  const { wallet, firstYear, lastYear, year, setYear, currencies } = useYearReport();
-  const pullToRefresh = usePullToRefresh(wallet.refresh);
+  const { wallet, narrowed, filters, activeFilterCount } = useReport('year');
+  const { year } = filters;
+  const currencies = yearReport(narrowed, year);
+  const isCurrentYear = year === Number(wallet.today.slice(0, 4));
 
   return (
     <WalletGate>
-      <ScreenScrollView refreshControl={<RefreshControl {...pullToRefresh} />}>
-        <StaleBondsNotice />
-        <YearNav year={year} min={firstYear} max={lastYear} onChange={setYear} />
-        {currencies.length > 0 ? (
-          currencies.map((report) => (
-            <Fragment key={report.currency}>
-              <YearSummary report={report} />
-              <YearBondHighlights report={report} />
-              <YearMonthsTable report={report} />
-              <YearBondsList report={report} />
-            </Fragment>
-          ))
-        ) : (
-          <Typography variant="subhead" tone="secondary" align="center">
-            У {year} році купівель і виплат немає.
-          </Typography>
-        )}
-        <View style={styles.footer}>
-          <NbuSourceNote />
-          <ReportCaption planName={wallet.plan?.name} date={wallet.today} />
-        </View>
-      </ScreenScrollView>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <ReportHeaderActions
+              activeFilterCount={activeFilterCount}
+              report="year"
+              createDocument={() =>
+                periodPdf(
+                  'Звіт за рік',
+                  String(year),
+                  `year-${year}`,
+                  wallet,
+                  currencies,
+                  YEAR_TERMS,
+                )
+              }
+            />
+          ),
+        }}
+      />
+      <CurrencyReportList
+        wallet={wallet}
+        reports={currencies}
+        terms={YEAR_TERMS}
+        heading={
+          <ReportHeading title={String(year)} subtitle={isCurrentYear ? 'Цей рік' : undefined} />
+        }
+        empty={
+          isScopeOn(filters) ? (
+            <EmptyState
+              layout="inline"
+              icon="funnel-outline"
+              title="Купівель і виплат немає"
+              message={`Обрані у фільтрах валюта чи ОВДП не мали у ${year} році ні купівель, ні виплат. Змініть їх або оберіть інший рік у фільтрах.`}
+            />
+          ) : (
+            <EmptyState
+              layout="inline"
+              icon="calendar-outline"
+              title="Купівель і виплат немає"
+              message={`У ${year} році за планом немає ні купівель, ні виплат купонів і погашень. Оберіть інший рік у фільтрах.`}
+            />
+          )
+        }
+      />
     </WalletGate>
   );
 }
-
-const styles = StyleSheet.create((theme) => ({
-  footer: { gap: theme.space.xxs },
-}));

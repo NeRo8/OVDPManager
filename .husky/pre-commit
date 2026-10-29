@@ -1,1 +1,2 @@
-yarn run validate
+yarn validate-branch-name
+yarn lint-staged

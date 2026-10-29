@@ -1,5 +1,6 @@
-import { Typography } from '../typography/Typography';
 import { StyleSheet } from 'react-native-unistyles';
+
+import { Typography } from '../typography/Typography';
 
 export type SectionTitleProps = {
   title: string;

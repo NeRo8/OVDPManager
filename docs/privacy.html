@@ -32,7 +32,8 @@
       <h2>Резервні копії</h2>
       <p>
         Ви можете зберегти резервну копію у файл. Вона шифрується на пристрої ключем, який ви
-        вводите (Argon2id + AES-256-GCM). Куди зберегти файл, вирішуєте ви.
+        вводите (Argon2id + AES-256-GCM). Куди зберегти файл, вирішуєте ви. Відкрити копію можна
+        лише тим самим ключем: вона розшифровується на пристрої під час відновлення.
       </p>
 
       <h2>Хмарна копія (необовʼязково)</h2>
@@ -48,7 +49,8 @@
         <li>
           одна зашифрована резервна копія і дата її створення. Копія шифрується на пристрої до
           відправлення, ключ не залишає пристрій, тому ні розробник, ні Google не можуть її
-          прочитати.
+          прочитати. Під час відновлення копія завантажується з хмари й розшифровується на пристрої
+          тим самим ключем.
         </li>
       </ul>
       <p>
@@ -105,7 +107,8 @@
         <h2>Backups</h2>
         <p>
           You can save a backup to a file. It is encrypted on the device with a key you type
-          (Argon2id + AES-256-GCM). You choose where the file goes.
+          (Argon2id + AES-256-GCM). You choose where the file goes. Only the same key opens the
+          backup: it is decrypted on the device when you restore it.
         </p>
 
         <h2>Cloud copy (optional)</h2>
@@ -118,7 +121,8 @@
           <li>
             one encrypted backup and the date it was made. The backup is encrypted on the device
             before it is sent and the key never leaves the device, so neither the developer nor
-            Google can read it.
+            Google can read it. To restore it, the app downloads the backup and decrypts it on the
+            device with the same key.
           </li>
         </ul>
         <p>

@@ -1,5 +1,7 @@
 import type { ScheduleEventType } from '@/features/payment-filters';
+
 import type { ChartSeries } from '@/shared/ui';
+
 import type { YearSummary } from '../model/yearSummary';
 
 export type YearSeries = ChartSeries & {

@@ -1,45 +1,31 @@
-import { type Bond, bondChoices } from '@/entities/portfolio';
-import { formatDate, formatMoney, formatTimeLeft, plural, round2 } from '@/shared/lib';
-import { termOf } from './bondTerm';
+import {
+  ANNUAL_YIELD_RANGE,
+  type Bond,
+  type Hint,
+  MAX_PLAUSIBLE_YIELD,
+  type Verdict,
+  keyRateHint,
+  maturityTerm,
+  newBondsHint,
+  newBondsRate,
+  sortHints,
+  worstTone,
+} from '@/entities/portfolio';
 
-/**
- * `success`: all is well; `info`: worth knowing, nothing wrong; `warning`: look before buying;
- * `error`: the purchase loses money, overpays a lot or was probably entered wrong.
- */
-export type PurchaseHintTone = 'success' | 'info' | 'warning' | 'error';
+import { formatDate, formatMoney, formatTimeLeft, round2 } from '@/shared/lib';
 
-export type PurchaseHint = { tone: PurchaseHintTone; text: string };
+export type PurchaseAssessment = { verdict: Verdict | null; hints: Hint[] };
 
-/** The worst tone among the hints and what it means for the purchase as a whole. */
-export type PurchaseVerdict = { tone: Exclude<PurchaseHintTone, 'info'>; title: string };
-
-/** A price per bond this far from the nominal is more likely a typo than a market price. */
-const IMPLAUSIBLE_PRICE_RATIO = 0.5;
-/**
- * Percentage points by which a yield may fall short before it is worth a warning, and before it is
- * a loss worth an error: against the coupon rate when overpaying, and against the key rate.
- */
-const WARNING_GAP = 1;
+/** Percentage points below the key rate past which the purchase is a poor one. */
 const ERROR_GAP = 3;
-/** Fewer bonds than this make a poor comparison. */
-const MIN_PEERS = 3;
-
-const TERM_PHRASES = {
-  short: 'до 1 року',
-  medium: '1–3 роки',
-  long: 'понад 3 роки',
-} as const;
-
-const SEVERITY = { info: 0, success: 1, warning: 2, error: 3 } as const satisfies Record<
-  PurchaseHintTone,
-  number
->;
 
 const VERDICT_TITLES = {
   success: 'Вигідна купівля',
   warning: 'Є на що звернути увагу',
-  error: 'Невигідна або ризикована купівля',
-} as const satisfies Record<PurchaseVerdict['tone'], string>;
+  error: 'Невигідна купівля',
+} as const satisfies Record<Verdict['tone'], string>;
+
+const CHECK_AMOUNT: Verdict = { tone: 'warning', title: 'Перевірте суму' };
 
 type Input = {
   bond: Bond;
@@ -49,59 +35,54 @@ type Input = {
   netIncome: number | null;
   /** False while NBU has not published the redemption, so the payments fall short */
   isComplete: boolean;
-  /** % a year; null when it cannot be computed */
+  /** % a year; null when it cannot be computed or lies beyond `ANNUAL_YIELD_RANGE` */
   annualYield: number | null;
   /** NBU key policy rate, % a year; null until loaded */
   keyRate: number | null;
-  /** The whole NBU catalog, to compare the coupon rate with */
+  /** The whole NBU catalog, to find the bonds placed lately */
   bonds: Bond[];
 };
 
-function median(values: number[]): number {
-  const sorted = [...values].sort((a, b) => a - b);
-  const middle = Math.floor(sorted.length / 2);
-  return sorted.length % 2 ? sorted[middle] : round2((sorted[middle - 1] + sorted[middle]) / 2);
+type YieldInput = Pick<Input, 'annualYield' | 'netIncome' | 'isComplete'>;
+
+/**
+ * «Річна дохідність» in words, also when it lies beyond what `annualYield` computes: with every
+ * payment known, a null yield is above the range when the purchase earns and below it when it
+ * loses. «—» while the payments are incomplete.
+ */
+export function annualYieldText({ annualYield, netIncome, isComplete }: YieldInput): string {
+  if (annualYield !== null) return `${annualYield}%`;
+  if (!isComplete || netIncome === null) return '—';
+  return netIncome >= 0
+    ? `понад ${ANNUAL_YIELD_RANGE.highest}%`
+    : `нижче ${ANNUAL_YIELD_RANGE.lowest}%`;
 }
 
-/** The price against the nominal: a typo, a discount, or how much the premium costs. */
-function priceHint({ bond, pricePerBond, annualYield }: Input): PurchaseHint | null {
-  const { nominal, currency, rate } = bond;
-  const ratio = pricePerBond / nominal;
-  if (ratio < 1 - IMPLAUSIBLE_PRICE_RATIO || ratio > 1 + IMPLAUSIBLE_PRICE_RATIO) {
+/** A yield no market price gives: most likely a typo in the amount or the quantity. */
+function isImplausible({ annualYield, isComplete }: Input): boolean {
+  if (!isComplete) return false;
+  return annualYield === null || annualYield > MAX_PLAUSIBLE_YIELD;
+}
+
+function implausibleHint(input: Input): Hint {
+  const { bond, pricePerBond, netIncome } = input;
+  const price = `${formatMoney(pricePerBond, bond.currency)} за 1 шт`;
+  const check =
+    'на ринку ОВДП так не продаються. Перевірте кількість і суму: сума — за всю купівлю.';
+  if (netIncome !== null && netIncome < 0) {
     return {
-      tone: 'error',
-      text: `Ціна 1 шт (${formatMoney(pricePerBond, currency)}) дуже далека від номіналу (${formatMoney(nominal, currency)}). Перевірте кількість і суму: сума — за всю купівлю.`,
-    };
-  }
-  const gap = round2(Math.abs(pricePerBond - nominal));
-  if (gap === 0) return null;
-  const difference = formatMoney(gap, currency);
-  if (pricePerBond < nominal) {
-    const effect =
-      annualYield !== null && annualYield > rate
-        ? ` Через це річна дохідність (${annualYield}%) вища за ставку купону (${rate}%).`
-        : '';
-    return {
-      tone: 'success',
-      text: `Ціна 1 шт на ${difference} нижча за номінал: на погашенні ви отримаєте більше, ніж заплатили.${effect}`,
-    };
-  }
-  // Some premium is the coupon accrued since the last payment, which the next coupon returns.
-  const shortfall = annualYield === null ? 0 : round2(rate - annualYield);
-  if (shortfall > WARNING_GAP) {
-    return {
-      tone: shortfall > ERROR_GAP ? 'error' : 'warning',
-      text: `Ви переплачуєте ${difference} за 1 шт: річна дохідність (${annualYield}%) на ${shortfall} п.п. нижча за ставку купону (${rate}%).`,
+      tone: 'warning',
+      text: `За ${price} ви втратите ${formatMoney(-netIncome, bond.currency)}: ${check}`,
     };
   }
   return {
-    tone: 'info',
-    text: `Ціна 1 шт на ${difference} вища за номінал: це переважно накопичений купон, його поверне найближча виплата.`,
+    tone: 'warning',
+    text: `За ${price} річна дохідність була б ${annualYieldText(input)}: ${check} Якщо все правильно, купівля дуже вигідна.`,
   };
 }
 
 /** Losing money outright, whatever the rates. */
-function lossHint({ bond, netIncome }: Input): PurchaseHint | null {
+function lossHint({ bond, netIncome }: Input): Hint | null {
   if (netIncome === null || netIncome >= 0) return null;
   return {
     tone: 'error',
@@ -109,68 +90,37 @@ function lossHint({ bond, netIncome }: Input): PurchaseHint | null {
   };
 }
 
-/** The yield against the NBU key rate, which deposits and new bonds in hryvnia follow. */
-function keyRateHint({ bond, annualYield, keyRate }: Input): PurchaseHint | null {
-  if (bond.currency !== 'UAH' || annualYield === null || keyRate === null) return null;
-  const versus = `облікову ставку НБУ (${keyRate}%)`;
-  const gap = round2(keyRate - annualYield);
-  if (gap > WARNING_GAP) {
-    return {
-      tone: gap > ERROR_GAP ? 'error' : 'warning',
-      text: `Річна дохідність ${annualYield}% на ${gap} п.п. нижча за ${versus}: депозит чи інша ОВДП можуть дати більше.`,
-    };
-  }
-  if (gap < -WARNING_GAP) {
-    return { tone: 'success', text: `Річна дохідність ${annualYield}% вища за ${versus}.` };
-  }
+/**
+ * Why the price differs from the nominal. The difference is part of the annual yield, so it is
+ * explained, not judged: a discount mostly makes up for a coupon below the market's.
+ */
+function priceHint({ bond, pricePerBond, annualYield }: Input): Hint | null {
+  const gap = round2(Math.abs(pricePerBond - bond.nominal));
+  if (gap === 0) return null;
+  const difference = formatMoney(gap, bond.currency);
+  const counted =
+    annualYield === null ? '' : ` Різницю вже враховано в річній дохідності (${annualYield}%).`;
   return {
     tone: 'info',
-    text: `Річна дохідність ${annualYield}% близька до облікової ставки НБУ (${keyRate}%).`,
+    text:
+      pricePerBond < bond.nominal
+        ? `Ціна 1 шт на ${difference} нижча за номінал: цю різницю ви отримаєте на погашенні.${counted}`
+        : `Ціна 1 шт на ${difference} вища за номінал: на погашенні ви отримаєте лише номінал, а накопичений купон у ціні поверне найближча виплата.${counted}`,
   };
 }
 
-/** The coupon rate among bonds of the same currency and term in circulation on the purchase date. */
-function peersHint({ bond, purchaseDate, bonds }: Input): PurchaseHint | null {
-  const term = termOf(bond, purchaseDate);
-  const peers = bondChoices(bonds, '', purchaseDate).filter(
-    (peer) =>
-      peer.isin !== bond.isin &&
-      peer.issueDate <= purchaseDate &&
-      peer.currency === bond.currency &&
-      termOf(peer, purchaseDate) === term,
-  );
-  if (peers.length < MIN_PEERS) return null;
-  const rates = peers.map((peer) => peer.rate);
-  const best = Math.max(...rates);
-  const middle = median(rates);
-  const among = `серед ${peers.length} ${plural(peers.length, 'іншої ОВДП', 'інших ОВДП', 'інших ОВДП')} у ${bond.currency} зі строком ${TERM_PHRASES[term]}`;
-  if (bond.rate >= best) {
-    return { tone: 'success', text: `Ставка купону ${bond.rate}% — найвища ${among}.` };
-  }
-  if (bond.rate >= middle) {
-    return {
-      tone: 'success',
-      text: `Ставка купону ${bond.rate}% не нижча за середню (${middle}%) ${among}. Найвища — ${best}%.`,
-    };
-  }
-  return {
-    tone: 'warning',
-    text: `Ставка купону ${bond.rate}% нижча за середню (${middle}%) ${among}. Найвища — ${best}%.`,
-  };
-}
-
-/** What can go wrong besides the price: missing data, a long lock-up, another currency. */
-function riskHints({ bond, purchaseDate, isComplete }: Input): PurchaseHint[] {
-  const hints: PurchaseHint[] = [];
+/** What else to know: missing data, a long lock-up, another currency. */
+function otherHints({ bond, purchaseDate, isComplete }: Input): Hint[] {
+  const hints: Hint[] = [];
   if (!isComplete) {
     hints.push({
       tone: 'warning',
-      text: 'НБУ ще не опублікував погашення цієї ОВДП, тому дохідність не пораховано.',
+      text: 'НБУ ще не опублікував погашення цієї ОВДП, тому річну дохідність не пораховано.',
     });
   }
-  if (termOf(bond, purchaseDate) === 'long') {
+  if (maturityTerm(bond, purchaseDate) === 'long') {
     hints.push({
-      tone: 'warning',
+      tone: 'info',
       text: `Гроші будуть в ОВДП до ${formatDate(bond.maturityDate)} (${formatTimeLeft(purchaseDate, bond.maturityDate)}). Продати раніше можна лише за ринковою ціною, і вона може бути нижчою за вашу.`,
     });
   }
@@ -183,24 +133,28 @@ function riskHints({ bond, purchaseDate, isComplete }: Input): PurchaseHint[] {
   return hints;
 }
 
-/** What makes the purchase better or worse, in plain words, the most serious first. */
-export function purchaseHints(input: Input): PurchaseHint[] {
-  return [
-    lossHint(input),
-    priceHint(input),
-    keyRateHint(input),
-    peersHint(input),
-    ...riskHints(input),
-  ]
-    .filter((hint): hint is PurchaseHint => hint !== null)
-    .sort((a, b) => SEVERITY[b.tone] - SEVERITY[a.tone]);
+/** The purchase takes its worst hint's tone; with only neutral hints there is no verdict. */
+function verdictOf(hints: Hint[]): Verdict | null {
+  const worst = worstTone(hints);
+  return worst === 'info' ? null : { tone: worst, title: VERDICT_TITLES[worst] };
 }
 
-/** The purchase as a whole takes its worst hint's tone; with only neutral hints there is none. */
-export function purchaseVerdict(hints: PurchaseHint[]): PurchaseVerdict | null {
-  const worst = hints.reduce<PurchaseHintTone>(
-    (current, hint) => (SEVERITY[hint.tone] > SEVERITY[current] ? hint.tone : current),
-    'info',
-  );
-  return worst === 'info' ? null : { tone: worst, title: VERDICT_TITLES[worst] };
+/**
+ * How good the purchase is, judged by its annual yield: against the key rate for hryvnia bonds
+ * and against the bonds placed lately. The price and the term are explained, not judged. A yield
+ * no market gives asks to check the amount instead of being compared.
+ */
+export function assessPurchase(input: Input): PurchaseAssessment {
+  if (isImplausible(input)) return { verdict: CHECK_AMOUNT, hints: [implausibleHint(input)] };
+  const { bond, purchaseDate, annualYield, keyRate, bonds } = input;
+  const hints = sortHints([
+    lossHint(input),
+    annualYield === null ? null : keyRateHint(annualYield, keyRate, bond.currency, ERROR_GAP),
+    annualYield === null
+      ? null
+      : newBondsHint(annualYield, newBondsRate(bond, purchaseDate, bonds), bond.currency),
+    priceHint(input),
+    ...otherHints(input),
+  ]);
+  return { verdict: verdictOf(hints), hints };
 }

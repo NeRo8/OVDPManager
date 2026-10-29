@@ -1,3 +1,4 @@
+export { withAlpha } from './color';
 export { askDestructive, confirmDestructive } from './confirm';
 export * from './date';
 export * from './format';

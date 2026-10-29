@@ -1,3 +1,11 @@
 import { RedemptionsReportScreen } from '@/pages/reports';
 
-export default RedemptionsReportScreen;
+import { DeferredScreen } from '@/shared/ui';
+
+export default function RedemptionsReportRoute() {
+  return (
+    <DeferredScreen skeleton="report">
+      <RedemptionsReportScreen />
+    </DeferredScreen>
+  );
+}
