@@ -14,7 +14,6 @@ export * from './skeleton/SkeletonBlock';
 export * from './skeleton/SkeletonCard';
 export * from './skeleton/ScreenSkeleton';
 export * from './layout/Section';
-export * from './layout/SectionText';
 export * from './layout/SectionTitle';
 export * from './layout/SectionCell';
 export * from './layout/Separator';

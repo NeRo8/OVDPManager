@@ -21,11 +21,6 @@ export function formatMoney(value: number, currency: string): string {
   return `${formatAmount(value)} ${currencySign(currency)}`;
 }
 
-/** Short amount with the currency sign, for tight spots: 12,5 тис ₴ */
-export function formatCompactMoney(value: number, currency: string): string {
-  return `${formatCompact(value)} ${currencySign(currency)}`;
-}
-
 /** Sums amounts per currency: "10 200,00 ₴ + 5 000,00 $". */
 export function formatTotals(items: { currency: string; value: number }[]): string {
   const totals = new Map<string, number>();
