@@ -38,21 +38,15 @@ This app uses Unistyles and other native modules. Run it in a [development build
 
 iOS builds go through [EAS Build](https://docs.expo.dev/build/introduction/); Android is not shipped yet. The Expo project belongs to a personal account (`owner` in `app.json`), so sign in with `npx eas-cli login`. The scripts run EAS CLI through `npx eas-cli` (`24.8.0` or newer, `cli.version` in `eas.json`), so no global install is needed.
 
-| Profile       | Distribution                 | EAS environment | Use                                    |
-| ------------- | ---------------------------- | --------------- | -------------------------------------- |
-| `development` | Internal, development client | `development`   | Dev builds for registered iPhones.     |
-| `production`  | App Store                    | `production`    | TestFlight internal testing and later. |
+| Profile      | Distribution | EAS environment | Use                                    |
+| ------------ | ------------ | --------------- | -------------------------------------- |
+| `production` | App Store    | `production`    | TestFlight internal testing and later. |
 
-Both profiles extend `base`, which pins Node 24.22.1, Yarn 1.22.22 and CocoaPods 1.16.2: EAS calls a bare `pod` and never reads the `Gemfile`, so change a version in every place that names it. Build numbers live on EAS (`appVersionSource: remote`) and the production profile raises them on its own; the user-facing version is `version` in `app.json`. Signing credentials are managed by EAS.
+It extends `base`, which pins Node 24.22.1, Yarn 1.22.22 and CocoaPods 1.16.2: EAS calls a bare `pod` and never reads the `Gemfile`, so change a version in every place that names it. Build numbers live on EAS (`appVersionSource: remote`) and the profile raises them on its own; the user-facing version is `version` in `app.json`. Signing credentials are managed by EAS.
 
-| Script                  | What it does                                                |
-| ----------------------- | ----------------------------------------------------------- |
-| `yarn build:dev:ios`    | Development build in the cloud.                             |
-| `yarn build:ios`        | Production build only.                                      |
-| `yarn build:ios:submit` | Production build, then upload to TestFlight (doesn't wait). |
-| `yarn build:local:ios`  | Production build on this Mac (`--local`, needs fastlane).   |
+Releases go out on their own: merging a `develop` → `master` pull request runs the EAS Workflow `.eas/workflows/production.yml`, which builds the `production` profile on Expo's side and submits it to TestFlight. It needs the GitHub repository linked to the project on expo.dev and an App Store Connect API key in the project's credentials. Put `[eas skip]` in a commit message to push to `master` without a build. `yarn publish:ios` does the same by hand (production build, then upload to TestFlight, without waiting); anything else runs through `npx eas-cli`. Development builds are made locally with `yarn ios`.
 
-Register an iPhone for development builds with `npx eas-cli device:create`. The first build of each profile asks for the Apple Developer login and lets EAS create the certificate and provisioning profile. Submissions go to App Store Connect app `6826422237`, team `W25YBRT2T2` (`ascAppId` and `appleTeamId` in `submit.production.ios` in `eas.json`). Internal testers get a build once Apple has processed it.
+The first build asks for the Apple Developer login and lets EAS create the certificate and provisioning profile. Submissions go to App Store Connect app `6826422237`, team `W25YBRT2T2` (`ascAppId` and `appleTeamId` in `submit.production.ios` in `eas.json`). Internal testers get a build once Apple has processed it.
 
 Backups are encrypted on the device with standard algorithms (Argon2id, AES-256-GCM) from `react-native-quick-crypto`, not Apple's OS, before they are saved to a file or sent to Firestore, and decrypted on the device when restored. For standard algorithms App Store Connect needs a document only for the App Store in France (the French encryption declaration), and the app is not distributed there, so `app.json` declares `ios.config.usesNonExemptEncryption: false` (`ITSAppUsesNonExemptEncryption = NO`) and builds go to TestFlight without encryption questions. Keep France out of «Pricing and Availability» in App Store Connect; to add it, upload the declaration under «App Encryption Documentation», set `usesNonExemptEncryption` back to `true` and add the approved key as `ITSEncryptionExportComplianceCode` in `ios.infoPlist`.
 

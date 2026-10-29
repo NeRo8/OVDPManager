@@ -89,10 +89,7 @@
     "test": "jest",
     "validate": "yarn format:check && yarn lint && yarn lint:fsd && yarn typecheck && yarn test",
     "prepare": "husky",
-    "build:dev:ios": "npx eas-cli build --platform ios --profile development",
-    "build:ios": "npx eas-cli build --platform ios --profile production",
-    "build:ios:submit": "npx eas-cli build --platform ios --profile production --auto-submit --no-wait",
-    "build:local:ios": "npx eas-cli build --platform ios --profile production --local"
+    "publish:ios": "npx eas-cli build --platform ios --profile production --auto-submit --no-wait"
   },
   "private": true
 }
