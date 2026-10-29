@@ -76,4 +76,6 @@ yarn lint:fsd
 yarn typecheck
 ```
 
-Run `yarn format` to format project files, or `yarn validate` to run all checks together. Husky runs `yarn validate` before each commit.
+Run `yarn format` to format project files, or `yarn validate` to run all checks together. Husky checks the branch name and runs ESLint and Prettier on staged files before each commit, commitlint checks that each message is a Conventional Commit, and `yarn validate` runs before each push.
+
+`eslint.base.js`, `tsconfig.base.json`, `commitlint.config.js`, `.lintstagedrc.json`, `.validate-branch-namerc.json`, `.husky/*`, `.prettierrc.json`, `.editorconfig` and `.vscode/extensions.json` are the same in Local03, Tokomni, Oncall, OVDPManager and expo-linphone-module: change them in all five. The app's own rules go on top, in `eslint.config.js` (its aliases for `importOrder()`, its own rules) and `tsconfig.json` (`paths`, `types`).

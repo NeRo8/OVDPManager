@@ -1,0 +1,4 @@
+{
+  "pattern": "^(master|main|develop){1}$|^(feature|feat|fix|hotfix|refactor|test|chore)/.+$",
+  "errorMsg": "Error: please use a valid branch name. Valid branch names are: master, main, develop, feature/, fix/, hotfix/, refactor/, test/, chore/"
+}

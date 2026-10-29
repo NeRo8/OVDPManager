@@ -12,8 +12,9 @@ The project uses Yarn 1 (`yarn.lock`) and pins Node `24.22.1` (`.node-version`; 
 
 ```bash
 yarn start                 # dev server (needs a development build; Expo Go cannot load Unistyles/MMKV)
-yarn ios | yarn android    # expo run:ios / run:android
-yarn validate              # format:check + lint + lint:fsd + typecheck + test — Husky runs this on every commit
+yarn ios | yarn android    # bundle exec expo run:ios / expo run:android
+yarn validate              # format:check + lint + lint:fsd + typecheck + knip + test — Husky runs this before every push
+yarn knip                  # dead code, unused exports and undeclared dependencies (knip.config.ts)
 yarn test                  # Jest (jest-expo): the domain modules' tests
 yarn lint:fsd              # Steiger: FSD layer/slice boundary checks
 yarn format                # Prettier write
@@ -21,6 +22,8 @@ npx expo export --platform ios   # (or android) confirms the JS bundle builds
 ```
 
 EAS builds iOS only, on a personal Expo account (`owner` / `extra.eas.projectId` in `app.json`). `eas.json` and the `publish:ios` script follow the same layout as the owner's other Expo apps: one profile, `production`, an App Store build for TestFlight internal testing with a remote, auto-incremented build number (`appVersionSource: remote`); no update channels, as there is no `expo-updates`. It extends `base`, which pins Node, Yarn and CocoaPods because EAS never reads the `Gemfile` — keep them in step with `.node-version`, `packageManager` and `Gemfile`. `yarn publish:ios` is the only EAS script (production build + auto-submit to TestFlight, `--no-wait`); anything else through `npx eas-cli`. Development builds are made locally (`yarn ios`), not on EAS. Releases go out through EAS Workflows: a push to `master` (a merged `develop` → `master` PR) runs `.eas/workflows/production.yml`, which builds the `production` profile and submits it to TestFlight on Expo's side, so the local EAS CLI login (the machine's other, work account) plays no part; the GitHub repo is linked and the App Store Connect API key stored in the project on expo.dev. Put `[eas skip]` in a commit message to push to `master` without a build.
+
+Before each commit Husky checks the branch name (`.validate-branch-namerc.json`) and runs ESLint and Prettier on staged files (`.lintstagedrc.json`), and commitlint checks the message (Conventional Commits). `eslint.base.js`, `tsconfig.base.json`, `commitlint.config.js`, `.lintstagedrc.json`, `.validate-branch-namerc.json`, `.husky/*`, `.prettierrc.json`, `.editorconfig` and `.vscode/extensions.json` are the same in Local03, Tokomni, Oncall, OVDPManager and expo-linphone-module: change them in all five. The app's own rules go on top, in `eslint.config.js` (its aliases for `importOrder()`, its own rules) and `tsconfig.json` (`paths`, `types`).
 
 "Done" means `yarn validate` passes, tests included. Tests are Jest with the `jest-expo` preset (`jest` in `package.json`, `@/` mapped to `src/`): files named `*-test.ts` in a `__tests__` folder next to the module they cover, exercising its interface with plain bonds and purchases, no React. `jest.setup.ts` loads Unistyles' mocks and stubs Nitro, which MMKV loads on import even though it mocks its own storage under Jest; `@/shared/ui` is an empty module under Jest (`jest.sharedUiStub.ts`), as slices' public APIs also give their screens' parts and the tests render nothing. Test domain calculations there; screens stay untested.
 

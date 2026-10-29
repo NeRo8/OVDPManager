@@ -1,0 +1,34 @@
+# Shared by Local03, Tokomni, Oncall, OVDPManager and expo-linphone-module: keep it the same in each.
+# Editor defaults, kept in step with `.prettierrc.json` — `printWidth: 100`,
+# `tabWidth: 2`. Prettier is the formatter of record; this file only tells
+# an editor what to do before Prettier runs.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = 100
+
+[*.md]
+# Prettier leaves prose alone (`proseWrap: preserve`), so trailing spaces
+# are still a line break here.
+trim_trailing_whitespace = false
+
+[*.{pbxproj,pbxuser,xcworkspacedata,xcscheme,plist}]
+indent_style = tab
+max_line_length = off
+
+[{Podfile,Gemfile,*.rb}]
+max_line_length = off
+
+[*.{lock,pro}]
+max_line_length = off
+
+[*.{kt,kts,java,swift,m,mm,h}]
+# Native code keeps each project's own indentation; Prettier doesn't format it.
+indent_style = unset
+indent_size = unset

@@ -1,5 +1,26 @@
+# Shared by every app (Local03, Tokomni, Oncall, OVDPManager): keep this block
+# the same in each. Prettier also skips whatever .gitignore lists.
+
+# Native projects and build output
+/android/
+/ios/
+modules/*/android/build/
+modules/*/ios/build/
+*.hbc
+
+# Expo, bundles and reports
+.expo/
+dist/
+coverage/
+
+# Lockfiles
+*.lock
+
+# Agent skills: third-party, with their own formatting
+.claude/
+.agents/
+
+# This app
 AGENTS.md
 src/shared/config/app-icon/expo.icon/
-yarn.lock
 src/ovdp-backup-*.json
-.claude/skills/
