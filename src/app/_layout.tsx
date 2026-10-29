@@ -75,7 +75,8 @@ export default function RootLayout() {
                   name="bond-filters"
                   options={{ title: 'Фільтри ОВДП', ...FILTERS_MODAL }}
                 />
-                <NativeStack.Screen name="bond/[isin]" options={{ title: 'ОВДП' }} />
+                <NativeStack.Screen name="bond/[isin]/index" options={{ title: 'ОВДП' }} />
+                <NativeStack.Screen name="bond/[isin]/sale" options={{ title: 'Продаж' }} />
                 <NativeStack.Screen name="reports/year" options={{ title: 'Звіт за рік' }} />
                 <NativeStack.Screen name="reports/fx" options={{ title: 'Валютний еквівалент' }} />
                 <NativeStack.Screen name="reports/period" options={{ title: 'Звіт за період' }} />

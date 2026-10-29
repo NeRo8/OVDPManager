@@ -131,6 +131,19 @@ _Avoid_: Дохідність alone, Дохідність за строк
 The yearly rate at which a Purchase's payments, discounted to its date, equal what was paid for it; comparable with the Coupon rate and the Key rate. For a Position or more Purchases, their yields averaged by what was paid.
 _Avoid_: Дохідність alone, return, rate
 
+**Sale price** (Ціна продажу, Ціна 1 шт):
+What a bank or a broker pays for one bond today, net of its fee; NBU does not publish it, so the user types it and it is not saved.
+
+**Break-even price** (Продаж без збитку):
+The Sale price from which selling today returns at least what the bonds cost, counting the payments received.
+
+**Sell-above price** (Вигідніше продати):
+The Sale price above which the money from a sale earns more at the new bonds' rate (or the Key rate without them) than the bond does to maturity.
+
+**Yield from today** (Дохідність від сьогодні):
+The Annual yield of keeping the bonds, as if they were bought today at the Sale price; compared with the market to decide between keeping and selling.
+_Avoid_: Річна дохідність (that is from the purchase)
+
 ## Reports
 
 **Report** (Звіт):

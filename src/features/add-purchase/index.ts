@@ -5,4 +5,3 @@ export {
   updateBondPickerFilters,
   type BondSort,
 } from './model/bondPickerFilters';
-export type { PurchaseHint, PurchaseHintTone, PurchaseVerdict } from './model/purchaseHints';

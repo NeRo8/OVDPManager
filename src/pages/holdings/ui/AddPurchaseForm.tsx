@@ -14,7 +14,7 @@ import {
   Section,
   SignedValue,
 } from '@/shared/ui';
-import { PurchaseHints } from './PurchaseHints';
+import { HintsSection } from './HintsSection';
 
 type Props = {
   bond: Bond;
@@ -103,7 +103,14 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
         />
       </Section>
 
-      {preview && <PurchaseHints hints={preview.hints} verdict={preview.verdict} />}
+      {preview && (
+        <HintsSection
+          title="Наскільки це вигідно"
+          footer="Оцінка — за річною дохідністю, якщо тримати ОВДП до погашення. Облікова ставка НБУ — на дату купівлі (для запланованої купівлі — поточна). Нові ОВДП — розміщені за 12 місяців до купівлі: ставка купону нової ОВДП близька до ринкової дохідності на день розміщення."
+          hints={preview.hints}
+          verdict={preview.verdict}
+        />
+      )}
 
       {preview && (
         <Section title={ownedQuantity > 0 ? 'Що дасть ця купівля' : 'Що ви отримаєте'}>

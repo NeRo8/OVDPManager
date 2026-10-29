@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import type { PurchaseHint, PurchaseHintTone, PurchaseVerdict } from '@/features/add-purchase';
+import type { Hint, HintTone, Verdict } from '@/entities/portfolio';
 import { type IconName, Section, ThemedIcon, Typography } from '@/shared/ui';
 
 const ICONS = {
@@ -9,31 +9,30 @@ const ICONS = {
   info: 'information-circle',
   warning: 'warning',
   error: 'close-circle',
-} as const satisfies Record<PurchaseHintTone, IconName>;
+} as const satisfies Record<HintTone, IconName>;
 
 const TEXT_TONES = {
   success: 'success',
   warning: 'warning',
   error: 'danger',
-} as const satisfies Record<PurchaseVerdict['tone'], string>;
+} as const satisfies Record<Verdict['tone'], string>;
 
 type Props = {
-  hints: PurchaseHint[];
-  verdict: PurchaseVerdict | null;
+  title: string;
+  footer?: string;
+  hints: Hint[];
+  verdict: Verdict | null;
 };
 
 /**
- * How good the purchase is, colored by how much it needs attention: a banner with the overall
- * verdict, then each reason with its own colored mark.
+ * An assessment colored by how much it needs attention: a banner with the overall verdict, then
+ * each reason with its own colored mark.
  */
-export function PurchaseHints({ hints, verdict }: Props) {
+export function HintsSection({ title, footer, hints, verdict }: Props) {
   styles.useVariants({ verdict: verdict?.tone });
   if (hints.length === 0) return null;
   return (
-    <Section
-      title="Наскільки це вигідно"
-      footer="Оцінка — за річною дохідністю, якщо тримати ОВДП до погашення. Облікова ставка НБУ — на дату купівлі (для запланованої купівлі — поточна). Нові ОВДП — розміщені за 12 місяців до купівлі: ставка купону нової ОВДП близька до ринкової дохідності на день розміщення."
-    >
+    <Section title={title} footer={footer}>
       {verdict && (
         <View style={styles.banner} accessibilityRole="summary">
           <ThemedIcon
@@ -64,7 +63,7 @@ export function PurchaseHints({ hints, verdict }: Props) {
 
 function toneColor(
   theme: { success: string; warning: string; danger: string; secondaryText: string },
-  tone: PurchaseHintTone,
+  tone: HintTone,
 ): string {
   return {
     success: theme.success,

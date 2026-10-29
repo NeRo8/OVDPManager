@@ -21,8 +21,11 @@ import {
   screenContent,
 } from '@/shared/ui';
 import { useBondDetails } from '../model/useBondDetails.hook';
+import { useHoldOrSell } from '../model/useHoldOrSell.hook';
+import { HintsSection } from './HintsSection';
 import { PositionSummary } from './PositionSummary';
 import { PurchaseRow } from './PurchaseRow';
+import { SaleButton } from './SaleButton';
 
 type BondRow = Purchase | PositionPayment;
 type BondTab = 'purchases' | 'payments';
@@ -30,7 +33,10 @@ type BondTab = 'purchases' | 'payments';
 const isPurchase = (row: BondRow): row is Purchase => 'purchaseDate' in row;
 const keyOf = (row: BondRow) => (isPurchase(row) ? row.id : `${row.date}-${row.type}`);
 
-/** A bond in the wallet: its terms and result, with purchases and payments on separate tabs. */
+/**
+ * A bond in the wallet: its terms, result and whether to keep or sell it, with purchases and
+ * payments on separate tabs.
+ */
 export default function BondScreen() {
   const { isin } = useLocalSearchParams<{ isin: string }>();
   const [tab, setTab] = useState<BondTab>('payments');
@@ -46,6 +52,7 @@ export default function BondScreen() {
     deletePurchase,
     deletePosition,
   } = useBondDetails(isin);
+  const { assessment } = useHoldOrSell(isin, null);
 
   if (!position || !currency)
     return <EmptyState icon="search-outline" message="У гаманці немає цієї ОВДП" />;
@@ -71,7 +78,12 @@ export default function BondScreen() {
 
   return (
     <View style={styles.screen}>
-      <Stack.Screen options={{ title: position.isin }} />
+      <Stack.Screen
+        options={{
+          title: position.isin,
+          headerRight: assessment ? () => <SaleButton isin={position.isin} /> : undefined,
+        }}
+      />
       <FlatList
         data={rows}
         style={styles.list}
@@ -95,6 +107,14 @@ export default function BondScreen() {
               hasTopUps={hasTopUps}
               results={results}
             />
+            {assessment && (
+              <HintsSection
+                title="Тримати чи продати"
+                footer="Порівняння з новими ОВДП тієї ж валюти й строку, розміщеними за останні 12 місяців; без них — з обліковою ставкою НБУ сьогодні. Ціни, за яких продаж вигідний, — на екрані продажу, кнопкою вгорі."
+                hints={assessment.hints}
+                verdict={assessment.verdict}
+              />
+            )}
             <SegmentedSelect options={tabs} value={tab} onChange={setTab} />
           </View>
         }
