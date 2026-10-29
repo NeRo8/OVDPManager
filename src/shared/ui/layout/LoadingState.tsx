@@ -1,29 +1,27 @@
-import { ActivityIndicator, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { StateMessage } from './StateMessage';
+import { SkeletonCard } from '../skeleton/SkeletonCard';
+import { SkeletonGroup } from '../skeleton/SkeletonGroup';
+import { SkeletonSection } from '../skeleton/SkeletonSection';
+import { ScreenScrollView } from './ScreenScrollView';
 
 export type LoadingStateProps = {
-  message?: string;
+  /** What the screen waits for, read by screen readers in place of the skeleton */
+  message: string;
 };
 
-/** Full-screen spinner while the screen's data is on its way. */
+/** The skeleton of a screen while its data is on its way: a card of figures over a list of rows. */
 export function LoadingState({ message }: LoadingStateProps) {
   return (
-    <View style={styles.container}>
-      <ActivityIndicator />
-      {message && <StateMessage text={message} />}
-    </View>
+    <SkeletonGroup label={message} style={styles.screen}>
+      <ScreenScrollView scrollEnabled={false}>
+        <SkeletonCard />
+        <SkeletonSection rows={5} />
+      </ScreenScrollView>
+    </SkeletonGroup>
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: theme.space.xxl,
-    gap: theme.space.sm,
-    backgroundColor: theme.background,
-  },
-}));
+const styles = StyleSheet.create({
+  screen: { flex: 1 },
+});

@@ -1,6 +1,6 @@
 import { useCloudAccount } from '@/features/backup';
 import { formatDateTime } from '@/shared/lib';
-import { ActionRow, InfoRow, Section } from '@/shared/ui';
+import { ActionRow, InfoRow, Section, SkeletonBlock, SkeletonGroup } from '@/shared/ui';
 
 /**
  * The Google account that holds the cloud backup: signing in and out, the copy's date, and removing
@@ -18,13 +18,17 @@ export function CloudAccountSection() {
     deleteCloudData,
   } = useCloudAccount();
 
-  const backupDate = isCheckingBackup
-    ? 'Перевіряємо…'
-    : backupCheckFailed
-      ? 'Не вдалося перевірити'
-      : cloudBackup
-        ? formatDateTime(cloudBackup.exportedAt)
-        : 'Ще немає';
+  const backupDate = isCheckingBackup ? (
+    <SkeletonGroup label="Перевіряємо копію в хмарі…">
+      <SkeletonBlock width={120} height={14} />
+    </SkeletonGroup>
+  ) : backupCheckFailed ? (
+    'Не вдалося перевірити'
+  ) : cloudBackup ? (
+    formatDateTime(cloudBackup.exportedAt)
+  ) : (
+    'Ще немає'
+  );
 
   if (!account) {
     return (
