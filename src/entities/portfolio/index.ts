@@ -7,7 +7,7 @@ export { useKeyRate } from './api/useKeyRate.hook';
 export { useKeyRates } from './api/useKeyRates.hook';
 export { useExchangeRates } from './api/useExchangeRates.hook';
 export type { ExchangeCurrency } from './api/nbuExchangeRates';
-export { annualYield } from './model/yield';
+export { ANNUAL_YIELD_RANGE, annualYield } from './model/yield';
 export * from './model/position';
 export * from './model/counts';
 export * from './model/plan';

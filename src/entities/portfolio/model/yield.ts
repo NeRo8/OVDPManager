@@ -1,8 +1,14 @@
 import { daysBetween, round2 } from '@/shared/lib';
 
-/** Bounds of the search, as fractions a year: −99 % and +1000 %. A rate of −200 % would zero the half-year factor. */
-const LOWEST_RATE = -0.99;
-const HIGHEST_RATE = 10;
+/**
+ * The yields `annualYield` can find, % a year; beyond them it gives null. A rate of −200 % would
+ * zero the half-year factor.
+ */
+export const ANNUAL_YIELD_RANGE = { lowest: -99, highest: 1000 } as const;
+
+/** Bounds of the search, as fractions a year. */
+const LOWEST_RATE = ANNUAL_YIELD_RANGE.lowest / 100;
+const HIGHEST_RATE = ANNUAL_YIELD_RANGE.highest / 100;
 
 /**
  * Annual yield of a purchase held to maturity, % a year: the rate at which its payments,
