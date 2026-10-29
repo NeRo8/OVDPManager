@@ -1,4 +1,5 @@
 import type { Period, PeriodOption } from '@/features/report-filters';
+
 import { formatDate } from '@/shared/lib';
 
 export const PERIOD_LABELS: Record<PeriodOption, string> = {

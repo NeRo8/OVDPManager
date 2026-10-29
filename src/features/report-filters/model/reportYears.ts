@@ -1,4 +1,5 @@
 import type { Wallet } from '@/entities/portfolio';
+
 import { walletSpan } from './periodDates';
 
 const yearOf = (date: string) => Number(date.slice(0, 4));

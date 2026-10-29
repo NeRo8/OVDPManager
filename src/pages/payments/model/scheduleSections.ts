@@ -1,4 +1,5 @@
 import type { ScheduleEvent } from '@/entities/portfolio';
+
 import { MONTHS, formatTotals } from '@/shared/lib';
 
 export type ScheduleSection = {

@@ -1,7 +1,9 @@
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 
 import { BondsGate, useWallet } from '@/entities/portfolio';
+
 import { EmptyState } from '@/shared/ui';
+
 import { AddPurchaseForm } from './AddPurchaseForm';
 
 /**

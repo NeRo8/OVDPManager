@@ -1,13 +1,17 @@
 import { RefreshControl, View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { NbuSourceNote, StaleBondsNotice, WalletGate } from '@/entities/portfolio';
+
 import { MONTHS, usePullToRefresh } from '@/shared/lib';
 import { YearNav } from '@/shared/ui';
+
 import { useFilteredWallet } from '../model/useFilteredWallet.hook';
 import { useYearSchedule } from '../model/useYearSchedule.hook';
-import { ScheduleSectionList } from './ScheduleSectionList';
+
 import { MonthBreakdown } from './MonthBreakdown';
+import { ScheduleSectionList } from './ScheduleSectionList';
 import { yearSeries } from './yearSeries';
 import { YearTotals } from './YearTotals';
 

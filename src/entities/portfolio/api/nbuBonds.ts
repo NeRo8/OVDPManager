@@ -1,3 +1,5 @@
+import { nbuClient } from '@/shared/api';
+
 import {
   type Bond,
   type BondPayment,
@@ -5,7 +7,6 @@ import {
   type Currency,
   type PaymentType,
 } from '../model/portfolio';
-import { nbuClient } from '@/shared/api';
 
 /** One row of a bond's payment schedule, as `/depo_securities?json` returns it. */
 type NbuPayment = {

@@ -1,15 +1,19 @@
+import { useState } from 'react';
+import { View } from 'react-native';
+
 import { File, Paths } from 'expo-file-system';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import { useState } from 'react';
-import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import type { ReportName } from '@/features/report-filters';
+
 import { showToast } from '@/shared/lib';
 import { HeaderButton } from '@/shared/ui';
+
 import type { ReportPdf } from '../model/reportPdf';
 import { reportPdfHtml } from '../model/reportPdfHtml';
+
 import { ReportFiltersButton } from './ReportFiltersButton';
 
 type Props = {

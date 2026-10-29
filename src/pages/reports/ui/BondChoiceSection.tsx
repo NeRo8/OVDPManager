@@ -1,7 +1,10 @@
-import { CURRENCY_NAMES } from '@/entities/portfolio';
 import { chooseReportBond } from '@/features/report-filters';
+
+import { CURRENCY_NAMES } from '@/entities/portfolio';
+
 import { formatDate } from '@/shared/lib';
 import { CheckRow, Section } from '@/shared/ui';
+
 import { useReport } from '../model/useReport.hook';
 
 /** The bond the bond report is about, the one nearest to maturity at first. */

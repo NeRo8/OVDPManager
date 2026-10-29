@@ -1,9 +1,10 @@
-import { useWallet, walletScopeOptions } from '@/entities/portfolio';
 import {
   countActiveFilters,
   effectiveFilters,
   usePaymentFilters,
 } from '@/features/payment-filters';
+
+import { useWallet, walletScopeOptions } from '@/entities/portfolio';
 
 /** The wallet with the saved payment filters, fitted to the bonds and currencies it has. */
 export function useFilteredWallet() {

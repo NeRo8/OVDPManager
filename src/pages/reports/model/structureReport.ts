@@ -1,3 +1,5 @@
+import type { StructurePurchases } from '@/features/report-filters';
+
 import {
   type Bond,
   CURRENCIES,
@@ -6,7 +8,7 @@ import {
   isPlannedPurchase,
   maturesWithin,
 } from '@/entities/portfolio';
-import type { StructurePurchases } from '@/features/report-filters';
+
 import { addDaysISO, daysBetween, round2 } from '@/shared/lib';
 
 /** Time left until maturity, the bond picker's one and three years split finer. */

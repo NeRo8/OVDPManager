@@ -1,9 +1,12 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { formatMoney, plural } from '@/shared/lib';
 import { Card, LegendRow, Separator, ShareBar, TotalRow, Typography } from '@/shared/ui';
+
 import type { YearSummary } from '../model/yearSummary';
+
 import type { YearSeries } from './yearSeries';
 
 type Props = {

@@ -1,4 +1,5 @@
 import { useKeyRates } from '@/entities/portfolio';
+
 import { useReport } from './useReport.hook';
 
 /** The bond picked for the bond report, the nearest to maturity at first, and its key rates. */

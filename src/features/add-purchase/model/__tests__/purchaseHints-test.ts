@@ -1,5 +1,7 @@
 import type { Bond } from '@/entities/portfolio';
+
 import { formatMoney } from '@/shared/lib';
+
 import { annualYieldText, assessPurchase } from '../purchaseHints';
 
 const purchaseDate = '2026-10-29';

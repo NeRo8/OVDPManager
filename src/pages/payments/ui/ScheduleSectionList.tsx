@@ -1,7 +1,9 @@
 import { SectionList, View, type SectionListProps } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { ScheduleEventRow, type ScheduleEvent } from '@/entities/portfolio';
+
 import {
   EmptyState,
   type EmptyStateProps,
@@ -9,6 +11,7 @@ import {
   Typography,
   screenContent,
 } from '@/shared/ui';
+
 import type { ScheduleSection } from '../model/scheduleSections';
 
 type Props = Pick<

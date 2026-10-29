@@ -1,5 +1,6 @@
-import { Canvas, LinearGradient, Rect } from '@shopify/react-native-skia';
 import { useWindowDimensions } from 'react-native';
+
+import { Canvas, LinearGradient, Rect } from '@shopify/react-native-skia';
 import { type SharedValue, useDerivedValue } from 'react-native-reanimated';
 import { StyleSheet } from 'react-native-unistyles';
 

@@ -1,9 +1,12 @@
 import { type ReactNode } from 'react';
 
 import { pricePerBond } from '@/entities/portfolio';
+
 import { formatMoney } from '@/shared/lib';
 import { InfoRow, Section, SignedValue } from '@/shared/ui';
+
 import type { BondReport } from '../model/bondReport';
+
 import { pointsCell } from './reportCells';
 
 type Props = {

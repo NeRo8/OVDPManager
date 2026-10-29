@@ -1,7 +1,10 @@
 import type { Currency } from '@/entities/portfolio';
+
 import { formatMoney } from '@/shared/lib';
 import { InfoRow, Section } from '@/shared/ui';
+
 import type { HoldOrSell } from '../model/holdOrSell';
+
 import { breakEvenText } from './saleTexts';
 
 type Props = {

@@ -1,10 +1,14 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { CURRENCY_NAMES } from '@/entities/portfolio';
+
 import { formatMoney } from '@/shared/lib';
 import { Card, ColumnChart, Typography } from '@/shared/ui';
+
 import type { CurrencyStructure } from '../model/structureReport';
+
 import { shareCell } from './reportCells';
 import { TERM_BUCKET_LABELS } from './structureLabels';
 

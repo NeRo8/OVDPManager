@@ -1,5 +1,7 @@
-import type { Wallet } from '@/entities/portfolio';
 import type { RedemptionTime } from '@/features/report-filters';
+
+import type { Wallet } from '@/entities/portfolio';
+
 import { formatDate } from '@/shared/lib';
 import { EmptyState } from '@/shared/ui';
 

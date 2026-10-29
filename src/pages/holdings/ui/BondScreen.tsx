@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { FlatList, type ListRenderItemInfo, View } from 'react-native';
+
+import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
@@ -9,6 +10,7 @@ import {
   type Purchase,
   ScheduleEventRow,
 } from '@/entities/portfolio';
+
 import {
   Button,
   Card,
@@ -20,8 +22,10 @@ import {
   Typography,
   screenContent,
 } from '@/shared/ui';
+
 import { useBondDetails } from '../model/useBondDetails.hook';
 import { useHoldOrSell } from '../model/useHoldOrSell.hook';
+
 import { HintsSection } from './HintsSection';
 import { PositionSummary } from './PositionSummary';
 import { PurchaseRow } from './PurchaseRow';

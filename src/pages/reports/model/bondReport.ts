@@ -1,4 +1,5 @@
 import { type Wallet, type WalletPosition, narrowWallet } from '@/entities/portfolio';
+
 import { type CurrencyYears, yearOverYearReport } from './yearOverYearReport';
 import { KEY_RATE_CURRENCY, type KeyRateOn, keyRateAt } from './yieldReport';
 

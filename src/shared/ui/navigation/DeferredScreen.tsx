@@ -1,7 +1,8 @@
+import { type ReactNode, useEffect, useState } from 'react';
+
 import { useNavigation } from 'expo-router';
 import type { NativeStackNavigationProp } from 'expo-router/native-stack';
 import type { ParamListBase } from 'expo-router/react-navigation';
-import { type ReactNode, useEffect, useState } from 'react';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { StyleSheet } from 'react-native-unistyles';
 

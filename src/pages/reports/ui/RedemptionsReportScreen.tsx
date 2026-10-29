@@ -1,12 +1,17 @@
-import { Stack } from 'expo-router';
 import type { SectionListData, SectionListRenderItemInfo } from 'react-native';
 
-import { type PositionPayment, ScheduleEventRow, WalletGate } from '@/entities/portfolio';
+import { Stack } from 'expo-router';
+
 import { isScopeOn } from '@/features/report-filters';
+
+import { type PositionPayment, ScheduleEventRow, WalletGate } from '@/entities/portfolio';
+
 import { SectionCell } from '@/shared/ui';
+
 import { type CurrencyRedemptions, redemptionsReport } from '../model/redemptionsReport';
 import { redemptionsPdf } from '../model/reportPdf';
 import { useReport } from '../model/useReport.hook';
+
 import { REDEMPTION_TIME_LABELS } from './redemptionLabels';
 import { RedemptionsCurrencyHeader } from './RedemptionsCurrencyHeader';
 import { RedemptionsEmpty } from './RedemptionsEmpty';

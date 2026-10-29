@@ -1,7 +1,9 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { CURRENCY_NAMES, type Currency } from '@/entities/portfolio';
+
 import { Card, ShareBar, Typography } from '@/shared/ui';
 
 type Props = {

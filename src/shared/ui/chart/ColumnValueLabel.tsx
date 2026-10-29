@@ -1,5 +1,6 @@
 import type { DimensionValue } from 'react-native';
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { Typography } from '../typography/Typography';

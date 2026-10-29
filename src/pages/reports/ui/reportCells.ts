@@ -1,5 +1,7 @@
 import { CURRENCY_NAMES, type Currency } from '@/entities/portfolio';
+
 import { currencySign, formatAmount } from '@/shared/lib';
+
 import type { Flows } from '../model/periodReport';
 
 /** An amount in a table whose title names the currency; a dash for none. */

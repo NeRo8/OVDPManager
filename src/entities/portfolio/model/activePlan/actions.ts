@@ -1,6 +1,7 @@
-import type { PlanPurchase } from '../portfolio';
 import { createInvestmentPlan } from '../plans';
+import type { PlanPurchase } from '../portfolio';
 import { addPurchase, removePosition } from '../purchases';
+
 import { getActivePlan } from './selectors';
 import { useActivePlanStore } from './store';
 

@@ -1,10 +1,12 @@
-import { currencyTitle } from '@/entities/portfolio';
 import {
   type BondSort,
   resetBondPickerFilters,
   updateBondPickerFilters,
   useBondPicker,
 } from '@/features/add-purchase';
+
+import { currencyTitle } from '@/entities/portfolio';
+
 import {
   CheckRow,
   ResetFiltersHeader,
@@ -13,6 +15,7 @@ import {
   SegmentedSection,
   Typography,
 } from '@/shared/ui';
+
 import { SORT_LABELS, TERM_LABELS } from './bondFilterLabels';
 
 const SORT_OPTIONS = (['maturity', 'rate'] as const).map((value) => ({

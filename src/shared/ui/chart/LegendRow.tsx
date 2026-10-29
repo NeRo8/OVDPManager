@@ -1,8 +1,11 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { type SeriesColor } from '@/shared/theme';
+
 import { Typography } from '../typography/Typography';
+
 import { Swatch } from './Swatch';
 
 export type LegendRowProps = {

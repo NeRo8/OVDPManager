@@ -1,12 +1,16 @@
 import { Stack } from 'expo-router';
 
-import { WalletGate } from '@/entities/portfolio';
 import { isScopeOn } from '@/features/report-filters';
+
+import { WalletGate } from '@/entities/portfolio';
+
 import { EmptyState } from '@/shared/ui';
+
 import { periodPdf } from '../model/reportPdf';
 import { YEAR_TERMS } from '../model/reportTerms';
 import { useReport } from '../model/useReport.hook';
 import { yearReport } from '../model/yearReport';
+
 import { CurrencyReportList } from './CurrencyReportList';
 import { ReportHeaderActions } from './ReportHeaderActions';
 import { ReportHeading } from './ReportHeading';

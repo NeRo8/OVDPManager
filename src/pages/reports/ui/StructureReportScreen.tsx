@@ -1,17 +1,21 @@
-import { Stack } from 'expo-router';
 import type { SectionListData, SectionListRenderItemInfo } from 'react-native';
+
+import { Stack } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { CURRENCY_NAMES, WalletGate } from '@/entities/portfolio';
+
 import { formatDate } from '@/shared/lib';
 import { SectionCell, Typography } from '@/shared/ui';
+
+import { structurePdf } from '../model/reportPdf';
 import {
   type CurrencyStructure,
   type StructureBond,
   structureReport,
 } from '../model/structureReport';
-import { structurePdf } from '../model/reportPdf';
 import { useReport } from '../model/useReport.hook';
+
 import { ReportHeaderActions } from './ReportHeaderActions';
 import { ReportHeading } from './ReportHeading';
 import { ReportList } from './ReportList';

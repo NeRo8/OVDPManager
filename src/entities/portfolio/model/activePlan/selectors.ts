@@ -1,5 +1,6 @@
 import type { InvestmentPlan } from '../plan';
 import { getInvestmentPlans, useInvestmentPlans } from '../plans';
+
 import { useActivePlanStore } from './store';
 
 /** A deleted plan falls back to the first one. Undefined only while there are no plans. */

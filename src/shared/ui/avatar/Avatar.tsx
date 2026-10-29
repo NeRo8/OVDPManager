@@ -1,7 +1,9 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import type { AppTheme } from '@/shared/theme';
+
 import { Typography } from '../typography/Typography';
 
 const SIZE = 36;

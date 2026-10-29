@@ -4,7 +4,9 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { formatDate, formatMoney } from '@/shared/lib';
 import { EmptyState, FieldRow, FormScrollView, InfoRow, Input, Section } from '@/shared/ui';
+
 import { useSaleForm } from '../model/useSaleForm.hook';
+
 import { HintsSection } from './HintsSection';
 import { SalePricesSection } from './SalePricesSection';
 

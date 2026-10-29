@@ -1,15 +1,17 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useUnistyles } from 'react-native-unistyles';
 
-import { useInvestmentPlans } from '@/entities/portfolio';
 import { useIsOnboardingCompleted } from '@/features/onboarding';
+
+import { useInvestmentPlans } from '@/entities/portfolio';
+
 import { QueryProvider } from '@/shared/api';
-import { HeaderButton, LaunchSplash, NativeStack, ToastHost } from '@/shared/ui';
 import { goBackOrHome } from '@/shared/lib';
+import { HeaderButton, LaunchSplash, NativeStack, ToastHost } from '@/shared/ui';
 
 // Filters open over their list, which shows every change at once; closing is all that is left.
 const FILTERS_MODAL = {

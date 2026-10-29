@@ -1,4 +1,5 @@
 import { Card, Separator } from '@/shared/ui';
+
 import { ReportTableRow, type ReportTableRowKind } from './ReportTableRow';
 
 export type ReportTableLine = {

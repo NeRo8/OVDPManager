@@ -7,6 +7,7 @@ import {
   positionIncome,
   sumTotals,
 } from '@/entities/portfolio';
+
 import { monthsBetween, round2 } from '@/shared/lib';
 
 /** Money that went out and came in. */

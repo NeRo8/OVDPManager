@@ -1,4 +1,5 @@
 import { View } from 'react-native';
+
 import { StyleSheet, withUnistyles } from 'react-native-unistyles';
 
 import { IconBadgeArt } from './IconBadgeArt';

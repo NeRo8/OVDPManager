@@ -1,4 +1,5 @@
 import { PaymentFiltersButton } from '@/pages/payments';
+
 import { NativeStack } from '@/shared/ui';
 
 // Each tab has its own native stack, so its header is the platform's (glass on iOS 26).

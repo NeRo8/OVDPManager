@@ -1,4 +1,5 @@
 import { Platform, TextInput } from 'react-native';
+
 import { withUnistyles } from 'react-native-unistyles';
 
 import { withAlpha } from '@/shared/lib';

@@ -11,6 +11,7 @@ import {
   sortHints,
   worstTone,
 } from '@/entities/portfolio';
+
 import { formatDate, formatMoney, formatTimeLeft, round2 } from '@/shared/lib';
 
 export type PurchaseAssessment = { verdict: Verdict | null; hints: Hint[] };

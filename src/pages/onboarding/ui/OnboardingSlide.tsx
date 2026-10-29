@@ -1,7 +1,9 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { IconBadge, Typography } from '@/shared/ui';
+
 import type { OnboardingSlideContent } from '../model/slides';
 
 type Props = {

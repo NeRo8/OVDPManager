@@ -1,5 +1,7 @@
 import { CURRENCY_NAMES } from '@/entities/portfolio';
+
 import type { CurrencyRedemptions } from '../model/redemptionsReport';
+
 import { RedemptionsChart } from './RedemptionsChart';
 import { RedemptionsSummary } from './RedemptionsSummary';
 import { RedemptionsTable } from './RedemptionsTable';

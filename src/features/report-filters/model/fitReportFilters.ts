@@ -7,9 +7,10 @@ import {
   purchaseCurrency,
   walletScopeOptions,
 } from '@/entities/portfolio';
+
 import { periodDates } from './periodDates';
-import { initialState } from './reportFilters/store';
 import type { Period, ReportFiltersState, ReportName, ReportScope } from './reportFilters';
+import { initialState } from './reportFilters/store';
 import { type ReportYears, reportYears } from './reportYears';
 
 /** Each report's filters as its screen uses them: fitted to the wallet, with what follows. */

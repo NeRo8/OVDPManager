@@ -1,9 +1,12 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { CURRENCY_NAMES } from '@/entities/portfolio';
+
 import { formatMoney } from '@/shared/lib';
 import { Card, LegendRow, Separator, TotalRow, Typography } from '@/shared/ui';
+
 import type { CurrencyReport } from '../model/periodReport';
 import type { ReportTerms } from '../model/reportTerms';
 

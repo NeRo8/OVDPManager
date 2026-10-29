@@ -1,15 +1,8 @@
-import { router } from 'expo-router';
 import { FlatList, type ListRenderItemInfo, RefreshControl, View } from 'react-native';
+
+import { router } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
-import {
-  FAB_CLEARANCE,
-  FloatingActionButton,
-  SectionCell,
-  SectionTitle,
-  screenContent,
-} from '@/shared/ui';
-import { usePullToRefresh } from '@/shared/lib';
 import {
   NbuSourceNote,
   StaleBondsNotice,
@@ -17,6 +10,16 @@ import {
   type WalletPosition,
   useWallet,
 } from '@/entities/portfolio';
+
+import { usePullToRefresh } from '@/shared/lib';
+import {
+  FAB_CLEARANCE,
+  FloatingActionButton,
+  SectionCell,
+  SectionTitle,
+  screenContent,
+} from '@/shared/ui';
+
 import { PositionRow } from './PositionRow';
 
 export default function PortfolioScreen() {

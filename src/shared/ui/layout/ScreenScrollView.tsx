@@ -1,4 +1,5 @@
 import { ScrollView, type ScrollViewProps } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { screenContent } from './screenContent';

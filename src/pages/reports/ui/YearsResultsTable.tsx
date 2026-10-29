@@ -1,5 +1,7 @@
 import { formatAmount } from '@/shared/lib';
+
 import type { CurrencyYears } from '../model/yearOverYearReport';
+
 import { changeCell, tableTitle } from './reportCells';
 import { ReportTable } from './ReportTable';
 

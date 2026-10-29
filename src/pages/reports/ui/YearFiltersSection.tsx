@@ -1,5 +1,7 @@
 import { chooseReportYear } from '@/features/report-filters';
+
 import { CheckRow, Section } from '@/shared/ui';
+
 import { useReport } from '../model/useReport.hook';
 
 type Props = { report: 'year' };

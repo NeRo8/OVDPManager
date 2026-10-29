@@ -1,8 +1,10 @@
 import { Controller } from 'react-hook-form';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { type Bond } from '@/entities/portfolio';
 import { useAddPurchaseForm } from '@/features/add-purchase';
+
+import { type Bond } from '@/entities/portfolio';
+
 import { formatDate, formatMoney } from '@/shared/lib';
 import {
   Button,
@@ -14,6 +16,7 @@ import {
   Section,
   SignedValue,
 } from '@/shared/ui';
+
 import { HintsSection } from './HintsSection';
 
 type Props = {

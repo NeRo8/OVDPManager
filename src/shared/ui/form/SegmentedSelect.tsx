@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, View, type LayoutChangeEvent } from 'react-native';
+
 import Animated, {
   Easing,
   ReduceMotion,
@@ -11,6 +12,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { hasLiquidGlass } from '@/shared/lib';
 import { space } from '@/shared/theme';
+
 import { ThemedGlassView } from '../glass/ThemedGlassView';
 import { Typography } from '../typography/Typography';
 

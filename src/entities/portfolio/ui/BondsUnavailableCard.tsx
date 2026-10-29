@@ -1,7 +1,9 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { Button, Card, SkeletonCard, SkeletonGroup, Typography } from '@/shared/ui';
+
 import { useBonds } from '../api/useBonds.hook';
 
 /**

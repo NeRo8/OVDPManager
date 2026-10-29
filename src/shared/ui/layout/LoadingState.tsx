@@ -3,6 +3,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import { SkeletonCard } from '../skeleton/SkeletonCard';
 import { SkeletonGroup } from '../skeleton/SkeletonGroup';
 import { SkeletonSection } from '../skeleton/SkeletonSection';
+
 import { ScreenScrollView } from './ScreenScrollView';
 
 export type LoadingStateProps = {

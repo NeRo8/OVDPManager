@@ -1,7 +1,9 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { Card } from '../layout/Card';
+
 import { SkeletonBlock } from './SkeletonBlock';
 
 /** A `Card` with a headline figure on its way: a caption, the figure and a line under it. */

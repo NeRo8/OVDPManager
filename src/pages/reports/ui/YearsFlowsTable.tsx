@@ -1,4 +1,5 @@
 import type { CurrencyYears } from '../model/yearOverYearReport';
+
 import { FLOW_COLUMNS, flowCells, tableTitle } from './reportCells';
 import { ReportTable } from './ReportTable';
 

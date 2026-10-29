@@ -1,7 +1,9 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { Section, type SectionProps } from '../layout/Section';
+
 import { SegmentedSelect, type SegmentedSelectProps } from './SegmentedSelect';
 
 export type SegmentedSectionProps<T extends string | number> = SegmentedSelectProps<T> &

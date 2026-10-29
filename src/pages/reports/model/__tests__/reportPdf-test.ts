@@ -1,4 +1,5 @@
 import type { ActiveWallet } from '@/entities/portfolio';
+
 import type { ReportPdf } from '../reportPdf';
 import { reportPdfHtml } from '../reportPdfHtml';
 

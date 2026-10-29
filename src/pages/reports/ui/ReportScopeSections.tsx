@@ -5,6 +5,7 @@ import {
   type WalletScope,
   type WalletScopeOptions,
 } from '@/entities/portfolio';
+
 import { formatDate } from '@/shared/lib';
 import { CheckRow, Section } from '@/shared/ui';
 

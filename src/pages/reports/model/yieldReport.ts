@@ -1,3 +1,5 @@
+import type { PortfolioStatus } from '@/features/report-filters';
+
 import {
   type Bond,
   CURRENCIES,
@@ -7,8 +9,9 @@ import {
   type Wallet,
   resultsByCurrency,
 } from '@/entities/portfolio';
-import type { PortfolioStatus } from '@/features/report-filters';
+
 import { round2 } from '@/shared/lib';
+
 import { passesStatus } from './portfolioReport';
 
 /** The NBU key rate is the hryvnia's: only hryvnia bonds compare with it. */

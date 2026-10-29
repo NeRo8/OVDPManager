@@ -1,10 +1,13 @@
 import type { Currency } from '@/entities/portfolio';
+
 import { formatMoney } from '@/shared/lib';
 import { LegendRow, ShareBar, TotalRow, Typography } from '@/shared/ui';
+
 import type { PortfolioBond } from '../model/portfolioReport';
+
 import { bondStateLabel } from './portfolioLabels';
-import { ReportItem } from './ReportItem';
 import { shareCell } from './reportCells';
+import { ReportItem } from './ReportItem';
 
 type Props = {
   bond: PortfolioBond;

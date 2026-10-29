@@ -1,8 +1,11 @@
 import { type ReactNode } from 'react';
 
 import { CURRENCY_NAMES } from '@/entities/portfolio';
+
 import { InfoRow, Section, SignedValue } from '@/shared/ui';
+
 import { type CurrencyYield, KEY_RATE_CURRENCY } from '../model/yieldReport';
+
 import { pointsCell } from './reportCells';
 
 type Props = {

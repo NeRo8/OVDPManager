@@ -1,12 +1,16 @@
 import { Stack } from 'expo-router';
 
-import { WalletGate } from '@/entities/portfolio';
 import { isScopeOn } from '@/features/report-filters';
+
+import { WalletGate } from '@/entities/portfolio';
+
 import { EmptyState } from '@/shared/ui';
+
 import { periodReport } from '../model/periodReport';
 import { periodPdf } from '../model/reportPdf';
 import { PERIOD_TERMS } from '../model/reportTerms';
 import { useReport } from '../model/useReport.hook';
+
 import { CurrencyReportList } from './CurrencyReportList';
 import { PERIOD_LABELS, formatPeriod } from './periodLabels';
 import { ReportHeaderActions } from './ReportHeaderActions';

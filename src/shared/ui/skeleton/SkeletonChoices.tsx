@@ -1,8 +1,10 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { ListRow } from '../layout/ListRow';
 import { Section } from '../layout/Section';
+
 import { SkeletonBlock } from './SkeletonBlock';
 
 type Props = {

@@ -1,4 +1,5 @@
 import type { CurrencyRedemptions } from '../model/redemptionsReport';
+
 import { amountCell, shareCell, tableTitle } from './reportCells';
 import { ReportTable, type ReportTableLine } from './ReportTable';
 

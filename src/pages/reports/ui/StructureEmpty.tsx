@@ -1,4 +1,5 @@
 import type { Wallet } from '@/entities/portfolio';
+
 import { EmptyState } from '@/shared/ui';
 
 type Props = {

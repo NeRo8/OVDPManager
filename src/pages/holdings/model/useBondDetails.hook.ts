@@ -6,6 +6,7 @@ import {
   removePositionFromActivePlan,
   useWallet,
 } from '@/entities/portfolio';
+
 import { formatDate, formatMoney, confirmDestructive, goBackOrHome } from '@/shared/lib';
 
 export function useBondDetails(isin: string) {

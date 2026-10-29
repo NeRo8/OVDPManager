@@ -1,7 +1,9 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import type { ExchangeCurrency } from '@/entities/portfolio';
+
 import { MONTHS, MONTHS_SHORT, formatMoney } from '@/shared/lib';
 import {
   Card,
@@ -13,6 +15,7 @@ import {
   Swatch,
   Typography,
 } from '@/shared/ui';
+
 import type { FxReport } from '../model/fxReport';
 
 type Props = { report: FxReport; currency: ExchangeCurrency };

@@ -1,4 +1,5 @@
 import { round2 } from '@/shared/lib';
+
 import type { MonthFlows } from './periodReport';
 
 /** Keep monthly detail up to one year, then combine whole and partial years for a readable plot. */

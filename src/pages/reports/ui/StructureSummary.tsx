@@ -1,7 +1,10 @@
 import { CURRENCY_NAMES } from '@/entities/portfolio';
+
 import { formatDate, formatMoney, formatTimeLeft } from '@/shared/lib';
 import { InfoRow, Section } from '@/shared/ui';
+
 import type { CurrencyStructure } from '../model/structureReport';
+
 import { shareCell } from './reportCells';
 
 type Props = {

@@ -1,5 +1,6 @@
-import { Stack } from 'expo-router';
 import type { SectionListData, SectionListRenderItemInfo } from 'react-native';
+
+import { Stack } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
@@ -11,10 +12,13 @@ import {
   ScheduleEventRow,
   WalletGate,
 } from '@/entities/portfolio';
+
 import { Card, EmptyState, SectionCell, Typography } from '@/shared/ui';
+
 import { bondReport } from '../model/bondReport';
 import { bondPdf } from '../model/reportPdf';
 import { useBondReport } from '../model/useBondReport.hook';
+
 import { BondReportPurchaseRow } from './BondReportPurchaseRow';
 import { BondReportSummary } from './BondReportSummary';
 import { bondStateLabel } from './portfolioLabels';

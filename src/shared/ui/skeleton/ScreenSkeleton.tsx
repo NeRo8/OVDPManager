@@ -1,8 +1,10 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { Card } from '../layout/Card';
 import { ScreenScrollView } from '../layout/ScreenScrollView';
+
 import { SkeletonBlock } from './SkeletonBlock';
 import { SkeletonCard } from './SkeletonCard';
 import { SkeletonChoices } from './SkeletonChoices';

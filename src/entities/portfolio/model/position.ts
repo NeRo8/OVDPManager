@@ -1,4 +1,5 @@
 import { round2 } from '@/shared/lib';
+
 import {
   type Bond,
   CURRENCIES,

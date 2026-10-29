@@ -1,5 +1,6 @@
-import { isGlassEffectAPIAvailable, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { Platform } from 'react-native';
+
+import { isGlassEffectAPIAvailable, isLiquidGlassAvailable } from 'expo-glass-effect';
 
 /**
  * iOS 26+ draws Liquid Glass: transparent headers over the content, glass buttons and tab bar.

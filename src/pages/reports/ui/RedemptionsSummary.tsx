@@ -1,6 +1,8 @@
 import { CURRENCY_NAMES, type PositionPayment } from '@/entities/portfolio';
+
 import { formatDate, formatMoney } from '@/shared/lib';
 import { InfoRow, Section } from '@/shared/ui';
+
 import type { CurrencyRedemptions } from '../model/redemptionsReport';
 
 type Props = {

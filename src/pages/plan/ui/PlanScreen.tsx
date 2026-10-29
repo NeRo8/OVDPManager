@@ -1,5 +1,6 @@
-import { router, Stack } from 'expo-router';
 import { RefreshControl } from 'react-native';
+
+import { router, Stack } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
@@ -10,6 +11,7 @@ import {
   removeInvestmentPlan,
   useWallet,
 } from '@/entities/portfolio';
+
 import {
   confirmDestructive,
   formatMoney,

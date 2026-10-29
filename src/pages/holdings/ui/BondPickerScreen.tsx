@@ -1,13 +1,17 @@
-import { Stack, router } from 'expo-router';
 import { FlatList } from 'react-native';
+
+import { Stack, router } from 'expo-router';
 import { StyleSheet, withUnistyles } from 'react-native-unistyles';
 
-import { BondsGate } from '@/entities/portfolio';
 import { useBondPicker } from '@/features/add-purchase';
+
+import { BondsGate } from '@/entities/portfolio';
+
 import { EmptyState, SectionCell, Typography, screenContent } from '@/shared/ui';
+
 import { BondChoiceRow } from './BondChoiceRow';
-import { BondFiltersButton } from './BondFiltersButton';
 import { SORT_LABELS, TERM_LABELS } from './bondFilterLabels';
+import { BondFiltersButton } from './BondFiltersButton';
 
 // The search field follows the app's theme, which may differ from the system one.
 const HeaderSearchBar = withUnistyles(Stack.SearchBar, (theme) => ({

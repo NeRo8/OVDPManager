@@ -7,8 +7,11 @@ import {
   toggleReportIsin,
   updateReportFilters,
 } from '@/features/report-filters';
+
 import { ResetFiltersHeader, ScreenScrollView } from '@/shared/ui';
+
 import { useReport } from '../model/useReport.hook';
+
 import { ReportOwnFiltersSection } from './ReportOwnFiltersSection';
 import { ReportScopeSections } from './ReportScopeSections';
 

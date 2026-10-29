@@ -1,8 +1,10 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { MONTHS, MONTHS_SHORT, formatMoney } from '@/shared/lib';
 import { Card, ColumnChart, LegendRow, Separator, TotalRow, Typography } from '@/shared/ui';
+
 import type { YearSeries } from './yearSeries';
 
 const MONTH_COLUMNS = MONTHS.map((name, month) => ({ label: MONTHS_SHORT[month], name }));

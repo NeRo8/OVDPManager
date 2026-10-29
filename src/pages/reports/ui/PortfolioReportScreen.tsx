@@ -1,9 +1,12 @@
-import { Stack } from 'expo-router';
 import type { SectionListData, SectionListRenderItemInfo } from 'react-native';
 
+import { Stack } from 'expo-router';
+
 import { CURRENCY_NAMES, WalletGate } from '@/entities/portfolio';
+
 import { formatDate } from '@/shared/lib';
 import { SectionCell } from '@/shared/ui';
+
 import {
   type CurrencyPortfolio,
   type PortfolioBond,
@@ -11,10 +14,11 @@ import {
 } from '../model/portfolioReport';
 import { portfolioPdf } from '../model/reportPdf';
 import { useReport } from '../model/useReport.hook';
+
 import { BondStatusEmpty } from './BondStatusEmpty';
-import { PORTFOLIO_STATUS_TITLES } from './portfolioLabels';
 import { PortfolioBondRow } from './PortfolioBondRow';
 import { PortfolioInvestmentChart } from './PortfolioInvestmentChart';
+import { PORTFOLIO_STATUS_TITLES } from './portfolioLabels';
 import { PortfolioSummary } from './PortfolioSummary';
 import { ReportHeaderActions } from './ReportHeaderActions';
 import { ReportHeading } from './ReportHeading';

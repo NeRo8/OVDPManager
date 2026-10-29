@@ -5,6 +5,7 @@ import {
 import { StyleSheet, withUnistyles } from 'react-native-unistyles';
 
 import { space } from '@/shared/theme';
+
 import { screenContent } from './screenContent';
 
 // A third-party view: withUnistyles re-renders it when the theme changes.

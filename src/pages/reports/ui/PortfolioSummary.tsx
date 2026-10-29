@@ -1,8 +1,10 @@
 import { type ReactNode } from 'react';
 
 import { CURRENCY_NAMES } from '@/entities/portfolio';
+
 import { formatMoney } from '@/shared/lib';
 import { InfoRow, Section, SignedValue } from '@/shared/ui';
+
 import type { CurrencyPortfolio } from '../model/portfolioReport';
 
 type Props = {

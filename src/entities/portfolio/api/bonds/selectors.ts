@@ -1,4 +1,5 @@
 import type { Bond } from '../../model/portfolio';
+
 import { useBondsStore } from './store';
 import type { BondsState } from './types';
 

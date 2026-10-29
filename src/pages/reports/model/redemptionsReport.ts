@@ -1,3 +1,5 @@
+import type { RedemptionTime } from '@/features/report-filters';
+
 import {
   CURRENCIES,
   type Currency,
@@ -5,7 +7,7 @@ import {
   type Wallet,
   sumTotals,
 } from '@/entities/portfolio';
-import type { RedemptionTime } from '@/features/report-filters';
+
 import { round2 } from '@/shared/lib';
 
 /** The redemptions of one quarter. */

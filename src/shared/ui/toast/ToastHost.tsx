@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
 import { AccessibilityInfo, View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { hideToast, useToast } from '@/shared/lib';
+
 import { ToastView } from './ToastView';
 
 const VISIBLE_MS = 4000;

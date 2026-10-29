@@ -1,6 +1,9 @@
 import { type StructurePurchases, updateReportFilters } from '@/features/report-filters';
+
 import { SegmentedSection } from '@/shared/ui';
+
 import { useReport } from '../model/useReport.hook';
+
 import { STRUCTURE_PURCHASES_LABELS } from './structureLabels';
 
 const PURCHASES_OPTIONS = (['all', 'made'] as const).map((value) => ({

@@ -1,5 +1,7 @@
 import { CURRENCY_NAMES } from '@/entities/portfolio';
+
 import { Card, ColumnChart } from '@/shared/ui';
+
 import type { CurrencyPortfolio } from '../model/portfolioReport';
 
 type Props = { report: CurrencyPortfolio };

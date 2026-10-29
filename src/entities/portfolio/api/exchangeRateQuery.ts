@@ -1,6 +1,7 @@
 import { queryOptions } from '@tanstack/react-query';
 
 import { todayISO } from '@/shared/lib';
+
 import { getCachedExchangeRateYear, saveExchangeRateYear } from './exchangeRate';
 import { type ExchangeCurrency, fetchExchangeRates } from './nbuExchangeRates';
 

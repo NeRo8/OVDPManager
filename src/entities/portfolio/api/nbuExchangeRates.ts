@@ -1,5 +1,6 @@
 import { nbuClient } from '@/shared/api';
 import { addDaysISO } from '@/shared/lib';
+
 import { fillDailyRates } from './dailyRates';
 
 export type ExchangeCurrency = 'USD' | 'EUR';

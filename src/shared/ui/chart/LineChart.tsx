@@ -1,5 +1,6 @@
 import { Fragment, useState, type ComponentType } from 'react';
 import { View } from 'react-native';
+
 import { Canvas, Circle, Path, Rect } from '@shopify/react-native-skia';
 import { GestureDetector, useTapGesture } from 'react-native-gesture-handler';
 import {
@@ -8,14 +9,16 @@ import {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { scheduleOnRN } from 'react-native-worklets';
 import { StyleSheet, withUnistyles } from 'react-native-unistyles';
+import { scheduleOnRN } from 'react-native-worklets';
 
 import { formatMoney } from '@/shared/lib';
 import type { SeriesColor } from '@/shared/theme';
+
 import { Typography } from '../typography/Typography';
-import { chartPalette, type ChartPalette } from './chartTheme';
+
 import { chartGrid, formatGridTick, gridBoundaries } from './chartGrid';
+import { chartPalette, type ChartPalette } from './chartTheme';
 
 const PLOT_HEIGHT = 180;
 const PLOT_INSET = 8;

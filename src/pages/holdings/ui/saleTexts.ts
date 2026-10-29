@@ -1,4 +1,5 @@
 import type { Currency } from '@/entities/portfolio';
+
 import { formatMoney } from '@/shared/lib';
 
 /** «Продаж без збитку» in words: from what price per bond, or any once payments returned the cost. */

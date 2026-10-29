@@ -1,4 +1,3 @@
-import { currencyTitle, type Currency } from '@/entities/portfolio';
 import {
   SCHEDULE_EVENT_TYPES,
   filterSchedule,
@@ -9,6 +8,9 @@ import {
   type ScheduleEventType,
   type ScheduleTimeFilter,
 } from '@/features/payment-filters';
+
+import { currencyTitle, type Currency } from '@/entities/portfolio';
+
 import { formatDate } from '@/shared/lib';
 import {
   CheckRow,
@@ -18,7 +20,9 @@ import {
   SegmentedSection,
   Typography,
 } from '@/shared/ui';
+
 import { useFilteredWallet } from '../model/useFilteredWallet.hook';
+
 import { EVENT_TYPE_LABELS, TIME_LABELS } from './paymentFilterLabels';
 
 const TIME_OPTIONS = (['all', 'upcoming', 'past'] as const).map((value) => ({

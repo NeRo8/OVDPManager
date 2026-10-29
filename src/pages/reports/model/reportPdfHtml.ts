@@ -1,5 +1,6 @@
 import { formatDate } from '@/shared/lib';
 import { light } from '@/shared/theme';
+
 import type { ChartColor, PdfChart, PdfSection, ReportPdf } from './reportPdf';
 import { reportPdfStyle } from './reportPdfStyle';
 

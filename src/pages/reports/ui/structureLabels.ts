@@ -1,4 +1,5 @@
 import type { StructurePurchases } from '@/features/report-filters';
+
 import type { TermBucket } from '../model/structureReport';
 
 export const STRUCTURE_PURCHASES_LABELS: Record<StructurePurchases, string> = {

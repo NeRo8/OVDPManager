@@ -4,6 +4,7 @@ import {
   type PositionResults,
   pricePerBond,
 } from '@/entities/portfolio';
+
 import { formatMoney } from '@/shared/lib';
 import { InfoRow, Section, SignedValue } from '@/shared/ui';
 

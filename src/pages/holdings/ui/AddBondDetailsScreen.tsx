@@ -1,8 +1,10 @@
-import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { FlatList, View } from 'react-native';
+
+import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { BondParameters, BondsGate, type BondPayment, useWallet } from '@/entities/portfolio';
+
 import { formatDate, formatMoney } from '@/shared/lib';
 import {
   EmptyState,

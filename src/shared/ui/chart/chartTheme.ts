@@ -1,6 +1,6 @@
+import { withAlpha } from '@/shared/lib';
 import type { AppTheme, SeriesColor } from '@/shared/theme';
 import { SERIES_COLORS } from '@/shared/theme';
-import { withAlpha } from '@/shared/lib';
 
 export type ChartPalette = {
   border: string;

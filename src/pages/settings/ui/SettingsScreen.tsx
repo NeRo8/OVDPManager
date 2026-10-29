@@ -1,10 +1,13 @@
-import { router } from 'expo-router';
 import { View } from 'react-native';
+
+import { router } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { planCount, purchaseCount, useInvestmentPlans, usePurchases } from '@/entities/portfolio';
+
 import { setThemePreference, useThemePreference, type ThemePreference } from '@/shared/theme';
 import { LinkRow, ScreenScrollView, Section, SegmentedSelect } from '@/shared/ui';
+
 import { CloudAccountSection } from './CloudAccountSection';
 
 const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [

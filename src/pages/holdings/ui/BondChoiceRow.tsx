@@ -1,4 +1,5 @@
 import { type Bond, CURRENCY_NAMES, canBuyOn, isRedeemed } from '@/entities/portfolio';
+
 import { currencySign, formatDate, formatTimeLeft } from '@/shared/lib';
 import { currencyColor } from '@/shared/theme';
 import { Avatar, ListRow, ThemedIcon, Typography } from '@/shared/ui';

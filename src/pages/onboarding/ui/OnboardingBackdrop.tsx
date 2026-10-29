@@ -1,10 +1,13 @@
-import { BlurMask, Canvas, Group } from '@shopify/react-native-skia';
 import { useWindowDimensions } from 'react-native';
+
+import { BlurMask, Canvas, Group } from '@shopify/react-native-skia';
 import type { SharedValue } from 'react-native-reanimated';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { withAlpha } from '@/shared/lib';
+
 import { AURORA_BLOBS } from '../model/aurora';
+
 import { AuroraBlob } from './AuroraBlob';
 
 /** Soft on the light background; the slides' text is primary, so it keeps its contrast on top */

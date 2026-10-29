@@ -18,6 +18,7 @@ import {
   walletPosition,
   worstTone,
 } from '@/entities/portfolio';
+
 import { formatMoney, round2 } from '@/shared/lib';
 
 /** What the money from a sale could earn instead: new bonds like this one, or the key rate. */

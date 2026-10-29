@@ -1,5 +1,7 @@
 import { type Bond, type Purchase, amountForYield, groupPositions } from '@/entities/portfolio';
+
 import { formatMoney } from '@/shared/lib';
+
 import { holdOrSell } from '../holdOrSell';
 
 /** Two years, a 10% coupon paid twice a year on a nominal of 1000, redeemed at once. */

@@ -1,4 +1,5 @@
 import type { Wallet } from '@/entities/portfolio';
+
 import { type CurrencyReport, periodReport } from './periodReport';
 
 /** The wallet's purchases and payments in one calendar year, per currency. */

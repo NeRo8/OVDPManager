@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useWindowDimensions, View } from 'react-native';
+
 import Animated, {
   useAnimatedRef,
   useAnimatedScrollHandler,
@@ -9,8 +10,11 @@ import { StyleSheet, withUnistyles } from 'react-native-unistyles';
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { completeOnboarding } from '@/features/onboarding';
+
 import { Button } from '@/shared/ui';
+
 import { ONBOARDING_SLIDES } from '../model/slides';
+
 import { OnboardingBackdrop } from './OnboardingBackdrop';
 import { OnboardingSlide } from './OnboardingSlide';
 import { PagerDot } from './PagerDot';

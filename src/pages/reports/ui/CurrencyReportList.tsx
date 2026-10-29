@@ -2,15 +2,18 @@ import type { ReactElement } from 'react';
 import type { SectionListData, SectionListRenderItemInfo } from 'react-native';
 
 import { type ActiveWallet, CURRENCY_NAMES } from '@/entities/portfolio';
+
 import { SectionCell } from '@/shared/ui';
+
 import type { BondReport, CurrencyReport } from '../model/periodReport';
 import type { ReportTerms } from '../model/reportTerms';
+
+import { PeriodFlowsChart } from './PeriodFlowsChart';
 import { ReportBondHighlights } from './ReportBondHighlights';
 import { ReportBondRow } from './ReportBondRow';
 import { ReportList } from './ReportList';
 import { ReportListHeader } from './ReportListHeader';
 import { ReportMonthsTable } from './ReportMonthsTable';
-import { PeriodFlowsChart } from './PeriodFlowsChart';
 import { ReportSectionHeader } from './ReportSectionHeader';
 import { ReportSummary } from './ReportSummary';
 

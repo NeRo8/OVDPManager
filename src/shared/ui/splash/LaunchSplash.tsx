@@ -1,7 +1,8 @@
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
 import { useRef, useState } from 'react';
 import { Image } from 'react-native';
+
+import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import Animated, {
   Extrapolation,
   interpolate,
@@ -16,7 +17,6 @@ import { StyleSheet } from 'react-native-unistyles';
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { SplashBubble } from './SplashBubble';
-import { SplashRing } from './SplashRing';
 import {
   BUBBLES,
   EASE_IN_OUT,
@@ -31,6 +31,7 @@ import {
   SWIRL_DELAY,
   SWIRL_DURATION,
 } from './splashMotion';
+import { SplashRing } from './SplashRing';
 
 // Reduced motion is handled here: the splash drops the bubbles and the spin and keeps the fades.
 const ALWAYS = ReduceMotion.Never;

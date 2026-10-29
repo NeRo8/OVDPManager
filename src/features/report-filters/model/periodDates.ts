@@ -1,7 +1,9 @@
 import type { Wallet } from '@/entities/portfolio';
+
 import { addDaysISO, addMonthsISO, monthRange, quarterRange } from '@/shared/lib';
-import { initialState } from './reportFilters/store';
+
 import type { Period, PeriodOption } from './reportFilters';
+import { initialState } from './reportFilters/store';
 
 /** In the order the filters screen lists them. */
 export const PERIOD_OPTIONS: PeriodOption[] = [

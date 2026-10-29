@@ -1,5 +1,7 @@
 import { updateReportFilters } from '@/features/report-filters';
+
 import { CheckRow, Section } from '@/shared/ui';
+
 import { useReport } from '../model/useReport.hook';
 
 const CURRENCIES = [

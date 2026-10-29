@@ -6,6 +6,7 @@ import {
   isPlannedPurchase,
   pricePerBond,
 } from '@/entities/portfolio';
+
 import { currencySign, formatDate, formatMoney } from '@/shared/lib';
 import { SERIES_COLORS } from '@/shared/theme';
 import { Avatar, ListRow, Typography } from '@/shared/ui';

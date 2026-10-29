@@ -1,5 +1,6 @@
-import { Stack, router } from 'expo-router';
 import { FlatList, type ListRenderItemInfo } from 'react-native';
+
+import { Stack, router } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
@@ -11,6 +12,7 @@ import {
   usePurchases,
   type InvestmentPlan,
 } from '@/entities/portfolio';
+
 import { plural, todayISO } from '@/shared/lib';
 import { CheckRow, HeaderButton, SectionCell, Typography, screenContent } from '@/shared/ui';
 

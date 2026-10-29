@@ -1,6 +1,9 @@
-import type { Currency, Wallet } from '@/entities/portfolio';
 import { reportYears } from '@/features/report-filters';
+
+import type { Currency, Wallet } from '@/entities/portfolio';
+
 import { round2 } from '@/shared/lib';
+
 import { type CurrencyReport, type Flows, periodReport } from './periodReport';
 import { yearReport } from './yearReport';
 

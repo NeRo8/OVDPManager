@@ -1,6 +1,8 @@
 import { CURRENCY_NAMES } from '@/entities/portfolio';
+
 import { formatMoney } from '@/shared/lib';
 import { InfoRow, Section } from '@/shared/ui';
+
 import type { CurrencyYears } from '../model/yearOverYearReport';
 
 type Props = {

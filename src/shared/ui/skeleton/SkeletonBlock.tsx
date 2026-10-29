@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { type DimensionValue, type HostInstance, type LayoutChangeEvent, View } from 'react-native';
+
 import { StyleSheet, withUnistyles } from 'react-native-unistyles';
 
 import { useSkeletonGroup } from './skeletonGroupContext';

@@ -1,6 +1,7 @@
+import { View } from 'react-native';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { View } from 'react-native';
 import { Controller, useForm, useFormState } from 'react-hook-form';
 import { StyleSheet } from 'react-native-unistyles';
 import { z } from 'zod';
@@ -12,6 +13,7 @@ import {
   renameInvestmentPlan,
   useInvestmentPlans,
 } from '@/entities/portfolio';
+
 import {
   Button,
   EmptyState,

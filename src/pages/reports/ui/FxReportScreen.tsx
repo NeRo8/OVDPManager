@@ -1,7 +1,9 @@
-import { Stack } from 'expo-router';
 import type { SectionListData, SectionListRenderItemInfo } from 'react-native';
 
+import { Stack } from 'expo-router';
+
 import { WalletGate, useExchangeRates } from '@/entities/portfolio';
+
 import { formatDate, formatMoney } from '@/shared/lib';
 import {
   Button,
@@ -12,9 +14,11 @@ import {
   SectionCell,
   Typography,
 } from '@/shared/ui';
+
 import { fxEventDates, fxReport, type FxBond, type FxEvent } from '../model/fxReport';
 import { fxPdf } from '../model/reportPdf';
 import { useReport } from '../model/useReport.hook';
+
 import { FxEventRow } from './FxEventRow';
 import { FxTimelineChart } from './FxTimelineChart';
 import { FxYearsTable } from './FxYearsTable';

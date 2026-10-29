@@ -1,6 +1,7 @@
-import { useClock } from '@shopify/react-native-skia';
 import { type ReactNode, useRef } from 'react';
 import { type HostInstance, type StyleProp, View, type ViewStyle } from 'react-native';
+
+import { useClock } from '@shopify/react-native-skia';
 import { useReducedMotion } from 'react-native-reanimated';
 
 import { SkeletonGroupContext } from './skeletonGroupContext';

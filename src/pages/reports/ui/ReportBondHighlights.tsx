@@ -1,6 +1,8 @@
 import { CURRENCY_NAMES } from '@/entities/portfolio';
+
 import { formatMoney } from '@/shared/lib';
 import { InfoRow, Section } from '@/shared/ui';
+
 import type { CurrencyReport } from '../model/periodReport';
 import type { ReportTerms } from '../model/reportTerms';
 

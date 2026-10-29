@@ -1,5 +1,7 @@
 import { MONTHS_SHORT } from '@/shared/lib';
+
 import type { CurrencyReport } from '../model/periodReport';
+
 import { FLOW_COLUMNS, flowCells, tableTitle } from './reportCells';
 import { ReportTable, type ReportTableLine } from './ReportTable';
 

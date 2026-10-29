@@ -1,4 +1,5 @@
 import { Typography } from '@/shared/ui';
+
 import { useBonds } from '../api/useBonds.hook';
 
 /** Inline notice when a refresh failed but saved NBU data is still shown. */

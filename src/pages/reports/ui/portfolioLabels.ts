@@ -1,5 +1,7 @@
-import type { PositionState } from '@/entities/portfolio';
 import type { PortfolioStatus } from '@/features/report-filters';
+
+import type { PositionState } from '@/entities/portfolio';
+
 import { formatDate } from '@/shared/lib';
 
 export const PORTFOLIO_STATUS_LABELS: Record<PortfolioStatus, string> = {

@@ -1,5 +1,6 @@
 import { formatMoney } from '@/shared/lib';
 import type { SeriesColor } from '@/shared/theme';
+
 import { chartGrid, type ChartGrid } from './chartGrid';
 
 export type ChartSeries = {

@@ -1,8 +1,10 @@
 import { router } from 'expo-router';
 import { Controller } from 'react-hook-form';
 
-import { useInvestmentPlans } from '@/entities/portfolio';
 import { useBackupImport } from '@/features/backup';
+
+import { useInvestmentPlans } from '@/entities/portfolio';
+
 import { Button, Input, PasswordInput, FormScrollView, Section, Typography } from '@/shared/ui';
 
 export default function BackupImportScreen() {

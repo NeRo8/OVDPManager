@@ -1,5 +1,6 @@
 import { nbuClient } from '@/shared/api';
 import { addDaysISO } from '@/shared/lib';
+
 import { fillDailyRates } from './dailyRates';
 
 /** A row of `/NBUStatService/v1/statdirectory/key?start=YYYYMMDD&end=YYYYMMDD&id_api=…&json`. */

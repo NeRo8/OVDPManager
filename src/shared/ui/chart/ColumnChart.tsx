@@ -1,10 +1,13 @@
 import { useState, type ComponentType } from 'react';
 import { Pressable, View } from 'react-native';
+
 import { Canvas, Rect, RoundedRect } from '@shopify/react-native-skia';
 import { StyleSheet, withUnistyles } from 'react-native-unistyles';
 
 import { formatCompact } from '@/shared/lib';
+
 import { Typography } from '../typography/Typography';
+
 import { formatGridTick, gridBoundaries } from './chartGrid';
 import { chartPalette, type ChartPalette } from './chartTheme';
 import {

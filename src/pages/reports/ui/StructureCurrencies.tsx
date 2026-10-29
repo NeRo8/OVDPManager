@@ -1,6 +1,8 @@
 import { currencyTitle } from '@/entities/portfolio';
+
 import { formatMoney } from '@/shared/lib';
 import { InfoRow, Section } from '@/shared/ui';
+
 import type { CurrencyStructure } from '../model/structureReport';
 
 type Props = {

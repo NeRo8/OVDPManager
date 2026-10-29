@@ -1,12 +1,14 @@
 import { Pressable, type StyleProp, View, type ViewStyle } from 'react-native';
+
 import { SafeAreaView } from 'react-native-screens/experimental';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { hasLiquidGlass } from '@/shared/lib';
 import { space } from '@/shared/theme';
+
 import { ThemedGlassView } from '../glass/ThemedGlassView';
-import { Typography } from '../typography/Typography';
 import { type IconName, ThemedIcon } from '../icon/ThemedIcon';
+import { Typography } from '../typography/Typography';
 
 const SIZE = 56;
 const MARGIN = space.lg;

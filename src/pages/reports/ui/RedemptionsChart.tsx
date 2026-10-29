@@ -1,6 +1,9 @@
 import { CURRENCY_NAMES } from '@/entities/portfolio';
+
 import { Card, ColumnChart } from '@/shared/ui';
+
 import type { CurrencyRedemptions } from '../model/redemptionsReport';
+
 import { yearColumns } from './yearColumns';
 
 type Props = {

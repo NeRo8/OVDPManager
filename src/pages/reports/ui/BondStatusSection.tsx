@@ -1,5 +1,7 @@
 import type { PortfolioStatus } from '@/features/report-filters';
+
 import { SegmentedSection } from '@/shared/ui';
+
 import { PORTFOLIO_STATUS_LABELS } from './portfolioLabels';
 
 type Props = {

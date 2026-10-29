@@ -1,4 +1,5 @@
 import type { Currency } from '@/entities/portfolio';
+
 import type { BondTerm } from '../bondTerm';
 
 export type BondSort = 'maturity' | 'rate';

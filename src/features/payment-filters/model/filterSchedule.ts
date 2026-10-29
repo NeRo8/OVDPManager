@@ -6,6 +6,7 @@ import {
   fitScope,
   narrowWallet,
 } from '@/entities/portfolio';
+
 import type { PaymentFilters } from './paymentFilters';
 
 /**

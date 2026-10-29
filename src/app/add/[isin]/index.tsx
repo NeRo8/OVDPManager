@@ -1,4 +1,5 @@
 import { AddBondDetailsScreen } from '@/pages/holdings';
+
 import { DeferredScreen } from '@/shared/ui';
 
 export default function AddBondDetailsRoute() {

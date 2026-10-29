@@ -1,5 +1,6 @@
-import { useWallet } from '@/entities/portfolio';
 import { type ReportName, fitReportFilters, useReportFilters } from '@/features/report-filters';
+
+import { useWallet } from '@/entities/portfolio';
 
 /**
  * A report's saved filters fitted to the active plan's wallet: what the report covers, the wallet

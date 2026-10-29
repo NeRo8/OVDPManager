@@ -1,10 +1,14 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { CURRENCY_NAMES } from '@/entities/portfolio';
+
 import { formatMoney } from '@/shared/lib';
 import { Card, type ChartSeries, ColumnChart, LegendRow, Separator } from '@/shared/ui';
+
 import type { CurrencyYears } from '../model/yearOverYearReport';
+
 import { yearColumns } from './yearColumns';
 
 type Props = {

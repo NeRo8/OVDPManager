@@ -1,9 +1,12 @@
 import type { Currency } from '@/entities/portfolio';
+
 import { formatDate, formatMoney, formatTimeLeft } from '@/shared/lib';
 import { ShareBar, Typography } from '@/shared/ui';
+
 import type { StructureBond } from '../model/structureReport';
-import { ReportItem } from './ReportItem';
+
 import { shareCell } from './reportCells';
+import { ReportItem } from './ReportItem';
 
 type Props = {
   bond: StructureBond;

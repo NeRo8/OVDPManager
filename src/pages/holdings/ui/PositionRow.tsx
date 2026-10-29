@@ -1,7 +1,9 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import type { WalletPosition } from '@/entities/portfolio';
+
 import { currencySign, formatDate, formatMoney } from '@/shared/lib';
 import { currencyColor } from '@/shared/theme';
 import { Avatar, ListRow, Typography } from '@/shared/ui';

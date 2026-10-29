@@ -1,4 +1,5 @@
 import { round2 } from '@/shared/lib';
+
 import type { Hint } from './hints';
 import { type NewBondsRate, newBondsLabel } from './market';
 import type { Currency } from './portfolio';

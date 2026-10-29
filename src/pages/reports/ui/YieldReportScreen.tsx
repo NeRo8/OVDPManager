@@ -1,12 +1,16 @@
-import { Stack } from 'expo-router';
 import type { SectionListData, SectionListRenderItemInfo } from 'react-native';
 
+import { Stack } from 'expo-router';
+
 import { CURRENCY_NAMES, WalletGate } from '@/entities/portfolio';
+
 import { formatDate } from '@/shared/lib';
 import { SectionCell } from '@/shared/ui';
-import { useYieldReport } from '../model/useYieldReport.hook';
+
 import { yieldPdf } from '../model/reportPdf';
+import { useYieldReport } from '../model/useYieldReport.hook';
 import { type CurrencyYield, type YieldBond, yieldReport } from '../model/yieldReport';
+
 import { BondStatusEmpty } from './BondStatusEmpty';
 import { PORTFOLIO_STATUS_TITLES } from './portfolioLabels';
 import { ReportHeaderActions } from './ReportHeaderActions';
@@ -14,8 +18,8 @@ import { ReportHeading } from './ReportHeading';
 import { ReportList } from './ReportList';
 import { ReportListHeader } from './ReportListHeader';
 import { ReportSectionHeader } from './ReportSectionHeader';
-import { YieldBondRow } from './YieldBondRow';
 import { YieldBondChart } from './YieldBondChart';
+import { YieldBondRow } from './YieldBondRow';
 import { YieldComparison } from './YieldComparison';
 import { YieldSummary } from './YieldSummary';
 

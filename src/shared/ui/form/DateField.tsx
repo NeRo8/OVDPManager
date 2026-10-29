@@ -1,11 +1,13 @@
+import { Platform, Pressable } from 'react-native';
+
 import DateTimePicker, {
   DateTimePickerAndroid,
   type IOSNativeProps,
 } from '@react-native-community/datetimepicker';
-import { Platform, Pressable } from 'react-native';
 import { StyleSheet, withUnistyles } from 'react-native-unistyles';
 
 import { formatDate, fromISODate, toISODate } from '@/shared/lib';
+
 import { Typography } from '../typography/Typography';
 
 // The iOS picker follows the app theme, not the OS one, and takes the brand accent.

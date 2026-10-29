@@ -1,6 +1,8 @@
 import type { ActiveWallet, Currency, ExchangeCurrency } from '@/entities/portfolio';
 import { CURRENCY_NAMES } from '@/entities/portfolio';
+
 import { formatAmount, formatDate, formatMoney, MONTHS_SHORT } from '@/shared/lib';
+
 import type { BondReport as SingleBondReport } from './bondReport';
 import type { FxReport } from './fxReport';
 import { periodChartPeriods } from './periodChart';

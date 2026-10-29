@@ -1,9 +1,12 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { CURRENCY_NAMES } from '@/entities/portfolio';
+
 import { formatMoney, MONTHS_SHORT } from '@/shared/lib';
 import { Card, type ChartSeries, ColumnChart, LegendRow } from '@/shared/ui';
+
 import { periodChartPeriods } from '../model/periodChart';
 import type { CurrencyReport } from '../model/periodReport';
 

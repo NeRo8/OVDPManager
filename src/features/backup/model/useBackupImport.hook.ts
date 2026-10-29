@@ -1,17 +1,20 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
+
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useFormState, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 
 import { showToast } from '@/shared/lib';
+
 import { pickBackupFile } from '../api/backupFile';
 import { fetchCloudBackup } from '../api/cloudBackup';
 import { ensureGoogleAccount } from '../api/googleAccount';
 import { WrongBackupKeyError } from '../lib/backupCipher';
+
 import { parseBackup } from './backup';
+import { BackupKeySchema } from './backupKey.schema';
 import { errorMessage } from './errorMessage';
 import { type BackupSource, restoreBackup } from './restoreBackup';
-import { BackupKeySchema } from './backupKey.schema';
 import { useGoogleAccount } from './useGoogleAccount.hook';
 
 const BackupImportSchema = z.object({ key: BackupKeySchema, json: z.string() });

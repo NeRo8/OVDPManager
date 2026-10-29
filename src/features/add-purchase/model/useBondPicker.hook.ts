@@ -7,8 +7,9 @@ import {
   maturityTerm,
   useWallet,
 } from '@/entities/portfolio';
-import { type BondTerm } from './bondTerm';
+
 import { useBondPickerFilters } from './bondPickerFilters';
+import { type BondTerm } from './bondTerm';
 
 export type { BondTerm };
 

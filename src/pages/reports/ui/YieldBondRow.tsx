@@ -1,10 +1,13 @@
 import type { Currency } from '@/entities/portfolio';
+
 import { formatMoney } from '@/shared/lib';
 import { ShareBar, Typography } from '@/shared/ui';
+
 import type { YieldBond } from '../model/yieldReport';
+
 import { bondStateLabel } from './portfolioLabels';
-import { ReportItem } from './ReportItem';
 import { pointsCell } from './reportCells';
+import { ReportItem } from './ReportItem';
 
 type Props = {
   bond: YieldBond;

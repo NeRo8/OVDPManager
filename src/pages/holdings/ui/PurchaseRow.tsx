@@ -1,4 +1,5 @@
 import { Pressable } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
@@ -8,6 +9,7 @@ import {
   pricePerBond,
   purchaseCurrency,
 } from '@/entities/portfolio';
+
 import { currencySign, formatDate, formatMoney } from '@/shared/lib';
 import { SERIES_COLORS } from '@/shared/theme';
 import { Avatar, ListRow, Typography } from '@/shared/ui';

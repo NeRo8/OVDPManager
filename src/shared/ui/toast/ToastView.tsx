@@ -1,8 +1,10 @@
 import { Pressable, View } from 'react-native';
+
 import Animated, { Easing, FadeInUp, FadeOutUp } from 'react-native-reanimated';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { hideToast, type Toast, type ToastTone } from '@/shared/lib';
+
 import { type IconName, ThemedIcon } from '../icon/ThemedIcon';
 import { Typography } from '../typography/Typography';
 

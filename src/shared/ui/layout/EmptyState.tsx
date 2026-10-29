@@ -1,10 +1,12 @@
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { IconBadge } from '../icon/IconBadge';
 import type { IconName } from '../icon/ThemedIcon';
 import { Typography } from '../typography/Typography';
+
 import { StateMessage } from './StateMessage';
 
 export type EmptyStateProps = {

@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { type StyleProp, type TextInputProps, type TextStyle } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { typography } from '@/shared/theme';
+
 import { ThemedTextInput } from './ThemedTextInput';
 
 const types = {

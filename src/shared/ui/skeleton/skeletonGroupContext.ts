@@ -1,5 +1,6 @@
 import { createContext, type RefObject, useContext } from 'react';
 import type { HostInstance } from 'react-native';
+
 import type { SharedValue } from 'react-native-reanimated';
 
 /** What the blocks of a skeleton share, so one band of light crosses them all at once. */

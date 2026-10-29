@@ -1,9 +1,12 @@
 import { RefreshControl, SectionList, type SectionListProps, View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { type ActiveWallet, NbuSourceNote } from '@/entities/portfolio';
+
 import { usePullToRefresh } from '@/shared/lib';
 import { screenContent } from '@/shared/ui';
+
 import { ReportCaption } from './ReportCaption';
 
 type Props<ItemT, SectionT> = Omit<

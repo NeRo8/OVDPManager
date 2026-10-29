@@ -1,4 +1,5 @@
 import { View } from 'react-native';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 import { SERIES_COLORS, type SeriesColor } from '@/shared/theme';

@@ -1,7 +1,9 @@
 import type { ExchangeCurrency } from '@/entities/portfolio';
+
 import { currencySign, formatDate, formatMoney } from '@/shared/lib';
 import { SERIES_COLORS } from '@/shared/theme';
 import { Avatar, ListRow, SignedValue, Typography } from '@/shared/ui';
+
 import type { FxEvent } from '../model/fxReport';
 
 type Props = { event: FxEvent; currency: ExchangeCurrency };
