@@ -1,5 +1,10 @@
 import { PaymentFiltersScreen } from '@/pages/payments';
+import { DeferredScreen } from '@/shared/ui';
 
 export default function PaymentFiltersRoute() {
-  return <PaymentFiltersScreen />;
+  return (
+    <DeferredScreen skeleton="filters">
+      <PaymentFiltersScreen />
+    </DeferredScreen>
+  );
 }
