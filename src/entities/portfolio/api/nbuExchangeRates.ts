@@ -1,5 +1,6 @@
 import { nbuClient } from '@/shared/api';
 import { addDaysISO } from '@/shared/lib';
+import { fillDailyRates } from './dailyRates';
 
 export type ExchangeCurrency = 'USD' | 'EUR';
 
@@ -35,19 +36,12 @@ export async function fetchExchangeRates(
     .map((row) => {
       const [day, month, rowYear] = row.exchangedate.split('.');
       return { date: `${rowYear}-${month}-${day}`, rate: row.rate_per_unit };
-    })
-    .sort((first, second) => first.date.localeCompare(second.date));
+    });
 
-  const rates: Record<string, number> = {};
-  let latest: number | undefined;
-  let rowIndex = 0;
-  for (let date = firstDate; date <= throughDate; date = addDaysISO(date, 1)) {
-    while (rowIndex < rows.length && rows[rowIndex].date <= date) {
-      latest = rows[rowIndex].rate;
-      rowIndex += 1;
-    }
-    if (latest === undefined) throw new Error(`НБУ не повернув курс ${currency} на ${date}`);
-    rates[date] = latest;
-  }
-  return rates;
+  return fillDailyRates(
+    rows,
+    firstDate,
+    throughDate,
+    (date) => `НБУ не повернув курс ${currency} на ${date}`,
+  );
 }

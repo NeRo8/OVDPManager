@@ -1,7 +1,8 @@
 import { useKeyRateStore } from './store';
+import type { KeyRateYear } from './types';
 
-export function saveKeyRate(date: string, rate: number, updatedAt: number): void {
+export function saveKeyRateYear(year: number, rates: KeyRateYear): void {
   useKeyRateStore.setState((state) => ({
-    byDate: { ...state.byDate, [date]: { rate, updatedAt } },
+    byYear: { ...state.byYear, [year]: rates },
   }));
 }
