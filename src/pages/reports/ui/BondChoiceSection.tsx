@@ -7,17 +7,17 @@ import { CheckRow, Section } from '@/shared/ui';
 
 import { useReport } from '../model/useReport.hook';
 
-/** The bond the bond report is about, the one nearest to maturity at first. */
+/** The bond the bond report is about: at first the next maturity ahead, or the last redeemed. */
 export function BondChoiceSection() {
   const { filters } = useReport('bond');
-  const { isin, choices } = filters;
+  const { isin, choices, defaultIsin } = filters;
 
-  const chooseBond = (option: string) => chooseReportBond(option, choices[0]?.position.isin);
+  const chooseBond = (option: string) => chooseReportBond(option, defaultIsin);
 
   return (
     <Section
       title="ОВДП"
-      footer="Звіт розповідає про одну ОВДП з гаманця. Спершу обрано ту, що погашається найраніше."
+      footer="Звіт розповідає про одну ОВДП з гаманця. Спершу обрано ту, що погашається найближчим часом; коли всі погашено — погашену останньою."
     >
       {choices.map(({ position, bond, currency }) => (
         <CheckRow

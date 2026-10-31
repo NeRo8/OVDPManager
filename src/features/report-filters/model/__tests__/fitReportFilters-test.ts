@@ -111,14 +111,18 @@ describe('fitReportFilters', () => {
     expect(activeFilterCount).toBe(0);
   });
 
-  it('shows the bond nearest to maturity in the bond report at first, and the whole wallet', () => {
+  it('shows the bond whose maturity comes next in the bond report at first, and the whole wallet', () => {
     const fitted = fitReportFilters('bond', initialState.bond, wallet);
-    expect(fitted.filters.isin).toBe(sooner.isin);
+    // The sooner one is redeemed already.
+    expect(fitted.filters.isin).toBe(later.isin);
+    expect(fitted.filters.defaultIsin).toBe(later.isin);
     expect(fitted.filters.choices.map(({ position }) => position.isin)).toEqual([
       sooner.isin,
       later.isin,
     ]);
     expect(fitted.narrowed).toBe(wallet);
-    expect(fitReportFilters('bond', { isin: later.isin }, wallet).activeFilterCount).toBe(1);
+    expect(fitReportFilters('bond', { isin: sooner.isin }, wallet).activeFilterCount).toBe(1);
+    const afterAll = buildWallet(wallet.purchases, wallet.byIsin, '2027-07-01');
+    expect(fitReportFilters('bond', initialState.bond, afterAll).filters.isin).toBe(later.isin);
   });
 });

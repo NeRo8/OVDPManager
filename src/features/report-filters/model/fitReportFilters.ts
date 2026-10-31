@@ -30,8 +30,10 @@ export type FittedReportFilters = {
   bond: {
     /** The bond shown; missing only for an empty wallet */
     isin?: string;
-    /** The wallet's bonds to pick from, the nearest to maturity first and the default */
+    /** The wallet's bonds to pick from, by maturity */
     choices: WalletPosition[];
+    /** The bond shown when none is picked; picking it saves none */
+    defaultIsin?: string;
   };
 };
 
@@ -120,8 +122,15 @@ const FITTERS: { [R in ReportName]: Fitter<R> } = {
       (first.bond?.maturityDate ?? '9999').localeCompare(second.bond?.maturityDate ?? '9999'),
     );
     const isins = choices.map(({ position }) => position.isin);
-    const isin = saved.isin !== null && isins.includes(saved.isin) ? saved.isin : isins[0];
-    return { filters: { isin, choices }, changed: Number(isin !== isins[0]) };
+    // The nearest maturity still ahead; once all are redeemed, the one redeemed last.
+    const ahead = choices.find(({ state }) => state === 'inCirculation' || state === 'planned');
+    const latest = choices.findLast(({ state }) => state === 'redeemed');
+    const fallback = (ahead ?? latest ?? choices[0])?.position.isin;
+    const isin = saved.isin !== null && isins.includes(saved.isin) ? saved.isin : fallback;
+    return {
+      filters: { isin, choices, defaultIsin: fallback },
+      changed: Number(isin !== fallback),
+    };
   },
 };
 
