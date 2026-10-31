@@ -28,7 +28,7 @@ export type YearSummary = {
   planned: number;
   purchaseCount: number;
   averageMonthlyPurchase: number;
-  /** The month to show before one is picked: the next payment's, else the last purchase's */
+  /** The month of the next event, or the last event when all are past. */
   defaultMonth: number | null;
 };
 
@@ -54,8 +54,7 @@ export function yearSummary(
   const couponTotal = sumTotals(coupons);
   const redemptionTotal = sumTotals(redemptions);
   const invested = sumTotals(purchases);
-  const upcoming = payments.find((payment) => !payment.isPaid) ?? payments[0];
-  const lastPurchase = purchases.at(-1);
+  const nextEvent = inCurrency.find((event) => event.date >= today) ?? inCurrency.at(-1);
   return {
     currency,
     monthlyCoupons: monthly(coupons),
@@ -70,6 +69,6 @@ export function yearSummary(
     planned: sumTotals(plannedPurchases),
     purchaseCount: purchases.length,
     averageMonthlyPurchase: round2(invested / MONTHS.length),
-    defaultMonth: upcoming ? monthOf(upcoming) : lastPurchase ? monthOf(lastPurchase) : null,
+    defaultMonth: nextEvent ? monthOf(nextEvent) : null,
   };
 }

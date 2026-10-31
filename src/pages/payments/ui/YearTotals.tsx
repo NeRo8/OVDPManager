@@ -17,8 +17,8 @@ type Props = {
 /** The year's sums: payments, how much of them has come in, and the money invested. */
 export function YearTotals({ summary, series }: Props) {
   const { currency, totalPayments, received, purchaseCount, averageMonthlyPurchase } = summary;
-  const payments = series.filter((s) => s.type !== 'purchase');
-  const purchases = series.filter((s) => s.type === 'purchase');
+  const payments = series.filter((s) => s.type !== 'purchase' && s.total !== 0);
+  const purchases = series.filter((s) => s.type === 'purchase' && s.total !== 0);
   const receivedPercent = totalPayments > 0 ? Math.round((received / totalPayments) * 100) : 0;
 
   return (
@@ -61,7 +61,8 @@ export function YearTotals({ summary, series }: Props) {
           {purchaseCount > 0 && (
             <Typography variant="caption1" tone="secondary">
               {purchaseCount} {plural(purchaseCount, 'купівля', 'купівлі', 'купівель')}, ≈{' '}
-              {formatMoney(averageMonthlyPurchase, currency)} на місяць
+              {formatMoney(averageMonthlyPurchase, currency)} на місяць у середньому за 12 місяців
+              року
             </Typography>
           )}
         </View>

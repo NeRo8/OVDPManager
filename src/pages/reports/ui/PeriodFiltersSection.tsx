@@ -13,7 +13,7 @@ import { useReport } from '../model/useReport.hook';
 
 /** The period the period report covers; the dates can be set by hand only for the own period. */
 export function PeriodFiltersSection() {
-  const { wallet, filters } = useReport('period');
+  const { narrowed, filters } = useReport('period');
   const { dates } = filters;
 
   const choosePeriod = (option: PeriodOption) => chooseReportPeriod(option, dates);
@@ -33,7 +33,7 @@ export function PeriodFiltersSection() {
           subtitle={
             option === 'custom'
               ? undefined
-              : formatPeriod(periodDates(option, wallet, filters.custom))
+              : formatPeriod(periodDates(option, narrowed, filters.custom))
           }
           checked={option === filters.period}
           onPress={() => choosePeriod(option)}

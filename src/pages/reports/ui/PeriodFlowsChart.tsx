@@ -14,7 +14,7 @@ import { purchaseValues } from '../model/purchaseValues';
 type Props = { report: CurrencyReport };
 
 /**
- * Cash flows by month, or by year when a custom period is longer than twelve months. The legend
+ * Cash flows by month, or by year when the period is longer than twelve months. The legend
  * only names the series: the summary under the chart gives their sums.
  */
 export function PeriodFlowsChart({ report }: Props) {

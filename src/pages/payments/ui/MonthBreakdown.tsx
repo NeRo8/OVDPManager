@@ -79,11 +79,7 @@ export function MonthBreakdown({
             ))}
           </View>
         </>
-      ) : (
-        <Typography variant="caption1" tone="secondary" align="center">
-          Торкніться місяця, щоб побачити деталі
-        </Typography>
-      )}
+      ) : null}
     </Card>
   );
 }

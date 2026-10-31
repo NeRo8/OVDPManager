@@ -78,7 +78,11 @@ export default function BondReportScreen() {
         layout="inline"
         icon="calendar-outline"
         title="Виплат немає"
-        message="Усі виплати за графіком НБУ припадають на дати до купівлі, тож цій купівлі вони не належать."
+        message={
+          item.bond.payments.length
+            ? 'Усі виплати за графіком НБУ припадають на дати до купівлі, тож цій купівлі вони не належать.'
+            : 'НБУ ще не опублікував графік виплат цієї ОВДП.'
+        }
       />
     ) : (
       <EmptyState

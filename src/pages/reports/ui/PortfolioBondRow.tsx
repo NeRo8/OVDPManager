@@ -72,11 +72,13 @@ export function PortfolioBondRow({ bond: row, currency }: Props) {
           )}
         </>
       )}
-      <ShareBar
-        percent={investedShare}
-        accessibilityLabel="Частка у вкладеннях"
-        caption={`${shareCell(investedShare)} вкладень`}
-      />
+      {investedShare !== null && (
+        <ShareBar
+          percent={investedShare}
+          accessibilityLabel="Частка у вкладеннях"
+          caption={`${shareCell(investedShare)} вкладень`}
+        />
+      )}
     </ReportItem>
   );
 }

@@ -32,6 +32,18 @@ function purchase(id: string, isin: string, purchaseDate: string, amount: number
 }
 
 describe('fxReport', () => {
+  it('closes a bond when its full redemption is paid after the maturity date', () => {
+    const delayed = {
+      ...redeemed,
+      payments: [{ date: '2025-12-03', type: 'redemption' as const, amount: 1000 }],
+    };
+    const wallet = buildWallet(
+      [purchase('first', delayed.isin, '2024-10-01', 1000)],
+      new Map([[delayed.isin, delayed]]),
+      '2026-02-01',
+    );
+    expect(fxReport(wallet, 2025, () => 50)?.completedCount).toBe(1);
+  });
   it('includes a previous-year purchase in a redeemed bond’s USD result', () => {
     const wallet = buildWallet(
       [purchase('first', redeemed.isin, '2024-10-01', 1200)],

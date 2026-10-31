@@ -2,6 +2,7 @@ import {
   type Wallet,
   type WalletPosition,
   type WalletScopeOptions,
+  buildWallet,
   fitScope,
   narrowWallet,
   purchaseCurrency,
@@ -79,9 +80,11 @@ const FITTERS: { [R in ReportName]: Fitter<R> } = {
       : currentYear;
     const years: ReportYears = { firstYear, lastYear: currentYear, defaultYear: currentYear };
     const year =
-      saved.year !== null && saved.year >= firstYear && saved.year <= currentYear
-        ? saved.year
-        : null;
+      saved.year === null
+        ? null
+        : saved.year >= firstYear && saved.year <= currentYear
+          ? saved.year
+          : years.defaultYear;
     return {
       filters: {
         currency: 'UAH',
@@ -93,13 +96,16 @@ const FITTERS: { [R in ReportName]: Fitter<R> } = {
       changed: Number(year !== null) + Number(saved.targetCurrency !== 'USD'),
     };
   },
-  period: (saved, wallet, options) => ({
-    filters: {
-      ...fitScope(saved, options),
-      dates: periodDates(saved.period, wallet, saved.custom),
-    },
-    changed: Number(saved.period !== initialState.period.period),
-  }),
+  period: (saved, wallet, options) => {
+    const scope = fitScope(saved, options);
+    return {
+      filters: {
+        ...scope,
+        dates: periodDates(saved.period, narrowWallet(wallet, scope), saved.custom),
+      },
+      changed: Number(saved.period !== initialState.period.period),
+    };
+  },
   yearOverYear: (saved, _, options) => ({ filters: fitScope(saved, options), changed: 0 }),
   redemptions: (saved, _, options) => ({
     filters: fitScope(saved, options),
@@ -149,8 +155,16 @@ export function fitReportFilters<R extends ReportName>(
   saved: ReportFiltersState[R],
   wallet: Wallet,
 ): FittedReport<R> {
+  const optionsWallet =
+    report === 'fx'
+      ? buildWallet(
+          wallet.purchases.filter((purchase) => purchase.purchaseDate <= wallet.today),
+          wallet.byIsin,
+          wallet.today,
+        )
+      : wallet;
   const options = walletScopeOptions(
-    report === 'fx' ? narrowWallet(wallet, { currency: 'UAH', isins: [] }) : wallet,
+    report === 'fx' ? narrowWallet(optionsWallet, { currency: 'UAH', isins: [] }) : optionsWallet,
   );
   const fit: Fitter<R> = FITTERS[report];
   const { filters, changed } = fit(saved, wallet, options);

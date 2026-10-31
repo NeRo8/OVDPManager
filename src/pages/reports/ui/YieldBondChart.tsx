@@ -2,7 +2,7 @@ import { CURRENCY_NAMES } from '@/entities/portfolio';
 
 import { Card, ColumnChart } from '@/shared/ui';
 
-import type { CurrencyYield } from '../model/yieldReport';
+import { type CurrencyYield, yieldChartBonds } from '../model/yieldReport';
 
 type Props = { report: CurrencyYield };
 
@@ -12,14 +12,14 @@ export function YieldBondChart({ report }: Props) {
     (bond): bond is typeof bond & { annualYield: number } => bond.annualYield !== null,
   );
   if (!known.length) return null;
-  const shown = known.slice(0, 5);
+  const shown = yieldChartBonds(known);
 
   return (
     <Card
       title={`Дохідність за ОВДП · ${CURRENCY_NAMES[report.currency]}`}
       footer={
         known.length > shown.length &&
-        'Показано 5 ОВДП із найвищою дохідністю; усі значення наведено нижче.'
+        'Показано 4 найвищі та найнижчу дохідність; усі значення наведено нижче.'
       }
     >
       <ColumnChart

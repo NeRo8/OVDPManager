@@ -22,6 +22,7 @@ export type FxEvent = {
 
 export type FxBond = {
   isin: string;
+  hasBondData: boolean;
   events: FxEvent[];
   invested: number;
   received: number;
@@ -274,11 +275,17 @@ export function fxReport(
         bond !== undefined &&
         bond.maturityDate <= throughDate &&
         bond.maturityDate < wallet.today &&
-        bond.payments.some(
-          (payment) => payment.type === 'redemption' && payment.date === bond.maturityDate,
-        );
+        bond.payments
+          .filter(
+            (payment) =>
+              payment.type === 'redemption' &&
+              payment.date <= throughDate &&
+              payment.date < wallet.today,
+          )
+          .reduce((sum, payment) => sum + payment.amount, 0) >= bond.nominal;
       return {
         isin: position.isin,
+        hasBondData: !!bond,
         events: periodEvents.filter((event) => event.isin === position.isin),
         invested,
         received,

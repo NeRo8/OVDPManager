@@ -98,7 +98,9 @@ export default function PaymentFiltersScreen() {
             <CheckRow
               key={isin}
               title={isin}
-              subtitle={bond && `${bond.rate}% · до ${formatDate(bond.maturityDate)}`}
+              subtitle={
+                bond ? `${bond.rate}% · до ${formatDate(bond.maturityDate)}` : 'Немає даних НБУ'
+              }
               checked={filters.isins.includes(isin)}
               onPress={() => togglePaymentFilterIsin(isin)}
             />

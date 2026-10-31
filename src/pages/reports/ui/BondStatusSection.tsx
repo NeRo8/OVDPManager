@@ -19,7 +19,7 @@ export function BondStatusSection({ value, onChange }: Props) {
   return (
     <SegmentedSection
       title="Стан"
-      footer="В обігу — ОВДП, за якими ще будуть виплати, і заплановані купівлі; погашені — ті, за якими всі виплати вже отримано."
+      footer="В обігу — ОВДП до дати погашення включно, заплановані купівлі та ОВДП без даних НБУ. Погашені — ОВДП, дата погашення яких минула."
       options={STATUS_OPTIONS}
       value={value}
       onChange={onChange}

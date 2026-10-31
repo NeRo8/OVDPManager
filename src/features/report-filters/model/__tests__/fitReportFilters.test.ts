@@ -68,9 +68,28 @@ describe('fitReportFilters', () => {
       filters: { year: 2025, targetCurrency: 'EUR', isins: [later.isin] },
       activeFilterCount: 3,
     });
-    expect(
-      fitReportFilters('fx', { ...initialState.fx, year: 2031 }, wallet).filters.year,
-    ).toBeNull();
+    expect(fitReportFilters('fx', { ...initialState.fx, year: 2031 }, wallet).filters.year).toBe(
+      2026,
+    );
+    expect(fitReportFilters('fx', { ...initialState.fx, year: 2020 }, wallet).filters.year).toBe(
+      2026,
+    );
+  });
+
+  it('offers unknown bonds, but excludes bonds with only future purchases from FX filters', () => {
+    const future = bondOf('UA4000000003', 'UAH', '2028-01-01');
+    const unknown = { ...purchase(later, '2025-01-01'), isin: 'UA4000000099' };
+    const nextWallet = buildWallet(
+      [...wallet.purchases, unknown, purchase(future, '2027-01-01')],
+      new Map([...byIsin, [future.isin, future]]),
+      today,
+    );
+    expect(fitReportFilters('year', initialState.year, nextWallet).options.isins).toContain(
+      unknown.isin,
+    );
+    const fx = fitReportFilters('fx', initialState.fx, nextWallet);
+    expect(fx.options.isins).toContain(unknown.isin);
+    expect(fx.options.isins).not.toContain(future.isin);
   });
 
   it('keeps a saved year the wallet spans, and counts it; one it no longer spans gives way', () => {
@@ -87,6 +106,15 @@ describe('fitReportFilters', () => {
     const { filters } = fitReportFilters('period', initialState.period, wallet);
     // The twelve months before this one, never the part of a thirteenth.
     expect(filters.dates).toEqual({ from: '2025-03-01', to: '2026-02-28' });
+  });
+
+  it('uses the selected bonds and currency for the whole-plan period', () => {
+    const fitted = fitReportFilters(
+      'period',
+      { ...initialState.period, period: 'plan', currency: 'USD' },
+      wallet,
+    );
+    expect(fitted.filters.dates).toEqual({ from: '2025-02-10', to: '2026-02-01' });
   });
 
   it('narrows the wallet to the currency and bonds picked, and counts them', () => {

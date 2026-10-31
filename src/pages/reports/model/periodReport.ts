@@ -30,6 +30,8 @@ export type MonthFlows = Flows & {
 /** One bond's purchases and payments in the period. */
 export type BondReport = Flows & {
   isin: string;
+  /** Whether the NBU catalog contains this bond. */
+  hasBondData: boolean;
   /** Coupons plus what the redemptions brought over the cost of the bonds repaid */
   income: number;
   /** «Річна дохідність» of the bond held to maturity; null until NBU publishes its redemption */
@@ -116,6 +118,7 @@ export function periodReport(wallet: Wallet, from: string, to: string): Currency
       const bondEvents = inCurrency.filter((event) => event.isin === item.position.isin);
       return {
         isin: item.position.isin,
+        hasBondData: !!item.bond,
         ...flows(bondEvents, wallet.today),
         income: positionIncome(item, from, to),
         annualYield: item.annualYield,

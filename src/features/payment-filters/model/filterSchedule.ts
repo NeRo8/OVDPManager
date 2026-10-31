@@ -42,7 +42,7 @@ function isPastEvent(event: ScheduleEvent, today: string): boolean {
 export type FilteredSchedule = {
   /** Events that pass the filters, in schedule order */
   events: ScheduleEvent[];
-  /** How many events the schedule has without the filters */
+  /** Events in the selected currency before the other filters. */
   totalCount: number;
 };
 
@@ -59,5 +59,6 @@ export function filterSchedule(wallet: Wallet, filters: PaymentFilters): Filtere
         (filters.time === 'all' || isPastEvent(event, wallet.today) === (filters.time === 'past')),
     )
     .sort(compareScheduleEvents);
-  return { events, totalCount: wallet.payments.length + wallet.purchaseEvents.length };
+  const inCurrency = narrowWallet(wallet, { currency: filters.currency, isins: [] });
+  return { events, totalCount: inCurrency.payments.length + inCurrency.purchaseEvents.length };
 }

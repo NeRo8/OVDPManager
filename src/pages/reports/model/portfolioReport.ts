@@ -29,7 +29,7 @@ export type PortfolioBond = {
   /** «Річна дохідність»; null until NBU publishes the redemption */
   annualYield: number | null;
   /** Its share of what the currency's bonds cost, % */
-  investedShare: number;
+  investedShare: number | null;
 };
 
 /** The wallet's bonds in one currency. */
@@ -56,7 +56,10 @@ export function portfolioReport(wallet: Wallet, status: PortfolioStatus): Curren
       (item) => item.currency === currency && passesStatus(item.state, status),
     );
     if (!inCurrency.length) return [];
-    const invested = inCurrency.reduce((sum, item) => sum + item.position.investedAmount, 0);
+    const invested = inCurrency.reduce(
+      (sum, item) => sum + (item.results ? item.position.investedAmount : 0),
+      0,
+    );
     const plannedOf = (purchases: { purchaseDate: string; amount: number }[]) =>
       round2(
         purchases
@@ -82,7 +85,8 @@ export function portfolioReport(wallet: Wallet, status: PortfolioStatus): Curren
             planned: plannedOf(position.purchases),
             results,
             annualYield,
-            investedShare: invested > 0 ? round2((position.investedAmount / invested) * 100) : 0,
+            investedShare:
+              results && invested > 0 ? round2((position.investedAmount / invested) * 100) : null,
           }))
           .sort((first, second) =>
             (first.bond?.maturityDate ?? '9999').localeCompare(second.bond?.maturityDate ?? '9999'),

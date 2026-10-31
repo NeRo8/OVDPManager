@@ -35,7 +35,7 @@ import type { CurrencyRedemptions } from './redemptionsReport';
 import { type ReportTerms, summaryFooter } from './reportTerms';
 import type { StructureReport } from './structureReport';
 import type { CurrencyYears } from './yearOverYearReport';
-import { type CurrencyYield, KEY_RATE_CURRENCY } from './yieldReport';
+import { type CurrencyYield, KEY_RATE_CURRENCY, yieldChartBonds } from './yieldReport';
 
 /**
  * A report as a printed document. It says what the screen says: the same blocks in the same order,
@@ -291,7 +291,7 @@ export function periodPdf(
             amountCell(bond.coupons),
             amountCell(bond.redemptions),
             amountCell(bond.invested),
-            amountCell(bond.income),
+            bond.hasBondData ? amountCell(bond.income) : 'Немає даних НБУ',
             bond.incomeShare === null ? '—' : shareCell(bond.incomeShare),
           ]),
           layout: 'items',
@@ -650,7 +650,7 @@ export function portfolioPdf(
                 : 'Немає повних даних НБУ'
               : '—',
             bond.results?.netIncome == null ? '—' : money(bond.results.netIncome),
-            shareCell(bond.investedShare),
+            bond.investedShare === null ? '—' : shareCell(bond.investedShare),
           ]),
           layout: 'items',
         },
@@ -775,7 +775,7 @@ export function yieldPdf(wallet: ActiveWallet, scope: string, reports: CurrencyY
             },
             keyRate !== null && { label: 'Облікова ставка НБУ сьогодні', value: `${keyRate}%` },
             gap !== null && {
-              label: 'Різниця з обліковою ставкою',
+              label: 'Різниця зі ставкою сьогодні',
               value: pointsCell(gap),
               signed: Math.round(gap * 10) / 10,
             },
@@ -785,8 +785,11 @@ export function yieldPdf(wallet: ActiveWallet, scope: string, reports: CurrencyY
           notes(
             'Річна дохідність — за ціною купівлі й усіма виплатами до погашення, як у формі купівлі; середні зважені на суму купівель.',
             currency === KEY_RATE_CURRENCY
-              ? 'Облікова ставка — НБУ, на сьогодні; у рядках — на дату купівлі, для запланованої купівлі — сьогоднішня.'
+              ? 'Порівняння зі ставкою сьогодні використовує дохідність за ціною купівлі, а не за поточною ринковою ціною. У рядках ставка на дату купівлі; для запланованої — сьогоднішня.'
               : 'Облікова ставка НБУ — гривнева, тож валютні ОВДП з нею не порівнюються.',
+            currency === KEY_RATE_CURRENCY &&
+              (keyRate === null || bonds.some((bond) => bond.keyRateAtPurchase === null)) &&
+              'Деякі облікові ставки ще недоступні або не завантажилися; відповідні порівняння не показано.',
             withoutYield > 0 &&
               `ОВДП без повних даних НБУ (${withoutYield}) у середню річну дохідність не враховано.`,
           ),
@@ -821,9 +824,9 @@ export function yieldPdf(wallet: ActiveWallet, scope: string, reports: CurrencyY
                 layout: 'chart' as const,
                 chart: {
                   kind: 'bars' as const,
-                  bars: withYield.slice(0, 5).map((bond) => ({
+                  bars: yieldChartBonds(withYield).map((bond) => ({
                     label: bond.isin,
-                    value: Math.max(bond.annualYield ?? 0, 0),
+                    value: bond.annualYield ?? 0,
                     detail: percent(bond.annualYield),
                     color: ((bond.annualYield ?? 0) < 0 ? 'purchase' : 'coupon') as ChartColor,
                   })),
@@ -877,8 +880,10 @@ export function bondPdf(wallet: ActiveWallet, report: SingleBondReport): ReportP
               { label: 'Стан', value: bondStateLabel(item.state, bond.maturityDate) },
               { label: 'Ставка купону', value: `${bond.rate}%` },
               {
-                label: 'Купон на 1 шт',
-                value: coupon ? money(coupon.amount) : 'без купону',
+                label: 'Перший купон на 1 шт',
+                value: coupon
+                  ? `${money(coupon.amount)} · ${formatDate(coupon.date)}`
+                  : 'немає даних',
               },
               { label: 'Номінал', value: money(bond.nominal) },
               { label: 'Тип', value: bond.description },
@@ -1018,7 +1023,7 @@ export function fxPdf(
                   total: true,
                 },
               ],
-              `${snapshot.received >= snapshot.invested ? 'Вкладене вже повернулося виплатами.' : 'Вкладене ще не повернулося виплатами.'} Залишок ОВДП оцінено за собівартістю, а не за ціною продажу. Виплати рахуються як отримані, навіть якщо їх згодом вкладено знову; нові купівлі входять до «Вкладено». Сума виплат і залишку не є грошима на рахунку.`,
+              `${snapshot.received >= snapshot.invested ? 'Вкладене вже повернулося виплатами.' : 'Вкладене ще не повернулося виплатами.'} Залишок ОВДП оцінено за собівартістю, а не за ціною продажу. Виплати рахуються як отримані, навіть якщо їх згодом вкладено знову; нові купівлі входять до «Вкладено». Сума виплат і залишку не є грошима на рахунку.${report.bonds.some((bond) => !bond.hasBondData) ? ' Для ОВДП без даних НБУ залишок умовно дорівнює сумі купівлі; їхні виплати невідомі.' : ''}`,
             ),
             summary(
               allTime ? 'Рух грошей за весь час' : 'Рух грошей за рік',
@@ -1127,7 +1132,7 @@ export function fxPdf(
                 amountCell(event.equivalent),
               ]),
               layout: 'items',
-              note: `Вкладено від першої купівлі: ${fxMoney(bond.invested)} · Отримано виплатами: ${fxMoney(bond.received)}${bond.result === null ? ' · ОВДП ще не погашена або дані про погашення неповні. Остаточний валютний результат не визначено.' : ` · Результат: ${fxMoney(bond.result)}`}`,
+              note: `Вкладено від першої купівлі: ${fxMoney(bond.invested)} · Отримано виплатами: ${fxMoney(bond.received)}${!bond.hasBondData ? ' · ОВДП немає в даних НБУ: її залишок умовно дорівнює сумі купівлі, виплати невідомі.' : bond.result === null ? ' · ОВДП ще не погашена або дані про погашення неповні. Остаточний валютний результат не визначено.' : ` · Результат: ${fxMoney(bond.result)}`}`,
             })),
           ],
   };

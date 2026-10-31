@@ -1,6 +1,8 @@
+import { buildWallet } from '@/entities/portfolio';
+
 import { yearOverYearReport } from '../yearOverYearReport';
 
-import { plannedWallet } from './plannedWallet';
+import { bond, plannedWallet } from './plannedWallet';
 
 describe('yearOverYearReport', () => {
   it('marks the years whose sums are partly a forecast', () => {
@@ -11,5 +13,26 @@ describe('yearOverYearReport', () => {
       [2026, true],
       [2027, true],
     ]);
+  });
+
+  it('makes total income equal the sum of rounded annual rows', () => {
+    const amortizing = {
+      ...bond,
+      maturityDate: '2027-01-01',
+      payments: [
+        { type: 'redemption' as const, date: '2025-01-01', amount: 333.33 },
+        { type: 'redemption' as const, date: '2026-01-01', amount: 333.33 },
+        { type: 'redemption' as const, date: '2027-01-01', amount: 333.34 },
+      ],
+    };
+    const purchases = [
+      { ...plannedWallet.purchases[0], purchaseDate: '2024-10-01', quantity: 1, amount: 1000.01 },
+    ];
+    const wallet = buildWallet(purchases, new Map([[bond.isin, amortizing]]), '2027-02-01');
+    const [report] = yearOverYearReport(wallet);
+    expect(report.total.income).toBeCloseTo(
+      report.years.reduce((sum, year) => sum + year.income, 0),
+      2,
+    );
   });
 });

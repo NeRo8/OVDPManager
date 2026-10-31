@@ -1,5 +1,3 @@
-import { useLocalSearchParams } from 'expo-router';
-
 import {
   type ReportName,
   type ReportScope,
@@ -19,8 +17,9 @@ import { ReportScopeSections } from './ReportScopeSections';
  * What a report covers, the report named in the route: its own filters, then the currency and the
  * bonds for every report but the bond one. Every change applies at once and is remembered.
  */
-export default function ReportFiltersScreen() {
-  const { report } = useLocalSearchParams<{ report: ReportName }>();
+type Props = { report: ReportName };
+
+export default function ReportFiltersScreen({ report }: Props) {
   const { wallet, filters, options, activeFilterCount } = useReport(report);
   // The bond report is about one bond, so it has no currency and bonds to narrow.
   const scopedReport = report === 'bond' ? null : report;

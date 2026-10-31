@@ -77,7 +77,7 @@ describe('filterSchedule', () => {
       '2026-05-01 purchase',
       '2026-07-01 redemption',
     ]);
-    expect(totalCount).toBe(7);
+    expect(totalCount).toBe(4);
   });
 
   it('keeps the types and the time picked: upcoming are payments ahead and planned purchases', () => {
@@ -85,5 +85,17 @@ describe('filterSchedule', () => {
     expect(upcoming.events.map(({ type }) => type)).toEqual(['purchase', 'redemption']);
     const coupons = filterSchedule(wallet, { ...fresh, currency: 'UAH', types: ['coupon'] });
     expect(coupons.events.map(({ type }) => type)).toEqual(['coupon']);
+    expect(coupons.totalCount).toBe(4);
+  });
+
+  it('allows filtering purchases of a bond missing from NBU data', () => {
+    const unknown = { ...purchase(hryvnia, '2025-03-01'), isin: 'UA4000000099' };
+    const withUnknown = buildWallet([...wallet.purchases, unknown], byIsin, wallet.today);
+    const options = walletScopeOptions(withUnknown);
+    expect(options.isins).toContain(unknown.isin);
+    const filters = effectiveFilters({ ...fresh, currency: 'UAH', isins: [unknown.isin] }, options);
+    expect(filterSchedule(withUnknown, filters).events.map(({ isin }) => isin)).toEqual([
+      unknown.isin,
+    ]);
   });
 });

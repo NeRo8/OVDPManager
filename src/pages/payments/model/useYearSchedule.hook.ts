@@ -25,7 +25,7 @@ export function useYearSchedule({ wallet, filters }: FilteredWallet) {
   const lastYear = years.length ? Math.max(...years) : currentYear;
 
   const [chosenYear, setYear] = useState<number | null>(null);
-  const year = chosenYear ?? Math.min(Math.max(currentYear, firstYear), lastYear);
+  const year = Math.min(Math.max(chosenYear ?? currentYear, firstYear), lastYear);
   const yearEvents = events.filter((event) => yearOf(event) === year);
 
   // The filters leave one currency, as the chart has one money scale.

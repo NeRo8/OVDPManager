@@ -52,7 +52,9 @@ export function ReportScopeSections({ wallet, scope, options, onChange, onToggle
             <CheckRow
               key={isin}
               title={isin}
-              subtitle={bond && `${bond.rate}% · до ${formatDate(bond.maturityDate)}`}
+              subtitle={
+                bond ? `${bond.rate}% · до ${formatDate(bond.maturityDate)}` : 'Немає даних НБУ'
+              }
               checked={scope.isins.includes(isin)}
               onPress={() => onToggleIsin(isin)}
             />

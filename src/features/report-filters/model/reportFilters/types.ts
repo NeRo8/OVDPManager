@@ -12,6 +12,22 @@ export type ReportName =
   | 'yield'
   | 'bond';
 
+const REPORT_NAMES: readonly ReportName[] = [
+  'year',
+  'fx',
+  'period',
+  'yearOverYear',
+  'redemptions',
+  'portfolio',
+  'structure',
+  'yield',
+  'bond',
+];
+
+export function isReportName(value: unknown): value is ReportName {
+  return typeof value === 'string' && REPORT_NAMES.some((name) => name === value);
+}
+
 /** The reports narrowed by currency and bonds; the bond report is about one bond instead. */
 export type ScopedReportName = Exclude<ReportName, 'bond'>;
 

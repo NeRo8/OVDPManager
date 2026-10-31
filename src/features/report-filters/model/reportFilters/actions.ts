@@ -35,7 +35,11 @@ export function chooseReportYear(report: 'year', year: number, defaultYear: numb
 
 /** Picks the period; the own one starts from the dates shown, so they are there to adjust. */
 export function chooseReportPeriod(period: PeriodOption, shown: Period): void {
-  updateReportFilters('period', period === 'custom' ? { period, custom: shown } : { period });
+  const { custom } = useReportFiltersStore.getState().period;
+  updateReportFilters(
+    'period',
+    period === 'custom' ? { period, custom: custom ?? shown } : { period },
+  );
 }
 
 /** Picks the bond; the default one is saved as none, so the report follows the wallet again. */

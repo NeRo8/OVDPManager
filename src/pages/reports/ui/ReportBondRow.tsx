@@ -46,8 +46,8 @@ export function ReportBondRow({ bond, currency, terms }: Props) {
       )}
       <TotalRow
         label={terms.income}
-        value={formatMoney(bond.income, currency)}
-        signedValue={bond.income}
+        value={bond.hasBondData ? formatMoney(bond.income, currency) : 'Немає даних НБУ'}
+        signedValue={bond.hasBondData ? bond.income : undefined}
       />
       {bond.incomeShare !== null && (
         <ShareBar

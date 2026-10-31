@@ -48,6 +48,11 @@ export type CurrencyYield = {
   withoutYield: number;
 };
 
+/** Show the highest yields and the lowest, so losses are not hidden by the limit. */
+export function yieldChartBonds<T>(bonds: T[]): T[] {
+  return bonds.length <= 5 ? bonds : [...bonds.slice(0, 4), bonds[bonds.length - 1]];
+}
+
 /** The average of the values that are there, weighted. */
 function weightedAverage(items: { value: number | null; weight: number }[]): number | null {
   const known = items.filter(

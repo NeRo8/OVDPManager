@@ -1,5 +1,5 @@
 export { default as ReportsScreen } from './ui/ReportsScreen';
-export { default as ReportFiltersScreen } from './ui/ReportFiltersScreen';
+export { default as ReportFiltersScreen } from './ui/ReportFiltersRouteScreen';
 export { default as YearReportScreen } from './ui/YearReportScreen';
 export { default as FxReportScreen } from './ui/FxReportScreen';
 export { default as PeriodReportScreen } from './ui/PeriodReportScreen';

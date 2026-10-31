@@ -99,7 +99,7 @@ export function yearOverYearReport(wallet: Wallet): CurrencyYears[] {
     return {
       currency: total.currency,
       years,
-      total,
+      total: { ...total, income: round2(years.reduce((sum, year) => sum + year.income, 0)) },
       highlights: {
         highestIncome: highest(years, (year) => year.income),
         highestPayments: highest(years, (year) => year.totalPayments),
