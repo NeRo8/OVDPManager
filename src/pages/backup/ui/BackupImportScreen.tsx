@@ -19,7 +19,7 @@ export default function BackupImportScreen() {
     accountEmail,
     canRestore,
     canRestorePasted,
-    isBusy,
+    busySource,
     restoreFromCloud,
     restoreFromFile,
     restorePasted,
@@ -68,7 +68,7 @@ export default function BackupImportScreen() {
         }
       >
         <Button
-          title={isBusy ? 'Розшифровуємо…' : 'Відновити з хмари'}
+          title={busySource === 'cloud' ? 'Відновлюємо…' : 'Відновити з хмари'}
           onPress={loadFromCloud}
           disabled={!canRestore}
         />
@@ -78,7 +78,7 @@ export default function BackupImportScreen() {
         footer="Усі поточні плани та їхні купівлі буде замінено даними з копії."
       >
         <Button
-          title="Вибрати JSON-файл копії…"
+          title={busySource === 'file' ? 'Відновлюємо…' : 'Вибрати JSON-файл копії…'}
           variant="secondary"
           onPress={pickFile}
           disabled={!canRestore}
@@ -111,7 +111,7 @@ export default function BackupImportScreen() {
         />
       </Section>
       <Button
-        title="Відновити зі вставленого"
+        title={busySource === 'pasted' ? 'Відновлюємо…' : 'Відновити зі вставленого'}
         variant="secondary"
         onPress={restoreFromPasted}
         disabled={!canRestorePasted}

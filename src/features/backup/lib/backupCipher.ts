@@ -89,6 +89,23 @@ export async function decryptBackup(
   key: string,
   context: string,
 ): Promise<string> {
+  if (
+    !encryption ||
+    encryption.kdf !== 'argon2id' ||
+    encryption.cipher !== 'aes-256-gcm' ||
+    !Number.isInteger(encryption.memory) ||
+    encryption.memory < 8 ||
+    encryption.memory > 64 * 1024 ||
+    !Number.isInteger(encryption.passes) ||
+    encryption.passes < 1 ||
+    encryption.passes > 4 ||
+    !Number.isInteger(encryption.parallelism) ||
+    encryption.parallelism < 1 ||
+    encryption.parallelism > 4 ||
+    encryption.memory < 8 * encryption.parallelism
+  ) {
+    throw new Error('Непідтримувані параметри шифрування копії');
+  }
   const derived = await deriveKey(key, Buffer.from(encryption.salt, 'base64'), encryption);
   const decipher = createDecipheriv('aes-256-gcm', derived, Buffer.from(encryption.iv, 'base64'));
   decipher.setAAD(Buffer.from(context, 'utf8'));

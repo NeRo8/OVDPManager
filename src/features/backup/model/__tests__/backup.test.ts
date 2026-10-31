@@ -105,6 +105,16 @@ describe('serializeBackup and parseBackup', () => {
     await expect(parseBackup(tampered, KEY)).rejects.toBeInstanceOf(WrongBackupKeyError);
   });
 
+  it('rejects excessive or invalid key derivation parameters before deriving the key', async () => {
+    for (const parameters of [{ memory: 1_000_000 }, { passes: 100 }, { parallelism: 0 }]) {
+      const invalid = changed(file, (backup) => ({
+        ...backup,
+        encryption: { ...backup.encryption, ...parameters },
+      }));
+      await expect(parseBackup(invalid, KEY)).rejects.toThrow('Непідтримувані параметри');
+    }
+  });
+
   it('says what is wrong with a file that is no backup of this version', async () => {
     await expect(parseBackup('не JSON', KEY)).rejects.toThrow(
       'Це не схоже на файл резервної копії (некоректний JSON)',

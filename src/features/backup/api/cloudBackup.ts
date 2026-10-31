@@ -23,6 +23,10 @@ export async function fetchCloudBackup(uid: string): Promise<CloudBackup | null>
 
 /** Writes the backup over the account's previous one. */
 export async function saveCloudBackup(account: GoogleAccount, json: string): Promise<CloudBackup> {
+  // The serialized envelope is ASCII: its encrypted contents are base64.
+  if (json.length >= 900_000) {
+    throw new Error('Копія завелика для хмари. Збережіть її у файл.');
+  }
   const cloudBackup: CloudBackup = {
     email: account.email,
     exportedAt: new Date().toISOString(),

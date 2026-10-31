@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useFormState, useWatch } from 'react-hook-form';
@@ -33,7 +33,8 @@ type Options = {
  */
 export function useBackupImport({ onRestored }: Options) {
   const account = useGoogleAccount();
-  const [isBusy, setBusy] = useState(false);
+  const [busySource, setBusySource] = useState<BackupSource | null>(null);
+  const busyRef = useRef(false);
   const form = useForm<BackupImportForm>({
     resolver: zodResolver(BackupImportSchema),
     mode: 'onChange',
@@ -46,7 +47,6 @@ export function useBackupImport({ onRestored }: Options) {
   const hasKey = BackupKeySchema.safeParse(key).success;
 
   async function restore(text: string, source: BackupSource, showError: (message: string) => void) {
-    setBusy(true);
     try {
       const restored = await parseBackup(text, key);
       // Restored data replaces whatever was typed, along with its errors.
@@ -57,66 +57,82 @@ export function useBackupImport({ onRestored }: Options) {
     } catch (error) {
       if (error instanceof WrongBackupKeyError) form.setError('key', { message: error.message });
       else showError(errorMessage(error));
+    }
+  }
+
+  async function run(source: BackupSource, action: () => Promise<void>) {
+    if (busyRef.current) return;
+    busyRef.current = true;
+    setBusySource(source);
+    try {
+      await action();
     } finally {
-      setBusy(false);
+      busyRef.current = false;
+      setBusySource(null);
     }
   }
 
-  async function restoreFromFile() {
-    let text: string | null;
-    try {
-      text = await pickBackupFile();
-    } catch (error) {
-      showToast({ tone: 'error', title: 'Не вдалося відкрити файл', message: errorMessage(error) });
-      return;
-    }
-    if (text) {
-      await restore(text, 'file', (message) =>
-        showToast({ tone: 'error', title: 'Не вдалося відновити', message }),
-      );
-    }
-  }
-
-  async function restoreFromCloud() {
-    setBusy(true);
-    let text: string;
-    try {
-      const signedIn = await ensureGoogleAccount();
-      const cloudBackup = signedIn && (await fetchCloudBackup(signedIn.uid));
-      if (!cloudBackup) {
-        if (signedIn) {
-          showToast({ tone: 'info', title: 'У хмарі немає копії', message: signedIn.email });
-        }
-        setBusy(false);
+  const restoreFromFile = () =>
+    run('file', async () => {
+      let text: string | null;
+      try {
+        text = await pickBackupFile();
+      } catch (error) {
+        showToast({
+          tone: 'error',
+          title: 'Не вдалося відкрити файл',
+          message: errorMessage(error),
+        });
         return;
       }
-      text = cloudBackup.backup;
-    } catch (error) {
-      showToast({
-        tone: 'error',
-        title: 'Не вдалося отримати копію',
-        message: errorMessage(error),
-      });
-      setBusy(false);
-      return;
-    }
-    await restore(text, 'cloud', (message) =>
-      showToast({ tone: 'error', title: 'Не вдалося відновити', message }),
-    );
-  }
+      if (text) {
+        await restore(text, 'file', (message) =>
+          showToast({ tone: 'error', title: 'Не вдалося відновити', message }),
+        );
+      }
+    });
 
-  const restorePasted = form.handleSubmit(({ json: pasted }) =>
-    restore(pasted.trim(), 'pasted', (message) => form.setError('json', { message })),
-  );
+  const restoreFromCloud = () =>
+    run('cloud', async () => {
+      let text: string;
+      try {
+        const signedIn = await ensureGoogleAccount();
+        const cloudBackup = signedIn && (await fetchCloudBackup(signedIn.uid));
+        if (!cloudBackup) {
+          if (signedIn) {
+            showToast({ tone: 'info', title: 'У хмарі немає копії', message: signedIn.email });
+          }
+          return;
+        }
+        text = cloudBackup.backup;
+      } catch (error) {
+        showToast({
+          tone: 'error',
+          title: 'Не вдалося отримати копію',
+          message: errorMessage(error),
+        });
+        return;
+      }
+      await restore(text, 'cloud', (message) =>
+        showToast({ tone: 'error', title: 'Не вдалося відновити', message }),
+      );
+    });
+
+  const restorePasted = () =>
+    form.handleSubmit(({ json: pasted }) =>
+      run('pasted', () =>
+        restore(pasted.trim(), 'pasted', (message) => form.setError('json', { message })),
+      ),
+    )();
 
   return {
     control: form.control,
     keyError: errors.key?.message,
     pastedError: errors.json?.message,
     accountEmail: account?.email,
-    canRestore: hasKey && !isBusy,
-    canRestorePasted: hasKey && json.trim().length > 0 && !isBusy,
-    isBusy,
+    canRestore: hasKey && !busySource,
+    canRestorePasted: hasKey && json.trim().length > 0 && !busySource,
+    busySource,
     restoreFromCloud,
     restoreFromFile,
     restorePasted,
