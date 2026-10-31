@@ -15,11 +15,30 @@ export type InvestmentPlan = {
   goal?: CouponGoal;
 };
 
-/** «Ціль: купони на місяць»: coupons wanted in every month of a year, bought in the year before. */
+/**
+ * «Ціль: купони на місяць»: coupons wanted in every month of «Роки купонів», bought in «Роки
+ * купівель» right before them.
+ */
 export type CouponGoal = {
   currency: Currency;
-  /** «Рік купонів» */
+  /** The first of «Роки купонів» */
   year: number;
-  /** Coupons wanted in each month of the year */
+  /** How many «Роки купонів» there are, from `year` on */
+  incomeYears: number;
+  /** How many «Роки купівель» come right before `year` */
+  purchaseYears: number;
+  /** Coupons wanted in each month of «Роки купонів» */
   monthly: number;
+  /** Whether the payments of «Роки купівель» pay for the purchases or are taken out */
+  reinvest: boolean;
 };
+
+/** The last of a goal's «Роки купонів». */
+export const goalLastYear = (goal: Pick<CouponGoal, 'year' | 'incomeYears'>): number =>
+  goal.year + goal.incomeYears - 1;
+
+/** «Роки купонів» as a name: «2029» or «2029–2031». */
+export function goalYearsLabel(goal: Pick<CouponGoal, 'year' | 'incomeYears'>): string {
+  const last = goalLastYear(goal);
+  return last === goal.year ? String(goal.year) : `${goal.year}–${last}`;
+}

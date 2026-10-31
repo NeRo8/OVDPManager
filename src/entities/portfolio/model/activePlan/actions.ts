@@ -1,4 +1,4 @@
-import { type CouponGoal, PLAN_NAME_MAX_LENGTH } from '../plan';
+import { type CouponGoal, PLAN_NAME_MAX_LENGTH, goalYearsLabel } from '../plan';
 import { createInvestmentPlan } from '../plans';
 import type { PlanPurchase } from '../portfolio';
 import { addPurchase, copyPlanPurchases, removePosition } from '../purchases';
@@ -31,7 +31,7 @@ export function removePositionFromActivePlan(isin: string): void {
 }
 
 /**
- * The «План з ціллю»: a copy of the active plan named «<план> · ціль <рік>», cut to the name's
+ * The «План з ціллю»: a copy of the active plan named «<план> · ціль <роки купонів>», cut to the name's
  * limit, with the coupon goal's purchases added and the goal kept on it. The copy becomes active;
  * the plan it was copied from stays as it was. Returns the copy's name.
  */
@@ -41,7 +41,7 @@ export function createGoalPlan(
 ): string | undefined {
   const plan = getActivePlan();
   if (!plan) return undefined;
-  const suffix = ` · ціль ${goal.year}`;
+  const suffix = ` · ціль ${goalYearsLabel(goal)}`;
   const name = plan.name.slice(0, PLAN_NAME_MAX_LENGTH - suffix.length).trimEnd() + suffix;
   const id = createInvestmentPlan(name, goal);
   copyPlanPurchases(plan.id, id);

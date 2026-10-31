@@ -1,20 +1,22 @@
 import { GOAL_BOND_MONTHS, type GoalBond } from '@/features/coupon-goal';
 
-import { type Currency } from '@/entities/portfolio';
+import { type CouponGoal, goalLastYear } from '@/entities/portfolio';
 
 import { formatDate, formatMoney } from '@/shared/lib';
 import { InfoRow, Section } from '@/shared/ui';
 
-import { monthsPhrase } from './goalTexts';
+import { forYears, monthsPhrase } from './goalTexts';
 
 type Props = {
   bonds: GoalBond[];
-  currency: Currency;
-  year: number;
+  goal: CouponGoal;
 };
 
 /** The bonds to buy for the goal, each with all its purchases together. */
-export function GoalBondsSection({ bonds, currency, year }: Props) {
+export function GoalBondsSection({ bonds, goal }: Props) {
+  const { currency } = goal;
+  const years = forYears(goal.year, goalLastYear(goal));
+
   return (
     <Section
       title="Що купити"
@@ -24,7 +26,7 @@ export function GoalBondsSection({ bonds, currency, year }: Props) {
         <InfoRow
           key={bond.isin}
           label={bond.isin}
-          hint={`Купони в ${monthsPhrase(months)} — ${formatMoney(coupons, currency)} за ${year} рік. Ставка купону ${bond.rate}%, погашення ${formatDate(bond.maturityDate)}, річна дохідність за орієнтовною ціною ${marketYield}%`}
+          hint={`Купони в ${monthsPhrase(months)} — ${formatMoney(coupons, currency)} ${years}. Ставка купону ${bond.rate}%, погашення ${formatDate(bond.maturityDate)}, річна дохідність за орієнтовною ціною ${marketYield}%`}
           value={`${quantity} шт · ${formatMoney(amount, currency)}`}
         />
       ))}

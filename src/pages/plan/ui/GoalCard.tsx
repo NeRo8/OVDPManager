@@ -2,10 +2,12 @@ import { router } from 'expo-router';
 
 import { goalProgress } from '@/features/coupon-goal';
 
-import { type CouponGoal, type Wallet } from '@/entities/portfolio';
+import { type CouponGoal, type Wallet, goalLastYear } from '@/entities/portfolio';
 
 import { formatMoney, plural } from '@/shared/lib';
 import { InfoRow, LinkRow, Section } from '@/shared/ui';
+
+import { inYears, ofYears, spanYears } from './goalTexts';
 
 type Props = {
   wallet: Wallet;
@@ -14,12 +16,12 @@ type Props = {
 
 /** The plan's saved «Ціль: купони на місяць»: how the plan stands against it, and a way back to it. */
 export function GoalCard({ wallet, goal }: Props) {
-  const { currency, year, monthly } = goal;
-  const { monthsOnGoal, plannedCount, plannedAmount, monthlyTopUp, topUpMonths } = goalProgress(
-    wallet,
-    goal,
-  );
+  const { currency, monthly, reinvest } = goal;
+  const progress = goalProgress(wallet, goal);
+  const { monthsOnGoal, goalMonths, plannedCount, plannedAmount, monthlyTopUp, topUpMonths } =
+    progress;
   const openGoal = () => router.push('/plan/goal');
+  const months = `${topUpMonths} ${plural(topUpMonths, 'місяця', 'місяців', 'місяців')}`;
 
   return (
     <Section
@@ -28,17 +30,17 @@ export function GoalCard({ wallet, goal }: Props) {
     >
       <InfoRow
         label="Купони на місяць"
-        hint={`У кожному місяці ${year} року`}
+        hint={`У кожному місяці ${ofYears(goal.year, goalLastYear(goal))}`}
         value={formatMoney(monthly, currency)}
       />
       <InfoRow
         label="Місяців з ціллю"
-        hint="Скільки місяців року купонів план уже закриває"
-        value={`${monthsOnGoal} з 12`}
+        hint="Скільки місяців років купонів план уже закриває"
+        value={`${monthsOnGoal} з ${goalMonths}`}
       />
       {plannedCount > 0 && (
         <InfoRow
-          label={`Купівлі у ${year - 1} році`}
+          label={`Купівлі ${inYears(...spanYears(progress))}`}
           hint="Заплановані купівлі, що ще попереду"
           value={`${plannedCount} · ${formatMoney(plannedAmount, currency)}`}
         />
@@ -46,7 +48,11 @@ export function GoalCard({ wallet, goal }: Props) {
       {topUpMonths > 0 && (
         <InfoRow
           label="Власні кошти на місяць"
-          hint={`На початку кожного з ${topUpMonths} ${plural(topUpMonths, 'місяця', 'місяців', 'місяців')}, понад кошти плану`}
+          hint={
+            reinvest
+              ? `На початку кожного з ${months}, понад виплати плану`
+              : `На початку кожного з ${months}; виплати плану ви забираєте`
+          }
           value={formatMoney(monthlyTopUp, currency)}
         />
       )}

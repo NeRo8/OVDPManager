@@ -9,12 +9,15 @@ const MONTH_COLUMNS = MONTHS.map((name, month) => ({ label: MONTHS_SHORT[month],
 
 type Props = {
   goal: CouponGoal;
+  /** One of «Роки купонів» */
+  year: number;
+  /** Its months */
   months: GoalMonth[];
 };
 
-/** The goal's year month by month: the plan's coupons together with those the goal adds. */
-export function GoalMonthsCard({ goal, months }: Props) {
-  const { currency, year, monthly } = goal;
+/** One year of the goal's coupons, month by month: the plan's together with those the goal adds. */
+export function GoalMonthsCard({ goal, year, months }: Props) {
+  const { currency, monthly } = goal;
   const planTotal = round2(months.reduce((sum, month) => sum + month.plan, 0));
   const addedTotal = round2(months.reduce((sum, month) => sum + month.added, 0));
 

@@ -55,7 +55,7 @@
 
 **DOM-16.** «Ціна 1 шт» = `round2(amount / quantity)` (`pricePerBond`). Ділення на нуль не перевіряється: за `quantity = 0` результат `Infinity` або `NaN`. `portfolio.ts`, `pricePerBond`.
 
-**DOM-17.** План — `InvestmentPlan { id, name, goal? }`. `goal` — `CouponGoal { currency, year, monthly }` («Ціль: купони на місяць»: валюта, «Рік купонів», купони на кожен місяць). Назва плану — до `PLAN_NAME_MAX_LENGTH = 80` символів; запропонована назва першого плану — «Мій план» (`DEFAULT_PLAN_NAME`). `src/entities/portfolio/model/plan.ts`.
+**DOM-17.** План — `InvestmentPlan { id, name, goal? }`. `goal` — `CouponGoal { currency, year, incomeYears, purchaseYears, monthly, reinvest }` («Ціль: купони на місяць»: валюта, перший з «Років купонів», скільки їх, скільки «Років купівель» перед ними, купони на кожен місяць, чи реінвестуються виплати років купівель; див. [features/coupon-goal.md](features/coupon-goal.md)). Назва плану — до `PLAN_NAME_MAX_LENGTH = 80` символів; запропонована назва першого плану — «Мій план» (`DEFAULT_PLAN_NAME`). `src/entities/portfolio/model/plan.ts`.
 
 **DOM-18.** Купівлі плану — це всі `PlanPurchase` з його `planId`; окремого списку запланованих купівель немає. Гаманець будується з купівель активного плану (`useActivePurchases`: `purchase.planId === plan?.id`). Без жодного плану гаманець порожній. `src/entities/portfolio/model/useWallet.hook.ts`.
 

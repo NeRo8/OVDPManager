@@ -8,12 +8,12 @@ import {
   newBondsRate,
 } from '@/entities/portfolio';
 
-import { addDaysISO, addMonthsISO, round2 } from '@/shared/lib';
+import { addMonthsISO, round2 } from '@/shared/lib';
+
+import { goalMonthIndex, goalPurchaseSpan, monthStarts } from './goalSpans';
 
 /** Bonds placed this many months before today are the ones banks and brokers still sell. */
 export const GOAL_BOND_MONTHS = 24;
-/** How many years ahead a goal can be set. */
-const GOAL_YEARS_AHEAD = 5;
 
 export type GoalMonth = {
   /** The plan's coupons as it stands */
@@ -28,9 +28,9 @@ export type GoalBond = {
   quantity: number;
   /** What its purchases cost */
   amount: number;
-  /** Its coupons in the goal's year */
+  /** Its coupons over «Роки купонів» */
   coupons: number;
-  /** The months of the goal's year it pays a coupon in, 0–11 */
+  /** The months of the year it pays a coupon in during «Роки купонів», 0–11 */
   months: number[];
   /** The annual yield its price is estimated at, % */
   marketYield: number;
@@ -40,62 +40,44 @@ export type GoalBond = {
 export type GoalPurchase = Omit<Purchase, 'id'>;
 
 export type CouponGoalPlan = {
-  /** The purchases' span: what is left of the year before the goal's */
+  /** «Роки купівель», what is left of them */
   from: string;
   to: string;
-  /** The goal's year, month by month */
+  /** «Роки купонів», month by month */
   months: GoalMonth[];
   bonds: GoalBond[];
   /** By date */
   purchases: GoalPurchase[];
   cost: number;
-  /** The plan's own payments (coupons and redemptions) in the purchases' span, spent first */
+  /** The plan's own payments (coupons and redemptions) in «Роки купівель» */
   planMoney: number;
-  /** Money of one's own added at the start of each month of the span */
+  /** Payments of the bonds the goal buys that come before «Роки купівель» end */
+  goalMoney: number;
+  /** Money of one's own added at the start of each month of «Роки купівель» */
   monthlyTopUp: number;
   topUpMonths: number;
-  /** What is left of the plan's money and the top-ups once everything is bought */
+  /** What is left of the money spent on the purchases once everything is bought */
   leftover: number;
-  /** Months still short of the goal, 0–11: no bond for sale pays a coupon in them */
+  /** Months of «Роки купонів» still short of the goal, as indexes of `months`: no bond pays in them */
   shortMonths: number[];
 };
 
-/** The purchases' span for a goal's year: from tomorrow at the earliest to the end of the year before. */
-export function goalPurchaseSpan(year: number, today: string): { from: string; to: string } {
-  const start = `${year - 1}-01-01`;
-  const tomorrow = addDaysISO(today, 1);
-  return { from: tomorrow > start ? tomorrow : start, to: `${year - 1}-12-31` };
-}
-
-/** The years a goal can be set for: those with some days left to buy in the year before. */
-export function goalYears(today: string): number[] {
-  const thisYear = Number(today.slice(0, 4));
-  return Array.from({ length: GOAL_YEARS_AHEAD }, (_, index) => thisYear + 1 + index).filter(
-    (year) => {
-      const { from, to } = goalPurchaseSpan(year, today);
-      return from <= to;
-    },
-  );
-}
-
-/** A bond the goal can buy, with what it pays in the goal's year and what it is priced at. */
+/** A bond the goal can buy, with what it pays in «Роки купонів» and what it is priced at. */
 type Candidate = {
   bond: Bond;
-  /** Coupons of one bond in each month of the goal's year */
+  /** Coupons of one bond in each month of «Роки купонів» */
   coupons: number[];
   marketYield: number;
   /** Prices already worked out, by date: the search for the top-up asks for the same days often */
   prices: Map<string, number>;
 };
 
-const monthOf = (date: string) => Number(date.slice(5, 7)) - 1;
-
-function couponsByMonth(bond: Bond, year: number): number[] {
-  const months = Array.from({ length: 12 }, () => 0);
+/** Coupons of one bond in each month of «Роки купонів». */
+function couponsByMonth(bond: Bond, goal: CouponGoal): number[] {
+  const months = Array.from({ length: goal.incomeYears * 12 }, () => 0);
   for (const payment of bond.payments) {
-    if (payment.type === 'coupon' && payment.date.startsWith(`${year}-`)) {
-      months[monthOf(payment.date)] += payment.amount;
-    }
+    const index = goalMonthIndex(goal, payment.date);
+    if (payment.type === 'coupon' && index >= 0) months[index] += payment.amount;
   }
   return months;
 }
@@ -114,9 +96,9 @@ function priceOn({ bond, marketYield, prices }: Candidate, date: string): number
 
 /**
  * Bonds of the goal's currency placed lately (older issues sit with the NBU and banks), whose whole
- * schedule is published, that are still held through the goal's year and pay coupons in it. Each is
- * priced at today's yield of new bonds of its term, the key rate without them for hryvnia bonds,
- * its own coupon rate otherwise.
+ * schedule is published and that pay coupons in «Роки купонів»; one that matures among them closes
+ * the months before it. Each is priced at today's yield of new bonds of its term, the key rate
+ * without them for hryvnia bonds, its own coupon rate otherwise.
  */
 function goalCandidates(
   bonds: Bond[],
@@ -125,19 +107,17 @@ function goalCandidates(
   keyRate: number | null,
 ): Candidate[] {
   const since = addMonthsISO(today, -GOAL_BOND_MONTHS);
-  const yearEnd = `${goal.year}-12-31`;
   return bonds
     .filter(
       (bond) =>
         bond.currency === goal.currency &&
         bond.issueDate > since &&
         bond.issueDate <= today &&
-        bond.maturityDate > yearEnd &&
         hasRedemption(bond),
     )
     .map((bond) => ({
       bond,
-      coupons: couponsByMonth(bond, goal.year),
+      coupons: couponsByMonth(bond, goal),
       marketYield:
         newBondsRate(bond, today, bonds)?.rate ??
         (bond.currency === 'UAH' ? keyRate : null) ??
@@ -206,54 +186,68 @@ function chooseBonds(
 
 type Funding = { date: string; amount: number };
 
+type Funded = {
+  purchases: GoalPurchase[];
+  done: boolean;
+  /** Payments of the bonds bought that come by `to` */
+  goalMoney: number;
+};
+
 /**
  * Buys the bonds as money comes in, one bond after another, as many whole bonds as the cash allows
- * at each day's price. `done` tells whether all of them were bought.
+ * at each day's price. A bond bought pays its coupons and redemption from the next payment on (the
+ * one on the day of purchase is the seller's); with `reinvest` those that come by `to` are cash for
+ * the next purchases. `done` tells whether all of them were bought.
  */
-function buyAsFunded(
-  choices: Choice[],
-  funding: Funding[],
-): { purchases: GoalPurchase[]; done: boolean } {
+function buyAsFunded(choices: Choice[], funding: Funding[], to: string, reinvest: boolean): Funded {
   const queue = choices.map((choice) => ({ ...choice }));
   const purchases: GoalPurchase[] = [];
+  // Money that comes on the same day is spent together, so a day buys each bond at most once.
+  const incoming = new Map<string, number>();
+  const receive = (date: string, amount: number) =>
+    incoming.set(date, (incoming.get(date) ?? 0) + amount);
+  for (const { date, amount } of funding) receive(date, amount);
   let cash = 0;
-  for (const { date, amount } of funding) {
-    cash = round2(cash + amount);
+  let goalMoney = 0;
+  while (incoming.size) {
+    const date = [...incoming.keys()].reduce((first, next) => (next < first ? next : first));
+    cash = round2(cash + (incoming.get(date) ?? 0));
+    incoming.delete(date);
     while (queue.length) {
       const next = queue[0];
+      const { bond } = next.candidate;
       const price = priceOn(next.candidate, date);
       const quantity = Math.min(next.quantity, Math.floor(cash / price));
       if (quantity === 0) break;
       const cost = round2(price * quantity);
       purchases.push({
-        isin: next.candidate.bond.isin,
+        isin: bond.isin,
         purchaseDate: date,
         quantity,
         amount: cost,
-        currency: next.candidate.bond.currency,
+        currency: bond.currency,
       });
+      for (const payment of bond.payments) {
+        if (payment.date <= date || payment.date > to) continue;
+        const amount = payment.amount * quantity;
+        goalMoney += amount;
+        if (reinvest) receive(payment.date, amount);
+      }
       cash = round2(cash - cost);
       next.quantity -= quantity;
       if (next.quantity === 0) queue.shift();
     }
   }
-  return { purchases, done: queue.length === 0 };
-}
-
-/** The first day of each month of the span, the span's first day for its first month. */
-function monthStarts(from: string, to: string): string[] {
-  const starts: string[] = [];
-  for (let start = `${from.slice(0, 7)}-01`; start <= to; start = addMonthsISO(start, 1)) {
-    starts.push(start < from ? from : start);
-  }
-  return starts;
+  return { purchases, done: queue.length === 0, goalMoney: round2(goalMoney) };
 }
 
 /**
- * What to buy in the year before the goal's so that the plan's coupons reach `goal.monthly` in every
- * month of the goal's year: the bonds and their purchases, dated as money comes in. The plan's own
- * coupons and redemptions in that span pay first; the rest is the smallest equal top-up, in whole
- * units of the currency, at the start of each month. Prices are estimates at today's market yield.
+ * What to buy in «Роки купівель» so that the plan's coupons reach `goal.monthly` in every month of
+ * «Роки купонів»: the bonds and their purchases, dated as money comes in. With `goal.reinvest` the
+ * plan's coupons and redemptions in that span pay first, and so do those of the bonds just bought;
+ * without it they are taken out and only money of one's own pays. That is the smallest equal top-up,
+ * in whole units of the currency, at the start of each month. Prices are estimates at today's market
+ * yield.
  */
 export function planCouponGoal(
   wallet: Wallet,
@@ -262,14 +256,14 @@ export function planCouponGoal(
   keyRate: number | null,
 ): CouponGoalPlan {
   const { today } = wallet;
-  const { from, to } = goalPurchaseSpan(goal.year, today);
+  const span = goalPurchaseSpan(goal, today);
+  const { from, to } = span;
   const payments = wallet.payments.filter((payment) => payment.currency === goal.currency);
 
-  const planCoupons = Array.from({ length: 12 }, () => 0);
+  const planCoupons = Array.from({ length: goal.incomeYears * 12 }, () => 0);
   for (const payment of payments) {
-    if (payment.type === 'coupon' && payment.date.startsWith(`${goal.year}-`)) {
-      planCoupons[monthOf(payment.date)] += payment.total;
-    }
+    const index = goalMonthIndex(goal, payment.date);
+    if (payment.type === 'coupon' && index >= 0) planCoupons[index] += payment.total;
   }
   const gaps = planCoupons.map((coupons) => Math.max(0, round2(goal.monthly - coupons)));
   const candidates = goalCandidates(bonds, goal, today, keyRate);
@@ -279,21 +273,14 @@ export function planCouponGoal(
     .filter((payment) => payment.date >= from && payment.date <= to)
     .map((payment) => ({ date: payment.date, amount: payment.total }));
   const planMoney = round2(inflows.reduce((sum, inflow) => sum + inflow.amount, 0));
-  const starts = monthStarts(from, to);
-  const fund = (topUp: number) => {
-    // Money that comes on the same day is spent together, so a day buys each bond at most once.
-    const byDate = new Map<string, number>();
-    for (const { date, amount } of [
-      ...inflows,
-      ...starts.map((date) => ({ date, amount: topUp })),
-    ]) {
-      byDate.set(date, (byDate.get(date) ?? 0) + amount);
-    }
-    const funding = [...byDate]
-      .map(([date, amount]) => ({ date, amount }))
-      .sort((a, b) => a.date.localeCompare(b.date));
-    return buyAsFunded(choices, funding);
-  };
+  const starts = monthStarts(span);
+  const fund = (topUp: number) =>
+    buyAsFunded(
+      choices,
+      [...(goal.reinvest ? inflows : []), ...starts.map((date) => ({ date, amount: topUp }))],
+      to,
+      goal.reinvest,
+    );
 
   // All of it bought on the first day is always enough; search down for the smallest top-up.
   let low = 0;
@@ -306,8 +293,9 @@ export function planCouponGoal(
     else low = middle + 1;
   }
   const monthlyTopUp = choices.length ? low : 0;
-  const purchases = fund(monthlyTopUp).purchases;
+  const { purchases, goalMoney } = fund(monthlyTopUp);
   const cost = round2(purchases.reduce((sum, purchase) => sum + purchase.amount, 0));
+  const spent = goal.reinvest ? planMoney + goalMoney : 0;
 
   const goalBonds = choices.map(({ candidate, quantity }): GoalBond => {
     const own = purchases.filter((purchase) => purchase.isin === candidate.bond.isin);
@@ -316,15 +304,17 @@ export function planCouponGoal(
       quantity,
       amount: round2(own.reduce((sum, purchase) => sum + purchase.amount, 0)),
       coupons: round2(candidate.coupons.reduce((sum, coupon) => sum + coupon * quantity, 0)),
-      months: candidate.coupons.flatMap((coupon, month) => (coupon > 0 ? [month] : [])),
+      months: [
+        ...new Set(candidate.coupons.flatMap((coupon, index) => (coupon > 0 ? [index % 12] : []))),
+      ].sort((a, b) => a - b),
       marketYield: candidate.marketYield,
     };
   });
-  const months = planCoupons.map((coupons, month): GoalMonth => ({
+  const months = planCoupons.map((coupons, index): GoalMonth => ({
     plan: round2(coupons),
     added: round2(
       choices.reduce(
-        (sum, { candidate, quantity }) => sum + candidate.coupons[month] * quantity,
+        (sum, { candidate, quantity }) => sum + candidate.coupons[index] * quantity,
         0,
       ),
     ),
@@ -338,54 +328,14 @@ export function planCouponGoal(
     purchases,
     cost,
     planMoney,
+    goalMoney,
     monthlyTopUp,
     topUpMonths: starts.length,
-    leftover: round2(planMoney + monthlyTopUp * starts.length - cost),
+    leftover: round2(spent + monthlyTopUp * starts.length - cost),
     shortMonths,
   };
 }
 
-/** Where a plan stands against its saved goal: the card on the plans tab. */
-export type GoalProgress = {
-  /** «Місяців з ціллю»: months of the goal's year whose coupons reach the goal */
-  monthsOnGoal: number;
-  /** Planned purchases still ahead in the purchase year */
-  plannedCount: number;
-  plannedAmount: number;
-  /** «Власні кошти на місяць»: those purchases less the plan's money, over the months left */
-  monthlyTopUp: number;
-  topUpMonths: number;
-};
-
-/**
- * The plan as it stands against its goal. The own money follows the purchases as they are
- * confirmed: what the planned purchases of the purchase year cost beyond the plan's coupons and
- * redemptions in what is left of it, spread over its months.
- */
-export function goalProgress(wallet: Wallet, goal: CouponGoal): GoalProgress {
-  const { today } = wallet;
-  const { from, to } = goalPurchaseSpan(goal.year, today);
-  const inCurrency = <T extends { currency: string }>(items: T[]) =>
-    items.filter((item) => item.currency === goal.currency);
-  const coupons = Array.from({ length: 12 }, () => 0);
-  for (const payment of inCurrency(wallet.payments)) {
-    if (payment.type === 'coupon' && payment.date.startsWith(`${goal.year}-`)) {
-      coupons[monthOf(payment.date)] += payment.total;
-    }
-  }
-  const inSpan = (date: string) => date >= from && date <= to;
-  const planned = inCurrency(wallet.purchaseEvents).filter((event) => inSpan(event.date));
-  const plannedAmount = round2(planned.reduce((sum, event) => sum + event.total, 0));
-  const planMoney = inCurrency(wallet.payments)
-    .filter((payment) => inSpan(payment.date))
-    .reduce((sum, payment) => sum + payment.total, 0);
-  const topUpMonths = from <= to ? monthStarts(from, to).length : 0;
-  return {
-    monthsOnGoal: coupons.filter((sum) => round2(sum) >= goal.monthly).length,
-    plannedCount: planned.length,
-    plannedAmount,
-    monthlyTopUp:
-      topUpMonths > 0 ? Math.ceil(Math.max(0, plannedAmount - planMoney) / topUpMonths) : 0,
-    topUpMonths,
-  };
-}
+/** The months of «Роки купонів» of one year: its slice of `months`. */
+export const goalYearMonths = <T>(months: T[], goal: CouponGoal, year: number): T[] =>
+  months.slice((year - goal.year) * 12, (year - goal.year + 1) * 12);

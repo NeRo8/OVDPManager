@@ -1,11 +1,11 @@
 import { Controller } from 'react-hook-form';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { GOAL_BOND_MONTHS, useCouponGoal } from '@/features/coupon-goal';
+import { GOAL_BOND_MONTHS, goalYearMonths, useCouponGoal } from '@/features/coupon-goal';
 
-import { CURRENCIES } from '@/entities/portfolio';
+import { CURRENCIES, goalLastYear } from '@/entities/portfolio';
 
-import { formatDate, formatMoney } from '@/shared/lib';
+import { formatMoney } from '@/shared/lib';
 import {
   Button,
   EmptyState,
@@ -20,7 +20,9 @@ import { GoalBondsSection } from './GoalBondsSection';
 import { GoalMoneySection } from './GoalMoneySection';
 import { GoalMonthsCard } from './GoalMonthsCard';
 import { GoalMonthsSection } from './GoalMonthsSection';
+import { GoalPeriodSections } from './GoalPeriodSections';
 import { GoalPurchasesSection } from './GoalPurchasesSection';
+import { inYears, ofYears } from './goalTexts';
 
 type Props = {
   planName: string;
@@ -30,16 +32,28 @@ type Props = {
 const CURRENCY_OPTIONS = CURRENCIES.map((currency) => ({ label: currency, value: currency }));
 
 /**
- * The coupon goal: the sum wanted every month, the year and the currency, then what to buy in the
- * year before and what it takes. The purchases follow every change; «Створити план» adds them to a
- * copy of the plan.
+ * The coupon goal: the sum wanted every month, the currency, «Роки купонів», «Роки купівель» before
+ * them and whether their payments are reinvested, then what to buy and what it takes. The purchases
+ * follow every change; «Створити план» adds them to a copy of the plan.
  */
 export function CouponGoalForm({ planName, onCreated }: Props) {
-  const { control, years, goal, plan, canCreate, submit } = useCouponGoal(onCreated);
+  const {
+    control,
+    currency,
+    years,
+    year,
+    purchaseYears,
+    purchaseSpan,
+    selectYear,
+    goal,
+    plan,
+    canCreate,
+    submit,
+  } = useCouponGoal(onCreated);
   const create = () => void submit();
-  const yearOptions = years.map((year) => ({ label: String(year), value: year }));
-  const purchaseYear = goal ? goal.year - 1 : null;
-  const startsLater = plan !== null && plan.from !== `${purchaseYear}-01-01`;
+  const goalYears = goal
+    ? Array.from({ length: goal.incomeYears }, (_, index) => goal.year + index)
+    : [];
 
   return (
     <FormScrollView>
@@ -51,10 +65,7 @@ export function CouponGoalForm({ planName, onCreated }: Props) {
           control={control}
           name="monthly"
           render={({ field, fieldState }) => (
-            <FieldRow
-              label={`Купони на місяць, ${goal?.currency ?? 'UAH'}`}
-              error={fieldState.error?.message}
-            >
+            <FieldRow label={`Купони на місяць, ${currency}`} error={fieldState.error?.message}>
               <Input
                 variant="inline"
                 type="decimal"
@@ -71,24 +82,6 @@ export function CouponGoalForm({ planName, onCreated }: Props) {
 
       <Controller
         control={control}
-        name="year"
-        render={({ field }) => (
-          <SegmentedSection
-            title="Рік купонів"
-            footer={
-              purchaseYear === null
-                ? undefined
-                : `Купівлі — у ${purchaseYear} році${startsLater && plan ? `, з ${formatDate(plan.from)}` : ''}.`
-            }
-            options={yearOptions}
-            value={field.value}
-            onChange={field.onChange}
-          />
-        )}
-      />
-
-      <Controller
-        control={control}
         name="currency"
         render={({ field }) => (
           <SegmentedSection
@@ -100,6 +93,15 @@ export function CouponGoalForm({ planName, onCreated }: Props) {
         )}
       />
 
+      <GoalPeriodSections
+        control={control}
+        years={years}
+        year={year}
+        purchaseYears={purchaseYears}
+        purchaseSpan={purchaseSpan}
+        selectYear={selectYear}
+      />
+
       {!goal || !plan ? (
         <EmptyState
           layout="inline"
@@ -109,13 +111,20 @@ export function CouponGoalForm({ planName, onCreated }: Props) {
         />
       ) : (
         <>
-          <GoalMonthsCard goal={goal} months={plan.months} />
+          {goalYears.map((cardYear) => (
+            <GoalMonthsCard
+              key={cardYear}
+              goal={goal}
+              year={cardYear}
+              months={goalYearMonths(plan.months, goal, cardYear)}
+            />
+          ))}
           {plan.bonds.length === 0 && plan.shortMonths.length === 0 && (
             <EmptyState
               layout="inline"
               icon="checkmark-circle-outline"
               title="Ціль уже досягнута"
-              message={`Купони плану вже дають щонайменше ${formatMoney(goal.monthly, goal.currency)} у кожному місяці ${goal.year} року. Підвищте ціль або оберіть інший рік.`}
+              message={`Купони плану вже дають щонайменше ${formatMoney(goal.monthly, goal.currency)} у кожному місяці ${ofYears(goal.year, goalLastYear(goal))}. Підвищте ціль або оберіть інші роки.`}
             />
           )}
           {plan.bonds.length === 0 && plan.shortMonths.length > 0 && (
@@ -123,19 +132,15 @@ export function CouponGoalForm({ planName, onCreated }: Props) {
               layout="inline"
               icon="search-outline"
               title="Немає ОВДП для цілі"
-              message={`Серед ОВДП у ${goal.currency}, розміщених за останні ${GOAL_BOND_MONTHS} місяців, немає таких, що платять купони у ${goal.year} році й погашаються пізніше. Оберіть іншу валюту або рік.`}
+              message={`Серед ОВДП у ${goal.currency}, розміщених за останні ${GOAL_BOND_MONTHS} місяців, немає таких, що платять купони в місяці з нестачею ${inYears(goal.year, goalLastYear(goal))}. Оберіть іншу валюту або роки.`}
             />
           )}
           <GoalMonthsSection goal={goal} months={plan.months} shortMonths={plan.shortMonths} />
-          {plan.bonds.length > 0 && purchaseYear !== null && (
+          {plan.bonds.length > 0 && (
             <>
-              <GoalBondsSection bonds={plan.bonds} currency={goal.currency} year={goal.year} />
-              <GoalMoneySection plan={plan} currency={goal.currency} year={purchaseYear} />
-              <GoalPurchasesSection
-                purchases={plan.purchases}
-                planName={planName}
-                year={goal.year}
-              />
+              <GoalBondsSection bonds={plan.bonds} goal={goal} />
+              <GoalMoneySection plan={plan} goal={goal} />
+              <GoalPurchasesSection purchases={plan.purchases} planName={planName} goal={goal} />
               <Button title="Створити план з ціллю" disabled={!canCreate} onPress={create} />
             </>
           )}
