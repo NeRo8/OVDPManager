@@ -5,6 +5,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import {
   duplicateInvestmentPlan,
+  getActivePlan,
   removeInvestmentPlan,
   useInvestmentPlans,
   usePurchases,
@@ -38,8 +39,15 @@ export default function PlanActionsScreen() {
   };
 
   const removePlan = () => {
+    const wasActive = getActivePlan()?.id === plan.id;
     router.back();
     removeInvestmentPlan(plan.id);
+    const active = getActivePlan();
+    showToast({
+      tone: 'success',
+      title: 'План видалено',
+      message: wasActive && active ? `Активний план: ${active.name}` : plan.name,
+    });
   };
 
   const confirmRemovePlan = () =>

@@ -35,9 +35,11 @@ export function PurchaseRow({ purchase, bond, today, onEdit, onDelete }: Props) 
 
   return (
     <ListRow
-      onPress={edit}
-      accessibilityRole="button"
-      accessibilityLabel={`${isPlanned ? 'Підтвердити' : 'Змінити'} купівлю від ${formatDate(purchase.purchaseDate)}`}
+      onPress={bond ? edit : undefined}
+      accessibilityRole={bond ? 'button' : undefined}
+      accessibilityLabel={
+        bond ? `Змінити купівлю від ${formatDate(purchase.purchaseDate)}` : undefined
+      }
       // Badged as the payments' rows below it, in the purchases' color.
       leading={<Avatar label={currencySign(currency)} color={SERIES_COLORS.purchase.badge} />}
       title={
@@ -59,9 +61,14 @@ export function PurchaseRow({ purchase, bond, today, onEdit, onDelete }: Props) 
         </Pressable>
       }
     >
-      {isPlanned && (
+      {isPlanned && bond && (
         <Typography variant="caption1" tone="accent">
-          Заплановано — торкніться, щоб підтвердити справжньою сумою
+          Заплановано — торкніться, щоб змінити
+        </Typography>
+      )}
+      {!bond && (
+        <Typography variant="caption1" tone="secondary">
+          Редагування недоступне без даних НБУ
         </Typography>
       )}
       <Typography variant="caption1" tone="secondary">

@@ -43,7 +43,7 @@ export function UpcomingPurchasesSection({ upcoming, showCurrency }: Props) {
             }
             onPress={open}
             accessibilityRole="button"
-            accessibilityLabel={`Підтвердити купівлю ${purchase.isin} від ${formatDate(purchase.date)}`}
+            accessibilityLabel={`Змінити купівлю ${purchase.isin} від ${formatDate(purchase.date)}`}
           />
         );
       })}

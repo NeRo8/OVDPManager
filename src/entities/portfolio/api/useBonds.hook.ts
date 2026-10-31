@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 import { useQuery } from '@tanstack/react-query';
 
 import { getCachedBonds, saveBonds, useCachedBonds } from './bonds';
@@ -27,7 +25,7 @@ export function useBonds() {
     meta: { errorTitle: 'Не вдалося оновити дані НБУ' },
   });
 
-  const byIsin = useMemo(() => new Map((bonds ?? []).map((bond) => [bond.isin, bond])), [bonds]);
+  const byIsin = new Map((bonds ?? []).map((bond) => [bond.isin, bond]));
 
   return {
     bonds,

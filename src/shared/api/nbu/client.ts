@@ -31,7 +31,7 @@ function toNbuError(error: unknown): NbuError {
 /** One client for the public NBU endpoints, with a finite wait on poor connections. */
 export const nbuClient = create({
   baseURL: 'https://bank.gov.ua',
-  timeout: 15000,
+  timeout: 8000,
 });
 
 // Every failed request rejects with an NbuError, so callers show `error.message` as is.

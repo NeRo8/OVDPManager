@@ -2,6 +2,8 @@ import { useLocalSearchParams } from 'expo-router';
 import { Controller } from 'react-hook-form';
 import { StyleSheet } from 'react-native-unistyles';
 
+import { isPlannedPurchase } from '@/entities/portfolio';
+
 import { formatDate, formatMoney } from '@/shared/lib';
 import { EmptyState, FieldRow, FormScrollView, InfoRow, Input, Section } from '@/shared/ui';
 
@@ -16,14 +18,23 @@ import { SalePricesSection } from './SalePricesSection';
  */
 export default function SaleScreen() {
   const { isin } = useLocalSearchParams<{ isin: string }>();
-  const { control, salePrice, bond, assessment } = useSaleForm(isin);
+  const { control, salePrice, bond, position, today, assessment } = useSaleForm(isin);
 
   if (!bond || !assessment) {
     return (
       <EmptyState
         icon="cash-outline"
         title="Продаж не порахувати"
-        message="Цієї ОВДП немає серед куплених у плані, її вже погашено або НБУ ще не опублікував її погашення."
+        message={
+          !bond
+            ? 'Цієї ОВДП немає в даних НБУ.'
+            : !position ||
+                position.purchases.every((purchase) => isPlannedPurchase(purchase, today))
+              ? 'У плані немає зроблених купівель цієї ОВДП.'
+              : bond.maturityDate <= today
+                ? 'День погашення ОВДП уже настав, тому продаж не розраховується.'
+                : 'НБУ ще не опублікував погашення цієї ОВДП.'
+        }
       />
     );
   }

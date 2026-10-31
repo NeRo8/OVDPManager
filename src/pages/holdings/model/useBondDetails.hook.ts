@@ -7,7 +7,7 @@ import {
   useWallet,
 } from '@/entities/portfolio';
 
-import { formatDate, formatMoney, confirmDestructive, goBackOrHome } from '@/shared/lib';
+import { formatDate, formatMoney, confirmDestructive, goBackOrHome, showToast } from '@/shared/lib';
 
 export function useBondDetails(isin: string) {
   const { positions, byIsin, today } = useWallet();
@@ -33,6 +33,7 @@ export function useBondDetails(isin: string) {
       () => {
         if (position.purchases.length === 1) goBackOrHome();
         removePurchase(purchase.id);
+        showToast({ tone: 'success', title: 'Купівлю видалено', message: position.isin });
       },
     );
   }
@@ -46,6 +47,7 @@ export function useBondDetails(isin: string) {
       () => {
         goBackOrHome();
         removePositionFromActivePlan(position.isin);
+        showToast({ tone: 'success', title: 'ОВДП видалено з гаманця', message: position.isin });
       },
     );
   }

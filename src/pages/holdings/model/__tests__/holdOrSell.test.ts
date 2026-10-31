@@ -77,8 +77,20 @@ describe('holdOrSell', () => {
 
   it('without a price, says new bonds pay more than a bond bought at 10%', () => {
     const result = assess();
-    expect(result?.verdict).toEqual({ tone: 'warning', title: 'Нові ОВДП дають більше' });
+    expect(result?.verdict).toEqual({ tone: 'warning', title: 'Дохідність нижча за орієнтир' });
     expect(result?.hints.every((hint) => hint.tone === 'warning')).toBe(true);
+  });
+
+  it('does not claim new bonds pay more when only the key rate is available', () => {
+    expect(assess({ bonds: [bond] })?.verdict?.title).toBe('Дохідність нижча за орієнтир');
+  });
+
+  it('rounds the break-even price up to a whole kopeck', () => {
+    const result = assess({ purchases: [{ ...bought, amount: 1980.01 }] });
+    expect(result?.breakEvenPrice).toBe(890.01);
+    expect(
+      assess({ purchases: [{ ...bought, amount: 1980.01 }], salePrice: 890.01 })?.sale?.saleResult,
+    ).toBeGreaterThanOrEqual(0);
   });
 
   it('without a price, keeps a bond that pays more than the market', () => {

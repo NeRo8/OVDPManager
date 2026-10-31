@@ -14,7 +14,7 @@ import {
   useKeyRate,
 } from '@/entities/portfolio';
 
-import { todayISO } from '@/shared/lib';
+import { showToast, todayISO } from '@/shared/lib';
 
 import {
   type PurchaseFormInput,
@@ -56,7 +56,10 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void, purchase?: P
   const keyRate = useKeyRate(purchaseDate);
   const draft = schema.safeParse(values);
   const valid = draft.success ? draft.data : null;
-  const price = valid ? pricePerBond(valid.amount, valid.quantity) : null;
+  const amount = schema.shape.amount.safeParse(values.amount);
+  const quantity = schema.shape.quantity.safeParse(values.quantity);
+  const price =
+    amount.success && quantity.success ? pricePerBond(amount.data, quantity.data) : null;
   const isPlanned = isPlannedPurchase({ purchaseDate }, today);
 
   const preview = (() => {
@@ -104,13 +107,21 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void, purchase?: P
       onSaved();
       return;
     }
-    addPurchaseToActivePlan({
+    const saved = addPurchaseToActivePlan({
       isin: bond.isin,
       purchaseDate,
       amount,
       quantity,
       currency: bond.currency,
     });
+    if (!saved) {
+      showToast({
+        tone: 'error',
+        title: 'Не вдалося зберегти купівлю',
+        message: 'Немає активного плану.',
+      });
+      return;
+    }
     onSaved();
   });
 

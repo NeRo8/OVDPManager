@@ -124,13 +124,27 @@ export default function BondScreen() {
               results={results}
               planned={planned}
             />
-            {assessment && (
+            {assessment && assessment.hints.length > 0 ? (
               <HintsSection
                 title="Тримати чи продати"
                 footer="Порівняння з новими ОВДП тієї ж валюти й строку, розміщеними за останні 12 місяців; без них — з обліковою ставкою НБУ сьогодні. Ціни, за яких продаж вигідний, — на екрані продажу, кнопкою вгорі."
                 hints={assessment.hints}
                 verdict={assessment.verdict}
               />
+            ) : (
+              <Card title="Тримати чи продати">
+                <Typography variant="footnote" tone="secondary">
+                  {assessment
+                    ? 'Немає достатньо даних для порівняння дохідності з ринковими орієнтирами.'
+                    : !bond
+                      ? 'Оцінка недоступна без даних НБУ.'
+                      : position.purchases.every((purchase) => purchase.purchaseDate > today)
+                        ? 'Оцінка з’явиться для зроблених купівель.'
+                        : bond.maturityDate <= today
+                          ? 'Оцінка недоступна від дня погашення ОВДП.'
+                          : 'Оцінка недоступна без опублікованого погашення.'}
+                </Typography>
+              </Card>
             )}
             <SegmentedSelect options={tabs} value={tab} onChange={setTab} />
           </View>
@@ -143,21 +157,22 @@ export default function BondScreen() {
             title={bond ? 'Виплат немає' : 'Немає даних НБУ'}
             message={
               bond
-                ? 'Усі виплати за графіком НБУ припадають на дати до купівлі, тож цій купівлі вони не належать.'
+                ? bond.payments.length
+                  ? 'Усі виплати за графіком НБУ припадають на дати до купівлі, тож цій купівлі вони не належать.'
+                  : 'НБУ ще не опублікував графік виплат цієї ОВДП.'
                 : 'Цієї ОВДП немає в даних НБУ, тож графіка виплат немає. Він з’явиться, щойно дані оновляться.'
             }
           />
         }
         ListFooterComponent={
-          tab === 'purchases' ? (
-            <View style={styles.listFooter}>
-              <Button title="Видалити з гаманця" variant="destructive" onPress={deletePosition} />
-            </View>
-          ) : hasTopUps && payments.length > 0 ? (
-            <Typography variant="caption1" tone="secondary" style={styles.sectionFooter}>
-              Кожна виплата враховує лише ОВДП, куплені до її дати.
-            </Typography>
-          ) : undefined
+          <View style={styles.listFooter}>
+            {tab === 'payments' && hasTopUps && payments.length > 0 && (
+              <Typography variant="caption1" tone="secondary" style={styles.sectionFooter}>
+                Кожна виплата враховує лише ОВДП, куплені до її дати.
+              </Typography>
+            )}
+            <Button title="Видалити з гаманця" variant="destructive" onPress={deletePosition} />
+          </View>
         }
       />
       {canTopUp && (

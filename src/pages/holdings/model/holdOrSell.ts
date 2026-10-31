@@ -25,7 +25,7 @@ import { formatMoney, round2 } from '@/shared/lib';
 type Benchmark = {
   /** % a year */
   rate: number;
-  /** The rate in words, after «за»: «середню ставку купону (15.9%) 12 ОВДП у UAH …» */
+  /** The rate in words, after «за». */
   versus: string;
 };
 
@@ -75,7 +75,7 @@ const CHECK_PRICE: Verdict = { tone: 'warning', title: 'Перевірте ці�
 
 const YIELD_VERDICTS = {
   success: { tone: 'success', title: 'Варто тримати' },
-  warning: { tone: 'warning', title: 'Нові ОВДП дають більше' },
+  warning: { tone: 'warning', title: 'Дохідність нижча за орієнтир' },
 } as const satisfies Record<'success' | 'warning', Verdict>;
 
 function benchmarkOf({ bond, today, keyRate, bonds }: Input): Benchmark | null {
@@ -83,7 +83,7 @@ function benchmarkOf({ bond, today, keyRate, bonds }: Input): Benchmark | null {
   if (newBonds) {
     return {
       rate: newBonds.rate,
-      versus: `середню ставку купону (${newBonds.rate}%) ${newBondsLabel(newBonds, bond.currency)}`,
+      versus: `медіанну ставку купону (${newBonds.rate}%) ${newBondsLabel(newBonds, bond.currency)}`,
     };
   }
   if (bond.currency === 'UAH' && keyRate !== null) {
@@ -134,17 +134,23 @@ function saleHints(
   } else {
     hints.push({
       tone: 'info',
-      text: `${yieldFromToday}: стільки річних заробляють у цій ОВДП гроші, які за неї дають сьогодні.`,
+      text: `${yieldFromToday}: стільки річних заробляють у цій ОВДП гроші, які за неї дають сьогодні. Недостатньо даних про нові ОВДП для порівняння, тому висновок про продаж недоступний.`,
     });
   }
   if (sale.saleResult < 0) {
     hints.push({
       tone: 'warning',
-      text: `За ${price} продаж дасть збиток ${formatMoney(-sale.saleResult, currency)}: виплати й ціна не повернуть вкладене.`,
+      text: `За ${price} продаж дасть збиток ${formatMoney(-sale.saleResult, currency)}: виплати й ціна не повернуть вкладене.${verdictExplanation(sale, benchmark)}`,
     });
   }
   const verdict = benchmark ? (sale.holdYield < benchmark.rate ? SELL : HOLD) : null;
   return { verdict, hints: [...hints, ...yieldHints] };
+}
+
+function verdictExplanation(sale: SaleComparison, benchmark: Benchmark | null): string {
+  return benchmark && sale.holdYield < benchmark.rate
+    ? ' Водночас за цим орієнтиром нове вкладення може заробити більше до погашення.'
+    : '';
 }
 
 /**
@@ -200,7 +206,10 @@ export function holdOrSell(input: Input): HoldOrSell | null {
   return {
     ...assessed,
     quantity,
-    breakEvenPrice: Math.max(0, round2((results.invested - received) / quantity)),
+    breakEvenPrice: Math.max(
+      0,
+      Math.ceil(Math.round((results.invested - received) * 100) / quantity) / 100,
+    ),
     sellAbovePrice: benchmark ? amountForYield(today, remainingPerBond, benchmark.rate) : null,
     holdResult: results.netIncome,
     sale,

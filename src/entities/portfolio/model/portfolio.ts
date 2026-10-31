@@ -120,8 +120,9 @@ export function groupPositions(purchases: Purchase[]): Position[] {
   }
   return [...byIsin].map(([isin, isinPurchases]) => ({
     isin,
-    purchases: isinPurchases.sort((first, second) =>
-      first.purchaseDate.localeCompare(second.purchaseDate),
+    purchases: isinPurchases.sort(
+      (first, second) =>
+        first.purchaseDate.localeCompare(second.purchaseDate) || first.id.localeCompare(second.id),
     ),
     quantity: isinPurchases.reduce((total, purchase) => total + purchase.quantity, 0),
     investedAmount: round2(isinPurchases.reduce((total, purchase) => total + purchase.amount, 0)),

@@ -17,8 +17,10 @@ export function BondTerms({ bond }: Props) {
   const terms = [
     { label: 'Ставка купону', value: `${bond.rate}%` },
     {
-      label: 'Купон на 1 шт',
-      value: coupon ? formatMoney(coupon.amount, bond.currency) : 'без купону',
+      label: 'Перший купон на 1 шт',
+      value: coupon
+        ? `${formatMoney(coupon.amount, bond.currency)} · ${formatDate(coupon.date)}`
+        : 'немає даних',
     },
     { label: 'Номінал', value: formatMoney(bond.nominal, bond.currency) },
     { label: 'Тип', value: bond.description },

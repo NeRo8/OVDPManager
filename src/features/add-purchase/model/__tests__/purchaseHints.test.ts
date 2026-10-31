@@ -130,7 +130,7 @@ describe('assessPurchase', () => {
     const below = assess({ annualYield: 14.5, keyRate: null, bonds });
     expect(below.verdict?.tone).toBe('warning');
     expect(below.hints[0].text).toBe(
-      'Річна дохідність 14.5% на 1.5 п.п. нижча за середню ставку купону (16%) 3 ОВДП у UAH зі строком 1–3 роки, розміщених за останні 12 місяців: нова ОВДП може дати більше.',
+      'Річна дохідність 14.5% на 1.5 п.п. нижча за медіанну ставку купону (16%) 3 ОВДП у UAH зі строком 1–3 роки, розміщених за останні 12 місяців: нова ОВДП може дати більше.',
     );
     expect(assess({ annualYield: 16.5, keyRate: null, bonds }).verdict?.tone).toBe('success');
   });

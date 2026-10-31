@@ -21,10 +21,12 @@ export default function AddPurchaseScreen() {
     ? position?.purchases.find((item) => item.id === purchaseId)
     : undefined;
   // The other purchases of the bond: the one edited is the form itself.
-  const ownedQuantity = (position?.quantity ?? 0) - (purchase?.quantity ?? 0);
+  const ownedQuantity = (position?.purchases ?? [])
+    .filter((item) => item.id !== purchase?.id && !isPlannedPurchase(item, today))
+    .reduce((sum, item) => sum + item.quantity, 0);
   const title = (() => {
     if (purchase) {
-      return isPlannedPurchase(purchase, today) ? 'Підтвердити купівлю' : 'Змінити купівлю';
+      return 'Змінити купівлю';
     }
     return ownedQuantity > 0 ? 'Докупити ОВДП' : 'Додати купівлю';
   })();
@@ -34,11 +36,14 @@ export default function AddPurchaseScreen() {
 
   if (purchaseId && !purchase) {
     return (
-      <EmptyState
-        icon="receipt-outline"
-        title="Купівлі немає"
-        message="Цю купівлю вже видалено з плану або план змінився. Відкрийте ОВДП у гаманці, щоб побачити її купівлі."
-      />
+      <>
+        <Stack.Screen options={{ title: 'Купівлі немає' }} />
+        <EmptyState
+          icon="receipt-outline"
+          title="Купівлі немає"
+          message="Цю купівлю вже видалено з плану або план змінився. Відкрийте ОВДП у гаманці, щоб побачити її купівлі."
+        />
+      </>
     );
   }
 

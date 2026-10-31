@@ -25,8 +25,8 @@ export const ONBOARDING_SLIDES: OnboardingSlideContent[] = [
   },
   {
     icon: 'bar-chart-outline',
-    title: 'Інвестиційні плани',
-    text: 'Плануйте майбутні купівлі в окремих планах і порівнюйте, скільки кожен принесе.',
+    title: 'Плани',
+    text: 'Плануйте майбутні купівлі та переглядайте очікувані виплати для кожного плану.',
   },
   {
     icon: 'shield-checkmark-outline',

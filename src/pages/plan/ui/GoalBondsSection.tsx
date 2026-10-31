@@ -20,13 +20,13 @@ export function GoalBondsSection({ bonds, goal }: Props) {
   return (
     <Section
       title="Що купити"
-      footer={`ОВДП, розміщені за останні ${GOAL_BOND_MONTHS} місяців: такі продають банки й брокери. Сума — за орієнтовною ціною, за якої ОВДП дає таку саму річну дохідність, як нові ОВДП її строку сьогодні; справжню ціну буде видно лише в день купівлі.`}
+      footer={`ОВДП, розміщені за останні ${GOAL_BOND_MONTHS} місяців. Майбутній вибір у банках і ціни можуть відрізнятися; розрахунок використовує сьогоднішню дохідність як орієнтир.`}
     >
       {bonds.map(({ bond, quantity, amount, coupons, months, marketYield }) => (
         <InfoRow
           key={bond.isin}
           label={bond.isin}
-          hint={`Купони в ${monthsPhrase(months)} — ${formatMoney(coupons, currency)} ${years}. Ставка купону ${bond.rate}%, погашення ${formatDate(bond.maturityDate)}, річна дохідність за орієнтовною ціною ${marketYield}%`}
+          hint={`Купони в ${monthsPhrase(months)} — ${formatMoney(coupons, currency)} ${years}. Ставка купону ${String(bond.rate).replace('.', ',')}%, погашення ${formatDate(bond.maturityDate)}, річна дохідність за орієнтовною ціною ${String(marketYield).replace('.', ',')}%`}
           value={`${quantity} шт · ${formatMoney(amount, currency)}`}
         />
       ))}

@@ -1,7 +1,7 @@
 import { type CouponGoal, PLAN_NAME_MAX_LENGTH, goalYearsLabel } from '../plan';
 import { createInvestmentPlan } from '../plans';
 import type { PlanPurchase } from '../portfolio';
-import { addPurchase, copyPlanPurchases, removePosition } from '../purchases';
+import { addPurchase, addPurchases, copyPlanPurchases, removePosition } from '../purchases';
 
 import { getActivePlan } from './selectors';
 import { useActivePlanStore } from './store';
@@ -19,9 +19,11 @@ export function createActivePlan(name: string): void {
  * Adds the purchase to the active plan. The app's screens open only once there is a plan, so one
  * is always active; without it nothing is added.
  */
-export function addPurchaseToActivePlan(purchase: Omit<PlanPurchase, 'id' | 'planId'>): void {
+export function addPurchaseToActivePlan(purchase: Omit<PlanPurchase, 'id' | 'planId'>): boolean {
   const plan = getActivePlan();
-  if (plan) addPurchase({ ...purchase, planId: plan.id });
+  if (!plan) return false;
+  addPurchase({ ...purchase, planId: plan.id });
+  return true;
 }
 
 /** Removes every purchase of the ISIN from the active plan. */
@@ -45,7 +47,7 @@ export function createGoalPlan(
   const name = plan.name.slice(0, PLAN_NAME_MAX_LENGTH - suffix.length).trimEnd() + suffix;
   const id = createInvestmentPlan(name, goal);
   copyPlanPurchases(plan.id, id);
-  for (const purchase of purchases) addPurchase({ ...purchase, planId: id });
+  addPurchases(purchases.map((purchase) => ({ ...purchase, planId: id })));
   setActivePlan(id);
   return name;
 }

@@ -16,7 +16,10 @@ type Props = {
 export function SalePricesSection({ assessment, currency }: Props) {
   const { breakEvenPrice, sellAbovePrice } = assessment;
   return (
-    <Section title="Ціни продажу">
+    <Section
+      title="Ціни продажу"
+      footer="Виплату в день продажу враховано продавцю, хоча на картці вона стане отриманою наступного дня. Орієнтир нових ОВДП — медіана ставок купону; фактична дохідність залежить від ціни купівлі й може відрізнятися."
+    >
       <InfoRow
         label="Продаж без збитку"
         value={breakEvenText(breakEvenPrice, currency)}
@@ -30,7 +33,7 @@ export function SalePricesSection({ assessment, currency }: Props) {
         <InfoRow
           label="Вигідніше продати"
           value={`понад ${formatMoney(sellAbovePrice, currency)}`}
-          hint="Вище цієї ціни гроші з продажу заробили б у новій ОВДП більше, ніж у цій до погашення"
+          hint="Вище цієї ціни гроші за ставкою орієнтира заробили б більше, ніж у цій ОВДП до погашення"
         />
       )}
     </Section>

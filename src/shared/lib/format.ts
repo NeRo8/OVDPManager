@@ -78,8 +78,13 @@ export function plural(n: number, one: string, few: string, many: string): strin
   return many;
 }
 
-/** Parses user input like "10 000,50" into a number. */
+/** Parses a decimal comma or point, and grouped input such as "1,000.50". */
 export function parseAmount(text: string): number {
-  const normalized = text.replace(/[\s ]/g, '').replace(',', '.');
-  return normalized === '' ? NaN : Number(normalized);
+  const input = text.replace(/\s/g, '');
+  if (!input) return NaN;
+  if (/^[+-]?\d{1,3}(,\d{3})+\.\d+$/.test(input)) return Number(input.replace(/,/g, ''));
+  if (/^[+-]?\d{1,3}(\.\d{3})+,\d+$/.test(input))
+    return Number(input.replace(/\./g, '').replace(',', '.'));
+  if (!/^[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)$/.test(input)) return NaN;
+  return Number(input.replace(',', '.'));
 }

@@ -27,7 +27,7 @@ export default function SettingsScreen() {
     <ScreenScrollView>
       <Section
         title="Дані"
-        footer={`Створено ${planCount(numberOfPlans)}, ${numberOfPlans === 1 ? 'у ньому' : 'у них'} ${purchaseCount(numberOfPurchases)}. Дані зберігаються на цьому пристрої; зашифрована вашим ключем копія — у хмарі чи у JSON-файлі — дає змогу відновити їх тут чи на іншому пристрої.`}
+        footer={`Створено ${planCount(numberOfPlans)}. Усього ${purchaseCount(numberOfPurchases)}. Дані зберігаються на цьому пристрої; зашифрована вашим ключем копія — у хмарі чи у JSON-файлі — дає змогу відновити їх тут чи на іншому пристрої.`}
       >
         <LinkRow title="Створити копію" onPress={openBackupExport} />
         <LinkRow title="Відновити з копії" onPress={openBackupImport} />

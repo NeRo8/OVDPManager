@@ -14,6 +14,8 @@ export function useHoldOrSell(isin: string, salePrice: number | null) {
   const position = positions.find((item) => item.position.isin === isin)?.position;
   return {
     bond,
+    position,
+    today,
     assessment:
       position && bond
         ? holdOrSell({ position, bond, today, keyRate, bonds: bonds ?? [], salePrice })

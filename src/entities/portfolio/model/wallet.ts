@@ -67,7 +67,7 @@ export function narrowWallet(wallet: Wallet, { currency, isins }: WalletScope): 
 
 /** What a Wallet can be narrowed to. */
 export type WalletScopeOptions = {
-  /** Bonds the NBU data has, by ISIN */
+  /** Positions in the wallet, by ISIN, including those without NBU data. */
   isins: string[];
   /** In `CURRENCIES` order */
   currencies: Currency[];
@@ -76,11 +76,11 @@ export type WalletScopeOptions = {
 };
 
 export function walletScopeOptions(wallet: Wallet): WalletScopeOptions {
-  const known = wallet.positions.filter(({ bond }) => bond);
+  const positions = wallet.positions;
   return {
-    isins: known.map(({ position }) => position.isin).sort(),
+    isins: positions.map(({ position }) => position.isin).sort(),
     currencyOf: Object.fromEntries(
-      known.map(({ position, currency }) => [position.isin, currency]),
+      positions.map(({ position, currency }) => [position.isin, currency]),
     ),
     currencies: CURRENCIES.filter((currency) =>
       [...wallet.payments, ...wallet.purchaseEvents].some((event) => event.currency === currency),

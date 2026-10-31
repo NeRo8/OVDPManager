@@ -5,6 +5,7 @@ import {
   isRedeemed,
   maturesWithin,
   positionPayments,
+  purchaseEvents,
 } from '../portfolio';
 
 function bondOf(isin: string, maturityDate: string): Bond {
@@ -22,6 +23,25 @@ function bondOf(isin: string, maturityDate: string): Bond {
 
 const maturingToday = bondOf('UA4000000001', '2026-03-15');
 const today = '2026-03-15';
+
+it('identifies same-day top-ups consistently regardless of storage order', () => {
+  const purchase = {
+    isin: maturingToday.isin,
+    purchaseDate: '2025-01-01',
+    quantity: 1,
+    amount: 1000,
+    currency: 'UAH' as const,
+  };
+  const first = { ...purchase, id: 'a' };
+  const second = { ...purchase, id: 'b' };
+  const events = (items: (typeof first)[]) =>
+    purchaseEvents(items, new Map()).map(({ id, isTopUp }) => [id, isTopUp]);
+  expect(events([first, second])).toEqual([
+    ['a', false],
+    ['b', true],
+  ]);
+  expect(events([second, first])).toEqual(events([first, second]));
+});
 
 describe('the maturity date', () => {
   it('keeps the bond in circulation on the day itself, redeemed the day after', () => {
