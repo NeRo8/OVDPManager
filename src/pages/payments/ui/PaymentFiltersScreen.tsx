@@ -9,7 +9,7 @@ import {
   type ScheduleTimeFilter,
 } from '@/features/payment-filters';
 
-import { currencyTitle, type Currency } from '@/entities/portfolio';
+import { currencyTitle, type Currency, isinsIn } from '@/entities/portfolio';
 
 import { formatDate } from '@/shared/lib';
 import {
@@ -32,15 +32,16 @@ const TIME_OPTIONS = (['all', 'upcoming', 'past'] as const).map((value) => ({
 
 /** Narrows the payments schedule; every change applies at once and is remembered. */
 export default function PaymentFiltersScreen() {
-  const { wallet, filters, options, activeFilterCount } = useFilteredWallet();
+  const { wallet, filters, options, activeFilterCount, withCurrency } = useFilteredWallet();
   const { events: shown, totalCount } = filterSchedule(wallet, filters);
   // What each type would add, given the other filters.
   const ofAnyType = filterSchedule(wallet, { ...filters, types: [] }).events;
   const typeCount = (type: ScheduleEventType) =>
     ofAnyType.filter((event) => event.type === type).length;
 
+  // As picking it would show: the bonds ticked of that currency, every bond when none is.
   const currencyCount = (currency: Currency) =>
-    filterSchedule(wallet, { ...filters, currency }).events.length;
+    filterSchedule(wallet, withCurrency(currency)).events.length;
 
   const showAllTypes = () => updatePaymentFilters({ types: [] });
   const changeTime = (time: ScheduleTimeFilter) => updatePaymentFilters({ time });
@@ -91,7 +92,7 @@ export default function PaymentFiltersScreen() {
 
       <Section title="ОВДП" footer="Позначте ОВДП, виплати й купівлі яких показувати.">
         <CheckRow title="Усі ОВДП" checked={filters.isins.length === 0} onPress={showAllBonds} />
-        {options.isins.map((isin) => {
+        {isinsIn(options, filters.currency).map((isin) => {
           const bond = wallet.byIsin.get(isin);
           return (
             <CheckRow

@@ -71,28 +71,38 @@ export type WalletScopeOptions = {
   isins: string[];
   /** In `CURRENCIES` order */
   currencies: Currency[];
+  /** Each of `isins`' currency */
+  currencyOf: Record<string, Currency>;
 };
 
 export function walletScopeOptions(wallet: Wallet): WalletScopeOptions {
+  const known = wallet.positions.filter(({ bond }) => bond);
   return {
-    isins: wallet.positions
-      .filter(({ bond }) => bond)
-      .map(({ position }) => position.isin)
-      .sort(),
+    isins: known.map(({ position }) => position.isin).sort(),
+    currencyOf: Object.fromEntries(
+      known.map(({ position, currency }) => [position.isin, currency]),
+    ),
     currencies: CURRENCIES.filter((currency) =>
       [...wallet.payments, ...wallet.purchaseEvents].some((event) => event.currency === currency),
     ),
   };
 }
 
+/** The bonds to pick from in a currency; every bond without one. */
+export function isinsIn(options: WalletScopeOptions, currency: Currency | null): string[] {
+  return currency === null
+    ? options.isins
+    : options.isins.filter((isin) => options.currencyOf[isin] === currency);
+}
+
 /**
- * A saved scope fitted to the Wallet: bonds it no longer has are dropped, and a currency it no
- * longer has gives way to every currency, so a saved scope never hides everything.
+ * A saved scope fitted to the Wallet: bonds it no longer has, or not of the currency picked, are
+ * dropped, and a currency it no longer has gives way to every currency, so a saved scope never
+ * hides everything. A bond of another currency comes back once that currency is picked again.
  */
 export function fitScope<T extends WalletScope>(scope: T, options: WalletScopeOptions): T {
-  return {
-    ...scope,
-    currency: scope.currency && options.currencies.includes(scope.currency) ? scope.currency : null,
-    isins: scope.isins.filter((isin) => options.isins.includes(isin)),
-  };
+  const currency =
+    scope.currency && options.currencies.includes(scope.currency) ? scope.currency : null;
+  const isins = isinsIn(options, currency);
+  return { ...scope, currency, isins: scope.isins.filter((isin) => isins.includes(isin)) };
 }

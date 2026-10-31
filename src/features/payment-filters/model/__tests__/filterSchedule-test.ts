@@ -1,4 +1,10 @@
-import { type Bond, type Purchase, buildWallet, walletScopeOptions } from '@/entities/portfolio';
+import {
+  type Bond,
+  isinsIn,
+  type Purchase,
+  buildWallet,
+  walletScopeOptions,
+} from '@/entities/portfolio';
 
 import { effectiveFilters, filterSchedule } from '../filterSchedule';
 import type { PaymentFilters } from '../paymentFilters';
@@ -51,6 +57,14 @@ describe('effectiveFilters', () => {
     expect(effectiveFilters(fresh, options).currency).toBe('UAH');
     expect(effectiveFilters({ ...fresh, currency: 'EUR' }, options).currency).toBe('UAH');
     expect(effectiveFilters({ ...fresh, currency: 'USD' }, options).currency).toBe('USD');
+  });
+
+  it('keeps only the bonds of the currency shown, so picking another one hides nothing', () => {
+    const options = walletScopeOptions(wallet);
+    const picked = { ...fresh, isins: [hryvnia.isin] };
+    expect(effectiveFilters({ ...picked, currency: 'USD' }, options).isins).toEqual([]);
+    expect(effectiveFilters({ ...picked, currency: 'UAH' }, options).isins).toEqual([hryvnia.isin]);
+    expect(isinsIn(options, 'USD')).toEqual([dollar.isin]);
   });
 });
 

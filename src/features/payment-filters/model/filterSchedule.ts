@@ -5,6 +5,7 @@ import {
   compareScheduleEvents,
   fitScope,
   narrowWallet,
+  isinsIn,
 } from '@/entities/portfolio';
 
 import type { PaymentFilters } from './paymentFilters';
@@ -18,7 +19,9 @@ export function effectiveFilters(
   options: WalletScopeOptions,
 ): PaymentFilters {
   const fitted = fitScope(filters, options);
-  return { ...fitted, currency: fitted.currency ?? options.currencies[0] ?? null };
+  const currency = fitted.currency ?? options.currencies[0] ?? null;
+  const isins = isinsIn(options, currency);
+  return { ...fitted, currency, isins: fitted.isins.filter((isin) => isins.includes(isin)) };
 }
 
 /** What differs from fresh filters; another currency than the first one counts too. */

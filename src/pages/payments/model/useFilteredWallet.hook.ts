@@ -4,15 +4,23 @@ import {
   usePaymentFilters,
 } from '@/features/payment-filters';
 
-import { useWallet, walletScopeOptions } from '@/entities/portfolio';
+import { type Currency, useWallet, walletScopeOptions } from '@/entities/portfolio';
 
 /** The wallet with the saved payment filters, fitted to the bonds and currencies it has. */
 export function useFilteredWallet() {
   const wallet = useWallet();
   const options = walletScopeOptions(wallet);
-  const filters = effectiveFilters(usePaymentFilters(), options);
+  const saved = usePaymentFilters();
+  const filters = effectiveFilters(saved, options);
 
-  return { wallet, filters, options, activeFilterCount: countActiveFilters(filters, options) };
+  return {
+    wallet,
+    filters,
+    options,
+    activeFilterCount: countActiveFilters(filters, options),
+    /** The filters as they would read with another currency: its own bonds ticked, if any */
+    withCurrency: (currency: Currency) => effectiveFilters({ ...saved, currency }, options),
+  };
 }
 
 export type FilteredWallet = ReturnType<typeof useFilteredWallet>;

@@ -129,9 +129,11 @@
 
 **DOM-38.** `narrowWallet(wallet, { currency, isins })` залишає купівлі, у яких (`currency === null` або валюта купівлі за DOM-15 дорівнює `currency`) і (`isins` порожній або містить ISIN купівлі), і будує з них новий гаманець через `buildWallet` з тими самими `byIsin` і `today`. З `{ currency: null, isins: [] }` гаманець дорівнює вихідному. `wallet.ts`, `narrowWallet`.
 
-**DOM-39.** `walletScopeOptions(wallet)`: `isins` — ISIN позицій, чия ОВДП є в даних НБУ, відсортовані за абеткою; `currencies` — валюти з `CURRENCIES`, що трапляються серед виплат або подій купівлі гаманця (фактично — валюти всіх купівель, бо кожна купівля дає подію). `wallet.ts`, `walletScopeOptions`.
+**DOM-39.** `walletScopeOptions(wallet)`: `isins` — ISIN позицій, чия ОВДП є в даних НБУ, відсортовані за абеткою; `currencyOf` — валюта кожного з цих ISIN (валюта позиції, DOM-15); `currencies` — валюти з `CURRENCIES`, що трапляються серед виплат або подій купівлі гаманця (фактично — валюти всіх купівель, бо кожна купівля дає подію). `wallet.ts`, `walletScopeOptions`.
 
-**DOM-40.** `fitScope(scope, options)` підганяє збережений вибір до гаманця: ISIN, яких немає в `options.isins`, відкидаються; валюта, якої немає в `options.currencies`, стає `null` («усі валюти»). Інші поля `scope` лишаються. (Фільтри виплат замінюють відсутню валюту на першу наявну — це їхнє власне правило поза `fitScope`.) `wallet.ts`, `fitScope`.
+**DOM-40.** `fitScope(scope, options)` підганяє збережений вибір до гаманця: валюта, якої немає в `options.currencies`, стає `null` («усі валюти»); далі ISIN лишаються лише ті, що є серед `isinsIn(options, підігнана валюта)` (DOM-61) — тобто відкидаються і ISIN, яких у гаманці вже немає, і ISIN іншої валюти, ніж обрана. Сховище фільтрів при цьому не змінюється, тож ISIN іншої валюти повертається, щойно цю валюту оберуть знову. Інші поля `scope` лишаються. Приклад: збережено `{ currency: 'USD', isins: [гривнева ОВДП] }` → `{ currency: 'USD', isins: [] }`, тобто всі доларові ОВДП, а не порожній звіт. (Фільтри виплат замінюють відсутню валюту на першу наявну й так само відкидають ISIN інших валют — це їхнє власне правило поза `fitScope`, PFLT-02 у [screens/payments.md](screens/payments.md).) `wallet.ts`, `fitScope`.
+
+**DOM-61.** ОВДП валюти (`isinsIn(options, currency)`): ISIN з `options.isins`, у яких `currencyOf` дорівнює `currency`, у тому самому порядку; за `currency = null` — усі `options.isins`. З цього списку фільтри виплат і звітів показують розділ «ОВДП» (лише ОВДП обраної валюти). `wallet.ts`, `isinsIn`.
 
 **DOM-41.** `useWallet()` = `buildWallet(купівлі активного плану, byIsin з useBonds, todayISO())` плюс `plan`, `bonds` (увесь каталог або `null`) і `refresh`. `today` береться під час рендеру. `src/entities/portfolio/model/useWallet.hook.ts`.
 
@@ -210,7 +212,7 @@
 - `src/entities/portfolio/model/__tests__/market-test.ts`: DOM-11, DOM-45, DOM-47 (з DOM-48 для парної кількості — неявно, медіана двох значень), DOM-49.
 - `src/entities/portfolio/model/__tests__/position-test.ts`: DOM-21 (купон у день купівлі), DOM-24, DOM-25 (без даних НБУ), DOM-60 («tells what of the Position is still only planned»), DOM-26, DOM-27, DOM-29 (з DOM-28 для часткових погашень), DOM-30, DOM-31, DOM-32, DOM-33, DOM-34.
 - `src/entities/portfolio/model/__tests__/wallet-test.ts`: DOM-20 (порядок позицій), DOM-35, DOM-36 (порядок подій, купівля без даних НБУ), DOM-38.
-- `src/features/payment-filters/model/__tests__/filterSchedule-test.ts`: DOM-37, DOM-39 (опосередковано).
+- `src/features/payment-filters/model/__tests__/filterSchedule-test.ts`: DOM-37, DOM-39 (опосередковано), DOM-61 і DOM-40 для ISIN іншої валюти (через `effectiveFilters`, «keeps only the bonds of the currency shown…»).
 - `src/features/report-filters/model/__tests__/fitReportFilters-test.ts`: DOM-40 (опосередковано, через `fitReportFilters`).
 - `src/pages/reports/model/__tests__/plannedPurchases-test.ts`: DOM-59 (`plannedQuantity` виплат до і після запланованої купівлі).
 - `src/features/add-purchase/model/__tests__/purchaseHints-test.ts`: DOM-51, DOM-52, DOM-46 (опосередковано, через `assessPurchase`).
