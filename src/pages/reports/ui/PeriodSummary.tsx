@@ -4,26 +4,29 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { CURRENCY_NAMES } from '@/entities/portfolio';
 
-import { formatMoney, plural } from '@/shared/lib';
+import { formatMoney } from '@/shared/lib';
 import { Card, LegendRow, Separator, TotalRow } from '@/shared/ui';
 
 import type { CurrencyReport } from '../model/periodReport';
-import type { ReportTerms } from '../model/reportTerms';
+import { type ReportTerms, summaryFooter } from '../model/reportTerms';
 
 type Props = {
   report: CurrencyReport;
   terms: ReportTerms;
 };
 
-/** The year's or the period's sums in one currency, and what its coupons came to a month. */
+/**
+ * The year's or the period's sums in one currency: what went out and came in, what that came to
+ * («Сальдо» and «Дохід») and what its coupons came to a month.
+ */
 export function PeriodSummary({ report, terms }: Props) {
-  const { currency, invested, coupons, redemptions, averageMonthlyCoupons, months } = report;
-  const monthCount = months.length;
+  const { currency, invested, coupons, redemptions, balance, income } = report;
+  const { averageMonthlyCoupons, monthCount } = report;
 
   return (
     <Card
       title={`Підсумок · ${CURRENCY_NAMES[currency]}`}
-      footer={`Купони ${terms.span}, поділені на ${monthCount} ${plural(monthCount, 'місяць', 'місяці', 'місяців')}. Погашення повертає номінал, а не приносить нові гроші щомісяця, тож у середнє не входить.`}
+      footer={summaryFooter(terms, monthCount)}
     >
       <View style={styles.rows}>
         <LegendRow color="purchase" label="Вкладено" value={formatMoney(invested, currency)} />
@@ -33,6 +36,15 @@ export function PeriodSummary({ report, terms }: Props) {
           label="Погашення"
           value={formatMoney(redemptions, currency)}
         />
+      </View>
+      <Separator variant="card" />
+      <View style={styles.rows}>
+        <TotalRow
+          label={terms.balance}
+          value={formatMoney(balance, currency)}
+          signedValue={balance}
+        />
+        <TotalRow label={terms.income} value={formatMoney(income, currency)} signedValue={income} />
       </View>
       <Separator variant="card" />
       <TotalRow

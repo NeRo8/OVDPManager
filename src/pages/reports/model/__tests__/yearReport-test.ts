@@ -1,5 +1,6 @@
 import { type Bond, type Purchase, buildWallet } from '@/entities/portfolio';
 
+import { periodReport } from '../periodReport';
 import { yearReport } from '../yearReport';
 
 const short: Bond = {
@@ -69,5 +70,56 @@ describe('yearReport', () => {
     expect(report.highlights.highestYield?.annualYield).toBe(
       Math.max(first.annualYield, second.annualYield),
     );
+  });
+
+  it('sums the year up as «Сальдо» and «Дохід»', () => {
+    // Payments 240 + 1 000 less purchases 4 000; the redemption repays what the bond cost.
+    expect(report.balance).toBe(-2760);
+    expect(report.income).toBe(240);
+  });
+
+  it('shares the income among the bonds that earned, a loss elsewhere aside', () => {
+    const dear = buildWallet(
+      [
+        purchase('first', short.isin, '2025-01-10', 1500),
+        purchase('second', long.isin, '2025-03-10', 3000),
+      ],
+      wallet.byIsin,
+      '2026-02-01',
+    );
+    const [year] = yearReport(dear, 2025);
+    // The short bond's coupons 120 less the 500 its redemption fell short of its cost.
+    expect(year.bonds.map((bond) => [bond.income, bond.incomeShare])).toEqual([
+      [-380, null],
+      [120, 100],
+    ]);
+    expect(year.income).toBe(-260);
+  });
+});
+
+describe('periodReport', () => {
+  const wallet = buildWallet(
+    [
+      purchase('first', short.isin, '2025-01-10', 1000),
+      purchase('second', long.isin, '2025-03-10', 3000),
+    ],
+    new Map([
+      [short.isin, short],
+      [long.isin, long],
+    ]),
+    '2026-02-01',
+  );
+
+  it('counts a month the period covers in part as its share of days', () => {
+    // June, July and August whole, then 15 of September's 30 days.
+    const [report] = periodReport(wallet, '2025-06-01', '2025-09-15');
+    expect(report.monthCount).toBe(3.5);
+    expect(report.coupons).toBe(180);
+    expect(report.averageMonthlyCoupons).toBe(51.43);
+  });
+
+  it('counts whole months as they are', () => {
+    const [report] = periodReport(wallet, '2025-01-01', '2025-03-31');
+    expect(report.monthCount).toBe(3);
   });
 });

@@ -87,9 +87,20 @@ function pastEvents(wallet: Wallet, year: number | null): ScheduleEvent[] {
       (event.type === 'purchase' || event.isPaid),
   );
   if (year === null) return eligible.sort(compareScheduleEvents);
-  const activeIsins = new Set(
-    eligible.filter((event) => event.date.startsWith(String(year))).map((event) => event.isin),
-  );
+  // A year covers the bonds with a cash flow in it and those held through it without one: bought
+  // before it and not yet at maturity when it began.
+  const yearStart = `${year}-01-01`;
+  const activeIsins = new Set([
+    ...eligible.filter((event) => event.date.startsWith(String(year))).map((event) => event.isin),
+    ...wallet.positions
+      .filter(
+        ({ position, bond, currency }) =>
+          currency === 'UAH' &&
+          position.purchases.some((purchase) => purchase.purchaseDate < yearStart) &&
+          (!bond || bond.maturityDate >= yearStart),
+      )
+      .map(({ position }) => position.isin),
+  ]);
   return eligible.filter((event) => activeIsins.has(event.isin)).sort(compareScheduleEvents);
 }
 
@@ -190,7 +201,8 @@ export function fxReport(
 
   const periodEvents =
     year === null ? converted : converted.filter((event) => event.date.startsWith(String(year)));
-  const reportIsins = new Set(periodEvents.map((event) => event.isin));
+  // Every bond of the report, those held through a year without a cash flow in it included.
+  const reportIsins = new Set(converted.map((event) => event.isin));
   const total = (items: FxEvent[], type: FxEvent['type']) =>
     round2(
       items

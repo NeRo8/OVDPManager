@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 
-import { CURRENCY_NAMES } from '@/entities/portfolio';
+import { CURRENCY_NAMES, netIncomeBasis } from '@/entities/portfolio';
 
 import { formatMoney } from '@/shared/lib';
 import { InfoRow, Section, SignedValue } from '@/shared/ui';
@@ -18,7 +18,7 @@ type Props = {
 export function PortfolioSummary({ report }: Props) {
   const { currency, total, bonds, unknownCount } = report;
   const money = (value: number) => formatMoney(value, currency);
-  const rows: { label: string; value: ReactNode }[] = [
+  const rows: { label: string; value: ReactNode; hint?: string }[] = [
     { label: 'ОВДП', value: String(bonds.length) },
     ...(total
       ? [
@@ -36,6 +36,7 @@ export function PortfolioSummary({ report }: Props) {
             ? [
                 {
                   label: 'Чистий дохід',
+                  hint: netIncomeBasis(total),
                   value: (
                     <SignedValue value={total.netIncome} variant="subhead" weight="semibold">
                       {money(total.netIncome)}
@@ -58,13 +59,13 @@ export function PortfolioSummary({ report }: Props) {
           `ОВДП, яких немає в даних НБУ (${unknownCount}), не враховано в підсумку.`,
         total &&
           total.incompleteCount > 0 &&
-          `НБУ ще не опублікував погашення ${total.incompleteCount} ОВДП: у погашенні й виплатах їх немає, а чистий дохід і дохідність за весь строк рахуються без них.`,
+          `НБУ ще не опублікував погашення ${total.incompleteCount} ОВДП: їхні купони у виплатах є, а погашення немає, тож чистий дохід і дохідність за весь строк рахуються без них — з тих сум, що під чистим доходом.`,
       ]
         .filter(Boolean)
         .join(' ')}
     >
       {rows.map((row) => (
-        <InfoRow key={row.label} label={row.label} value={row.value} />
+        <InfoRow key={row.label} label={row.label} hint={row.hint} value={row.value} />
       ))}
     </Section>
   );

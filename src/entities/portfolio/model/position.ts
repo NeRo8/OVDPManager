@@ -1,4 +1,4 @@
-import { round2 } from '@/shared/lib';
+import { formatMoney, round2 } from '@/shared/lib';
 
 import {
   type Bond,
@@ -50,6 +50,11 @@ export type CurrencyResults = PositionResults & {
   currency: Currency;
   /** Positions whose redemption NBU has not published yet, left out of the net income */
   incompleteCount: number;
+  /**
+   * What the net income is worked out from: the cost and the payments of the Positions whose
+   * redemption is published. They match `invested` and `totalPayments` when `complete`.
+   */
+  published: { invested: number; totalPayments: number };
   /** «Річна дохідність» of the Positions that have one, weighted by what they cost */
   annualYield: number | null;
 };
@@ -200,16 +205,19 @@ export function resultsByCurrency(positions: WalletPosition[]): CurrencyResults[
     if (!results.length) return [];
     const sum = (items: PositionResults[], value: (item: PositionResults) => number) =>
       round2(items.reduce((total, item) => total + value(item), 0));
-    const published = results.filter((item) => item.complete);
+    const withRedemption = results.filter((item) => item.complete);
+    const published = {
+      invested: sum(withRedemption, (item) => item.invested),
+      totalPayments: sum(withRedemption, (item) => item.totalPayments),
+    };
     // The net income and the return over the term of the Positions with every payment known.
     const { netIncome, returnPercent } = withNetIncome({
-      invested: sum(published, (item) => item.invested),
+      ...published,
       coupons: 0,
       redemption: 0,
       received: 0,
       expected: 0,
-      totalPayments: sum(published, (item) => item.totalPayments),
-      complete: published.length > 0,
+      complete: withRedemption.length > 0,
     });
     const withYield = known.flatMap(({ annualYield, position }) =>
       annualYield === null ? [] : [{ annualYield, invested: position.investedAmount }],
@@ -224,10 +232,11 @@ export function resultsByCurrency(positions: WalletPosition[]): CurrencyResults[
         received: sum(results, (item) => item.received),
         expected: sum(results, (item) => item.expected),
         totalPayments: sum(results, (item) => item.totalPayments),
-        complete: published.length === results.length,
+        complete: withRedemption.length === results.length,
         netIncome,
         returnPercent,
-        incompleteCount: results.length - published.length,
+        incompleteCount: results.length - withRedemption.length,
+        published,
         annualYield: yieldWeight
           ? round2(
               withYield.reduce((total, item) => total + item.annualYield * item.invested, 0) /
@@ -237,4 +246,15 @@ export function resultsByCurrency(positions: WalletPosition[]): CurrencyResults[
       },
     ];
   });
+}
+
+/**
+ * Where the net income comes from when some Positions are left out of it: «Виплати 12 000,00 ₴
+ * мінус вкладено 10 500,00 ₴, лише ОВДП з опублікованим погашенням». Nothing when none is left
+ * out, as the sums shown above it then add up.
+ */
+export function netIncomeBasis({ currency, incompleteCount, published }: CurrencyResults) {
+  if (incompleteCount === 0) return undefined;
+  const money = (value: number) => formatMoney(value, currency);
+  return `Виплати ${money(published.totalPayments)} мінус вкладено ${money(published.invested)}, лише ОВДП з опублікованим погашенням`;
 }

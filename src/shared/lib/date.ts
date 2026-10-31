@@ -8,6 +8,7 @@ import {
   endOfMonth,
   endOfQuarter,
   format,
+  getDaysInMonth,
   parseISO,
   startOfMonth,
   startOfQuarter,
@@ -73,6 +74,19 @@ export function monthsBetween(fromISO: string, toISO: string): string[] {
   return eachMonthOfInterval({ start: parseISO(fromISO), end: parseISO(toISO) }).map((month) =>
     format(month, 'yyyy-MM'),
   );
+}
+
+/**
+ * How many months a span lasts, both days included: each whole month counts as 1, a month it
+ * covers in part as its share of days. 15.01–14.02 → 17/31 + 14/28 ≈ 1.05; a whole year → 12.
+ */
+export function monthsInSpan(fromISO: string, toISO: string): number {
+  return monthsBetween(fromISO, toISO).reduce((total, month) => {
+    const days = getDaysInMonth(parseISO(`${month}-01`));
+    const first = fromISO.startsWith(month) ? Number(fromISO.slice(8, 10)) : 1;
+    const last = toISO.startsWith(month) ? Number(toISO.slice(8, 10)) : days;
+    return total + (last - first + 1) / days;
+  }, 0);
 }
 
 export function daysBetween(fromISO: string, toISO: string): number {

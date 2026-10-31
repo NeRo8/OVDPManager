@@ -1,5 +1,7 @@
+import { formatMoney } from '@/shared/lib';
+
 import { type Bond, type Purchase, groupPositions } from '../portfolio';
-import { positionIncome, resultsByCurrency, walletPosition } from '../position';
+import { netIncomeBasis, positionIncome, resultsByCurrency, walletPosition } from '../position';
 
 /** Two years, a 10% coupon paid twice a year on a nominal of 1000, redeemed at once. */
 const bond: Bond = {
@@ -176,7 +178,13 @@ describe('resultsByCurrency', () => {
       invested: 2000,
       netIncome: 200,
       returnPercent: 20,
+      // The net income adds up from these, not from `invested` and `totalPayments`.
+      published: { invested: 1000, totalPayments: 1200 },
     });
+    expect(netIncomeBasis(total)).toBe(
+      `Виплати ${formatMoney(1200, 'UAH')} мінус вкладено ${formatMoney(1000, 'UAH')}, лише ОВДП з опублікованим погашенням`,
+    );
+    expect(netIncomeBasis(resultsByCurrency([uah])[0])).toBeUndefined();
     expect(resultsByCurrency([incomplete])[0].netIncome).toBeNull();
   });
 

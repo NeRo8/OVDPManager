@@ -9,7 +9,7 @@ import {
   sumTotals,
 } from '@/entities/portfolio';
 
-import { monthsBetween, round2 } from '@/shared/lib';
+import { monthsBetween, monthsInSpan, round2 } from '@/shared/lib';
 
 /** Money that went out and came in. */
 export type Flows = {
@@ -34,7 +34,10 @@ export type BondReport = Flows & {
   income: number;
   /** «Річна дохідність» of the bond held to maturity; null until NBU publishes its redemption */
   annualYield: number | null;
-  /** Its income as % of the period's income in the currency; null unless both are above zero */
+  /**
+   * Its income as % of what the bonds with income above zero brought together; null unless its
+   * own is above zero. A loss elsewhere does not push the shares past 100 %.
+   */
   incomeShare: number | null;
 };
 
@@ -57,7 +60,9 @@ export type CurrencyReport = Flows & {
   balance: number;
   /** «Дохід»: coupons plus what the redemptions brought over the cost of the bonds repaid */
   income: number;
-  /** The coupons spread over the period's months; redemptions return the money put in */
+  /** How many months the period lasts, a month it covers in part as its share of days */
+  monthCount: number;
+  /** The coupons over `monthCount`; redemptions return the money put in */
   averageMonthlyCoupons: number;
   /** «Річна дохідність» of the period's bonds, averaged by what they cost; null when none is known */
   annualYield: number | null;
@@ -93,6 +98,7 @@ export function periodReport(wallet: Wallet, from: string, to: string): Currency
   const inPeriod = (event: { date: string }) => event.date >= from && event.date <= to;
   const events: ScheduleEvent[] = [...wallet.payments, ...wallet.purchaseEvents].filter(inPeriod);
   const months = monthsBetween(from, to);
+  const monthCount = round2(monthsInSpan(from, to));
 
   return CURRENCIES.flatMap((currency) => {
     const inCurrency = events.filter((event) => event.currency === currency);
@@ -117,9 +123,10 @@ export function periodReport(wallet: Wallet, from: string, to: string): Currency
     });
 
     const income = round2(bonds.reduce((sum, bond) => sum + bond.income, 0));
+    const earned = bonds.reduce((sum, bond) => sum + Math.max(0, bond.income), 0);
     const withShares = bonds.map((bond): BondReport => ({
       ...bond,
-      incomeShare: income > 0 && bond.income > 0 ? round2((bond.income / income) * 100) : null,
+      incomeShare: bond.income > 0 ? round2((bond.income / earned) * 100) : null,
     }));
 
     return [
@@ -131,7 +138,8 @@ export function periodReport(wallet: Wallet, from: string, to: string): Currency
         expected: sumTotals(payments.filter((payment) => !payment.isPaid)),
         balance: round2(totalPayments - total.invested),
         income,
-        averageMonthlyCoupons: round2(total.coupons / months.length),
+        monthCount,
+        averageMonthlyCoupons: round2(total.coupons / monthCount),
         annualYield: resultsByCurrency(positions)[0]?.annualYield ?? null,
         months: months.map((month) => ({
           month,

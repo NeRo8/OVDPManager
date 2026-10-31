@@ -1,3 +1,5 @@
+import { plural } from '@/shared/lib';
+
 /** How a report names its span in the shared blocks: the year report and the period report. */
 export type ReportTerms = {
   /** The payments less the purchases */
@@ -25,3 +27,16 @@ export const ALL_YEARS_TERMS: ReportTerms = {
   income: 'Дохід за всі роки',
   span: 'усіх років',
 };
+
+/**
+ * How many months the coupons are spread over, after «поділені на»: «12 місяців», «3 місяці», and
+ * a part of a month with its decimals, «9,97 місяця».
+ */
+export function monthCountLabel(count: number): string {
+  if (Number.isInteger(count)) return `${count} ${plural(count, 'місяць', 'місяці', 'місяців')}`;
+  return `${new Intl.NumberFormat('uk-UA', { maximumFractionDigits: 2 }).format(count)} місяця`;
+}
+
+/** The footer under the sums of a year or a period: what the average and the totals mean. */
+export const summaryFooter = (terms: ReportTerms, monthCount: number): string =>
+  `${terms.balance} — виплати мінус купівлі. ${terms.income} — купони та різниця між погашенням і ціною купівлі погашених ОВДП. Купони в середньому за місяць — купони ${terms.span}, поділені на ${monthCountLabel(monthCount)}; погашення повертає номінал, а не приносить нові гроші щомісяця, тож у середнє не входить.`;

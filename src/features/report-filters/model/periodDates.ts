@@ -1,6 +1,6 @@
 import type { Wallet } from '@/entities/portfolio';
 
-import { addDaysISO, addMonthsISO, monthRange, quarterRange } from '@/shared/lib';
+import { monthRange, quarterRange } from '@/shared/lib';
 
 import type { Period, PeriodOption } from './reportFilters';
 import { initialState } from './reportFilters/store';
@@ -25,8 +25,8 @@ export function walletSpan({ payments, purchaseEvents, today }: Wallet): Period 
 
 /**
  * The dates of a period. Calendar months and quarters are whole, payments still ahead included;
- * the year to date and the last 12 months end today. The own period without dates yet is the
- * default one.
+ * the year to date ends today, and the last 12 months are the whole months before this one. The own
+ * period without dates yet is the default one.
  */
 export function periodDates(option: PeriodOption, wallet: Wallet, custom: Period | null): Period {
   const { today } = wallet;
@@ -42,7 +42,7 @@ export function periodDates(option: PeriodOption, wallet: Wallet, custom: Period
     case 'yearToDate':
       return { from: `${today.slice(0, 4)}-01-01`, to: today };
     case 'last12Months':
-      return { from: addDaysISO(addMonthsISO(today, -12), 1), to: today };
+      return { from: monthRange(today, -12).from, to: monthRange(today, -1).to };
     case 'plan':
       return walletSpan(wallet);
     case 'custom':

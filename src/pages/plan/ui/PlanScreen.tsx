@@ -7,6 +7,7 @@ import {
   BondsUnavailableCard,
   NbuSourceNote,
   StaleBondsNotice,
+  netIncomeBasis,
   resultsByCurrency,
   useWallet,
 } from '@/entities/portfolio';
@@ -131,7 +132,7 @@ export default function PlanScreen() {
               >
                 <InfoRow
                   label="Чистий дохід"
-                  hint="Виплати мінус вкладення — ваш заробіток"
+                  hint={netIncomeBasis(total) ?? 'Виплати мінус вкладення — ваш заробіток'}
                   value={formatMoney(total.netIncome, total.currency)}
                   signedValue={total.netIncome}
                 />

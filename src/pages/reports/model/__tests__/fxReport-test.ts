@@ -121,6 +121,30 @@ describe('fxReport', () => {
     expect(fxReport(wallet, 2025, () => null)).toBeNull();
   });
 
+  it('keeps in a year a bond held through it before its first payment in it', () => {
+    const wallet = buildWallet(
+      [
+        purchase('held', active.isin, '2025-03-01', 900),
+        purchase('done', redeemed.isin, '2024-10-01', 1200),
+      ],
+      new Map([
+        [active.isin, active],
+        [redeemed.isin, redeemed],
+      ]),
+      '2026-05-01',
+    );
+    const report = fxReport(wallet, 2026, (date) => (date === '2025-03-01' ? 45 : 50));
+
+    // No cash flow in 2026 yet, but the bond was held all along; the one redeemed in 2025 was not.
+    expect(report?.bonds.map(({ isin }) => isin)).toEqual([active.isin]);
+    expect(report).toMatchObject({
+      purchases: 0,
+      coupons: 0,
+      openCount: 1,
+      snapshot: { invested: 20, received: 2, remainingCost: 18 },
+    });
+  });
+
   it('adds each purchase to the currency baseline and revalues the UAH cost each month', () => {
     const wallet = buildWallet(
       [

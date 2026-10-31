@@ -83,9 +83,10 @@ describe('fitReportFilters', () => {
     ).toBe(2026);
   });
 
-  it('gives the period report the dates of its period, the last 12 months at first', () => {
+  it('gives the period report the dates of its period, the last 12 whole months at first', () => {
     const { filters } = fitReportFilters('period', initialState.period, wallet);
-    expect(filters.dates).toEqual({ from: '2025-03-16', to: today });
+    // The twelve months before this one, never the part of a thirteenth.
+    expect(filters.dates).toEqual({ from: '2025-03-01', to: '2026-02-28' });
   });
 
   it('narrows the wallet to the currency and bonds picked, and counts them', () => {
