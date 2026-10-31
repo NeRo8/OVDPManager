@@ -69,6 +69,17 @@ export default function RootLayout() {
                 />
                 <NativeStack.Screen name="plan/name" options={{ title: 'Новий план' }} />
                 <NativeStack.Screen name="plan/list" options={{ title: 'Мої плани' }} />
+                <NativeStack.Screen name="plan/goal" options={{ title: 'Купони на місяць' }} />
+                {/* A plan's actions; a swipe down or a tap outside closes the sheet. */}
+                <NativeStack.Screen
+                  name="plan/actions"
+                  options={{
+                    presentation: 'formSheet',
+                    sheetAllowedDetents: 'fitToContents',
+                    sheetGrabberVisible: true,
+                    headerShown: false,
+                  }}
+                />
                 <NativeStack.Screen
                   name="payment-filters"
                   options={{ title: 'Фільтри виплат', ...FILTERS_MODAL }}

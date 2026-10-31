@@ -1,6 +1,6 @@
 import { RefreshControl } from 'react-native';
 
-import { router, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
@@ -8,19 +8,11 @@ import {
   NbuSourceNote,
   StaleBondsNotice,
   resultsByCurrency,
-  removeInvestmentPlan,
   useWallet,
 } from '@/entities/portfolio';
 
+import { formatMoney, useOptionChoice, usePullToRefresh } from '@/shared/lib';
 import {
-  confirmDestructive,
-  formatMoney,
-  plural,
-  useOptionChoice,
-  usePullToRefresh,
-} from '@/shared/lib';
-import {
-  ActionRow,
   EmptyState,
   InfoRow,
   ScreenScrollView,
@@ -29,15 +21,22 @@ import {
   Typography,
 } from '@/shared/ui';
 
+import { upcomingPurchases } from '../model/upcomingPurchases';
+
+import { GoalCard } from './GoalCard';
+import { UpcomingPurchasesSection } from './UpcomingPurchasesSection';
+
 /**
- * The plans tab: the active plan as a whole. Its purchases (bought or planned) are the ones in the
- * wallet; here they add up to what the plan costs and earns over its whole term.
+ * The plans tab: the active plan as a whole. First what to do next — the purchases until the end of
+ * next month and the plan's goal — then its purchases (bought or planned) added up to what the plan
+ * costs and earns over its whole term.
  */
 export default function PlanScreen() {
-  const { plan, bonds, refresh, positions, purchases } = useWallet();
+  const wallet = useWallet();
+  const { plan, bonds, refresh, positions, purchases } = wallet;
+  const upcoming = upcomingPurchases(wallet);
   const numberOfPurchases = purchases.length;
   const pullToRefresh = usePullToRefresh(refresh);
-  const planId = plan?.id ?? '';
   const totals = resultsByCurrency(positions);
   const unknownBonds = positions.filter((item) => !item.bond).length;
   // Totals come in CURRENCIES order.
@@ -47,18 +46,6 @@ export default function PlanScreen() {
 
   // The app's screens open only once there is a plan, so one is always active here.
   if (!plan) return null;
-
-  const renamePlan = () => router.push({ pathname: '/plan/name', params: { planId } });
-
-  const confirmRemovePlan = () =>
-    confirmDestructive(
-      'Видалити план?',
-      numberOfPurchases
-        ? `План «${plan.name}» і ${numberOfPurchases} ${plural(numberOfPurchases, 'купівлю', 'купівлі', 'купівель')} в ньому буде видалено.`
-        : `План «${plan.name}» буде видалено.`,
-      'Видалити',
-      () => removeInvestmentPlan(planId),
-    );
 
   return (
     <>
@@ -81,6 +68,15 @@ export default function PlanScreen() {
             message="У плані ще немає купівель, тож підсумовувати нічого. Додайте ОВДП у гаманці: дату купівлі, кількість і суму — купівля з’явиться в гаманці та у виплатах."
           />
         )}
+        {upcoming.map((item) => (
+          <UpcomingPurchasesSection
+            key={item.currency}
+            upcoming={item}
+            showCurrency={upcoming.length > 1}
+          />
+        ))}
+        {plan.goal && <GoalCard wallet={wallet} goal={plan.goal} />}
+
         {/* The totals need the NBU data; without it this stands in their place. */}
         {numberOfPurchases > 0 && <BondsUnavailableCard />}
 
@@ -110,7 +106,7 @@ export default function PlanScreen() {
             >
               <InfoRow
                 label="Погашення"
-                hint="Повернення номіналу в дату погашення. Зазвичай воно менше за ціну купівлі — різницю покривають купони"
+                hint="У дату погашення держава повертає номінал, а не ціну купівлі. Якщо ви заплатили більше за номінал, погашення буде менше за вкладене — цю різницю покривають купони"
                 value={formatMoney(total.redemption, total.currency)}
               />
               <InfoRow
@@ -160,10 +156,6 @@ export default function PlanScreen() {
             {unknownBonds} ОВДП немає в даних НБУ, тому їх не враховано в підсумку.
           </Typography>
         )}
-        <Section title="Керування планом">
-          <ActionRow title="Перейменувати план" onPress={renamePlan} />
-          <ActionRow title="Видалити план" tone="danger" onPress={confirmRemovePlan} />
-        </Section>
         <NbuSourceNote />
       </ScreenScrollView>
     </>

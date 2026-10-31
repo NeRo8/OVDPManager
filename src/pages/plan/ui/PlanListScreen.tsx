@@ -11,14 +11,20 @@ import {
   useInvestmentPlans,
   usePurchases,
   type InvestmentPlan,
+  type PlanPurchase,
 } from '@/entities/portfolio';
 
 import { plural, todayISO } from '@/shared/lib';
-import { CheckRow, HeaderButton, SectionCell, Typography, screenContent } from '@/shared/ui';
+import { HeaderButton, SectionCell, Typography, screenContent } from '@/shared/ui';
+
+import { PlanRow } from './PlanRow';
 
 const keyOf = (plan: InvestmentPlan) => plan.id;
 
-/** All plans; the checked one is what the app shows, now and on the next launch. */
+/**
+ * All plans; the checked one is what the app shows, now and on the next launch. Each row's ⋮ button
+ * opens its plan's actions.
+ */
 export default function PlanListScreen() {
   const plans = useInvestmentPlans();
   const purchases = usePurchases();
@@ -26,8 +32,7 @@ export default function PlanListScreen() {
   const today = todayISO();
   const createPlan = () => router.push('/plan/name');
 
-  function subtitle(plan: InvestmentPlan) {
-    const planPurchases = purchases.filter((purchase) => purchase.planId === plan.id);
+  function subtitle(planPurchases: PlanPurchase[]) {
     const planned = planPurchases.filter((purchase) => isPlannedPurchase(purchase, today)).length;
     return [
       planPurchases.length ? purchaseCount(planPurchases.length) : 'Купівель ще немає',
@@ -40,11 +45,12 @@ export default function PlanListScreen() {
 
   const renderItem = ({ item: plan, index }: ListRenderItemInfo<InvestmentPlan>) => {
     const choose = () => setActivePlan(plan.id);
+    const planPurchases = purchases.filter((purchase) => purchase.planId === plan.id);
     return (
       <SectionCell index={index} count={plans.length}>
-        <CheckRow
-          title={plan.name}
-          subtitle={subtitle(plan)}
+        <PlanRow
+          plan={plan}
+          subtitle={subtitle(planPurchases)}
           checked={plan.id === activePlan?.id}
           onPress={choose}
         />

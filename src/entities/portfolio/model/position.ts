@@ -71,8 +71,9 @@ export type WalletPosition = {
 };
 
 /** The NBU has published the redemption, so the payments are all there. */
-const hasRedemption = (bond: Bond) =>
-  bond.payments.some((payment) => payment.type === 'redemption');
+export function hasRedemption(bond: Bond): boolean {
+  return bond.payments.some((payment) => payment.type === 'redemption');
+}
 
 function withNetIncome(
   sums: Omit<PositionResults, 'netIncome' | 'returnPercent'>,

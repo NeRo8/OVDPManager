@@ -49,11 +49,13 @@ export const light = {
   fab: '#E53D00',
   fabIcon: '#FCFFF7',
   fabText: '#000000',
-  // Chart series: teal, blue, vermilion; checked with the dataviz palette validator against
-  // `card` (lightness, chroma, CVD and normal-vision separation). Two teals did not separate.
+  // Chart series: teal, blue, vermilion and plum for planned purchases; checked with the dataviz
+  // palette validator against `card` (lightness, chroma, CVD and normal-vision separation, all
+  // pairs). Two teals did not separate.
   seriesCoupon: '#21A0A0',
   seriesRedemption: '#4A5FD0',
   seriesPurchase: '#E53D00',
+  seriesPlannedPurchase: '#9E3F7A',
   // The same hues stepped to 4.5:1 on `card`, for amounts written in the series color.
   seriesCouponText: '#046865',
   seriesRedemptionText: '#4A5FD0',
@@ -111,6 +113,7 @@ export const dark: AppTheme = {
   seriesCoupon: '#21A0A0',
   seriesRedemption: '#5C6CE6',
   seriesPurchase: '#EE5A24',
+  seriesPlannedPurchase: '#A3478A',
   seriesCouponText: '#3CC9C3',
   seriesRedemptionText: '#8C98F5',
   seriesPurchaseText: '#FF6A33',

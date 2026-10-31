@@ -39,6 +39,7 @@ export type CurrencyYears = {
 
 const EMPTY_YEAR = {
   invested: 0,
+  planned: 0,
   coupons: 0,
   redemptions: 0,
   totalPayments: 0,
@@ -72,12 +73,13 @@ export function yearOverYearReport(wallet: Wallet): CurrencyYears[] {
 
     const years: YearRow[] = [];
     for (const { year, report } of inCurrency.slice(first, last + 1)) {
-      const { invested, coupons, redemptions, totalPayments, balance, income } =
+      const { invested, planned, coupons, redemptions, totalPayments, balance, income } =
         report ?? EMPTY_YEAR;
       const previous = years.at(-1);
       years.push({
         year,
         invested,
+        planned,
         coupons,
         redemptions,
         totalPayments,

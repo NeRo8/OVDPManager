@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { useAddPurchaseForm } from '@/features/add-purchase';
 
-import { type Bond } from '@/entities/portfolio';
+import { type Bond, type Purchase } from '@/entities/portfolio';
 
 import { formatDate, formatMoney } from '@/shared/lib';
 import {
@@ -21,8 +21,10 @@ import { HintsSection } from './HintsSection';
 
 type Props = {
   bond: Bond;
-  /** Bonds of this ISIN already in the plan */
+  /** Bonds of this ISIN already in the plan, besides the purchase edited */
   ownedQuantity: number;
+  /** The purchase to confirm or correct; without it the form adds a new one */
+  purchase?: Purchase;
   onSaved: () => void;
 };
 
@@ -30,9 +32,9 @@ type Props = {
  * The purchase form for one bond: each field shows its own error once edited, and Save stays
  * disabled until the whole purchase is valid.
  */
-export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
+export function AddPurchaseForm({ bond, ownedQuantity, purchase, onSaved }: Props) {
   const { control, isValid, submit, purchaseDate, pricePerBond, isPlanned, preview } =
-    useAddPurchaseForm(bond, onSaved);
+    useAddPurchaseForm(bond, onSaved, purchase);
   const { currency } = bond;
   const save = () => void submit();
 
@@ -42,7 +44,7 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
         title="ОВДП"
         footer={
           ownedQuantity > 0
-            ? `У гаманці вже є ${ownedQuantity} шт — ця купівля додасться до них.`
+            ? `У гаманці ще ${ownedQuantity} шт з інших купівель — ця купівля ${purchase ? 'рахується' : 'додасться'} до них.`
             : undefined
         }
       >
@@ -53,7 +55,7 @@ export function AddPurchaseForm({ bond, ownedQuantity, onSaved }: Props) {
         title={isPlanned ? 'Запланована купівля' : 'Купівля'}
         footer={
           isPlanned
-            ? `Дата ще попереду: купівля буде в плані як запланована й почне приносити виплати після ${formatDate(purchaseDate)}.`
+            ? `Дата ще попереду: купівля буде в плані як запланована й почне приносити виплати після ${formatDate(purchaseDate)}. Коли купівля відбудеться, підтвердіть її справжньою сумою.`
             : 'Сума — скільки списали за всю купівлю, як у застосунку банку чи брокера; ціна 1 шт рахується з неї.'
         }
       >

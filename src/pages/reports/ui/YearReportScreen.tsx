@@ -17,7 +17,8 @@ import { ReportHeading } from './ReportHeading';
 
 /**
  * One year of the active plan, with the currency and bonds picked in its filters, every currency
- * apart: the sums, the bonds that stand out, a table by month and what each bond brought.
+ * apart: cash flows by month, the sums, the bonds' yield, a table by month and what each bond
+ * brought.
  * Everything shows at once, with no taps, so it reads the same on paper.
  */
 export default function YearReportScreen() {

@@ -13,15 +13,19 @@ export type YearSummary = {
   /** Per month, January first */
   monthlyCoupons: number[];
   monthlyRedemptions: number[];
+  /** Purchases made, and the planned ones (dated after today) apart */
   monthlyPurchases: number[];
+  monthlyPlannedPurchases: number[];
   couponTotal: number;
   redemptionTotal: number;
   /** Coupons plus redemptions */
   totalPayments: number;
   /** Payments already received */
   received: number;
-  /** Paid for the year's purchases */
+  /** Paid for the year's purchases, planned ones included */
   invested: number;
+  /** The part of `invested` that is planned purchases */
+  planned: number;
   purchaseCount: number;
   averageMonthlyPurchase: number;
   /** The month to show before one is picked: the next payment's, else the last purchase's */
@@ -31,7 +35,11 @@ export type YearSummary = {
 const monthOf = (event: ScheduleEvent) => Number(event.date.slice(5, 7)) - 1;
 
 /** Sums up one year's events, in schedule order, in the given currency; other currencies are left out. */
-export function yearSummary(yearEvents: ScheduleEvent[], currency: Currency): YearSummary {
+export function yearSummary(
+  yearEvents: ScheduleEvent[],
+  currency: Currency,
+  today: string,
+): YearSummary {
   const inCurrency = yearEvents.filter((event) => event.currency === currency);
   const payments = inCurrency.filter(
     (event): event is PositionPayment => event.type !== 'purchase',
@@ -39,6 +47,7 @@ export function yearSummary(yearEvents: ScheduleEvent[], currency: Currency): Ye
   const coupons = payments.filter((payment) => payment.type === 'coupon');
   const redemptions = payments.filter((payment) => payment.type === 'redemption');
   const purchases = inCurrency.filter((event) => event.type === 'purchase');
+  const plannedPurchases = purchases.filter((event) => event.date > today);
   const monthly = (events: ScheduleEvent[]) =>
     MONTHS.map((_, month) => sumTotals(events.filter((event) => monthOf(event) === month)));
 
@@ -51,12 +60,14 @@ export function yearSummary(yearEvents: ScheduleEvent[], currency: Currency): Ye
     currency,
     monthlyCoupons: monthly(coupons),
     monthlyRedemptions: monthly(redemptions),
-    monthlyPurchases: monthly(purchases),
+    monthlyPurchases: monthly(purchases.filter((event) => event.date <= today)),
+    monthlyPlannedPurchases: monthly(plannedPurchases),
     couponTotal,
     redemptionTotal,
     totalPayments: round2(couponTotal + redemptionTotal),
     received: sumTotals(payments.filter((payment) => payment.isPaid)),
     invested,
+    planned: sumTotals(plannedPurchases),
     purchaseCount: purchases.length,
     averageMonthlyPurchase: round2(invested / MONTHS.length),
     defaultMonth: upcoming ? monthOf(upcoming) : lastPurchase ? monthOf(lastPurchase) : null,

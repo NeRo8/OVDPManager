@@ -1,20 +1,21 @@
 import type { ActiveWallet, Currency, ExchangeCurrency } from '@/entities/portfolio';
 import { CURRENCY_NAMES } from '@/entities/portfolio';
 
-import { formatAmount, formatDate, formatMoney, MONTHS_SHORT } from '@/shared/lib';
+import { formatAmount, formatDate, formatMoney, MONTHS_SHORT, plural } from '@/shared/lib';
 
 import type { BondReport as SingleBondReport } from './bondReport';
 import type { FxReport } from './fxReport';
 import { periodChartPeriods } from './periodChart';
-import type { CurrencyReport } from './periodReport';
+import type { CurrencyReport, Flows } from './periodReport';
 import type { CurrencyPortfolio } from './portfolioReport';
+import { purchaseValues } from './purchaseValues';
 import type { CurrencyRedemptions } from './redemptionsReport';
 import type { ReportTerms } from './reportTerms';
 import type { StructureReport } from './structureReport';
 import type { CurrencyYears } from './yearOverYearReport';
 import type { CurrencyYield } from './yieldReport';
 
-export type ChartColor = 'coupon' | 'redemption' | 'purchase';
+export type ChartColor = 'coupon' | 'redemption' | 'purchase' | 'plannedPurchase';
 
 export type PdfChart =
   | {
@@ -62,33 +63,38 @@ const pair = (title: string, rows: string[][], note?: string): PdfSection => ({
 });
 const currencyTitle = (currency: Currency) => CURRENCY_NAMES[currency];
 
-const flowChart = (
-  title: string,
-  rows: { month: string; invested: number; coupons: number; redemptions: number }[],
-): PdfSection => ({
-  title,
-  columns: [],
-  rows: [],
-  layout: 'chart',
-  chart: {
-    kind: 'columns',
-    labels: rows.map(({ month }) => month),
-    series: [
-      { label: 'Купони', color: 'coupon', values: rows.map(({ coupons }) => coupons) },
-      {
-        label: 'Погашення',
-        color: 'redemption',
-        values: rows.map(({ redemptions }) => redemptions),
-      },
-      {
-        label: 'Купівлі',
-        color: 'purchase',
-        values: rows.map(({ invested }) => invested),
-        down: true,
-      },
-    ],
-  },
-});
+const flowChart = (title: string, rows: (Flows & { month: string })[]): PdfSection => {
+  const { made, planned } = purchaseValues(rows);
+  return {
+    title,
+    columns: [],
+    rows: [],
+    layout: 'chart',
+    chart: {
+      kind: 'columns',
+      labels: rows.map(({ month }) => month),
+      series: [
+        { label: 'Купони', color: 'coupon', values: rows.map(({ coupons }) => coupons) },
+        {
+          label: 'Погашення',
+          color: 'redemption',
+          values: rows.map(({ redemptions }) => redemptions),
+        },
+        { label: 'Купівлі', color: 'purchase', values: made, down: true },
+        ...(planned.some((value) => value > 0)
+          ? [
+              {
+                label: 'Заплановані купівлі',
+                color: 'plannedPurchase' as const,
+                values: planned,
+                down: true,
+              },
+            ]
+          : []),
+      ],
+    },
+  };
+};
 
 /** All PDF blocks use the report's own calculated values and visual order. */
 export function periodPdf(
@@ -105,59 +111,6 @@ export function periodPdf(
     fileStem,
     wallet,
     sections: reports.flatMap((report): PdfSection[] => [
-      pair(
-        `Підсумок · ${currencyTitle(report.currency)}`,
-        [
-          ['Купони', money(report.coupons, report.currency)],
-          ['Погашення', money(report.redemptions, report.currency)],
-          ['Усього виплат', money(report.totalPayments, report.currency)],
-          ...(report.expected > 0
-            ? [
-                ['Отримано', money(report.received, report.currency)],
-                ['Очікується', money(report.expected, report.currency)],
-              ]
-            : []),
-          ['Купівлі', money(report.invested, report.currency)],
-          [terms.balance, money(report.balance, report.currency)],
-          [terms.income, money(report.income, report.currency)],
-        ],
-        `${terms.balance} — виплати мінус купівлі. ${terms.income} — купони та різниця між погашенням і ціною купівлі погашених ОВДП.`,
-      ),
-      ...(report.highlights.highestYield ||
-      report.highlights.lowestYield ||
-      report.highlights.highestIncome
-        ? [
-            pair(`ОВДП ${terms.span} · ${currencyTitle(report.currency)}`, [
-              ...(report.highlights.highestYield
-                ? [
-                    [
-                      'Найвища річна дохідність',
-                      percent(report.highlights.highestYield.annualYield),
-                      report.highlights.highestYield.isin,
-                    ],
-                  ]
-                : []),
-              ...(report.highlights.lowestYield
-                ? [
-                    [
-                      'Найнижча річна дохідність',
-                      percent(report.highlights.lowestYield.annualYield),
-                      report.highlights.lowestYield.isin,
-                    ],
-                  ]
-                : []),
-              ...(report.highlights.highestIncome
-                ? [
-                    [
-                      `Найбільший ${terms.income.toLowerCase()}`,
-                      money(report.highlights.highestIncome.income, report.currency),
-                      report.highlights.highestIncome.isin,
-                    ],
-                  ]
-                : []),
-            ]),
-          ]
-        : []),
       flowChart(
         `Грошові потоки по ${report.months.length > 12 ? 'роках' : 'місяцях'} · ${currencyTitle(report.currency)}`,
         periodChartPeriods(report.months).map((row) => ({
@@ -166,6 +119,45 @@ export function periodPdf(
             row.month.length === 4 ? row.month : MONTHS_SHORT[Number(row.month.slice(5, 7)) - 1],
         })),
       ),
+      pair(
+        `Підсумок · ${currencyTitle(report.currency)}`,
+        [
+          ['Вкладено', money(report.invested, report.currency)],
+          ['Купони', money(report.coupons, report.currency)],
+          ['Погашення', money(report.redemptions, report.currency)],
+          ['Купони в середньому за місяць', money(report.averageMonthlyCoupons, report.currency)],
+        ],
+        `Купони ${terms.span}, поділені на ${report.months.length} ${plural(report.months.length, 'місяць', 'місяці', 'місяців')}. Погашення повертає номінал, а не приносить нові гроші щомісяця, тож у середнє не входить.`,
+      ),
+      ...(report.annualYield === null
+        ? []
+        : [
+            pair(
+              `Дохідність · ${currencyTitle(report.currency)}`,
+              [
+                ['Річна дохідність', percent(report.annualYield), 'Середня за ОВДП'],
+                ...(report.highlights.highestYield
+                  ? [
+                      [
+                        'Найвища річна дохідність',
+                        percent(report.highlights.highestYield.annualYield),
+                        report.highlights.highestYield.isin,
+                      ],
+                    ]
+                  : []),
+                ...(report.highlights.lowestYield
+                  ? [
+                      [
+                        'Найнижча річна дохідність',
+                        percent(report.highlights.lowestYield.annualYield),
+                        report.highlights.lowestYield.isin,
+                      ],
+                    ]
+                  : []),
+              ],
+              `Річна дохідність — за ціною купівлі й усіма виплатами до погашення, як у формі купівлі. Середня — за ОВДП ${terms.span}, зважена на суму купівель; ОВДП без опублікованого погашення в неї не входять.`,
+            ),
+          ]),
       {
         title: `По місяцях · ${currencyTitle(report.currency)}`,
         columns: ['Місяць', 'Купівлі', 'Купони', 'Погашення'],

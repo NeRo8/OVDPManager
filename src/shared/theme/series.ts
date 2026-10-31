@@ -12,6 +12,12 @@ export const SERIES_COLORS = {
     badge: 'seriesRedemptionBadge',
   },
   purchase: { mark: 'seriesPurchase', text: 'seriesPurchaseText', badge: 'seriesPurchaseBadge' },
+  // Planned purchases differ from made ones only on charts; their rows read as purchases.
+  plannedPurchase: {
+    mark: 'seriesPlannedPurchase',
+    text: 'seriesPurchaseText',
+    badge: 'seriesPurchaseBadge',
+  },
 } as const satisfies Record<
   string,
   { mark: keyof AppTheme; text: keyof AppTheme; badge: keyof AppTheme }
