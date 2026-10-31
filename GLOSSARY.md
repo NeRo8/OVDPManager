@@ -1,162 +1,238 @@
-# ОВДП Портфель
+# ОВДП Портфель — глосарій
 
-Tracking Ukrainian government bonds (ОВДП): what was bought or is planned to be bought, and what those bonds pay back. Each term gives the Ukrainian word the app shows for it.
+Застосунок допомагає стежити за ОВДП (облігаціями внутрішньої державної позики): що куплено або заплановано купити і що ці ОВДП за це повернуть. Тут кожне поняття пояснено простими словами.
 
-## Bonds
+Як читати: **жирним** — слово, яке показує застосунок; після крапки — англійська назва, якою те саме поняття зветься в коді. «Не вживати» — слова, які плутають, тому їх немає в інтерфейсі. Одне поняття всюди має одну назву.
 
-**Bond** (ОВДП):
-One issue of Ukrainian government bonds, identified by its ISIN, with the terms and payment schedule the NBU publishes.
-_Avoid_: облігація, security, paper
+## Як заробляють на ОВДП
 
-**Nominal** (Номінал):
-The face value of one bond.
-_Avoid_: Номінал for the total returned at maturity (that is the Redemption)
+Купуючи ОВДП, ви позичаєте гроші державі. Кожна ОВДП має **номінал** — зазвичай 1 000 ₴ (у валютних 1 000 $ або €). Поки ОВДП у вас, держава платить **купони** — відсотки на номінал, найчастіше двічі на рік. У **дату погашення** держава повертає номінал, і ОВДП закінчується.
 
-**Issue date** (Дата розміщення):
-The day the bond is first placed; no purchase can be dated before it.
+**Головне, що варто знати новачкові: погашення повертає номінал, а не те, що ви заплатили.** Ціна купівлі майже завжди інша, ніж номінал, і частіше вища, тому при погашенні ви можете отримати менше грошей, ніж вклали. Це нормально, якщо купони цю різницю перекривають. Чому ціна вища за номінал:
 
-**Maturity date** (Дата погашення):
-The day the bond pays its Redemption and stops existing. The Bond is still In circulation that day, but no Purchase can be dated on or after it, as that day's Payments go to the previous owner.
+1. **Накопичений купон.** Від останньої виплати купон щодня «набігає». Купуючи ОВДП посеред півроку, ви доплачуєте продавцю ту частину купона, яку він не отримає. Найближчий купон держава заплатить вам повністю, тож ця доплата повернеться з ним.
+2. **Ринок.** Якщо ставка купону ОВДП вища, ніж дають нові ОВДП сьогодні, за неї просять більше; якщо нижча — менше.
+3. **Комісія** банку чи брокера, якщо вона входить у ціну.
 
-**Coupon rate** (Ставка купону):
-The bond's annual interest on its Nominal, paid in coupons.
+Тому заробіток рахують не з купонів, а з усього разом: **усі виплати мінус усе заплачене**.
 
-**Key rate** (Облікова ставка НБУ):
-The NBU policy rate in effect on a given date; the benchmark a purchase is compared with. It is the hryvnia's rate, so only hryvnia Bonds are compared with it.
+**Приклад.** 10 ОВДП по 1 050 ₴ (номінал 1 000 ₴), ставка купону 16 %, до погашення рік — два купони по 80 ₴ на кожну ОВДП.
 
-**New bond** (нова ОВДП):
-A Bond placed in the 12 months before a Purchase; its Coupon rate is close to what the market paid that day, so a Purchase's Annual yield is compared with it.
+|                                    | Сума                                    |
+| ---------------------------------- | --------------------------------------- |
+| Вкладено (10 × 1 050 ₴)            | 10 500 ₴                                |
+| Купони (10 × 80 ₴ × 2)             | 1 600 ₴                                 |
+| Погашення (10 × 1 000 ₴)           | 10 000 ₴ — на 500 ₴ менше, ніж вкладено |
+| Усього виплат                      | 11 600 ₴                                |
+| **Чистий дохід** (11 600 − 10 500) | **1 100 ₴**, а не 1 600 ₴ купонів       |
 
-**Redeemed** (погашено, погашені):
-A Bond whose Maturity date is behind today, even while the NBU has not published its Redemption.
-_Avoid_: inactive, closed
+Якщо перший купон прийде у 2026 році, а другий разом із погашенням — у 2027, то «Дохід за рік» буде 800 ₴ у 2026 і 300 ₴ у 2027 (800 ₴ купона мінус 500 ₴, яких погашення не повернуло). Разом — ті самі 1 100 ₴ чистого доходу.
 
-**In circulation** (в обігу):
-A Bond not yet Redeemed.
-_Avoid_: active
+Порівнювати ОВДП між собою, з депозитом і з обліковою ставкою НБУ варто за **річною дохідністю**: вона враховує і ціну, і кожну виплату в її день.
 
-## Payments
+## ОВДП
 
-**Payment** (Виплата):
-Money a bond pays its holder on a scheduled date: either a Coupon or the Redemption.
-_Avoid_: calling a Purchase itself a payment
+**ОВДП** · Bond
+Один випуск державних облігацій зі своїм ISIN, умовами й графіком виплат, які публікує НБУ.
+_Не вживати_: облігація, цінний папір; у коді — security, paper
 
-**Payment schedule** (Виплати):
-The Active plan's Payments in date order, with its Purchases listed among them as money going out.
-_Avoid_: Графік, calendar
+**Номінал** · Nominal
+Сума, на яку випущено одну ОВДП і яку держава поверне в погашення: зазвичай 1 000 ₴ (або 1 000 $ / €). Від номіналу рахуються купони. Ціна купівлі від номіналу відрізняється.
+_Не вживати_: «номінал» для всієї суми, що повертається наприкінці, — це Погашення
 
-**Upcoming** (Майбутні):
-The Payments not yet Received and the Planned purchases, in date order.
+**Дата розміщення** · Issue date
+День, коли ОВДП уперше продали. Купівля не може бути раніше.
 
-**Event type** (Події):
-Coupon, Redemption or Purchase, as a filter of the Payment schedule; Purchases can be left out like either kind of Payment.
-_Avoid_: Тип виплати
+**Дата погашення** · Maturity date
+День, коли ОВДП виплачує погашення і перестає існувати. Цього дня вона ще в обігу, але купити її вже не можна: виплати цього дня отримає попередній власник.
 
-**Coupon** (Купон):
-A periodic interest Payment.
+**Ставка купону** · Coupon rate
+Скільки відсотків на рік від номіналу платить ОВДП. Купон 16 % на номінал 1 000 ₴ — це 160 ₴ на рік, тобто 80 ₴ двічі на рік. Це не ваша дохідність: вона залежить ще й від ціни купівлі (див. Річна дохідність).
 
-**Redemption** (Погашення):
-A Payment returning the Nominal: all of it on the Maturity date, or in parts, the last on the Maturity date.
-_Avoid_: Номінал, maturity payment
+**Облікова ставка НБУ** · Key rate
+Ставка НБУ, чинна на певну дату; орієнтир, з яким порівнюють купівлю. Це ставка гривні, тому з нею порівнюють лише гривневі ОВДП.
 
-**Received** (отримано):
-A Payment whose date is already behind today.
-_Avoid_: виплачено
+**нова ОВДП** · New bond
+ОВДП, розміщена за 12 місяців до купівлі. Її ставка купону близька до того, що ринок платив у день розміщення, тому з нею порівнюють річну дохідність купівлі.
 
-## Plans and purchases
+**погашено, погашені** · Redeemed
+ОВДП, дата погашення якої вже минула, навіть якщо НБУ ще не опублікував її погашення.
+_Не вживати_: неактивна, закрита; у коді — inactive, closed
 
-**Plan** (План):
-A named set of Purchases the user keeps together, real or hypothetical; every Purchase belongs to exactly one Plan.
-_Avoid_: portfolio, scenario
+**в обігу** · In circulation
+ОВДП, яку ще не погашено.
+_Не вживати_: активна; у коді — active
 
-**Active plan**:
-The one Plan the app is currently showing.
+## Виплати
 
-**Purchase** (Купівля):
-Buying a quantity of one Bond on one date for a total amount paid; the price per bond follows from them.
-_Avoid_: покупка, investment, holding, transaction
+**Виплата** · Payment
+Гроші, які ОВДП платить власнику в день за графіком: купон або погашення.
+_Не вживати_: «виплата» для самої купівлі
 
-**Planned purchase** (Запланована купівля, заплановано):
-A Purchase dated after today. Once its date arrives it counts as made, with no confirmation.
-_Avoid_: pending, unconfirmed
+**Виплати** · Payment schedule
+Виплати активного плану за датами, а між ними — купівлі як гроші, що йдуть з кишені.
+_Не вживати_: графік, календар
 
-**Top-up** (Докупівля):
-A Purchase of a Bond the Plan already holds from an earlier Purchase.
+**Майбутні** · Upcoming
+Виплати, які ще не отримано, і заплановані купівлі, за датами.
 
-**Position**:
-All Purchases of one Bond within one Plan, taken together. It is planned while every Purchase in it is a Planned purchase; otherwise its Bond is In circulation or Redeemed.
-_Avoid_: holding
+**Події** · Event type
+Купон, погашення чи купівля як фільтр виплат; купівлі можна сховати так само, як будь-який вид виплат.
+_Не вживати_: тип виплати
 
-**Wallet** (Гаманець, у гаманці; Портфель):
-The Positions of the Active plan, whether that Plan is real or hypothetical. It is not a separate record of what the user really owns. Reports and the app's name call it Портфель when they look at it as a whole.
-_Avoid_: holdings, Портфель for a Plan, Wallet for a Plan that isn't active
+**Купон** · Coupon
+Регулярна виплата відсотків: ставка купону × номінал, поділені на кількість виплат на рік. Перший купон після купівлі частково повертає накопичений купон, доплачений у ціні (див. «Як заробляють на ОВДП»), тож не весь він — ваш заробіток.
 
-## Results
+**Погашення** · Redemption
+Виплата, що повертає номінал: увесь у дату погашення або частинами, остання — у дату погашення. Повертає саме номінал, не ціну купівлі: якщо ви заплатили більше, погашення буде менше за вкладене, якщо менше — більше.
+_Не вживати_: повернення, повернення вкладень, номінал; у коді — maturity payment
 
-**Currency equivalent** (Валютний еквівалент):
-The value of a past hryvnia Purchase or Payment in USD or EUR at the official NBU rate effective on its date. It is an estimate of value, not a record of an actual currency exchange.
+**отримано** · Received
+Виплата, дата якої вже минула.
+_Не вживати_: виплачено
 
-**Cumulative investment in currency** (Вкладено):
-The sum of past hryvnia Purchases converted to USD or EUR at each Purchase's own date. This is one line in the FX report's selected-year chart and the baseline for its all-time difference chart.
+## Плани й купівлі
 
-**Remaining cost with payouts** (Залишок + виплати):
-The remaining hryvnia Purchase cost converted at the chart point's NBU rate, plus Coupons and Redemptions already received and converted at their dates. Chart points are at month end, or today for the current month. Partial Redemptions reduce the remaining cost proportionally. Reinvested Payments remain in the cumulative payouts and their new Purchases add to cost; this sum is not cash currently available. It is an estimate based on Purchase cost, not a market price for Bonds still held.
+**План** · Plan
+Набір купівель під однією назвою — справжніх або «що було б, якби». Кожна купівля належить рівно одному плану.
+_Не вживати_: портфель, сценарій; у коді — portfolio, scenario
 
-**Currency comparison as of date** (Стан вкладень):
-All Purchases of the selected Bonds through the report date, including earlier years, against all received Payments through that date. «Повернулося виплатами» is cash received in hryvnia expressed at the NBU rates on payment dates, including payouts later reinvested. «Залишок ОВДП (оцінка)» is unrepaid Purchase cost expressed at the report-date rate. «Виплати + залишок (оцінка)» adds the two cumulative amounts; it is not cash available now. «Різниця з вкладеним» subtracts all Purchases, including new Purchases made with payouts; the all-time chart plots this difference monthly around zero. The estimate is not a sale value or realized gain while Bonds remain in circulation.
+**Активний план** · Active plan
+План, який застосунок зараз показує.
 
-**FX cash balance** (Сальдо подій, Сальдо подій року):
-Past Payments in the selected period minus its Purchases, each converted at its own date. The period is all time or one calendar year. It is not the gain on Bonds still held.
+**Купівля** · Purchase
+Придбання кількох ОВДП одного випуску в один день за одну суму — ту, яку списав банк чи брокер. Ціна однієї ОВДП рахується з неї.
+_Не вживати_: покупка; у коді — investment, holding, transaction
 
-**Completed bond FX result** (Результат у валюті):
-The currency equivalents of all Payments received through the report date minus all Purchases since the first one. Shown only for a Bond whose Redemption is complete by the report date.
+**Ціна 1 шт** · Price per bond
+Сума купівлі, поділена на кількість. Зазвичай вища за номінал (див. «Як заробляють на ОВДП»). На екрані продажу — ціна продажу однієї ОВДП.
 
-**Invested** (Вкладено):
-The total amount paid for Purchases.
-_Avoid_: Інвестовано, cost
+**Запланована купівля, заплановано** · Planned purchase
+Купівля з датою після сьогодні. Щойно дата настає, вона вважається зробленою, без підтвердження.
+_Не вживати_: очікує, непідтверджена; у коді — pending, unconfirmed
 
-**Total payments** (Усього виплат):
-Coupons plus Redemption a Plan or Purchase is entitled to, received or still ahead.
-_Avoid_: proceeds
+**Докупівля** · Top-up
+Купівля ОВДП, яка вже є в плані з попередньої купівлі.
 
-**Net income** (Чистий дохід):
-Total payments minus Invested.
-_Avoid_: Чистий результат, profit
+**Позиція** · Position
+Усі купівлі однієї ОВДП в одному плані разом. Вона запланована, поки всі її купівлі заплановані; інакше її ОВДП або в обігу, або погашена.
+_Не вживати_: у коді — holding
 
-**Return over the term** (Дохідність за весь строк):
-Net income as a percentage of Invested, for the whole time to maturity rather than per year.
-_Avoid_: Дохідність alone, Дохідність за строк
+**Гаманець, у гаманці; Портфель** · Wallet
+Позиції активного плану, справжнього чи гіпотетичного. Це не окремий облік того, що ви насправді маєте. Звіти й назва застосунку називають його «Портфель», коли дивляться на нього загалом.
+_Не вживати_: «портфель» для плану, «гаманець» для неактивного плану; у коді — holdings
 
-**Annual yield** (Річна дохідність):
-The yearly rate at which a Purchase's payments, discounted to its date, equal what was paid for it; comparable with the Coupon rate and the Key rate. For a Position or more Purchases, their yields averaged by what was paid.
-_Avoid_: Дохідність alone, return, rate
+## Результати
 
-**Sale price** (Ціна продажу, Ціна 1 шт):
-What a bank or a broker pays for one bond today, net of its fee; NBU does not publish it, so the user types it and it is not saved.
+**Вкладено** · Invested
+Усе, що заплачено за купівлі.
+_Не вживати_: інвестовано, вартість; у коді — cost
 
-**Break-even price** (Продаж без збитку):
-The Sale price from which selling today returns at least what the bonds cost, counting the payments received.
+**Усього виплат** · Total payments
+Купони плюс погашення, на які має право план чи купівля, — отримані й ще попереду.
+_Не вживати_: у коді — proceeds
 
-**Sell-above price** (Вигідніше продати):
-The Sale price above which the money from a sale earns more at the new bonds' rate (or the Key rate without them) than the bond does to maturity.
+**Чистий дохід** · Net income
+Скільки ви справді заробите за весь час до погашення: усього виплат мінус вкладено. Те саме інакше: купони мінус те, що погашення не повернуло з вкладеного (вкладено − погашення). Якщо купили дешевше за номінал, ця різниця додається.
+_Не вживати_: чистий результат, прибуток; у коді — profit
 
-**Yield from today** (Дохідність від сьогодні):
-The Annual yield of keeping the bonds, as if they were bought today at the Sale price; compared with the market to decide between keeping and selling.
-_Avoid_: Річна дохідність (that is from the purchase)
+**Дохідність за весь строк** · Return over the term
+Чистий дохід у відсотках від вкладеного — за весь час до погашення, без перерахунку на рік. 10 % за два роки й 10 % за пів року — дуже різні результати, тому для порівняння є річна дохідність.
+_Не вживати_: дохідність без уточнення, дохідність за строк
 
-## Reports
+**Річна дохідність** · Annual yield
+Скільки відсотків на рік ви фактично заробляєте, якщо триматимете ОВДП до погашення, з урахуванням ціни купівлі й того, коли надходить кожна виплата. Рахується як ставка купону (рік, що виплачується двома половинами), тож її можна порівнювати зі ставкою купону, депозитом і обліковою ставкою. Купівля за номіналом у день купона дає рівно ставку купону; дорожча — менше, дешевша — більше. Для позиції або кількох купівель — середня з їхніх дохідностей, зважена на заплачене.
+_Не вживати_: дохідність без уточнення; у коді — return, rate
 
-**Report** (Звіт):
-A summary of the Wallet meant to be read whole, as it would be on paper: everything shows at once, and its filters only choose what it covers.
+**Ціна продажу, Ціна 1 шт** · Sale price
+Скільки банк чи брокер платить сьогодні за одну ОВДП, за вирахуванням комісії. НБУ ринкових цін не публікує, тож її вводите ви, і вона не зберігається.
 
-**Balance** (Сальдо року, Сальдо періоду):
-The Payments of a year or period minus the Purchases made in it.
-_Avoid_: cash flow, result
+**Продаж без збитку** · Break-even price
+Ціна продажу, від якої продаж сьогодні повертає щонайменше вкладене, з урахуванням уже отриманих виплат.
 
-**Income** (Дохід за рік, Дохід за період):
-The Coupons of a year or period plus what its Redemptions brought over what the bonds they repay cost.
-_Avoid_: Чистий дохід, which is over the whole term
+**Вигідніше продати** · Sell-above price
+Ціна продажу, вище за яку гроші від продажу, вкладені в нові ОВДП (за їхньою ставкою або, без них, за обліковою), заробили б більше, ніж ОВДП до погашення.
 
-**Average monthly coupons** (Купони в середньому за місяць):
-The Coupons of a year or period divided by its months. Redemptions are left out, as they return what was Invested.
-_Avoid_: Дохід на місяць, as Income also counts Redemptions
+**Дохідність від сьогодні** · Yield from today
+Річна дохідність, якщо тримати ОВДП далі, — ніби ви купили її сьогодні за ціною продажу. З нею порівнюють ринок, вирішуючи, тримати чи продати.
+_Не вживати_: річна дохідність (та рахується від купівлі)
+
+## Валютний еквівалент
+
+Гривневі купівлі й виплати, перераховані в долари чи євро, щоб побачити, чи вклади зберегли вартість у валюті. Це оцінка, а не справжній обмін валюти.
+
+**Валютний еквівалент** · Currency equivalent
+Гривнева купівля чи виплата в USD або EUR за офіційним курсом НБУ на її дату.
+
+**Вкладено** (у валютному звіті) · Cumulative investment in currency
+Сума гривневих купівель, кожна перерахована у валюту за курсом свого дня. Одна з ліній графіка обраного року й нульова точка графіка різниці за весь час.
+
+**Залишок + виплати** · Remaining cost with payouts
+Невиплачена вартість гривневих купівель за курсом точки графіка плюс купони й погашення, уже отримані, кожне за курсом свого дня. Точки — на кінець місяця, для поточного — сьогодні. Часткове погашення пропорційно зменшує залишок. Виплати, вкладені знову, лишаються серед виплат, а їхні нові купівлі додаються до вартості, тож ця сума — не гроші, які є зараз. Це оцінка за вартістю купівель, а не ринкова ціна ОВДП, що ще в обігу.
+
+**Стан вкладень** · Currency comparison as of date
+Усі купівлі обраних ОВДП до дати звіту, разом із попередніми роками, проти всіх отриманих до цієї дати виплат.
+
+- «Повернулося виплатами» — гривні, отримані виплатами, за курсами днів виплат, разом із тими, що потім вкладено знову.
+- «Залишок ОВДП (оцінка)» — невиплачена вартість купівель за курсом дати звіту.
+- «Виплати + залишок (оцінка)» — сума двох попередніх; це не гроші, доступні зараз.
+- «Різниця з вкладеним» — від неї віднято всі купівлі, також нові, зроблені з виплат; графік за весь час показує цю різницю щомісяця довкола нуля.
+
+Поки ОВДП в обігу, це не ціна продажу і не зароблене.
+
+**Сальдо подій, Сальдо подій року** · FX cash balance
+Виплати за обраний час (увесь або один рік) мінус купівлі за нього, кожна за курсом свого дня. Це не заробіток на ОВДП, які ще в обігу.
+
+**Результат у валюті** · Completed bond FX result
+Валютні еквіваленти всіх виплат до дати звіту мінус усі купівлі від першої. Показується лише для ОВДП, повністю погашеної до дати звіту.
+
+## Ціль: купони на місяць
+
+Підбір купівель на рік так, щоб наступного року план щомісяця приносив обрану суму купонів.
+
+**Ціль: купони на місяць; Купони на місяць** · Coupon goal
+Скільки купонів ви хочете отримувати щомісяця протягом року купонів в одній валюті; досягається купівлями під ціль. Ціль саме в купонах, бо це гроші, які регулярно приходять на рахунок. «Дохід» у місяці погашення стрибає вгору чи вниз на те, що погашення не повернуло з вкладеного.
+_Не вживати_: дохід на місяць, бажаний дохід; у коді — target income
+
+**Рік купонів** · Goal year
+Рік, на який ставиться ціль.
+
+**Рік купівель** · Purchase year
+Рік перед роком купонів. Купівлі під ціль датовані в ньому — лише днями після сьогодні.
+
+**Нестача** · Shortfall
+Скільки бракує в місяці року купонів до цілі з купонами плану, як він є зараз.
+
+**Купівля під ціль** · Goal purchase
+Запланована купівля, яку пропонує ціль, датована в році купівель: ОВДП, розміщена за останні 24 місяці (такі продають банки й брокери), з погашенням після року купонів. Її сума — орієнтовна ціна × кількість.
+_Не вживати_: рекомендація, заявка; у коді — recommendation, order
+
+**Орієнтовна ціна** · Estimated price
+Ціна однієї ОВДП на майбутню дату, за якої вона дає таку саму річну дохідність, як нові ОВДП її строку сьогодні (для гривневих без них — облікова ставка, інакше — її ставка купону). Це оцінка: справжню ціну буде видно лише того дня.
+
+**Кошти плану** · Plan money
+Власні виплати плану — купони й погашення — у році купівель. Купівлі під ціль оплачуються спершу з них.
+
+**Власні кошти; Власні кошти на місяць** · Own money
+Скільки ще треба докласти понад кошти плану: однакова сума на початку кожного місяця року купівель.
+_Не вживати_: докупівля (це купівля ОВДП, яка вже є в плані), поповнення
+
+**План з ціллю** · Goal plan
+Копія активного плану з доданими купівлями під ціль, з назвою «<план> · ціль <рік>». Вона стає активним планом; план, з якого її скопійовано, не змінюється.
+
+## Звіти
+
+**Звіт** · Report
+Підсумок гаманця, який читають цілком, як на папері: усе показано одразу, а фільтри лише обирають, що він охоплює.
+
+**Сальдо року, Сальдо періоду** · Balance
+Виплати року чи періоду мінус купівлі, зроблені в ньому: скільки грошей за цей час прийшло чи пішло.
+_Не вживати_: грошовий потік, результат; у коді — cash flow, result
+
+**Дохід за рік, Дохід за період** · Income
+Заробіток за рік чи період: його купони плюс те, що погашення в ньому принесли понад вартість ОВДП, які вони погашають (мінус, якщо принесли менше). Так дохід за всі роки до погашення в сумі дає чистий дохід, і купони не видаються більшим заробітком, ніж є насправді. Якщо в році немає погашень, дохід дорівнює купонам.
+_Не вживати_: чистий дохід (той — за весь строк), «дохід» лише про купони
+
+**Купони в середньому за місяць** · Average monthly coupons
+Купони року чи періоду, поділені на кількість його місяців (для року — на 12). Погашення не враховано: воно повертає номінал, а не приносить нові гроші щомісяця.
+_Не вживати_: дохід на місяць, середній дохід за місяць — дохід враховує ще й погашення

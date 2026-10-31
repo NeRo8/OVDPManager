@@ -23,7 +23,7 @@ export function PeriodSummary({ report, terms }: Props) {
   return (
     <Card
       title={`Підсумок · ${CURRENCY_NAMES[currency]}`}
-      footer={`Купони ${terms.span}, поділені на ${monthCount} ${plural(monthCount, 'місяць', 'місяці', 'місяців')}. Погашення повертає вкладене, тож у середнє не входить.`}
+      footer={`Купони ${terms.span}, поділені на ${monthCount} ${plural(monthCount, 'місяць', 'місяці', 'місяців')}. Погашення повертає номінал, а не приносить нові гроші щомісяця, тож у середнє не входить.`}
     >
       <View style={styles.rows}>
         <LegendRow color="purchase" label="Вкладено" value={formatMoney(invested, currency)} />

@@ -121,7 +121,7 @@ export function periodPdf(
           ['Погашення', money(report.redemptions, report.currency)],
           ['Купони в середньому за місяць', money(report.averageMonthlyCoupons, report.currency)],
         ],
-        `Купони ${terms.span}, поділені на ${report.months.length} ${plural(report.months.length, 'місяць', 'місяці', 'місяців')}. Погашення повертає вкладене, тож у середнє не входить.`,
+        `Купони ${terms.span}, поділені на ${report.months.length} ${plural(report.months.length, 'місяць', 'місяці', 'місяців')}. Погашення повертає номінал, а не приносить нові гроші щомісяця, тож у середнє не входить.`,
       ),
       ...(report.annualYield === null
         ? []
