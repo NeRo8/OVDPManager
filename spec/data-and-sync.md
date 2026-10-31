@@ -125,7 +125,8 @@
 
 ## Покриття тестами
 
-- `src/entities/portfolio/api/__tests__/keyRates-test.ts`: DATA-13 (заповнення пропусків, помилка без рядка до першого дня), DATA-16 (день року, день після `throughDate`, незавантажений рік).
+- `src/entities/portfolio/api/__tests__/dailyRates.test.ts`: DATA-13 (заповнення пропусків, помилка без рядка до першого дня).
+- `src/entities/portfolio/api/__tests__/keyRate.test.ts`: DATA-16 (день року, день після `throughDate`, незавантажений рік).
 
 **Без тестів:** DATA-01…DATA-12, DATA-14, DATA-15, DATA-17…DATA-31: мапінг відповідей НБУ, ключі сховищ, дії сховищ (`duplicateInvestmentPlan` з обрізанням назви, `createGoalPlan`, запасний активний план), параметри запитів, правило 5 хвилин, сповіщення про помилку, стани охоронців.
 

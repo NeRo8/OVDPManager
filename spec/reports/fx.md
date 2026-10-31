@@ -142,7 +142,7 @@
 
 ## Покриття тестами
 
-- `src/pages/reports/model/__tests__/fxReport-test.ts`:
+- `src/pages/reports/model/__tests__/fxReport.test.ts`:
   - «includes a previous-year purchase in a redeemed bond’s USD result» — RFX-05, RFX-10 (події попередніх років для року), RFX-15, RFX-17, RFX-18;
   - «excludes future payments and leaves an active bond’s result open» — RFX-09, RFX-10 (неотримані виплати), RFX-13 (`null` без курсу), RFX-15, RFX-17;
   - «adds each purchase to the currency baseline and revalues the UAH cost each month» — RFX-15;
@@ -152,8 +152,8 @@
   - «counts a reinvested coupon as both a received payout and a new purchase» — RFX-19, однаковий `snapshot` для року й усього часу;
   - «includes every past UAH purchase across years, even without activity in an intervening year» — RFX-10, RFX-15, RFX-21, RFX-17 (події ОВДП лише періоду);
   - «keeps monthly points when the all-time period covers only one year» — RFX-11, RFX-15.
-- `fitReportFilters-test.ts`: RFX-01 … RFX-04 (роки, рік за замовчуванням `null`, лічильник 3, лише гривневі ISIN, рік поза межами → `null`).
-- `keyRates-test.ts`: `fillDailyRates` (RFX-08: заповнення пропущених днів, помилка без курсу до першого дня).
+- `fitReportFilters.test.ts`: RFX-01 … RFX-04 (роки, рік за замовчуванням `null`, лічильник 3, лише гривневі ISIN, рік поза межами → `null`).
+- `dailyRates.test.ts`: `fillDailyRates` (RFX-08: заповнення пропущених днів, помилка без курсу до першого дня).
 - Без тестів: RFX-06, RFX-07 (кеш і запити курсів), RFX-12 (порожній звіт), RFX-16 для ОВДП без даних НБУ, RFX-18 (погашення не в дату погашення), RFX-22 … RFX-33.
 
 ## Прогалини й питання

@@ -139,9 +139,9 @@
 
 ## Покриття тестами
 
-- `src/features/payment-filters/model/__tests__/filterSchedule-test.ts`: PFLT-02 (перша валюта для `null` і відсутньої; ОВДП лише показаної валюти — «keeps only the bonds of the currency shown…»), PFLT-10 (`isinsIn` для USD), PAY-02/PAY-03 (порядок, виплата перед купівлею того самого дня, `totalCount`), PFLT-06 (майбутні = купівля попереду й погашення), відбір за типом (PAY-08 частково).
-- `src/entities/portfolio/model/__tests__/wallet-test.ts`: `narrowWallet` (валюта, ОВДП, без відбору) — основа PAY-02.
-- `src/pages/reports/model/__tests__/plannedPurchases-test.ts`: `plannedQuantity` виплат (DOM-59), з якого PAY-13 пише «заплановано»; сам рядок не тестується.
+- `src/features/payment-filters/model/__tests__/filterSchedule.test.ts`: PFLT-02 (перша валюта для `null` і відсутньої; ОВДП лише показаної валюти — «keeps only the bonds of the currency shown…»), PFLT-10 (`isinsIn` для USD), PAY-02/PAY-03 (порядок, виплата перед купівлею того самого дня, `totalCount`), PFLT-06 (майбутні = купівля попереду й погашення), відбір за типом (PAY-08 частково).
+- `src/entities/portfolio/model/__tests__/wallet.test.ts`: `narrowWallet` (валюта, ОВДП, без відбору) — основа PAY-02.
+- `src/entities/portfolio/model/__tests__/portfolio.test.ts`: `plannedQuantity` виплат (DOM-59), з якого PAY-13 пише «заплановано»; сам рядок не тестується.
 - **Без тестів:** PAY-04…PAY-07 (`useYearSchedule`, `yearSummary`: межі, рік за замовчуванням, `defaultMonth`, розділення зроблених і запланованих купівель, `averageMonthlyPurchase`), PAY-08 (`yearSeries`: правило прибирання нульової серії «Купівлі»), PAY-09…PAY-15 (екран), PAY-12 (`groupScheduleEventsByMonth`, `paymentTotal`), PFLT-03 (`countActiveFilters`), PFLT-04/05 (дії перемикання), PFLT-11 (`totalCount` з іншими валютами).
 
 ## Прогалини й питання

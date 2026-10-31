@@ -108,13 +108,13 @@
 
 ## Покриття тестами
 
-- `src/pages/holdings/model/__tests__/holdOrSell-test.ts`:
+- `src/pages/holdings/model/__tests__/holdOrSell.test.ts`:
   - SALE-03 (рахує лише зроблені купівлі; лише заплановані → `null`);
   - SALE-02 (день погашення і неопубліковане погашення → `null`);
   - SALE-06 (890 ₴ у прикладі), SALE-08 (`amountForYield` за 15 % від нових ОВДП), SALE-09 (запасний орієнтир — облікова ставка 16 %; валютна без нових → `sellAbovePrice = null`);
   - SALE-11 (`saleResult` = −20 і `200 + 2·ціна − 1 980`), SALE-12 (10 ₴ і 5 000 ₴ → «Перевірте ціну», `sale = null`), SALE-13 (обидва вердикти, текст збитку, валютна без орієнтира → вердикту немає);
   - `holdResult` 420 ₴ (SALE-15).
-- `src/entities/portfolio/model/__tests__/market-test.ts` — `amountForYield` (SALE-08) і `newBondsRate` (SALE-09.1).
+- `src/entities/portfolio/model/__tests__/market.test.ts` — `amountForYield` (SALE-08) і `newBondsRate` (SALE-09.1).
 - Без тестів: SALE-04 і SALE-05 (`salePriceSchema` і розбір ціни — жодного тесту), SALE-07 (виплата сьогоднішнього дня в «отримано»), SALE-10 межі рівно 0 % і рівно 40 %, SALE-13 тексти `success` та `info`, SALE-14, SALE-16 (нерівність, на якій тримається підпис), SALE-17; округлення ціни без збитку.
 
 ## Прогалини й питання

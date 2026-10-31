@@ -164,8 +164,8 @@
 
 ## Покриття тестами
 
-- `src/pages/plan/model/__tests__/upcomingPurchases-test.ts`: UPC-01 (межа 30.11.2026), UPC-02 (лише заплановані до межі), UPC-04…UPC-06 (виплати плану за період, власні кошти, нуль коли виплат досить), порожній результат без запланованих.
-- `src/features/coupon-goal/model/__tests__/couponGoal-test.ts`: `goalProgress` для картки (PLAN-12).
+- `src/pages/plan/model/__tests__/upcomingPurchases.test.ts`: UPC-01 (межа 30.11.2026), UPC-02 (лише заплановані до межі), UPC-04…UPC-06 (виплати плану за період, власні кошти, нуль коли виплат досить), порожній результат без запланованих.
+- `src/features/coupon-goal/model/__tests__/couponGoal.test.ts`: `goalProgress` для картки (PLAN-12).
 - **Без тестів:** PLAN-01 (`activeOf`, запасний перший план), PLAN-03, PLAN-19 (назва копії, копіювання цілі й купівель), PLAN-20/21 (видалення з купівлями), `createGoalPlan`, PLAN-22…PLAN-25 (форма назви), UPC-03 (кілька валют), екран.
 
 ## Прогалини й питання

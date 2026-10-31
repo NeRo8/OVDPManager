@@ -151,10 +151,10 @@
 
 ## Покриття тестами
 
-- `src/pages/reports/model/__tests__/yearReport-test.ts`: RPER-13 (`planned` для запланованої купівлі в цілому й у місяці, `invested`, `coupons`, `redemptions`), RPER-15 частково (`planned` ОВДП), RPER-18 (12 місяців, середнє 20; 3,5 місяця для 01.06 – 15.09, цілий квартал — 3), RPER-19 (зважена середня), RPER-20 (найвища), RPER-13 `balance` і RPER-16 `income` року, RPER-17 (частка ОВДП з доходом при збитку іншої — 100 %, збиткова — `null`).
-- `src/pages/reports/model/__tests__/periodChart-test.ts`: RPER-23 (≤ 12 місяців без змін; групування в роки з неповними роками й `planned`).
-- `src/features/report-filters/model/__tests__/fitReportFilters-test.ts`: RPER-01, RPER-02 (рік за замовчуванням, збережений рік у межах і поза ними, лічильник), RPER-04 лише для `last12Months` (на 2026-03-15 — 01.03.2025 … 28.02.2026).
-- Без тестів: RPER-03, RPER-04 для інших пресетів, RPER-05 … RPER-10, RPER-11, RPER-14, RPER-15 (`income` ОВДП у звіті; сам `positionIncome` перевіряється в `position-test.ts`), RPER-13 для `received`, `expected`, `totalPayments`, RPER-20 (найнижча, менше двох ОВДП), RPER-21 (неповні місяці), RPER-22 … RPER-30 (`reportPdf-test.ts` перевіряє лише спільне для PDF: PDF-08, PDF-10).
+- `src/pages/reports/model/__tests__/yearReport.test.ts`: RPER-13 (`planned` для запланованої купівлі в цілому й у місяці, `invested`, `coupons`, `redemptions`), RPER-15 частково (`planned` ОВДП), RPER-18 (12 місяців, середнє 20; 3,5 місяця для 01.06 – 15.09, цілий квартал — 3), RPER-19 (зважена середня), RPER-20 (найвища), RPER-13 `balance` і RPER-16 `income` року, RPER-17 (частка ОВДП з доходом при збитку іншої — 100 %, збиткова — `null`).
+- `src/pages/reports/model/__tests__/periodChart.test.ts`: RPER-23 (≤ 12 місяців без змін; групування в роки з неповними роками й `planned`).
+- `src/features/report-filters/model/__tests__/fitReportFilters.test.ts`: RPER-01, RPER-02 (рік за замовчуванням, збережений рік у межах і поза ними, лічильник), RPER-04 лише для `last12Months` (на 2026-03-15 — 01.03.2025 … 28.02.2026).
+- Без тестів: RPER-03, RPER-04 для інших пресетів, RPER-05 … RPER-10, RPER-11, RPER-14, RPER-15 (`income` ОВДП у звіті; сам `positionIncome` перевіряється в `position.test.ts`), RPER-13 для `received`, `expected`, `totalPayments`, RPER-20 (найнижча, менше двох ОВДП), RPER-21 (неповні місяці), RPER-22 … RPER-30 (`reportPdf.test.ts` перевіряє лише спільне для PDF: PDF-08, PDF-10).
 
 ## Прогалини й питання
 

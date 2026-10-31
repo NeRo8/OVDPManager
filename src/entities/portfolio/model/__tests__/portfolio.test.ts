@@ -1,4 +1,11 @@
-import { type Bond, bondChoices, canBuyOn, isRedeemed, maturesWithin } from '../portfolio';
+import {
+  type Bond,
+  bondChoices,
+  canBuyOn,
+  isRedeemed,
+  maturesWithin,
+  positionPayments,
+} from '../portfolio';
 
 function bondOf(isin: string, maturityDate: string): Bond {
   return {
@@ -55,6 +62,41 @@ describe('bondChoices', () => {
       later.isin,
       redeemed.isin,
       maturingToday.isin,
+    ]);
+  });
+});
+
+describe('positionPayments', () => {
+  const bond: Bond = {
+    ...bondOf('UA4000000009', '2027-03-01'),
+    payments: [
+      { date: '2025-09-01', type: 'coupon', amount: 50 },
+      { date: '2026-09-01', type: 'coupon', amount: 50 },
+      { date: '2027-03-01', type: 'redemption', amount: 1000 },
+    ],
+  };
+  const purchase = (id: string, purchaseDate: string, quantity: number) => ({
+    id,
+    isin: bond.isin,
+    purchaseDate,
+    amount: quantity * 1000,
+    quantity,
+    currency: 'UAH' as const,
+  });
+
+  it('counts of each payment the bonds of purchases still planned', () => {
+    // Two bonds bought, three more planned for June.
+    const payments = positionPayments(
+      [purchase('made', '2025-01-10', 2), purchase('planned', '2026-06-01', 3)],
+      bond,
+      '2026-03-01',
+    );
+    expect(
+      payments.map(({ date, quantity, plannedQuantity }) => [date, quantity, plannedQuantity]),
+    ).toEqual([
+      ['2025-09-01', 2, 0],
+      ['2026-09-01', 5, 3],
+      ['2027-03-01', 5, 3],
     ]);
   });
 });

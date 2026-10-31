@@ -183,11 +183,11 @@
 
 ## Покриття тестами
 
-- `src/pages/holdings/model/__tests__/holdOrSell-test.ts` — HOLD-01 (п. 2: усі купівлі заплановані → `null`; п. 3: день погашення → `null`; п. 4: погашення не опубліковано → `null`), HOLD-02 (рахує лише зроблені купівлі), HOLD-06 (вердикти «Нові ОВДП дають більше» і «Варто тримати»).
-- `src/entities/portfolio/model/__tests__/position-test.ts` — стани позиції й результати, на яких стоять WAL-03, WAL-05, BND-03, BND-04 (виплата в день купівлі — попередньому власнику); `planned` позиції (DOM-60, «tells what of the Position is still only planned»), на якому стоять WAL-05 і BND-13.
-- `src/entities/portfolio/model/__tests__/bondDates-test.ts` — `isRedeemed` і `canBuyOn`, на яких стоять WAL-03 і BND-10.
-- `src/entities/portfolio/model/__tests__/market-test.ts` — `newBondsRate`, `newBondsLabel` (HOLD-03.2, HOLD-05).
-- `src/pages/reports/model/__tests__/plannedPurchases-test.ts` — `plannedQuantity` виплат (DOM-59), з якого BND-06 пише «заплановано».
+- `src/pages/holdings/model/__tests__/holdOrSell.test.ts` — HOLD-01 (п. 2: усі купівлі заплановані → `null`; п. 3: день погашення → `null`; п. 4: погашення не опубліковано → `null`), HOLD-02 (рахує лише зроблені купівлі), HOLD-06 (вердикти «Нові ОВДП дають більше» і «Варто тримати»).
+- `src/entities/portfolio/model/__tests__/position.test.ts` — стани позиції й результати, на яких стоять WAL-03, WAL-05, BND-03, BND-04 (виплата в день купівлі — попередньому власнику); `planned` позиції (DOM-60, «tells what of the Position is still only planned»), на якому стоять WAL-05 і BND-13.
+- `src/entities/portfolio/model/__tests__/portfolio.test.ts` — `isRedeemed` і `canBuyOn`, на яких стоять WAL-03 і BND-10.
+- `src/entities/portfolio/model/__tests__/market.test.ts` — `newBondsRate`, `newBondsLabel` (HOLD-03.2, HOLD-05).
+- `src/entities/portfolio/model/__tests__/portfolio.test.ts` — `plannedQuantity` виплат (DOM-59), з якого BND-06 пише «заплановано».
 - Без тестів: WAL-01, WAL-02 (порядок рядків), WAL-04, WAL-06…WAL-08, BND-01, BND-02, BND-05…BND-13 (екрани не тестуються), `ownedLabel`, HOLD-04 з усіма порогами на картці (поріг `gap = 1` і текст «близька»/«вища» не перевірено ніде прямо), HOLD-07 (порожні підказки при непорожній оцінці), HOLD-09.
 
 ## Прогалини й питання

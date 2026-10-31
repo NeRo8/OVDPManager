@@ -103,8 +103,8 @@
 
 ## Покриття тестами
 
-- `keyRates-test.ts` покриває `fillDailyRates` і `keyRateOn` (ставка на дату, на пізнішу дату року, незавантажений рік), на яких стоїть RYLD-02.
-- `reportPdf-test.ts` перевіряє лише спільне для PDF (PDF-08, PDF-10), не `yieldPdf`.
+- `dailyRates.test.ts` і `keyRate.test.ts` покривають `fillDailyRates` і `keyRateOn` (ставка на дату, на пізнішу дату року, незавантажений рік), на яких стоїть RYLD-02.
+- `reportPdf.test.ts` перевіряє лише спільне для PDF (PDF-08, PDF-10), не `yieldPdf`.
 - Без тестів: RYLD-01, RYLD-03 … RYLD-16 (`keyRateAt`, `weightedAverage`, сортування, `yieldReport`, `yieldPdf`).
 
 ## Прогалини й питання

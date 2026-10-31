@@ -81,7 +81,7 @@
 
 **DOM-25.** `walletPosition(position, bond, today)` дає `WalletPosition`: `position`, `bond` (немає, якщо ОВДП нема в даних НБУ), `currency` (DOM-15), `payments` (DOM-21; порожні без ОВДП), `nextPayment`, `state`, `results` (немає без ОВДП), `annualYield` (`null` без ОВДП), `planned` (DOM-60; є й без ОВДП). `position.ts`, `walletPosition`.
 
-**DOM-60.** Запланована частина позиції (`WalletPosition.planned`, `plannedPart`): `{ quantity, amount }` — сума кількостей і `round2` суми `amount` купівель позиції, ще запланованих на сьогодні (DOM-12: `purchaseDate > today`); коли всі купівлі зроблені — `{ quantity: 0, amount: 0 }`. Позиція `planned` (DOM-24) має `planned.quantity = position.quantity`. Приклад (`position-test.ts`): куплено 2 шт за 1 980 01.01.2025 і заплановано 1 шт за 990 на 01.05.2026 — на 15.03.2026 `planned = { quantity: 1, amount: 990 }` (позиція при цьому `inCirculation`, бо не всі купівлі заплановані), на 01.05.2026 (купівля сьогоднішня, уже зроблена) — `{ quantity: 0, amount: 0 }`. З цього гаманець, картка ОВДП і вибір ОВДП пишуть, скільки ОВДП позиції ще лише заплановано (див. [screens/wallet-and-bond.md](screens/wallet-and-bond.md), WAL-05). `position.ts`, `plannedPart`.
+**DOM-60.** Запланована частина позиції (`WalletPosition.planned`, `plannedPart`): `{ quantity, amount }` — сума кількостей і `round2` суми `amount` купівель позиції, ще запланованих на сьогодні (DOM-12: `purchaseDate > today`); коли всі купівлі зроблені — `{ quantity: 0, amount: 0 }`. Позиція `planned` (DOM-24) має `planned.quantity = position.quantity`. Приклад (`position.test.ts`): куплено 2 шт за 1 980 01.01.2025 і заплановано 1 шт за 990 на 01.05.2026 — на 15.03.2026 `planned = { quantity: 1, amount: 990 }` (позиція при цьому `inCirculation`, бо не всі купівлі заплановані), на 01.05.2026 (купівля сьогоднішня, уже зроблена) — `{ quantity: 0, amount: 0 }`. З цього гаманець, картка ОВДП і вибір ОВДП пишуть, скільки ОВДП позиції ще лише заплановано (див. [screens/wallet-and-bond.md](screens/wallet-and-bond.md), WAL-05). `position.ts`, `plannedPart`.
 
 ### Результати позиції (PositionResults)
 
@@ -99,13 +99,13 @@
 
 **DOM-27.** `netIncome` = `round2(totalPayments − invested)`, якщо `complete`, інакше `null`. `returnPercent` = `round2(netIncome / invested × 100)`, якщо `netIncome` не `null` і `invested` не нуль, інакше `null`. `position.ts`, `withNetIncome`.
 
-Приклад (`position-test.ts`): ОВДП 10 %, номінал 1000, купони по 50 щопівроку з 2025-07-01 до 2027-01-01, погашення 1000 у 2027-01-01. Дві ОВДП куплено 2025-01-01 за 1980, сьогодні 2026-03-15: `invested` 1980, `coupons` 400, `redemption` 2000, `received` 200, `expected` 2200, `totalPayments` 2400, `netIncome` 420, `returnPercent` 21,21.
+Приклад (`position.test.ts`): ОВДП 10 %, номінал 1000, купони по 50 щопівроку з 2025-07-01 до 2027-01-01, погашення 1000 у 2027-01-01. Дві ОВДП куплено 2025-01-01 за 1980, сьогодні 2026-03-15: `invested` 1980, `coupons` 400, `redemption` 2000, `received` 200, `expected` 2200, `totalPayments` 2400, `netIncome` 420, `returnPercent` 21,21.
 
 **DOM-28.** «Вартість погашення» (`redemptionCost`): для виплати-погашення — сума по купівлях, датованих раніше за неї, `purchase.amount × payment.amount / nominalLeft(bond, purchase.purchaseDate)`. `nominalLeft(bond, date)` = `bond.nominal − Σ amount погашень із датою <= date` (погашення в день купівлі належить попередньому власнику, тому вже відняте). Для ОВДП, погашеної одразу, це вся сума купівлі; для часткових погашень частки однієї купівлі в сумі дають її вартість, також для докупівлі між частковими погашеннями. `position.ts`, `nominalLeft`, `redemptionCost`.
 
 **DOM-29.** «Дохід» позиції за проміжок `[from, to]`, обидва дні включно (`positionIncome`): `round2(купони проміжку + Σ (total погашення − redemptionCost) по погашеннях проміжку)`. Без ОВДП у даних НБУ — 0. `position.ts`, `positionIncome`.
 
-Приклади (`position-test.ts`): ОВДП з DOM-27 за 2026 рік — 200 (лише купони); за 2027 рік — 120 (купони 100 + погашення 2000 − 1980). ОВДП, що гаситься двома частинами по 500 (2026-01-01 і 2027-01-01): купівля 2025-01-01 за 990 і докупівля 2026-06-01 за 495; дохід за весь час = (500 − 990 × ½) + (1000 − (990 × ½ + 495 × 1)) = 15.
+Приклади (`position.test.ts`): ОВДП з DOM-27 за 2026 рік — 200 (лише купони); за 2027 рік — 120 (купони 100 + погашення 2000 − 1980). ОВДП, що гаситься двома частинами по 500 (2026-01-01 і 2027-01-01): купівля 2025-01-01 за 990 і докупівля 2026-06-01 за 495; дохід за весь час = (500 − 990 × ½) + (1000 − (990 × ½ + 495 × 1)) = 15.
 
 **DOM-30.** «Річна дохідність» позиції (`positionYield`): `null`, якщо погашення не опубліковано. Інакше для кожної купівлі окремо рахується `annualYield(amount, purchaseDate, виплати лише цієї купівлі за DOM-21)`; якщо хоч одна купівля дає `null`, уся позиція дає `null`. Результат — `round2(Σ (дохідність × amount) / investedAmount)`. Заплановані купівлі входять. `position.ts`, `positionYield`.
 
@@ -115,7 +115,7 @@
 
 **DOM-32.** `invested`, `coupons`, `redemption`, `received`, `expected`, `totalPayments` — `round2` сум відповідних полів **усіх** позицій валюти з даними НБУ. `complete` — чи в усіх цих позицій опубліковано погашення. `incompleteCount` — скільки позицій без опублікованого погашення. `resultsByCurrency`.
 
-**DOM-33.** `netIncome` і `returnPercent` валюти рахуються лише за позиціями з опублікованим погашенням: `netIncome = round2(round2(Σ totalPayments опублікованих) − round2(Σ invested опублікованих))`, `returnPercent` — від `invested` лише опублікованих. Якщо опублікованих немає — обидва `null`. Тож поруч стоять `invested` усіх позицій і `netIncome` лише частини з них. Приклад (`position-test.ts`): позиція 1000 → 1200 і позиція без погашення за 1000: `invested` 2000, `netIncome` 200, `returnPercent` 20, `incompleteCount` 1. `resultsByCurrency`. `published = { invested, totalPayments }` — ці дві суми опублікованих позицій, з яких рахується `netIncome`; коли всі позиції опубліковані, вони збігаються з `invested` і `totalPayments` валюти. `netIncomeBasis(results)` — текст «Виплати <published.totalPayments> мінус вкладено <published.invested>, лише ОВДП з опублікованим погашенням» для підказки під «Чистим доходом», або `undefined`, коли `incompleteCount = 0`: тоді суми над ним сходяться і так.
+**DOM-33.** `netIncome` і `returnPercent` валюти рахуються лише за позиціями з опублікованим погашенням: `netIncome = round2(round2(Σ totalPayments опублікованих) − round2(Σ invested опублікованих))`, `returnPercent` — від `invested` лише опублікованих. Якщо опублікованих немає — обидва `null`. Тож поруч стоять `invested` усіх позицій і `netIncome` лише частини з них. Приклад (`position.test.ts`): позиція 1000 → 1200 і позиція без погашення за 1000: `invested` 2000, `netIncome` 200, `returnPercent` 20, `incompleteCount` 1. `resultsByCurrency`. `published = { invested, totalPayments }` — ці дві суми опублікованих позицій, з яких рахується `netIncome`; коли всі позиції опубліковані, вони збігаються з `invested` і `totalPayments` валюти. `netIncomeBasis(results)` — текст «Виплати <published.totalPayments> мінус вкладено <published.invested>, лише ОВДП з опублікованим погашенням» для підказки під «Чистим доходом», або `undefined`, коли `incompleteCount = 0`: тоді суми над ним сходяться і так.
 
 **DOM-34.** `annualYield` валюти — середня «Річна дохідність» позицій, у яких вона є (не `null`), зважена на `position.investedAmount`, з `round2`; `null`, якщо таких позицій немає. Позиції з `null`-дохідністю відкидаються мовчки й не потрапляють до `incompleteCount`. `resultsByCurrency`.
 
@@ -149,7 +149,7 @@
 
 **DOM-44.** `annualYield` дає `null`, якщо `amount <= 0`, виплат немає, вартість виплат за −99 % менша за `amount` (дохідність нижча за −99 %) або вартість за 1000 % більша за `amount` (дохідність вища за 1000 %). `annualYield`.
 
-**DOM-45.** `amountForYield(date, payments, yieldPercent)` = `round2(Σ total_i / (1 + yieldPercent/100/2)^(h_i))` з тим самим відліком півроків від `date`: сума, за якої купівля (або утримання) дає цю дохідність. Обернена до DOM-43: `annualYield(amountForYield(d, p, 15), d, p) ≈ 15`. Купівля за номіналом у день купона ОВДП зі ставкою 16 % при `yieldPercent = 16` дає ≈ 1000 (у межах ±5 через рахунок за 365 днів). `yield.ts`, `amountForYield`; `market-test.ts`.
+**DOM-45.** `amountForYield(date, payments, yieldPercent)` = `round2(Σ total_i / (1 + yieldPercent/100/2)^(h_i))` з тим самим відліком півроків від `date`: сума, за якої купівля (або утримання) дає цю дохідність. Обернена до DOM-43: `annualYield(amountForYield(d, p, 15), d, p) ≈ 15`. Купівля за номіналом у день купона ОВДП зі ставкою 16 % при `yieldPercent = 16` дає ≈ 1000 (у межах ±5 через рахунок за 365 днів). `yield.ts`, `amountForYield`; `market.test.ts`.
 
 **DOM-46.** `MAX_PLAUSIBLE_YIELD = 40` (%): дохідність вище за це вважається радше помилкою в сумі чи кількості. Сама модель її не застосовує; її використовують форма купівлі (`assessPurchase`, «Перевірте суму») і екран продажу (`holdOrSell`). `market.ts`.
 
@@ -208,15 +208,15 @@
 
 ## Покриття тестами
 
-- `src/entities/portfolio/model/__tests__/bondDates-test.ts`: DOM-08, DOM-09, DOM-10, DOM-42.
-- `src/entities/portfolio/model/__tests__/market-test.ts`: DOM-11, DOM-45, DOM-47 (з DOM-48 для парної кількості — неявно, медіана двох значень), DOM-49.
-- `src/entities/portfolio/model/__tests__/position-test.ts`: DOM-21 (купон у день купівлі), DOM-24, DOM-25 (без даних НБУ), DOM-60 («tells what of the Position is still only planned»), DOM-26, DOM-27, DOM-29 (з DOM-28 для часткових погашень), DOM-30, DOM-31, DOM-32, DOM-33, DOM-34.
-- `src/entities/portfolio/model/__tests__/wallet-test.ts`: DOM-20 (порядок позицій), DOM-35, DOM-36 (порядок подій, купівля без даних НБУ), DOM-38.
-- `src/features/payment-filters/model/__tests__/filterSchedule-test.ts`: DOM-37, DOM-39 (опосередковано), DOM-61 і DOM-40 для ISIN іншої валюти (через `effectiveFilters`, «keeps only the bonds of the currency shown…»).
-- `src/features/report-filters/model/__tests__/fitReportFilters-test.ts`: DOM-40 (опосередковано, через `fitReportFilters`).
-- `src/pages/reports/model/__tests__/plannedPurchases-test.ts`: DOM-59 (`plannedQuantity` виплат до і після запланованої купівлі).
-- `src/features/add-purchase/model/__tests__/purchaseHints-test.ts`: DOM-51, DOM-52, DOM-46 (опосередковано, через `assessPurchase`).
-- `src/pages/holdings/model/__tests__/holdOrSell-test.ts`: DOM-45, DOM-51/DOM-52 без `errorGap` (опосередковано).
+- `src/entities/portfolio/model/__tests__/portfolio.test.ts`: DOM-08, DOM-09, DOM-10, DOM-42.
+- `src/entities/portfolio/model/__tests__/market.test.ts`: DOM-11, DOM-45, DOM-47 (з DOM-48 для парної кількості — неявно, медіана двох значень), DOM-49.
+- `src/entities/portfolio/model/__tests__/position.test.ts`: DOM-21 (купон у день купівлі), DOM-24, DOM-25 (без даних НБУ), DOM-60 («tells what of the Position is still only planned»), DOM-26, DOM-27, DOM-29 (з DOM-28 для часткових погашень), DOM-30, DOM-31, DOM-32, DOM-33, DOM-34.
+- `src/entities/portfolio/model/__tests__/wallet.test.ts`: DOM-20 (порядок позицій), DOM-35, DOM-36 (порядок подій, купівля без даних НБУ), DOM-38.
+- `src/features/payment-filters/model/__tests__/filterSchedule.test.ts`: DOM-37, DOM-39 (опосередковано), DOM-61 і DOM-40 для ISIN іншої валюти (через `effectiveFilters`, «keeps only the bonds of the currency shown…»).
+- `src/features/report-filters/model/__tests__/fitReportFilters.test.ts`: DOM-40 (опосередковано, через `fitReportFilters`).
+- `src/entities/portfolio/model/__tests__/portfolio.test.ts`: DOM-59 (`plannedQuantity` виплат до і після запланованої купівлі).
+- `src/features/add-purchase/model/__tests__/purchaseHints.test.ts`: DOM-51, DOM-52, DOM-46 (опосередковано, через `assessPurchase`).
+- `src/pages/holdings/model/__tests__/holdOrSell.test.ts`: DOM-45, DOM-51/DOM-52 без `errorGap` (опосередковано).
 
 **Без тестів:** DOM-02, DOM-03, DOM-04, DOM-05 (`mapNbuSecurityToBond`, `fetchBonds`), DOM-06 окремо, DOM-12 окремо, DOM-13, DOM-15, DOM-16, DOM-19, DOM-22 (межа «сьогодні»), DOM-23, DOM-36 (`isTopUp`), DOM-41, DOM-43/DOM-44 (межі `null` у `annualYield` напряму), DOM-50 (`sortHints`, `worstTone`), DOM-53, DOM-54 (`round2`), DOM-56, DOM-57, DOM-58 (`parseAmount`).
 

@@ -214,7 +214,7 @@
 
 ## Покриття тестами
 
-`src/features/coupon-goal/model/__tests__/couponGoal-test.ts`:
+`src/features/coupon-goal/model/__tests__/couponGoal.test.ts`:
 
 - GOAL-04, GOAL-05, GOAL-32 — перші роки купонів 2027–2031 (без 2027 на 31.12), роки купівель для 2028 і 2029 з 1–2 роками й з поточного року, варіанти років купівель і їх урізання;
 - GOAL-07 — `goalMonthIndex` для двох років купонів;

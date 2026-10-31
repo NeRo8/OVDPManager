@@ -35,7 +35,7 @@
 
 **RPORT-04.** `total = resultsByCurrency(позиції валюти)[0]` (DOM-31 … DOM-34): позиції без даних НБУ в нього не входять; `invested`, `coupons`, `redemption`, `received`, `expected`, `totalPayments` — суми **всіх** позицій з даними НБУ (також тих, чиє погашення не опубліковано); `netIncome` і `returnPercent` — лише за позиціями з опублікованим погашенням; `incompleteCount` — кількість позицій без нього. Якщо жодна позиція валюти не має даних НБУ, `total` відсутній.
 
-**RPORT-05.** Рядок ОВДП: `isin`, `bond` (якщо є в даних НБУ), `state` (DOM-24), `quantity` і `invested` позиції (усі купівлі, з запланованими), `planned` — `round2` суми її запланованих купівель (DOM-12), `results` (DOM-26; немає без даних НБУ), `annualYield` (DOM-30). Валюта має ще `planned` — суму запланованих купівель тих позицій, що входять у `total`, тобто лише ОВДП з даними НБУ, щоб «З них заплановано» було частиною «Вкладено» підсумку. Приклад (`plannedPurchases-test.ts`): куплено 2 шт за 2 000 ₴, заплановано 3 шт за 2 950 ₴ — `invested` 4 950, `planned` 2 950 і в рядку, і у валюті.
+**RPORT-05.** Рядок ОВДП: `isin`, `bond` (якщо є в даних НБУ), `state` (DOM-24), `quantity` і `invested` позиції (усі купівлі, з запланованими), `planned` — `round2` суми її запланованих купівель (DOM-12), `results` (DOM-26; немає без даних НБУ), `annualYield` (DOM-30). Валюта має ще `planned` — суму запланованих купівель тих позицій, що входять у `total`, тобто лише ОВДП з даними НБУ, щоб «З них заплановано» було частиною «Вкладено» підсумку. Приклад (`portfolioReport.test.ts`): куплено 2 шт за 2 000 ₴, заплановано 3 шт за 2 950 ₴ — `invested` 4 950, `planned` 2 950 і в рядку, і у валюті.
 
 **RPORT-06.** Частка у вкладеннях: `investedShare = round2(investedAmount позиції / Σ investedAmount усіх позицій валюти в звіті × 100)`, 0, якщо сума не > 0. До знаменника входять і позиції без даних НБУ, яких немає в `total`.
 
@@ -97,9 +97,10 @@
 
 ## Покриття тестами
 
-- `fitReportFilters-test.ts`: звуження за валютою і лічильник для `portfolio` (RFLT-10, RFLT-11).
-- Доменні `resultsByCurrency` і `walletPosition` покриті `position-test.ts` (з `netIncomeBasis`).
-- `src/pages/reports/model/__tests__/plannedPurchases-test.ts`: RPORT-05 (`planned` рядка й валюти), RPORT-13 частково (рядок «З них заплановано» з підказкою в підсумку PDF, стан «до 01.03.2027» у рядку).
+- `fitReportFilters.test.ts`: звуження за валютою і лічильник для `portfolio` (RFLT-10, RFLT-11).
+- Доменні `resultsByCurrency` і `walletPosition` покриті `position.test.ts` (з `netIncomeBasis`).
+- `src/pages/reports/model/__tests__/portfolioReport.test.ts`: RPORT-05 (`planned` рядка й валюти).
+- `src/pages/reports/model/__tests__/reportPdf.test.ts`: RPORT-13 частково (рядок «З них заплановано» з підказкою в підсумку PDF, стан «до 01.03.2027» у рядку).
 - Без тестів: RPORT-02 (`passesStatus`), RPORT-03, RPORT-04, RPORT-06, RPORT-07, RPORT-08 … RPORT-12 (екран), решта RPORT-13.
 
 ## Прогалини й питання
@@ -108,4 +109,4 @@
 
 **GAP-RPORT-03.** Зноска фільтра «Стан» каже: «погашені — ті, за якими всі виплати вже отримано», але погашеною вважається ОВДП, чия дата погашення минула, навіть якщо НБУ погашення не опублікував; а «В обігу» включає ОВДП без даних НБУ, чий стан невідомий. Доказ: `passesStatus`, DOM-08, `BondStatusSection.tsx`. Серйозність: низька.
 
-**GAP-RPORT-06.** Тест `portfolioReport` перевіряє лише `planned` (`plannedPurchases-test.ts`): фільтр стану, частки, порядок і `unknownCount` не перевіряються. Серйозність: середня.
+**GAP-RPORT-06.** Тест `portfolioReport` перевіряє лише `planned` (`portfolioReport.test.ts`): фільтр стану, частки, порядок і `unknownCount` не перевіряються. Серйозність: середня.

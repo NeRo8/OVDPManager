@@ -216,11 +216,11 @@
 
 ## Покриття тестами
 
-- `src/features/add-purchase/model/__tests__/purchaseHints-test.ts` — BUY-18 (`annualYieldText` у всіх чотирьох випадках), BUY-21 («Перевірте суму» за `null` угору й униз і за 55 %), BUY-22, BUY-23 (текст збитку), BUY-24 (пороги success/warning/error за ставки 16 %), BUY-25 (текст, мінімум 2 нові ОВДП, валюта й строк), BUY-26 (ціна — `info`, не судить), BUY-27 (довгий строк `info`; неопубліковане погашення `warning`), BUY-28 (вердикти), а також що доларова ОВДП не порівнюється з обліковою ставкою.
-- `src/entities/portfolio/model/__tests__/bondDates-test.ts` — `canBuyOn`/`isRedeemed` (BUY-05 межа погашення, PICK-01, PICK-11) і `bondChoices` (PICK-01, PICK-10).
-- `src/entities/portfolio/model/__tests__/market-test.ts` — `maturityTerm` (PICK-04, BUY-27 довгий строк) і `newBondsRate` (BUY-25).
-- `src/entities/portfolio/model/__tests__/position-test.ts` — `walletPosition`, на якому стоять BUY-13…BUY-17 (виплата в день купівлі — попередньому власнику).
-- Без тестів: PICK-02, PICK-03 (заміна валюти), PICK-05 (сортування за ставкою з рівними ставками), PICK-07 (лічильник фільтрів), PICK-08, PICK-09, PICK-12…PICK-17; BUY-05 (повідомлення й межа дати розміщення), BUY-06…BUY-08 (схема і `parseAmount` — жодного тесту), BUY-10, BUY-11, BUY-12, BUY-14, BUY-15, BUY-19, BUY-20 (вибір дати облікової ставки — є лише `keyRates-test.ts` для `keyRateOn`), BUY-21 межа рівно 40 %, BUY-26 точні тексти, BUY-27 текст про валюту, BUY-29…BUY-36 (зміна купівлі, заголовки, збереження).
+- `src/features/add-purchase/model/__tests__/purchaseHints.test.ts` — BUY-18 (`annualYieldText` у всіх чотирьох випадках), BUY-21 («Перевірте суму» за `null` угору й униз і за 55 %), BUY-22, BUY-23 (текст збитку), BUY-24 (пороги success/warning/error за ставки 16 %), BUY-25 (текст, мінімум 2 нові ОВДП, валюта й строк), BUY-26 (ціна — `info`, не судить), BUY-27 (довгий строк `info`; неопубліковане погашення `warning`), BUY-28 (вердикти), а також що доларова ОВДП не порівнюється з обліковою ставкою.
+- `src/entities/portfolio/model/__tests__/portfolio.test.ts` — `canBuyOn`/`isRedeemed` (BUY-05 межа погашення, PICK-01, PICK-11) і `bondChoices` (PICK-01, PICK-10).
+- `src/entities/portfolio/model/__tests__/market.test.ts` — `maturityTerm` (PICK-04, BUY-27 довгий строк) і `newBondsRate` (BUY-25).
+- `src/entities/portfolio/model/__tests__/position.test.ts` — `walletPosition`, на якому стоять BUY-13…BUY-17 (виплата в день купівлі — попередньому власнику).
+- Без тестів: PICK-02, PICK-03 (заміна валюти), PICK-05 (сортування за ставкою з рівними ставками), PICK-07 (лічильник фільтрів), PICK-08, PICK-09, PICK-12…PICK-17; BUY-05 (повідомлення й межа дати розміщення), BUY-06…BUY-08 (схема і `parseAmount` — жодного тесту), BUY-10, BUY-11, BUY-12, BUY-14, BUY-15, BUY-19, BUY-20 (вибір дати облікової ставки — є лише `keyRate.test.ts` для `keyRateOn`), BUY-21 межа рівно 40 %, BUY-26 точні тексти, BUY-27 текст про валюту, BUY-29…BUY-36 (зміна купівлі, заголовки, збереження).
 
 ## Прогалини й питання
 
