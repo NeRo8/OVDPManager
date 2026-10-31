@@ -21,12 +21,19 @@ import {
   Typography,
 } from '@/shared/ui';
 
+import { upcomingPurchases } from '../model/upcomingPurchases';
+
+import { UpcomingPurchasesSection } from './UpcomingPurchasesSection';
+
 /**
- * The plans tab: the active plan as a whole. Its purchases (bought or planned) are the ones in the
- * wallet; here they add up to what the plan costs and earns over its whole term.
+ * The plans tab: the active plan as a whole. First what to do next — the purchases until the end of
+ * next month — then its purchases (bought or planned) added up to what the plan
+ * costs and earns over its whole term.
  */
 export default function PlanScreen() {
-  const { plan, bonds, refresh, positions, purchases } = useWallet();
+  const wallet = useWallet();
+  const { plan, bonds, refresh, positions, purchases } = wallet;
+  const upcoming = upcomingPurchases(wallet);
   const numberOfPurchases = purchases.length;
   const pullToRefresh = usePullToRefresh(refresh);
   const totals = resultsByCurrency(positions);
@@ -60,6 +67,14 @@ export default function PlanScreen() {
             message="У плані ще немає купівель, тож підсумовувати нічого. Додайте ОВДП у гаманці: дату купівлі, кількість і суму — купівля з’явиться в гаманці та у виплатах."
           />
         )}
+        {upcoming.map((item) => (
+          <UpcomingPurchasesSection
+            key={item.currency}
+            upcoming={item}
+            showCurrency={upcoming.length > 1}
+          />
+        ))}
+
         {/* The totals need the NBU data; without it this stands in their place. */}
         {numberOfPurchases > 0 && <BondsUnavailableCard />}
 
