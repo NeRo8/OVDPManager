@@ -1,19 +1,17 @@
 # Прогалини й питання
 
-Усі пункти «Прогалини й питання» зі специфікації в одному списку, за важливістю: 152 пункти, з них 1 — висока, 34 — середня, 117 — низька. Важливість — оцінка автора опису; перш ніж братися за пункт, перечитайте його повністю в його файлі (посилання в ID) і вирішіть: виправити, відкласти чи так і задумано. Нічого з цього ще не виправлено.
+Усі пункти «Прогалини й питання» зі специфікації в одному списку, за важливістю: 151 пункт, з них 0 — висока, 34 — середня, 117 — низька. Важливість — оцінка автора опису; перш ніж братися за пункт, перечитайте його повністю в його файлі (посилання в ID) і вирішіть: виправити, відкласти чи так і задумано. Нічого з цього ще не виправлено.
 
 ## Спільні теми
 
-- **Тести.** Багато правил не перевіряє жоден тест: [GAP-BKP-10](backup-settings-onboarding.md), [GAP-DATA-12](data-and-sync.md), [GAP-DOM-13](domain.md), [GAP-REP-05](reports/README.md), [GAP-RBOND-05](reports/bond.md), [GAP-RPORT-06](reports/portfolio.md), [GAP-RRED-05](reports/redemptions.md), [GAP-RSTR-04](reports/structure.md), [GAP-RYOY-06](reports/year-over-year.md), [GAP-RYLD-05](reports/yield.md), [GAP-PAY-10](screens/payments.md), [GAP-PLAN-09](screens/plan.md), [GAP-PICK-04](screens/purchase.md), [GAP-BUY-10](screens/purchase.md), [GAP-SALE-11](screens/sale.md).
+- **Тести.** Багато правил не перевіряє жоден тест: [GAP-DATA-12](data-and-sync.md), [GAP-DOM-13](domain.md), [GAP-REP-05](reports/README.md), [GAP-RBOND-05](reports/bond.md), [GAP-RPORT-06](reports/portfolio.md), [GAP-RRED-05](reports/redemptions.md), [GAP-RSTR-04](reports/structure.md), [GAP-RYOY-06](reports/year-over-year.md), [GAP-RYLD-05](reports/yield.md), [GAP-PAY-10](screens/payments.md), [GAP-PLAN-09](screens/plan.md), [GAP-PICK-04](screens/purchase.md), [GAP-BUY-10](screens/purchase.md), [GAP-SALE-11](screens/sale.md).
 - **PDF розходиться з екраном.** [GAP-REP-05](reports/README.md) (більшість `*Pdf` без тестів), [GAP-RYLD-02](reports/yield.md).
 - **`CLAUDE.md` відстає від коду.** [GAP-DATA-06](data-and-sync.md), [GAP-NAV-04](navigation.md), [GAP-NAV-06](navigation.md), [GAP-RFX-07](reports/fx.md), [GAP-PAY-10](screens/payments.md), [GAP-PLAN-04](screens/plan.md), [GAP-PLAN-06](screens/plan.md), [GAP-PICK-01](screens/purchase.md), [GAP-BND-01](screens/wallet-and-bond.md), [GAP-BND-03](screens/wallet-and-bond.md), [GAP-BND-05](screens/wallet-and-bond.md), [GAP-HOLD-04](screens/wallet-and-bond.md).
 - **Той самий пункт з різних боків.** [GAP-PLAN-01](screens/plan.md) і [GAP-NAV-07](navigation.md) (спалах під заголовком); [GAP-GOAL-04](features/coupon-goal.md), [GAP-DOM-10](domain.md) і [GAP-PLAN-07](screens/plan.md) (ціль не змінити на місці, «Перерахувати ціль» робить копію копії); [GAP-BND-04](screens/wallet-and-bond.md) і [GAP-RBOND-03](reports/bond.md) («Купон на 1 шт» з першого купона); [GAP-PICK-01](screens/purchase.md) і [GAP-NAV-04](navigation.md) (параметр `planId`); [GAP-BND-01](screens/wallet-and-bond.md) і [GAP-NAV-06](navigation.md) (перемикач на картці ОВДП); [GAP-DATA-06](data-and-sync.md) і [GAP-RFX-07](reports/fx.md) (ключ сховища курсів); [GAP-WAL-04](screens/wallet-and-bond.md) і [GAP-DATA-02](data-and-sync.md) (облікова ставка не оновлюється жестом).
 
 ## Висока
 
-| ID                                          | Суть                      | Де                              |
-| ------------------------------------------- | ------------------------- | ------------------------------- |
-| [GAP-BKP-10](backup-settings-onboarding.md) | Резервні копії без тестів | `backup-settings-onboarding.md` |
+Відкритих пунктів високої важливості немає.
 
 ## Середня
 
