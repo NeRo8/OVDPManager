@@ -1,6 +1,6 @@
 import { RefreshControl } from 'react-native';
 
-import { router, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
@@ -8,19 +8,11 @@ import {
   NbuSourceNote,
   StaleBondsNotice,
   resultsByCurrency,
-  removeInvestmentPlan,
   useWallet,
 } from '@/entities/portfolio';
 
+import { formatMoney, useOptionChoice, usePullToRefresh } from '@/shared/lib';
 import {
-  confirmDestructive,
-  formatMoney,
-  plural,
-  useOptionChoice,
-  usePullToRefresh,
-} from '@/shared/lib';
-import {
-  ActionRow,
   EmptyState,
   InfoRow,
   ScreenScrollView,
@@ -37,7 +29,6 @@ export default function PlanScreen() {
   const { plan, bonds, refresh, positions, purchases } = useWallet();
   const numberOfPurchases = purchases.length;
   const pullToRefresh = usePullToRefresh(refresh);
-  const planId = plan?.id ?? '';
   const totals = resultsByCurrency(positions);
   const unknownBonds = positions.filter((item) => !item.bond).length;
   // Totals come in CURRENCIES order.
@@ -47,18 +38,6 @@ export default function PlanScreen() {
 
   // The app's screens open only once there is a plan, so one is always active here.
   if (!plan) return null;
-
-  const renamePlan = () => router.push({ pathname: '/plan/name', params: { planId } });
-
-  const confirmRemovePlan = () =>
-    confirmDestructive(
-      'Видалити план?',
-      numberOfPurchases
-        ? `План «${plan.name}» і ${numberOfPurchases} ${plural(numberOfPurchases, 'купівлю', 'купівлі', 'купівель')} в ньому буде видалено.`
-        : `План «${plan.name}» буде видалено.`,
-      'Видалити',
-      () => removeInvestmentPlan(planId),
-    );
 
   return (
     <>
@@ -160,10 +139,6 @@ export default function PlanScreen() {
             {unknownBonds} ОВДП немає в даних НБУ, тому їх не враховано в підсумку.
           </Typography>
         )}
-        <Section title="Керування планом">
-          <ActionRow title="Перейменувати план" onPress={renamePlan} />
-          <ActionRow title="Видалити план" tone="danger" onPress={confirmRemovePlan} />
-        </Section>
         <NbuSourceNote />
       </ScreenScrollView>
     </>
