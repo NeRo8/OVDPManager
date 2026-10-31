@@ -27,7 +27,7 @@ const HeaderSearchBar = withUnistyles(Stack.SearchBar, (theme) => ({
  * finds any bond by ISIN.
  */
 export default function BondPickerScreen() {
-  const { today, query, setQuery, isSearching, currency, term, sort, choices, ownedQuantity } =
+  const { today, query, setQuery, isSearching, currency, term, sort, choices, owned } =
     useBondPicker();
 
   const search = (event: { nativeEvent: { text: string } }) => setQuery(event.nativeEvent.text);
@@ -64,7 +64,7 @@ export default function BondPickerScreen() {
             <BondChoiceRow
               bond={bond}
               today={today}
-              owned={ownedQuantity.get(bond.isin)}
+              owned={owned.get(bond.isin)}
               onPress={() => chooseBond(bond.isin)}
             />
           </SectionCell>

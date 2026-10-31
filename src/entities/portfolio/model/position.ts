@@ -73,6 +73,8 @@ export type WalletPosition = {
   results?: PositionResults;
   /** «Річна дохідність»; null until NBU publishes the redemption */
   annualYield: number | null;
+  /** Its purchases still planned (dated after today), together; zero when all are made */
+  planned: { quantity: number; amount: number };
 };
 
 /** The NBU has published the redemption, so the payments are all there. */
@@ -144,6 +146,15 @@ export function walletPosition(
     state: positionState(position, bond, today),
     results: bond && positionResults(position, bond, payments),
     annualYield: bond ? positionYield(position, bond, today) : null,
+    planned: plannedPart(position, today),
+  };
+}
+
+function plannedPart(position: Position, today: string): WalletPosition['planned'] {
+  const planned = position.purchases.filter((purchase) => isPlannedPurchase(purchase, today));
+  return {
+    quantity: planned.reduce((sum, purchase) => sum + purchase.quantity, 0),
+    amount: round2(planned.reduce((sum, purchase) => sum + purchase.amount, 0)),
   };
 }
 

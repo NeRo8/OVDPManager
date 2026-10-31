@@ -4,11 +4,13 @@ import { currencySign, formatDate, formatTimeLeft } from '@/shared/lib';
 import { currencyColor } from '@/shared/theme';
 import { Avatar, ListRow, ThemedIcon, Typography } from '@/shared/ui';
 
+import { ownedLabel } from './ownedLabel';
+
 type BondChoiceRowProps = {
   bond: Bond;
   today: string;
-  /** Quantity already in the wallet */
-  owned?: number;
+  /** What the wallet already holds of it, and how much of that is still planned */
+  owned?: { quantity: number; planned: number };
   onPress: () => void;
 };
 
@@ -24,7 +26,7 @@ export function BondChoiceRow({ bond, today, owned, onPress }: BondChoiceRowProp
       : isRedeemed(bond, today)
         ? `погашена ${formatDate(bond.maturityDate)}`
         : 'погашається сьогодні',
-    owned && `у гаманці ${owned} шт`,
+    owned && `у гаманці ${ownedLabel(owned.quantity, owned.planned)}`,
   ]
     .filter(Boolean)
     .join(' · ');

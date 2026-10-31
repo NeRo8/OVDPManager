@@ -57,8 +57,12 @@ export function useBondPicker() {
         )
       : filtered;
   const choices = isSearching && bonds ? bondChoices(bonds, query, today) : sorted;
-  const ownedQuantity = new Map(
-    positions.map(({ position }) => [position.isin, position.quantity]),
+  // What the wallet holds of each bond, and how much of it is still only planned.
+  const owned = new Map(
+    positions.map(({ position, planned }) => [
+      position.isin,
+      { quantity: position.quantity, planned: planned.quantity },
+    ]),
   );
   // What differs from a fresh picker; the order counts too, as it changes what comes first.
   const activeFilterCount = [
@@ -80,6 +84,6 @@ export function useBondPicker() {
     choices,
     filteredCount: sorted.length,
     activeFilterCount,
-    ownedQuantity,
+    owned,
   };
 }

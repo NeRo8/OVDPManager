@@ -23,8 +23,9 @@ export default function AddBondDetailsScreen() {
   const { isin } = useLocalSearchParams<{ isin: string }>();
   const { byIsin, positions } = useWallet();
   const bond = byIsin.get(isin);
-  const ownedQuantity =
-    positions.find(({ position }) => position.isin === isin)?.position.quantity ?? 0;
+  const owned = positions.find(({ position }) => position.isin === isin);
+  const ownedQuantity = owned?.position.quantity ?? 0;
+  const plannedQuantity = owned?.planned.quantity ?? 0;
   const addPurchase = () => router.push({ pathname: '/add/[isin]/purchase', params: { isin } });
   const header = <Stack.Screen options={{ title: isin }} />;
 
@@ -64,7 +65,9 @@ export default function AddBondDetailsScreen() {
                 <Section
                   title="ОВДП"
                   footer={
-                    ownedQuantity > 0 ? `У гаманці вже є ${ownedQuantity} шт цієї ОВДП.` : undefined
+                    ownedQuantity > 0
+                      ? `У гаманці вже є ${ownedQuantity} шт цієї ОВДП${plannedQuantity > 0 ? `, з них ${plannedQuantity} — заплановані купівлі` : ''}.`
+                      : undefined
                   }
                 >
                   <InfoRow label="ISIN" value={bond.isin} />

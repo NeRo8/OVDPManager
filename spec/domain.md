@@ -5,8 +5,8 @@
 ## Звідки дані
 
 - `src/entities/portfolio/model/portfolio.ts` — типи `Bond`, `BondPayment`, `Purchase`, `PlanPurchase`, `Position`, `PositionPayment`, `PurchaseEvent`, `ScheduleEvent`; `CURRENCIES`, `bondChoices`, `groupPositions`, `isPlannedPurchase`, `isRedeemed`, `canBuyOn`, `maturesWithin`, `pricePerBond`, `purchaseCurrency`, `positionCurrency`, `positionPayments`, `purchaseEvents`, `compareScheduleEvents`, `sumTotals`, `nextPayment`.
-- `src/entities/portfolio/model/position.ts` — `PositionState`, `PositionResults`, `CurrencyResults`, `WalletPosition`, `hasRedemption`, `walletPosition`, `positionIncome`, `resultsByCurrency` (усередині: `withNetIncome`, `positionResults`, `positionYield`, `positionState`, `nominalLeft`, `redemptionCost`).
-- `src/entities/portfolio/model/wallet.ts` — `Wallet`, `WalletScope`, `buildWallet`, `narrowWallet`, `walletScopeOptions`, `fitScope`.
+- `src/entities/portfolio/model/position.ts` — `PositionState`, `PositionResults`, `CurrencyResults`, `WalletPosition`, `hasRedemption`, `walletPosition`, `positionIncome`, `resultsByCurrency` (усередині: `withNetIncome`, `positionResults`, `positionYield`, `positionState`, `plannedPart`, `nominalLeft`, `redemptionCost`).
+- `src/entities/portfolio/model/wallet.ts` — `Wallet`, `WalletScope`, `buildWallet`, `narrowWallet`, `WalletScopeOptions`, `walletScopeOptions`, `isinsIn`, `fitScope`.
 - `src/entities/portfolio/model/yield.ts` — `annualYield`, `amountForYield`, `ANNUAL_YIELD_RANGE`.
 - `src/entities/portfolio/model/market.ts` — `maturityTerm`, `NEW_BOND_MONTHS`, `MIN_NEW_BONDS`, `MAX_PLAUSIBLE_YIELD`, `newBondsRate`, `median`, `newBondsLabel`.
 - `src/entities/portfolio/model/hints.ts`, `src/entities/portfolio/model/yieldHints.ts` — `Hint`, `Verdict`, `sortHints`, `worstTone`, `keyRateHint`, `newBondsHint`.
@@ -79,7 +79,9 @@
 
 **DOM-24.** Стан позиції (`PositionState`, `positionState`) перевіряється в такому порядку: немає ОВДП у даних НБУ → `unknown`; усі купівлі заплановані (DOM-12) → `planned`; ОВДП погашена (DOM-08) → `redeemed`; інакше → `inCirculation`. Позиція із запланованою і зробленою купівлею — не `planned`. `position.ts`, `positionState`.
 
-**DOM-25.** `walletPosition(position, bond, today)` дає `WalletPosition`: `position`, `bond` (немає, якщо ОВДП нема в даних НБУ), `currency` (DOM-15), `payments` (DOM-21; порожні без ОВДП), `nextPayment`, `state`, `results` (немає без ОВДП), `annualYield` (`null` без ОВДП). `position.ts`, `walletPosition`.
+**DOM-25.** `walletPosition(position, bond, today)` дає `WalletPosition`: `position`, `bond` (немає, якщо ОВДП нема в даних НБУ), `currency` (DOM-15), `payments` (DOM-21; порожні без ОВДП), `nextPayment`, `state`, `results` (немає без ОВДП), `annualYield` (`null` без ОВДП), `planned` (DOM-60; є й без ОВДП). `position.ts`, `walletPosition`.
+
+**DOM-60.** Запланована частина позиції (`WalletPosition.planned`, `plannedPart`): `{ quantity, amount }` — сума кількостей і `round2` суми `amount` купівель позиції, ще запланованих на сьогодні (DOM-12: `purchaseDate > today`); коли всі купівлі зроблені — `{ quantity: 0, amount: 0 }`. Позиція `planned` (DOM-24) має `planned.quantity = position.quantity`. Приклад (`position-test.ts`): куплено 2 шт за 1 980 01.01.2025 і заплановано 1 шт за 990 на 01.05.2026 — на 15.03.2026 `planned = { quantity: 1, amount: 990 }` (позиція при цьому `inCirculation`, бо не всі купівлі заплановані), на 01.05.2026 (купівля сьогоднішня, уже зроблена) — `{ quantity: 0, amount: 0 }`. З цього гаманець, картка ОВДП і вибір ОВДП пишуть, скільки ОВДП позиції ще лише заплановано (див. [screens/wallet-and-bond.md](screens/wallet-and-bond.md), WAL-05). `position.ts`, `plannedPart`.
 
 ### Результати позиції (PositionResults)
 
@@ -206,7 +208,7 @@
 
 - `src/entities/portfolio/model/__tests__/bondDates-test.ts`: DOM-08, DOM-09, DOM-10, DOM-42.
 - `src/entities/portfolio/model/__tests__/market-test.ts`: DOM-11, DOM-45, DOM-47 (з DOM-48 для парної кількості — неявно, медіана двох значень), DOM-49.
-- `src/entities/portfolio/model/__tests__/position-test.ts`: DOM-21 (купон у день купівлі), DOM-24, DOM-25 (без даних НБУ), DOM-26, DOM-27, DOM-29 (з DOM-28 для часткових погашень), DOM-30, DOM-31, DOM-32, DOM-33, DOM-34.
+- `src/entities/portfolio/model/__tests__/position-test.ts`: DOM-21 (купон у день купівлі), DOM-24, DOM-25 (без даних НБУ), DOM-60 («tells what of the Position is still only planned»), DOM-26, DOM-27, DOM-29 (з DOM-28 для часткових погашень), DOM-30, DOM-31, DOM-32, DOM-33, DOM-34.
 - `src/entities/portfolio/model/__tests__/wallet-test.ts`: DOM-20 (порядок позицій), DOM-35, DOM-36 (порядок подій, купівля без даних НБУ), DOM-38.
 - `src/features/payment-filters/model/__tests__/filterSchedule-test.ts`: DOM-37, DOM-39 (опосередковано).
 - `src/features/report-filters/model/__tests__/fitReportFilters-test.ts`: DOM-40 (опосередковано, через `fitReportFilters`).

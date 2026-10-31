@@ -8,15 +8,16 @@ import { currencySign, formatDate, formatMoney } from '@/shared/lib';
 import { currencyColor } from '@/shared/theme';
 import { Avatar, ListRow, Typography } from '@/shared/ui';
 
+import { ownedLabel } from './ownedLabel';
+
 type Props = {
   item: WalletPosition;
   onPress: () => void;
 };
 
 /** A bond of the wallet: its currency's badge, rate and maturity, what it cost and how many. */
-export function PositionRow({ item: { position, bond, currency, state }, onPress }: Props) {
-  // Nothing bought yet: every purchase of the position is still ahead.
-  const isPlanned = state === 'planned';
+export function PositionRow({ item, onPress }: Props) {
+  const { position, bond, currency, state, planned } = item;
 
   return (
     <ListRow
@@ -45,11 +46,11 @@ export function PositionRow({ item: { position, bond, currency, state }, onPress
           </Typography>
           <Typography
             variant="caption1"
-            tone={isPlanned ? 'accent' : 'secondary'}
+            tone={planned.quantity > 0 ? 'accent' : 'secondary'}
             tabular
             align="right"
           >
-            {position.quantity} шт{isPlanned && ' · заплановано'}
+            {ownedLabel(position.quantity, planned.quantity)}
           </Typography>
         </View>
       }

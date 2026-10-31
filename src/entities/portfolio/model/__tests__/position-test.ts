@@ -56,6 +56,12 @@ describe('walletPosition', () => {
     expect(positionOf(bought, '2027-01-02').state).toBe('redeemed');
   });
 
+  it('tells what of the Position is still only planned', () => {
+    const mixed = [...bought, purchase({ purchaseDate: '2026-05-01', amount: 990, quantity: 1 })];
+    expect(positionOf(mixed, '2026-03-15').planned).toEqual({ quantity: 1, amount: 990 });
+    expect(positionOf(mixed, '2026-05-01').planned).toEqual({ quantity: 0, amount: 0 });
+  });
+
   it('is planned while every purchase is still ahead', () => {
     const planned = [purchase({ purchaseDate: '2026-05-01', amount: 990 })];
     expect(positionOf(planned, '2026-03-15').state).toBe('planned');

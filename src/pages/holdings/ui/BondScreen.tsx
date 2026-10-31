@@ -52,6 +52,7 @@ export default function BondScreen() {
     currency,
     hasTopUps,
     results,
+    planned,
     canTopUp,
     deletePurchase,
     deletePosition,
@@ -121,6 +122,7 @@ export default function BondScreen() {
               currency={currency}
               hasTopUps={hasTopUps}
               results={results}
+              planned={planned}
             />
             {assessment && (
               <HintsSection

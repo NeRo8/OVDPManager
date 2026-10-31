@@ -20,6 +20,8 @@ export function useBondDetails(isin: string) {
   const hasTopUps = (position?.purchases.length ?? 0) > 1;
   /** Missing when the NBU data has no such bond */
   const results = walletPosition?.results;
+  /** Its purchases still planned */
+  const planned = walletPosition?.planned ?? { quantity: 0, amount: 0 };
   const canTopUp = !!bond && canBuyOn(bond, today);
 
   function deletePurchase(purchase: Purchase) {
@@ -56,6 +58,7 @@ export function useBondDetails(isin: string) {
     currency,
     hasTopUps,
     results,
+    planned,
     canTopUp,
     deletePurchase,
     deletePosition,
