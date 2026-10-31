@@ -17,7 +17,7 @@ type Props = {
  * first when they are reinvested, then money of one's own; without reinvesting, what is taken out.
  */
 export function GoalMoneySection({ plan, goal }: Props) {
-  const { cost, planMoney, goalMoney, monthlyTopUp, topUpMonths, leftover } = plan;
+  const { cost, planMoney, goalMoney, plannedCost, monthlyTopUp, topUpMonths, leftover } = plan;
   const { currency, reinvest } = goal;
   const ownTotal = round2(monthlyTopUp * topUpMonths);
   const years = inYears(...spanYears(plan));
@@ -31,6 +31,13 @@ export function GoalMoneySection({ plan, goal }: Props) {
         hint="За орієнтовною ціною кожної ОВДП на день купівлі"
         value={formatMoney(cost, currency)}
       />
+      {plannedCost > 0 && (
+        <InfoRow
+          label="Уже заплановані купівлі"
+          hint={`Купівлі ${years}, що вже були в плані, — оплачуються першими з тих самих грошей`}
+          value={formatMoney(plannedCost, currency)}
+        />
+      )}
       {reinvest && (
         <InfoRow
           label="Кошти плану"

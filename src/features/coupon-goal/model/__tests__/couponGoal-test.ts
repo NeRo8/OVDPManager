@@ -185,6 +185,33 @@ describe('planCouponGoal', () => {
     expect(plan.purchases.some((p) => p.purchaseDate === '2027-04-25')).toBe(true);
   });
 
+  it('pays first for the purchases the plan already has planned in those years', () => {
+    // The plan already means to spend the March redemption on twenty more bonds.
+    const busy = buildWallet(
+      [
+        ...purchases,
+        {
+          id: '3',
+          isin: aprOct.isin,
+          purchaseDate: '2027-03-25',
+          amount: 20000,
+          quantity: 20,
+          currency: 'UAH',
+        },
+      ],
+      byIsin,
+      today,
+    );
+    const crowded = planCouponGoal(busy, bonds, goal, 16);
+    expect(crowded.plannedCost).toBe(20000);
+    expect(crowded.monthlyTopUp).toBeGreaterThan(plan.monthlyTopUp);
+    expect(crowded.leftover).toBeGreaterThanOrEqual(0);
+    expect(crowded.cost + crowded.plannedCost).toBeCloseTo(
+      crowded.planMoney + crowded.goalMoney + crowded.monthlyTopUp * 12 - crowded.leftover,
+      2,
+    );
+  });
+
   it('without reinvesting pays only with money of one’s own, at the start of each month', () => {
     const own = planCouponGoal(wallet, bonds, { ...goal, reinvest: false }, 16);
     expect(isins(own)).toEqual(isins(plan));

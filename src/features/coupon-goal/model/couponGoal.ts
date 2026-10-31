@@ -53,6 +53,8 @@ export type CouponGoalPlan = {
   planMoney: number;
   /** Payments of the bonds the goal buys that come before «Роки купівель» end */
   goalMoney: number;
+  /** Purchases the plan already has planned in «Роки купівель»: the same money pays for them first */
+  plannedCost: number;
   /** Money of one's own added at the start of each month of «Роки купівель» */
   monthlyTopUp: number;
   topUpMonths: number;
@@ -195,11 +197,18 @@ type Funded = {
 
 /**
  * Buys the bonds as money comes in, one bond after another, as many whole bonds as the cash allows
- * at each day's price. A bond bought pays its coupons and redemption from the next payment on (the
- * one on the day of purchase is the seller's); with `reinvest` those that come by `to` are cash for
- * the next purchases. `done` tells whether all of them were bought.
+ * at each day's price. The purchases the plan already has planned (`spending`) are paid first, on
+ * their own days. A bond bought pays its coupons and redemption from the next payment on (the one on
+ * the day of purchase is the seller's); with `reinvest` those that come by `to` are cash for the
+ * next purchases. `done` tells whether all of them were bought and every planned one paid for.
  */
-function buyAsFunded(choices: Choice[], funding: Funding[], to: string, reinvest: boolean): Funded {
+function buyAsFunded(
+  choices: Choice[],
+  funding: Funding[],
+  spending: Funding[],
+  to: string,
+  reinvest: boolean,
+): Funded {
   const queue = choices.map((choice) => ({ ...choice }));
   const purchases: GoalPurchase[] = [];
   // Money that comes on the same day is spent together, so a day buys each bond at most once.
@@ -207,12 +216,19 @@ function buyAsFunded(choices: Choice[], funding: Funding[], to: string, reinvest
   const receive = (date: string, amount: number) =>
     incoming.set(date, (incoming.get(date) ?? 0) + amount);
   for (const { date, amount } of funding) receive(date, amount);
+  const outgoing = new Map<string, number>();
+  for (const { date, amount } of spending) {
+    outgoing.set(date, (outgoing.get(date) ?? 0) + amount);
+    receive(date, 0);
+  }
   let cash = 0;
   let goalMoney = 0;
+  let short = false;
   while (incoming.size) {
     const date = [...incoming.keys()].reduce((first, next) => (next < first ? next : first));
-    cash = round2(cash + (incoming.get(date) ?? 0));
+    cash = round2(cash + (incoming.get(date) ?? 0) - (outgoing.get(date) ?? 0));
     incoming.delete(date);
+    if (cash < 0) short = true;
     while (queue.length) {
       const next = queue[0];
       const { bond } = next.candidate;
@@ -238,7 +254,7 @@ function buyAsFunded(choices: Choice[], funding: Funding[], to: string, reinvest
       if (next.quantity === 0) queue.shift();
     }
   }
-  return { purchases, done: queue.length === 0, goalMoney: round2(goalMoney) };
+  return { purchases, done: queue.length === 0 && !short, goalMoney: round2(goalMoney) };
 }
 
 /**
@@ -273,19 +289,29 @@ export function planCouponGoal(
     .filter((payment) => payment.date >= from && payment.date <= to)
     .map((payment) => ({ date: payment.date, amount: payment.total }));
   const planMoney = round2(inflows.reduce((sum, inflow) => sum + inflow.amount, 0));
+  // What the plan already means to buy in these years comes out of the same money, first.
+  const spending = wallet.purchaseEvents
+    .filter((event) => event.currency === goal.currency && event.date >= from && event.date <= to)
+    .map((event) => ({ date: event.date, amount: event.total }));
+  const plannedCost = round2(spending.reduce((sum, item) => sum + item.amount, 0));
   const starts = monthStarts(span);
   const fund = (topUp: number) =>
     buyAsFunded(
       choices,
       [...(goal.reinvest ? inflows : []), ...starts.map((date) => ({ date, amount: topUp }))],
+      spending,
       to,
       goal.reinvest,
     );
 
-  // All of it bought on the first day is always enough; search down for the smallest top-up.
+  // All of it paid on the first day is always enough; search down for the smallest top-up.
   let low = 0;
   let high = Math.ceil(
-    choices.reduce((sum, { candidate, quantity }) => sum + priceOn(candidate, from) * quantity, 0),
+    plannedCost +
+      choices.reduce(
+        (sum, { candidate, quantity }) => sum + priceOn(candidate, from) * quantity,
+        0,
+      ),
   );
   while (low < high) {
     const middle = Math.floor((low + high) / 2);
@@ -329,9 +355,10 @@ export function planCouponGoal(
     cost,
     planMoney,
     goalMoney,
+    plannedCost,
     monthlyTopUp,
     topUpMonths: starts.length,
-    leftover: round2(spent + monthlyTopUp * starts.length - cost),
+    leftover: round2(spent + monthlyTopUp * starts.length - cost - plannedCost),
     shortMonths,
   };
 }
