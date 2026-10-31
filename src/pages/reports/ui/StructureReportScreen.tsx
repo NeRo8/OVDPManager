@@ -8,6 +8,7 @@ import { CURRENCY_NAMES, WalletGate } from '@/entities/portfolio';
 import { formatDate } from '@/shared/lib';
 import { SectionCell, Typography } from '@/shared/ui';
 
+import { STRUCTURE_PURCHASES_TITLES } from '../lib/structureLabels';
 import { structurePdf } from '../model/reportPdf';
 import {
   type CurrencyStructure,
@@ -24,7 +25,6 @@ import { ReportSectionHeader } from './ReportSectionHeader';
 import { StructureBondRow } from './StructureBondRow';
 import { StructureCurrencies } from './StructureCurrencies';
 import { StructureEmpty } from './StructureEmpty';
-import { STRUCTURE_PURCHASES_TITLES } from './structureLabels';
 import { StructureSummary } from './StructureSummary';
 import { StructureTerms } from './StructureTerms';
 
@@ -71,6 +71,8 @@ export default function StructureReportScreen() {
           headerRight: () => (
             <ReportHeaderActions
               activeFilterCount={activeFilterCount}
+              scope={filters}
+              available={structure.currencies.length > 0}
               report="structure"
               createDocument={() =>
                 structurePdf(wallet, STRUCTURE_PURCHASES_TITLES[filters.purchases], structure)

@@ -6,12 +6,14 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { StyleSheet } from 'react-native-unistyles';
 
-import type { ReportName } from '@/features/report-filters';
+import type { ReportName, ReportScope } from '@/features/report-filters';
+
+import { useBonds } from '@/entities/portfolio';
 
 import { showToast } from '@/shared/lib';
 import { HeaderButton } from '@/shared/ui';
 
-import type { ReportPdf } from '../model/reportPdf';
+import { type ReportPdf, scopeLine } from '../model/reportPdf';
 import { reportPdfHtml } from '../model/reportPdfHtml';
 
 import { ReportFiltersButton } from './ReportFiltersButton';
@@ -20,24 +22,35 @@ type Props = {
   report: ReportName;
   activeFilterCount: number;
   createDocument: () => ReportPdf | null;
+  /** The currency and bonds the report is narrowed to, named under the PDF's title */
+  scope?: ReportScope;
+  /** False while the report has nothing to put on paper */
   available?: boolean;
 };
 
-/** Exports the currently visible report and opens the OS Save/Share actions. */
+/**
+ * Exports the currently visible report and opens the OS Save/Share actions. The document names the
+ * filters that narrow it and says when the NBU data shown is the saved one, as the screen does.
+ */
 export function ReportHeaderActions({
   report,
   activeFilterCount,
   createDocument,
+  scope,
   available = true,
 }: Props) {
   const [sharing, setSharing] = useState(false);
+  const { bonds, error } = useBonds();
 
   const share = async () => {
     if (!available || sharing) return;
     setSharing(true);
     try {
-      const document = createDocument();
-      if (!document) return;
+      const created = createDocument();
+      if (!created) return;
+      // The FX report always covers hryvnia bonds; its title names the currency it compares with.
+      const filters = scope && scopeLine(scope, report !== 'fx');
+      const document: ReportPdf = { ...created, filters, stale: !!error && !!bonds };
       if (!(await Sharing.isAvailableAsync())) {
         showToast({ tone: 'error', title: 'Поширення недоступне на цьому пристрої' });
         return;

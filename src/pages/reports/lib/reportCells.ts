@@ -1,6 +1,6 @@
 import { CURRENCY_NAMES, type Currency } from '@/entities/portfolio';
 
-import { currencySign, formatAmount } from '@/shared/lib';
+import { MONTHS_SHORT, currencySign, formatAmount } from '@/shared/lib';
 
 import type { Flows } from '../model/periodReport';
 
@@ -31,6 +31,20 @@ export const flowCells = ({ invested, coupons, redemptions }: Flows) => [
   amountCell(redemptions),
 ];
 
+/** A year's label in a table: «2027*» when its sums are partly a forecast (`FORECAST_NOTE`). */
+export const yearCell = ({ year, forecast }: { year: number; forecast: boolean }) =>
+  `${year}${forecast ? '*' : ''}`;
+
+/** What the asterisk of `yearCell` means. */
+export const FORECAST_NOTE =
+  '* — прогноз: у році є виплати, що ще попереду, або заплановані купівлі.';
+
 /** «По місяцях · Гривня, ₴» */
 export const tableTitle = (title: string, currency: Currency) =>
   `${title} · ${CURRENCY_NAMES[currency]}, ${currencySign(currency)}`;
+
+/** A month of a table by its short name: «січ». */
+export const monthName = (month: string) => MONTHS_SHORT[Number(month.slice(5, 7)) - 1];
+
+/** The quarters of a year as a table names them, by number. */
+export const QUARTER_LABELS = ['', 'I кв.', 'II кв.', 'III кв.', 'IV кв.'];

@@ -4,9 +4,8 @@ import { CURRENCY_NAMES } from '@/entities/portfolio';
 
 import { InfoRow, Section, SignedValue } from '@/shared/ui';
 
+import { pointsCell } from '../lib/reportCells';
 import { type CurrencyYield, KEY_RATE_CURRENCY } from '../model/yieldReport';
-
-import { pointsCell } from './reportCells';
 
 type Props = {
   report: CurrencyYield;

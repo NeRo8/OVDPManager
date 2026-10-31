@@ -3,10 +3,10 @@ import type { Currency } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
 import { LegendRow, ShareBar, TotalRow, Typography } from '@/shared/ui';
 
+import { shareCell } from '../lib/reportCells';
 import type { BondReport } from '../model/periodReport';
 import type { ReportTerms } from '../model/reportTerms';
 
-import { shareCell } from './reportCells';
 import { ReportItem } from './ReportItem';
 
 type Props = {

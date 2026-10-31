@@ -84,7 +84,8 @@ export default function FxReportScreen() {
               activeFilterCount={activeFilterCount}
               report="fx"
               createDocument={() => (report ? fxPdf(wallet, report, targetCurrency) : null)}
-              available={!!report}
+              scope={filters}
+              available={!!report && report.bonds.length > 0}
             />
           ),
         }}

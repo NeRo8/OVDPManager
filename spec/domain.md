@@ -67,9 +67,11 @@
 
 **DOM-21.** Право на виплату: для кожної виплати ОВДП рахуються лише купівлі, датовані **строго раніше** за дату виплати (`purchase.purchaseDate < payment.date`). Виплата в день купівлі належить попередньому власнику; докупівля починає заробляти з наступної виплати. Виплата з нульовою кількістю пропускається. `portfolio.ts`, `positionPayments`.
 
-Формула для кожної виплати: `quantity = Σ quantity купівель із датою < дата виплати`; `total = round2(amount × quantity)`; `isPaid = payment.date < today`.
+Формула для кожної виплати: `quantity = Σ quantity купівель із датою < дата виплати`; `plannedQuantity = Σ quantity тих із них, що ще заплановані` (DOM-12: `purchaseDate > today`); `total = round2(amount × quantity)`; `isPaid = payment.date < today`.
 
 Приклад: купівля 2026-01-01, купон теж 2026-01-01 — купон у виплати позиції не потрапляє; перший купон — 2026-07-01.
+
+**DOM-59.** `plannedQuantity` виплати (`PositionPayment`) — скільки з її `quantity` припадає на купівлі, яких ще не зроблено: купівлі, датовані раніше за виплату (DOM-21) і пізніше за сьогодні (DOM-12). Отримана виплата завжди має `plannedQuantity = 0`: її дата раніше за сьогодні, тож і всі купівлі до неї вже зроблені. Приклад від 2026-10-31: куплено 2 шт 2026-03-01 і заплановано 3 шт на 2026-12-01; купон 2027-01-15 має `quantity = 5`, `plannedQuantity = 3`; купон 2026-11-15 — `quantity = 2`, `plannedQuantity = 0`. З цього рядки виплат пишуть «заплановано» (див. `ScheduleEventRow` у [screens/payments.md](screens/payments.md)), а звіти рахують, яка частина сум ще лише запланована. `portfolio.ts`, `positionPayments`.
 
 **DOM-22.** Виплата «отримано» (`isPaid`), коли її дата строго раніше за сьогодні; виплата, датована сьогодні, ще очікується. `positionPayments`.
 
@@ -208,6 +210,7 @@
 - `src/entities/portfolio/model/__tests__/wallet-test.ts`: DOM-20 (порядок позицій), DOM-35, DOM-36 (порядок подій, купівля без даних НБУ), DOM-38.
 - `src/features/payment-filters/model/__tests__/filterSchedule-test.ts`: DOM-37, DOM-39 (опосередковано).
 - `src/features/report-filters/model/__tests__/fitReportFilters-test.ts`: DOM-40 (опосередковано, через `fitReportFilters`).
+- `src/pages/reports/model/__tests__/plannedPurchases-test.ts`: DOM-59 (`plannedQuantity` виплат до і після запланованої купівлі).
 - `src/features/add-purchase/model/__tests__/purchaseHints-test.ts`: DOM-51, DOM-52, DOM-46 (опосередковано, через `assessPurchase`).
 - `src/pages/holdings/model/__tests__/holdOrSell-test.ts`: DOM-45, DOM-51/DOM-52 без `errorGap` (опосередковано).
 

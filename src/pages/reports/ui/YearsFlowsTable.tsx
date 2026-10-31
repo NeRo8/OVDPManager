@@ -1,6 +1,6 @@
+import { FLOW_COLUMNS, FORECAST_NOTE, flowCells, tableTitle, yearCell } from '../lib/reportCells';
 import type { CurrencyYears } from '../model/yearOverYearReport';
 
-import { FLOW_COLUMNS, flowCells, tableTitle } from './reportCells';
 import { ReportTable } from './ReportTable';
 
 type Props = {
@@ -15,10 +15,11 @@ export function YearsFlowsTable({ report }: Props) {
       columns={FLOW_COLUMNS}
       rows={report.years.map((year) => ({
         key: String(year.year),
-        label: String(year.year),
+        label: yearCell(year),
         cells: flowCells(year),
       }))}
       total={{ label: 'Разом', cells: flowCells(report.total) }}
+      footer={report.years.some(({ forecast }) => forecast) ? FORECAST_NOTE : undefined}
     />
   );
 }

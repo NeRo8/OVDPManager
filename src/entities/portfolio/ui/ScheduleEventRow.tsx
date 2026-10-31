@@ -36,7 +36,8 @@ type Props = {
 
 /**
  * A payment, or a purchase (money paid) when the event is one. A payment still ahead says how
- * many days are left until it.
+ * many days are left until it; a planned purchase, and a payment for bonds still only planned,
+ * say so.
  */
 export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
   const series = SERIES[event.type];
@@ -46,12 +47,19 @@ export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
   const signedTotal = isPurchase ? -event.total : event.total;
   const sign = signedTotal > 0 ? '+' : signedTotal < 0 ? '−' : '';
   const tone = isPaid ? 'secondary' : 'primary';
+  const planned = isPurchase
+    ? event.date > todayISO() && 'заплановано'
+    : event.plannedQuantity > 0 &&
+      (event.plannedQuantity === event.quantity
+        ? 'заплановано'
+        : `${event.plannedQuantity} з ${event.quantity} шт заплановано`);
   const kind = [
     isPurchase ? (event.isTopUp ? 'Докупівля' : 'Купівля') : KINDS[event.type],
     // A no-break space keeps "10 шт" on one line.
     (showQuantity || isPurchase) && `${event.quantity} шт`,
     isPaid && 'отримано',
     isUpcoming && formatDaysLeft(daysBetween(todayISO(), event.date)),
+    planned,
   ]
     .filter(Boolean)
     .join(' · ');

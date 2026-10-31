@@ -18,6 +18,8 @@ export type YearRow = Flows & {
   income: number;
   /** The income against the year before, %; null for the first year or after one without income */
   incomeChange: number | null;
+  /** It holds payments still ahead or planned purchases, so its sums are partly a forecast */
+  forecast: boolean;
 };
 
 /** The years that stand out; each is left out when there are not two years to compare. */
@@ -75,6 +77,7 @@ export function yearOverYearReport(wallet: Wallet): CurrencyYears[] {
     for (const { year, report } of inCurrency.slice(first, last + 1)) {
       const { invested, planned, coupons, redemptions, totalPayments, balance, income } =
         report ?? EMPTY_YEAR;
+      const forecast = (report?.expected ?? 0) > 0 || planned > 0;
       const previous = years.at(-1);
       years.push({
         year,
@@ -89,6 +92,7 @@ export function yearOverYearReport(wallet: Wallet): CurrencyYears[] {
           previous && previous.income > 0
             ? round2(((income - previous.income) / previous.income) * 100)
             : null,
+        forecast,
       });
     }
 

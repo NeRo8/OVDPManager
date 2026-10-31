@@ -3,9 +3,9 @@ import type { Currency } from '@/entities/portfolio';
 import { formatDate, formatMoney, formatTimeLeft } from '@/shared/lib';
 import { ShareBar, Typography } from '@/shared/ui';
 
+import { shareCell } from '../lib/reportCells';
 import type { StructureBond } from '../model/structureReport';
 
-import { shareCell } from './reportCells';
 import { ReportItem } from './ReportItem';
 
 type Props = {

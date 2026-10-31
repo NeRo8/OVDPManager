@@ -68,6 +68,8 @@ export type PositionPayment = BondPayment & {
   currency: Currency;
   /** Bonds held on the payment date */
   quantity: number;
+  /** Of `quantity`, the bonds of purchases still planned (dated after today) */
+  plannedQuantity: number;
   /** Per-bond amount × quantity */
   total: number;
   isPaid: boolean;
@@ -185,9 +187,8 @@ export function positionPayments(
   today: string,
 ): PositionPayment[] {
   return bond.payments.flatMap((payment) => {
-    const quantity = purchases
-      .filter((purchase) => purchase.purchaseDate < payment.date)
-      .reduce((total, purchase) => total + purchase.quantity, 0);
+    const entitled = purchases.filter((purchase) => purchase.purchaseDate < payment.date);
+    const quantity = entitled.reduce((total, purchase) => total + purchase.quantity, 0);
     if (quantity === 0) return [];
     return [
       {
@@ -195,6 +196,9 @@ export function positionPayments(
         isin: bond.isin,
         currency: bond.currency,
         quantity,
+        plannedQuantity: entitled
+          .filter((purchase) => isPlannedPurchase(purchase, today))
+          .reduce((total, purchase) => total + purchase.quantity, 0),
         total: round2(payment.amount * quantity),
         isPaid: payment.date < today,
       },

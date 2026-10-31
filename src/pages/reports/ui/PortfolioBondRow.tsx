@@ -3,10 +3,10 @@ import type { Currency } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
 import { LegendRow, ShareBar, TotalRow, Typography } from '@/shared/ui';
 
+import { bondStateLabel } from '../lib/portfolioLabels';
+import { shareCell } from '../lib/reportCells';
 import type { PortfolioBond } from '../model/portfolioReport';
 
-import { bondStateLabel } from './portfolioLabels';
-import { shareCell } from './reportCells';
 import { ReportItem } from './ReportItem';
 
 type Props = {
@@ -19,7 +19,8 @@ type Props = {
  * income over the term and its share of what the currency's bonds cost.
  */
 export function PortfolioBondRow({ bond: row, currency }: Props) {
-  const { isin, bond, state, quantity, invested, results, annualYield, investedShare } = row;
+  const { isin, bond, state, quantity, invested, planned, results, annualYield } = row;
+  const { investedShare } = row;
   const money = (value: number) => formatMoney(value, currency);
   const details = [
     bond && `${bond.rate}%`,
@@ -33,25 +34,24 @@ export function PortfolioBondRow({ bond: row, currency }: Props) {
     <ReportItem
       title={isin}
       aside={
-        state === 'unknown' ? (
-          <Typography variant="caption1" tone="warning">
-            Немає в даних НБУ
-          </Typography>
-        ) : (
-          <Typography
-            variant="caption1"
-            tone={state === 'planned' ? 'accent' : 'secondary'}
-            tabular
-          >
-            {bondStateLabel(state, bond?.maturityDate)}
-          </Typography>
-        )
+        <Typography
+          variant="caption1"
+          tone={state === 'unknown' ? 'warning' : state === 'planned' ? 'accent' : 'secondary'}
+          tabular
+        >
+          {bondStateLabel(state, bond?.maturityDate)}
+        </Typography>
       }
     >
       <Typography variant="caption1" tone="secondary" tabular>
         {details}
       </Typography>
       <LegendRow color="purchase" label="Вкладено" value={money(invested)} />
+      {planned > 0 && planned < invested && (
+        <Typography variant="caption1" tone="secondary">
+          з них заплановано {money(planned)}
+        </Typography>
+      )}
       {results && (
         <>
           <LegendRow color="coupon" label="Купони" value={money(results.coupons)} />

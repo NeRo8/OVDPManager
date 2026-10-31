@@ -1,8 +1,8 @@
 import { formatAmount } from '@/shared/lib';
 
+import { FORECAST_NOTE, changeCell, tableTitle, yearCell } from '../lib/reportCells';
 import type { CurrencyYears } from '../model/yearOverYearReport';
 
-import { changeCell, tableTitle } from './reportCells';
 import { ReportTable } from './ReportTable';
 
 type Props = {
@@ -19,7 +19,7 @@ export function YearsResultsTable({ report }: Props) {
       columns={['Сальдо', 'Дохід', 'Зміна доходу']}
       rows={years.map((year) => ({
         key: String(year.year),
-        label: String(year.year),
+        label: yearCell(year),
         cells: [
           formatAmount(year.balance),
           formatAmount(year.income),
@@ -36,7 +36,12 @@ export function YearsResultsTable({ report }: Props) {
         cells: [formatAmount(total.balance), formatAmount(total.income), ''],
         signedCells: [total.balance, total.income, null],
       }}
-      footer="Зміна доходу — дохід року проти попереднього. Майбутні роки — за графіком виплат і запланованими купівлями."
+      footer={[
+        'Зміна доходу — дохід року проти попереднього.',
+        years.some(({ forecast }) => forecast) && FORECAST_NOTE,
+      ]
+        .filter(Boolean)
+        .join(' ')}
     />
   );
 }

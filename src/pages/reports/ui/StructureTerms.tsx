@@ -7,10 +7,9 @@ import { CURRENCY_NAMES } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
 import { Card, ColumnChart, Typography } from '@/shared/ui';
 
+import { shareCell } from '../lib/reportCells';
+import { TERM_BUCKET_LABELS } from '../lib/structureLabels';
 import type { CurrencyStructure } from '../model/structureReport';
-
-import { shareCell } from './reportCells';
-import { TERM_BUCKET_LABELS } from './structureLabels';
 
 type Props = {
   report: CurrencyStructure;

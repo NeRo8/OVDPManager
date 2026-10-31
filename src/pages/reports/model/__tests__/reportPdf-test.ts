@@ -1,6 +1,6 @@
 import type { ActiveWallet } from '@/entities/portfolio';
 
-import type { ReportPdf } from '../reportPdf';
+import { type ReportPdf, scopeLine } from '../reportPdf';
 import { reportPdfHtml } from '../reportPdfHtml';
 
 describe('reportPdfHtml', () => {
@@ -34,8 +34,9 @@ describe('reportPdfHtml', () => {
         {
           title: 'Підсумок',
           layout: 'summary',
-          columns: ['Показник', 'Значення'],
-          rows: [['Купони', '1 000 ₴']],
+          columns: [],
+          rows: [],
+          summary: [{ label: 'Купони', value: '1 000 ₴', color: 'coupon' }],
         },
         {
           title: 'Грошові потоки',
@@ -57,5 +58,78 @@ describe('reportPdfHtml', () => {
     expect(html).toContain('class="card chart"');
     expect(html).toContain('<svg');
     expect(html).toContain('#21A0A0');
+  });
+
+  const wallet = { today: '2026-10-27', plan: { name: 'План' } } as ActiveWallet;
+
+  it('colors a value by the sign it is given, not by the words of its label', () => {
+    const html = reportPdfHtml({
+      title: 'Звіт',
+      scope: '2026',
+      fileStem: 'year-2026',
+      wallet,
+      sections: [
+        {
+          title: 'Підсумок',
+          layout: 'summary',
+          columns: [],
+          rows: [],
+          summary: [
+            { label: 'Річна дохідність', value: '-2%' },
+            { label: 'Дохід за рік', value: '−500,00 ₴', signed: -500, total: true },
+          ],
+        },
+      ],
+    });
+
+    expect(html.match(/class="negative"/g)).toHaveLength(1);
+    expect(html.match(/summary-row important/g)).toHaveLength(1);
+  });
+
+  it('colors the table cells it is told to, as the screen’s tables do', () => {
+    const html = reportPdfHtml({
+      title: 'Звіт',
+      scope: '2026',
+      fileStem: 'years',
+      wallet,
+      sections: [
+        {
+          title: 'Підсумки по роках',
+          columns: ['Рік', 'Дохід'],
+          rows: [
+            ['2025', '−10,00'],
+            ['2026', '20,00'],
+          ],
+          signedCells: [
+            [null, -10],
+            [null, 20],
+          ],
+          total: ['Разом', '10,00'],
+          totalSigned: [null, 10],
+        },
+      ],
+    });
+
+    expect(html.match(/class="negative"/g)).toHaveLength(1);
+    expect(html.match(/class="positive"/g)).toHaveLength(2);
+  });
+
+  it('names the filters that narrow the report and says when the NBU data is the saved one', () => {
+    const filters = scopeLine({ currency: 'USD', isins: ['UA4000000001'] });
+    expect(filters).toBe('Валюта: Долар · ОВДП: UA4000000001');
+    expect(scopeLine({ currency: 'USD', isins: [] }, false)).toBeUndefined();
+    expect(scopeLine({ currency: null, isins: [] })).toBeUndefined();
+
+    const html = reportPdfHtml({
+      title: 'Звіт',
+      scope: '2026',
+      fileStem: 'year-2026',
+      wallet,
+      sections: [],
+      filters,
+      stale: true,
+    });
+    expect(html).toContain('Валюта: Долар · ОВДП: UA4000000001');
+    expect(html).toContain('Не вдалося оновити дані НБУ');
   });
 });

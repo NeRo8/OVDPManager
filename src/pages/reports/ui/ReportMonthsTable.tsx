@@ -1,8 +1,6 @@
-import { MONTHS_SHORT } from '@/shared/lib';
-
+import { FLOW_COLUMNS, flowCells, monthName, tableTitle } from '../lib/reportCells';
 import type { CurrencyReport } from '../model/periodReport';
 
-import { FLOW_COLUMNS, flowCells, tableTitle } from './reportCells';
 import { ReportTable, type ReportTableLine } from './ReportTable';
 
 type Props = {
@@ -10,7 +8,6 @@ type Props = {
 };
 
 const yearOf = (month: string) => month.slice(0, 4);
-const monthName = (month: string) => MONTHS_SHORT[Number(month.slice(5, 7)) - 1];
 
 /**
  * Every month of the report in one currency. When the months span several years, each year's

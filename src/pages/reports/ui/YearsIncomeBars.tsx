@@ -7,6 +7,7 @@ import { CURRENCY_NAMES } from '@/entities/portfolio';
 import { formatMoney } from '@/shared/lib';
 import { Card, ShareBar, SignedValue, Typography } from '@/shared/ui';
 
+import { yearCell } from '../lib/reportCells';
 import type { CurrencyYears } from '../model/yearOverYearReport';
 
 type Props = {
@@ -21,11 +22,11 @@ export function YearsIncomeBars({ report }: Props) {
   return (
     <Card title={`Дохід по роках · ${CURRENCY_NAMES[currency]}`}>
       <View style={styles.years}>
-        {years.map(({ year, income }) => (
+        {years.map(({ year, income, forecast }) => (
           <View key={year} style={styles.year}>
             <View style={styles.row}>
               <Typography variant="footnote" tone="secondary" tabular>
-                {year}
+                {yearCell({ year, forecast })}
               </Typography>
               <SignedValue value={income} variant="footnote" weight="semibold" tabular>
                 {formatMoney(income, currency)}

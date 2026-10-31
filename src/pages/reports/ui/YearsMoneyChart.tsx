@@ -7,6 +7,7 @@ import { CURRENCY_NAMES } from '@/entities/portfolio';
 import { formatMoney, round2 } from '@/shared/lib';
 import { Card, type ChartSeries, ColumnChart, LegendRow, Separator } from '@/shared/ui';
 
+import { FORECAST_NOTE } from '../lib/reportCells';
 import { purchaseValues } from '../model/purchaseValues';
 import type { CurrencyYears } from '../model/yearOverYearReport';
 
@@ -22,7 +23,10 @@ type Props = {
  */
 export function YearsMoneyChart({ report }: Props) {
   const { currency, years, total } = report;
-  const columns = yearColumns(years.map(({ year }) => year));
+  const columns = yearColumns(
+    years.map(({ year }) => year),
+    years.map(({ forecast }) => forecast),
+  );
   const { made, planned } = purchaseValues(years);
   const series: ChartSeries[] = [
     { label: 'купони', color: 'coupon', values: years.map((year) => year.coupons) },
@@ -43,7 +47,12 @@ export function YearsMoneyChart({ report }: Props) {
   return (
     <Card
       title={`Гроші по роках · ${CURRENCY_NAMES[currency]}`}
-      footer="Виплати — над лінією, купівлі — під нею; суми в легенді — за всі роки."
+      footer={[
+        'Виплати — над лінією, купівлі — під нею; суми в легенді — за всі роки.',
+        years.some(({ forecast }) => forecast) && FORECAST_NOTE,
+      ]
+        .filter(Boolean)
+        .join(' ')}
     >
       <ColumnChart columns={columns} series={series} currency={currency} />
       <Separator variant="card" />

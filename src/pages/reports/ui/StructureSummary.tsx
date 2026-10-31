@@ -3,9 +3,8 @@ import { CURRENCY_NAMES } from '@/entities/portfolio';
 import { formatDate, formatMoney, formatTimeLeft } from '@/shared/lib';
 import { InfoRow, Section } from '@/shared/ui';
 
+import { shareCell } from '../lib/reportCells';
 import type { CurrencyStructure } from '../model/structureReport';
-
-import { shareCell } from './reportCells';
 
 type Props = {
   report: CurrencyStructure;
@@ -14,10 +13,15 @@ type Props = {
 
 /** The money in one currency's bonds: how much, for how long on average, at what rate. */
 export function StructureSummary({ report, today }: Props) {
-  const { currency, total, bonds, averageMaturity, averageRate } = report;
+  const { currency, total, planned, bonds, averageMaturity, averageRate } = report;
   const largest = bonds[0];
   const rows = [
     { label: 'Вкладено', value: formatMoney(total, currency) },
+    planned > 0 && {
+      label: 'З них заплановано',
+      hint: 'Купівлі, яких ще не зроблено',
+      value: formatMoney(planned, currency),
+    },
     { label: 'ОВДП', value: String(bonds.length) },
     {
       label: 'Середній строк до погашення',

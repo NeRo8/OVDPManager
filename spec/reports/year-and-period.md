@@ -8,7 +8,7 @@
 
 - Розрахунок: `src/pages/reports/model/periodReport.ts` (`periodReport`), `model/yearReport.ts`, `model/periodChart.ts` (`periodChartPeriods`), `model/purchaseValues.ts`, `model/reportTerms.ts`.
 - Фільтри: `src/features/report-filters/model/fitReportFilters.ts` (`FITTERS.year`, `FITTERS.period`), `model/periodDates.ts` (`PERIOD_OPTIONS`, `periodDates`, `walletSpan`), `model/reportYears.ts`, `model/reportFilters/actions.ts` (`chooseReportYear`, `chooseReportPeriod`).
-- Екрани: `src/pages/reports/ui/YearReportScreen.tsx`, `PeriodReportScreen.tsx`, `CurrencyReportList.tsx`, `PeriodFlowsChart.tsx`, `PeriodSummary.tsx`, `PeriodYield.tsx`, `ReportMonthsTable.tsx`, `ReportBondRow.tsx`, `periodLabels.ts`, `YearFiltersSection.tsx`, `PeriodFiltersSection.tsx`.
+- Екрани: `src/pages/reports/ui/YearReportScreen.tsx`, `PeriodReportScreen.tsx`, `CurrencyReportList.tsx`, `PeriodFlowsChart.tsx`, `PeriodSummary.tsx`, `PeriodYield.tsx`, `ReportMonthsTable.tsx`, `ReportBondRow.tsx`, `YearFiltersSection.tsx`, `PeriodFiltersSection.tsx`; `src/pages/reports/lib/periodLabels.ts` (`PERIOD_LABELS`, `formatPeriod`), `lib/reportCells.ts`.
 - PDF: `periodPdf` у `src/pages/reports/model/reportPdf.ts`.
 - Доменні розрахунки: `positionIncome` (DOM-29), `resultsByCurrency` (DOM-31 … DOM-34), «Річна дохідність» позиції (DOM-30), виплати позиції (DOM-21, DOM-22).
 
@@ -122,13 +122,13 @@
 
 ### PDF
 
-**RPER-30.** `periodPdf(title, scope, fileStem, …)`: назва «Звіт за рік» або «Звіт за період»; `scope` — рік або «ДД.ММ.РРРР – ДД.ММ.РРРР» (без назви пресету й без «Цей рік»); `fileStem` — `year-<рік>` або `period`. Для кожної валюти розділи:
+**RPER-30.** `periodPdf(title, scope, fileStem, …)` повторює екран (`CurrencyReportList`): назва «Звіт за рік» або «Звіт за період»; `scope` — рік або «ДД.ММ.РРРР – ДД.ММ.РРРР» (без назви пресету й без «Цей рік»); `fileStem` — `year-<рік>` або `period-<from>-<to>` (дати `YYYY-MM-DD`, напр. `period-2025-10-01-2026-09-30`); під назвою — рядок фільтрів валюти й ОВДП (PDF-07). Кнопка вимкнена, коли жодна валюта не має подій (PDF-01). Для кожної валюти розділи:
 
-1. графік «Грошові потоки по <місяцях | роках> · <Валюта>» (стовпці, серії як RPER-24, підписи — короткі місяці або роки, PDF-11);
-2. «Підсумок · <Валюта>» (`summary`): «Вкладено», «Купони», «Погашення», «Купони в середньому за місяць», примітка — та сама, що на екрані;
-3. «Дохідність · <Валюта>» (якщо `annualYield !== null`): ті самі рядки, що на екрані;
-4. таблиця «По місяцях · <Валюта>»: «Місяць» (у вигляді `РРРР-ММ`, без рядків-років), «Купівлі», «Купони», «Погашення», «Разом»; нуль — «0,00», а не «—»;
-5. «По ОВДП · <Валюта>» (`items`): «ISIN», «Купівлі», «Купони», «Погашення», «Дохід за рік» / «Дохід за період», «Річна дохідність», «Частка доходу» (без округлення до цілих, `null` → «—» і рядок пропущено); нульові суми показано як «0,00».
+1. графік «Грошові потоки по <місяцях | роках> · <Валюта>» (стовпці, серії як RPER-24, підписи — короткі назви місяців `monthName` («січ») або роки, PDF-11);
+2. «Підсумок · <Валюта>» (`summary`): «Вкладено», «Купони», «Погашення» (з квадратиками кольорів серій), «Сальдо року | періоду» і «Дохід за рік | за період» (напівжирні, колір за знаком), «Купони в середньому за місяць» (напівжирний); примітка — `summaryFooter`, як на екрані (RPER-25);
+3. «Дохідність · <Валюта>» (якщо `annualYield !== null`): ті самі рядки й зноска, що на екрані (RPER-26);
+4. таблиця «По місяцях · <Валюта>»: «Місяць» (`monthName`), «Купівлі», «Купони», «Погашення» (`amountCell`, нуль — «—»), «Разом»; коли місяці охоплюють кілька років, перед першим місяцем кожного року — рядок-група з роком (напівжирний, PDF-09), як RPER-27;
+5. «По ОВДП · <Валюта>» (`items`): заголовок — ISIN; «Річна дохідність», «Купони», «Погашення», «Купівлі», «Дохід за рік» / «Дохід за період», «Частка доходу» (`shareCell`, зі смужкою). Нульові суми (`amountCell` → «—») і частка `null` пропускаються (PDF-09), тож рядок ОВДП показує ті самі суми, що й RPER-28. Дохід ОВДП у PDF не фарбується.
 
 ## Стани
 

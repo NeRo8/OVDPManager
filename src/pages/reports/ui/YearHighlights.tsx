@@ -17,18 +17,21 @@ export function YearHighlights({ report }: Props) {
     highestIncome && {
       label: 'Найбільший дохід',
       year: highestIncome.year,
+      forecast: highestIncome.forecast,
       value: highestIncome.income,
       signedValue: highestIncome.income,
     },
     highestPayments && {
       label: 'Найбільше виплат',
       year: highestPayments.year,
+      forecast: highestPayments.forecast,
       value: highestPayments.totalPayments,
       signedValue: undefined,
     },
     highestInvested && {
       label: 'Найбільше вкладено',
       year: highestInvested.year,
+      forecast: highestInvested.forecast,
       value: highestInvested.invested,
       signedValue: undefined,
     },
@@ -41,7 +44,7 @@ export function YearHighlights({ report }: Props) {
         <InfoRow
           key={row.label}
           label={row.label}
-          hint={`${row.year} рік`}
+          hint={`${row.year} рік${row.forecast ? ', прогноз' : ''}`}
           value={formatMoney(row.value, currency)}
           signedValue={row.signedValue}
         />

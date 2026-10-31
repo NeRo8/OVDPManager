@@ -8,9 +8,8 @@ import {
 
 import { CheckRow, DateField, FieldRow, Section } from '@/shared/ui';
 
+import { PERIOD_LABELS, formatPeriod } from '../lib/periodLabels';
 import { useReport } from '../model/useReport.hook';
-
-import { PERIOD_LABELS, formatPeriod } from './periodLabels';
 
 /** The period the period report covers; the dates can be set by hand only for the own period. */
 export function PeriodFiltersSection() {

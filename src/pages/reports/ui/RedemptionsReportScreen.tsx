@@ -8,11 +8,11 @@ import { type PositionPayment, ScheduleEventRow, WalletGate } from '@/entities/p
 
 import { SectionCell } from '@/shared/ui';
 
+import { REDEMPTION_TIME_LABELS } from '../lib/redemptionLabels';
 import { type CurrencyRedemptions, redemptionsReport } from '../model/redemptionsReport';
 import { redemptionsPdf } from '../model/reportPdf';
 import { useReport } from '../model/useReport.hook';
 
-import { REDEMPTION_TIME_LABELS } from './redemptionLabels';
 import { RedemptionsCurrencyHeader } from './RedemptionsCurrencyHeader';
 import { RedemptionsEmpty } from './RedemptionsEmpty';
 import { ReportHeaderActions } from './ReportHeaderActions';
@@ -60,9 +60,15 @@ export default function RedemptionsReportScreen() {
           headerRight: () => (
             <ReportHeaderActions
               activeFilterCount={activeFilterCount}
+              scope={filters}
+              available={currencies.length > 0}
               report="redemptions"
               createDocument={() =>
-                redemptionsPdf(wallet, REDEMPTION_TIME_LABELS[filters.time], currencies)
+                redemptionsPdf(
+                  wallet,
+                  `${REDEMPTION_TIME_LABELS[filters.time]} погашення`,
+                  currencies,
+                )
               }
             />
           ),

@@ -7,6 +7,7 @@ import { CURRENCY_NAMES, WalletGate } from '@/entities/portfolio';
 import { formatDate } from '@/shared/lib';
 import { SectionCell } from '@/shared/ui';
 
+import { PORTFOLIO_STATUS_TITLES } from '../lib/portfolioLabels';
 import {
   type CurrencyPortfolio,
   type PortfolioBond,
@@ -18,7 +19,6 @@ import { useReport } from '../model/useReport.hook';
 import { BondStatusEmpty } from './BondStatusEmpty';
 import { PortfolioBondRow } from './PortfolioBondRow';
 import { PortfolioInvestmentChart } from './PortfolioInvestmentChart';
-import { PORTFOLIO_STATUS_TITLES } from './portfolioLabels';
 import { PortfolioSummary } from './PortfolioSummary';
 import { ReportHeaderActions } from './ReportHeaderActions';
 import { ReportHeading } from './ReportHeading';
@@ -68,6 +68,8 @@ export default function PortfolioReportScreen() {
           headerRight: () => (
             <ReportHeaderActions
               activeFilterCount={activeFilterCount}
+              scope={filters}
+              available={currencies.length > 0}
               report="portfolio"
               createDocument={() =>
                 portfolioPdf(wallet, PORTFOLIO_STATUS_TITLES[filters.status], currencies)

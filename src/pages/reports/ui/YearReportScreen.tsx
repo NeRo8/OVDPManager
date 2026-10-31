@@ -34,6 +34,8 @@ export default function YearReportScreen() {
           headerRight: () => (
             <ReportHeaderActions
               activeFilterCount={activeFilterCount}
+              scope={filters}
+              available={currencies.length > 0}
               report="year"
               createDocument={() =>
                 periodPdf(

@@ -35,6 +35,8 @@ export type CurrencyRedemptions = {
   total: number;
   received: number;
   expected: number;
+  /** The part of `expected` that repays bonds of purchases still planned */
+  planned: number;
   /** By date */
   payments: PositionPayment[];
   /** From the first redemption's year to the last's */
@@ -84,6 +86,9 @@ export function redemptionsReport(wallet: Wallet, time: RedemptionTime): Currenc
         total,
         received: sumTotals(payments.filter((payment) => payment.isPaid)),
         expected: sumTotals(payments.filter((payment) => !payment.isPaid)),
+        planned: round2(
+          payments.reduce((sum, payment) => sum + payment.amount * payment.plannedQuantity, 0),
+        ),
         payments,
         years,
         next: payments.find((payment) => !payment.isPaid),

@@ -6,13 +6,13 @@ import { WalletGate } from '@/entities/portfolio';
 
 import { EmptyState } from '@/shared/ui';
 
+import { PERIOD_LABELS, formatPeriod } from '../lib/periodLabels';
 import { periodReport } from '../model/periodReport';
 import { periodPdf } from '../model/reportPdf';
 import { PERIOD_TERMS } from '../model/reportTerms';
 import { useReport } from '../model/useReport.hook';
 
 import { CurrencyReportList } from './CurrencyReportList';
-import { PERIOD_LABELS, formatPeriod } from './periodLabels';
 import { ReportHeaderActions } from './ReportHeaderActions';
 import { ReportHeading } from './ReportHeading';
 
@@ -33,12 +33,14 @@ export default function PeriodReportScreen() {
           headerRight: () => (
             <ReportHeaderActions
               activeFilterCount={activeFilterCount}
+              scope={filters}
+              available={currencies.length > 0}
               report="period"
               createDocument={() =>
                 periodPdf(
                   'Звіт за період',
                   formatPeriod(period),
-                  'period',
+                  `period-${period.from}-${period.to}`,
                   wallet,
                   currencies,
                   PERIOD_TERMS,

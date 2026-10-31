@@ -2,7 +2,7 @@ import type { PortfolioStatus } from '@/features/report-filters';
 
 import { SegmentedSection } from '@/shared/ui';
 
-import { PORTFOLIO_STATUS_LABELS } from './portfolioLabels';
+import { PORTFOLIO_STATUS_LABELS } from '../lib/portfolioLabels';
 
 type Props = {
   value: PortfolioStatus;

@@ -1,8 +1,8 @@
 import type { ExchangeCurrency } from '@/entities/portfolio';
 
+import { amountCell } from '../lib/reportCells';
 import type { FxReport } from '../model/fxReport';
 
-import { amountCell } from './reportCells';
 import { ReportTable } from './ReportTable';
 
 type Props = { report: FxReport; currency: ExchangeCurrency };

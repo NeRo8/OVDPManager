@@ -39,6 +39,8 @@ export type CurrencyStructure = {
   currency: Currency;
   /** What the bonds still in circulation cost */
   total: number;
+  /** The part of `total` that is purchases still planned; 0 when only those made count */
+  planned: number;
   /** The day the money stays in bonds on average, weighted by amount */
   averageMaturity: string;
   /** The coupon rate weighted by amount, % */
@@ -74,10 +76,14 @@ export function structureReport(wallet: Wallet, purchases: StructurePurchases): 
   const inCirculation = wallet.positions.filter(({ state }) => state !== 'redeemed');
   const held = inCirculation.flatMap(({ position, bond, currency }) => {
     if (!bond) return [];
-    const amount = position.purchases
-      .filter((purchase) => purchases === 'all' || !isPlannedPurchase(purchase, today))
+    const counted = position.purchases.filter(
+      (purchase) => purchases === 'all' || !isPlannedPurchase(purchase, today),
+    );
+    const amount = counted.reduce((sum, purchase) => sum + purchase.amount, 0);
+    const planned = counted
+      .filter((purchase) => isPlannedPurchase(purchase, today))
       .reduce((sum, purchase) => sum + purchase.amount, 0);
-    return amount > 0 ? [{ isin: position.isin, bond, currency, amount }] : [];
+    return amount > 0 ? [{ isin: position.isin, bond, currency, amount, planned }] : [];
   });
 
   const currencies = CURRENCIES.flatMap((currency): CurrencyStructure[] => {
@@ -92,6 +98,7 @@ export function structureReport(wallet: Wallet, purchases: StructurePurchases): 
       {
         currency,
         total,
+        planned: round2(bonds.reduce((sum, item) => sum + item.planned, 0)),
         averageMaturity: addDaysISO(
           today,
           Math.round(weighted((bond) => daysBetween(today, bond.maturityDate))),

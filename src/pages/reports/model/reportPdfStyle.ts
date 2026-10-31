@@ -15,6 +15,8 @@ export const reportPdfStyle = `
   h1 { font-size: 23px; line-height: 1.2; margin: 0 0 5px; font-weight: 700; }
   .report-name { margin: 0; font-size: 13px; color: ${light.secondaryText}; }
   .meta { margin-top: 13px; color: ${light.secondaryText}; font-size: 10px; }
+  .meta + .meta { margin-top: 3px; }
+  .stale { margin: 10px 0 0; padding: 7px 10px; border-radius: 8px; background: ${light.warningSurface}; color: ${light.warning}; font-size: 10px; }
   section { margin: 0 0 18px; break-inside: avoid; page-break-inside: avoid; }
   h2 { margin: 0 0 7px 14px; break-after: avoid; page-break-after: avoid; }
   .card { background: ${light.card}; border: 1px solid ${light.border}; border-radius: 12px; padding: 13px 15px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
@@ -24,7 +26,7 @@ export const reportPdfStyle = `
   .summary-row.important .summary-label { color: ${light.text}; }
   .summary-label small { display: block; font-size: 9px; color: ${light.secondaryText}; font-weight: 400; margin-top: 2px; }
   .summary-row strong { text-align: right; white-space: nowrap; font-weight: 600; font-variant-numeric: tabular-nums; }
-  .summary-row strong.positive { color: ${light.positive}; } .summary-row strong.negative { color: ${light.danger}; }
+  .positive { color: ${light.positive}; } .negative { color: ${light.danger}; }
   .swatch, .legend i { display: inline-block; flex: none; width: 8px; height: 8px; border-radius: 3px; }
   table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 10px; font-variant-numeric: tabular-nums; }
   thead { display: table-header-group; } tr { break-inside: avoid; page-break-inside: avoid; }

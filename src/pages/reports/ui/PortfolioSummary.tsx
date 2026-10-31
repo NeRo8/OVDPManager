@@ -16,13 +16,22 @@ type Props = {
  * what they come to over their whole term.
  */
 export function PortfolioSummary({ report }: Props) {
-  const { currency, total, bonds, unknownCount } = report;
+  const { currency, total, bonds, unknownCount, planned } = report;
   const money = (value: number) => formatMoney(value, currency);
   const rows: { label: string; value: ReactNode; hint?: string }[] = [
     { label: 'ОВДП', value: String(bonds.length) },
     ...(total
       ? [
           { label: 'Вкладено', value: money(total.invested) },
+          ...(planned > 0
+            ? [
+                {
+                  label: 'З них заплановано',
+                  hint: 'Купівлі, яких ще не зроблено',
+                  value: money(planned),
+                },
+              ]
+            : []),
           { label: 'Купони', value: money(total.coupons) },
           { label: 'Погашення', value: money(total.redemption) },
           { label: 'Усього виплат', value: money(total.totalPayments) },

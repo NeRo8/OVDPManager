@@ -1,13 +1,11 @@
+import { QUARTER_LABELS, amountCell, shareCell, tableTitle } from '../lib/reportCells';
 import type { CurrencyRedemptions } from '../model/redemptionsReport';
 
-import { amountCell, shareCell, tableTitle } from './reportCells';
 import { ReportTable, type ReportTableLine } from './ReportTable';
 
 type Props = {
   report: CurrencyRedemptions;
 };
-
-const QUARTERS = ['', 'I кв.', 'II кв.', 'III кв.', 'IV кв.'];
 
 /** Each year's redemptions in one currency, then its quarters that have any. */
 export function RedemptionsTable({ report }: Props) {
@@ -20,7 +18,7 @@ export function RedemptionsTable({ report }: Props) {
     },
     ...quarters.map((quarter) => ({
       key: `${year}-${quarter.quarter}`,
-      label: QUARTERS[quarter.quarter],
+      label: QUARTER_LABELS[quarter.quarter],
       cells: [amountCell(quarter.total), shareCell(quarter.share)],
     })),
   ]);

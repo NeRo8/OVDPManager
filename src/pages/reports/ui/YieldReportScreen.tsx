@@ -7,12 +7,12 @@ import { CURRENCY_NAMES, WalletGate } from '@/entities/portfolio';
 import { formatDate } from '@/shared/lib';
 import { SectionCell } from '@/shared/ui';
 
+import { PORTFOLIO_STATUS_TITLES } from '../lib/portfolioLabels';
 import { yieldPdf } from '../model/reportPdf';
 import { useYieldReport } from '../model/useYieldReport.hook';
 import { type CurrencyYield, type YieldBond, yieldReport } from '../model/yieldReport';
 
 import { BondStatusEmpty } from './BondStatusEmpty';
-import { PORTFOLIO_STATUS_TITLES } from './portfolioLabels';
 import { ReportHeaderActions } from './ReportHeaderActions';
 import { ReportHeading } from './ReportHeading';
 import { ReportList } from './ReportList';
@@ -80,6 +80,8 @@ export default function YieldReportScreen() {
           headerRight: () => (
             <ReportHeaderActions
               activeFilterCount={activeFilterCount}
+              scope={filters}
+              available={currencies.length > 0}
               report="yield"
               createDocument={() =>
                 yieldPdf(wallet, PORTFOLIO_STATUS_TITLES[filters.status], currencies)

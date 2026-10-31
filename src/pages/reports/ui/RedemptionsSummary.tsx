@@ -11,13 +11,18 @@ type Props = {
 
 /** The redemptions in one currency summed up, with the nearest and the last one. */
 export function RedemptionsSummary({ report }: Props) {
-  const { currency, total, received, expected, next, last } = report;
+  const { currency, total, received, expected, planned, next, last } = report;
   const money = (value: number) => formatMoney(value, currency);
   const describe = (payment: PositionPayment) => `${payment.isin} · ${formatDate(payment.date)}`;
   const rows = [
     { label: 'Усього погашень', value: money(total) },
     received > 0 && expected > 0 && { label: 'Отримано', value: money(received) },
     received > 0 && expected > 0 && { label: 'Очікується', value: money(expected) },
+    planned > 0 && {
+      label: 'З них від запланованих купівель',
+      hint: 'Погашення ОВДП, які ще лише заплановано купити',
+      value: money(planned),
+    },
     next && { label: 'Найближче погашення', hint: describe(next), value: money(next.total) },
     last !== next && { label: 'Останнє погашення', hint: describe(last), value: money(last.total) },
   ].filter((row) => !!row);

@@ -8,6 +8,7 @@ import {
   type PositionResults,
   type PositionState,
   type Wallet,
+  isPlannedPurchase,
   resultsByCurrency,
 } from '@/entities/portfolio';
 
@@ -21,6 +22,8 @@ export type PortfolioBond = {
   state: PositionState;
   quantity: number;
   invested: number;
+  /** The part of `invested` that is purchases still planned */
+  planned: number;
   /** Its payments and net income; missing without the NBU data */
   results?: PositionResults;
   /** «Річна дохідність»; null until NBU publishes the redemption */
@@ -34,6 +37,8 @@ export type CurrencyPortfolio = {
   currency: Currency;
   /** The bonds the NBU data has, summed up; missing when it has none of them */
   total?: CurrencyResults;
+  /** The part of `total.invested` that is purchases still planned */
+  planned: number;
   /** By maturity, those missing from the NBU data last */
   bonds: PortfolioBond[];
   /** Bonds missing from the NBU data, left out of the total */
@@ -52,11 +57,21 @@ export function portfolioReport(wallet: Wallet, status: PortfolioStatus): Curren
     );
     if (!inCurrency.length) return [];
     const invested = inCurrency.reduce((sum, item) => sum + item.position.investedAmount, 0);
+    const plannedOf = (purchases: { purchaseDate: string; amount: number }[]) =>
+      round2(
+        purchases
+          .filter((purchase) => isPlannedPurchase(purchase, wallet.today))
+          .reduce((sum, purchase) => sum + purchase.amount, 0),
+      );
 
     return [
       {
         currency,
         total: resultsByCurrency(inCurrency).at(0),
+        // As `total`, the bonds missing from the NBU data left out.
+        planned: plannedOf(
+          inCurrency.flatMap(({ position, results }) => (results ? position.purchases : [])),
+        ),
         bonds: inCurrency
           .map(({ position, bond, state, results, annualYield }): PortfolioBond => ({
             isin: position.isin,
@@ -64,6 +79,7 @@ export function portfolioReport(wallet: Wallet, status: PortfolioStatus): Curren
             state,
             quantity: position.quantity,
             invested: position.investedAmount,
+            planned: plannedOf(position.purchases),
             results,
             annualYield,
             investedShare: invested > 0 ? round2((position.investedAmount / invested) * 100) : 0,

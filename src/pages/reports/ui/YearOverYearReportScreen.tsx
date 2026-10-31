@@ -46,6 +46,8 @@ export default function YearOverYearReportScreen() {
             headerRight: () => (
               <ReportHeaderActions
                 activeFilterCount={activeFilterCount}
+                scope={filters}
+                available={currencies.length > 0}
                 report="yearOverYear"
                 createDocument={() => yearsPdf(wallet, currencies)}
               />

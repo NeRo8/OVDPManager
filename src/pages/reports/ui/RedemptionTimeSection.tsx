@@ -2,9 +2,8 @@ import { type RedemptionTime, updateReportFilters } from '@/features/report-filt
 
 import { SegmentedSection } from '@/shared/ui';
 
+import { REDEMPTION_TIME_LABELS } from '../lib/redemptionLabels';
 import { useReport } from '../model/useReport.hook';
-
-import { REDEMPTION_TIME_LABELS } from './redemptionLabels';
 
 const TIME_OPTIONS = (['upcoming', 'past', 'all'] as const).map((value) => ({
   label: REDEMPTION_TIME_LABELS[value],

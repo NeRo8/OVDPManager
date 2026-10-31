@@ -74,12 +74,20 @@ function columnChart(chart: Extract<PdfChart, { kind: 'columns' }>): string {
   return groups.join('') + chartLegend(chart.series);
 }
 
+/** The class that colors a value by its sign, as `SignedValue`: none at zero. */
+const toneOf = (signed: number | null | undefined) =>
+  signed === undefined || signed === null || signed === 0
+    ? ''
+    : signed > 0
+      ? 'positive'
+      : 'negative';
+
 function barChart(chart: Extract<PdfChart, { kind: 'bars' }>): string {
   const max = Math.max(1, ...chart.bars.map(({ value }) => Math.abs(value)));
   return `<div class="bars">${chart.bars
     .map(
       (bar) => `
-    <div class="bar-row"><div class="bar-head"><span>${escapeHtml(bar.label)}</span><strong>${escapeHtml(bar.detail)}</strong></div>
+    <div class="bar-row"><div class="bar-head"><span>${escapeHtml(bar.label)}</span><strong class="${toneOf(bar.signed)}">${escapeHtml(bar.detail)}</strong></div>
     <div class="bar-track"><div class="bar-fill" style="width:${Math.min(100, (Math.abs(bar.value) / max) * 100).toFixed(1)}%;background:${chartColor(bar.color)}"></div></div></div>`,
     )
     .join('')}</div>`;
@@ -121,35 +129,26 @@ function renderChart(chart: PdfChart): string {
 }
 
 function renderSummary(section: PdfSection): string {
-  return section.rows
-    .map(([label, value, hint]) => {
-      const color = label.toLowerCase().includes('купон')
-        ? 'coupon'
-        : label.toLowerCase().includes('погашен')
-          ? 'redemption'
-          : label.toLowerCase().includes('купівл') || label.toLowerCase().includes('вкладено')
-            ? 'purchase'
-            : null;
-      const important = /сальдо|дохід|різниця|усього|середня річна/i.test(label);
-      const signed = /сальдо|дохід|різниця|результат/i.test(label)
-        ? value.trim().startsWith('-') || value.trim().startsWith('−')
-          ? ' negative'
-          : value !== '—' && !value.startsWith('0')
-            ? ' positive'
-            : ''
-        : '';
-      return `<div class="summary-row${important ? ' important' : ''}"><span class="summary-label">
-      ${color ? `<i class="swatch" style="background:${chartColor(color)}"></i>` : ''}<span>${escapeHtml(label)}${hint ? `<small>${escapeHtml(hint)}</small>` : ''}</span></span>
-      <strong class="${signed}">${escapeHtml(value)}</strong></div>`;
+  return (section.summary ?? [])
+    .map(({ label, value, hint, color, signed, total }) => {
+      const tone = toneOf(signed);
+      const swatch = color ? `<i class="swatch" style="background:${chartColor(color)}"></i>` : '';
+      const note = hint ? `<small>${escapeHtml(hint)}</small>` : '';
+      return `<div class="summary-row${total ? ' important' : ''}"><span class="summary-label">
+      ${swatch}<span>${escapeHtml(label)}${note}</span></span>
+      <strong class="${tone}">${escapeHtml(value)}</strong></div>`;
     })
     .join('');
 }
 
 function renderTable(section: PdfSection): string {
-  const row = (cells: string[], kind = '') =>
-    `<tr class="${kind}">${cells.map((cell) => `<${kind === 'heading' ? 'th' : 'td'}>${escapeHtml(cell)}</${kind === 'heading' ? 'th' : 'td'}>`).join('')}</tr>`;
-  return `<table><thead>${row(section.columns, 'heading')}</thead><tbody>${section.rows.map((cells) => row(cells)).join('')}
-    ${section.total ? row(section.total, 'total') : ''}</tbody></table>`;
+  const row = (cells: string[], kind = '', signed: (number | null)[] = []) => {
+    const tag = kind === 'heading' ? 'th' : 'td';
+    return `<tr class="${kind}">${cells.map((cell, index) => `<${tag} class="${toneOf(signed[index])}">${escapeHtml(cell)}</${tag}>`).join('')}</tr>`;
+  };
+  const kindOf = (index: number) => (section.groupRows?.includes(index) ? 'total' : '');
+  return `<table><thead>${row(section.columns, 'heading')}</thead><tbody>${section.rows.map((cells, index) => row(cells, kindOf(index), section.signedCells?.[index])).join('')}
+    ${section.total ? row(section.total, 'total', section.totalSigned) : ''}</tbody></table>`;
 }
 
 function renderItems(section: PdfSection): string {
@@ -161,8 +160,9 @@ function renderItems(section: PdfSection): string {
           .map((value, index) => {
             const label = section.columns[index + 1];
             if (value === '—') return '';
+            // «<1%» still shows a sliver, as the screen's bar does.
             const share = label.toLowerCase().includes('частка')
-              ? Number(value.replace('%', '').replace(',', '.'))
+              ? Number(value.replace('<', '').replace('%', '').replace(',', '.'))
               : null;
             return `<div class="item-detail"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong>
         ${share !== null && Number.isFinite(share) ? `<div class="mini-track"><div style="width:${Math.min(100, Math.max(0, share))}%;"></div></div>` : ''}</div>`;
@@ -189,15 +189,16 @@ function renderSection(section: PdfSection): string {
 
 /** Escapes plan names and report data before passing HTML to the native PDF renderer. */
 export function reportPdfHtml(document: ReportPdf): string {
-  const { title, scope, wallet, sections } = document;
+  const { title, scope, wallet, sections, filters, stale } = document;
   const content =
     sections.length === 0
-      ? '<div class="card empty">За обраними фільтрами даних для звіту немає.</div>'
+      ? '<div class="card empty">Даних для звіту немає.</div>'
       : sections.map(renderSection).join('');
   return `<!DOCTYPE html><html lang="uk"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>${reportPdfStyle}</style></head><body>
     <header class="report-head"><p class="eyebrow">ОВДП Портфель · Звіт</p><h1>${escapeHtml(scope)}</h1>
-    <p class="report-name">${escapeHtml(title)}</p><div class="meta">План «${escapeHtml(wallet.plan?.name ?? '')}» · сформовано ${escapeHtml(formatDate(wallet.today))}</div></header>
+    <p class="report-name">${escapeHtml(title)}</p>${filters ? `<div class="meta">${escapeHtml(filters)}</div>` : ''}<div class="meta">План «${escapeHtml(wallet.plan?.name ?? '')}» · сформовано ${escapeHtml(formatDate(wallet.today))}</div>
+    ${stale ? '<p class="stale">Не вдалося оновити дані НБУ — показано збережені.</p>' : ''}</header>
     ${content}<footer>Джерело умов ОВДП та ставок: НБУ · План «${escapeHtml(wallet.plan?.name ?? '')}»</footer>
     </body></html>`;
 }
