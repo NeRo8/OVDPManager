@@ -9,13 +9,13 @@ import type { BondReport, CurrencyReport } from '../model/periodReport';
 import type { ReportTerms } from '../model/reportTerms';
 
 import { PeriodFlowsChart } from './PeriodFlowsChart';
-import { ReportBondHighlights } from './ReportBondHighlights';
+import { PeriodSummary } from './PeriodSummary';
+import { PeriodYield } from './PeriodYield';
 import { ReportBondRow } from './ReportBondRow';
 import { ReportList } from './ReportList';
 import { ReportListHeader } from './ReportListHeader';
 import { ReportMonthsTable } from './ReportMonthsTable';
 import { ReportSectionHeader } from './ReportSectionHeader';
-import { ReportSummary } from './ReportSummary';
 
 /** A currency of the report: its sums head the section, its bonds are the rows. */
 type CurrencySection = { report: CurrencyReport; data: BondReport[] };
@@ -33,8 +33,8 @@ type Props = {
 const keyOf = (bond: BondReport) => bond.isin;
 
 /**
- * The year or the period report, every currency apart: its sums, the bonds that stand out and a
- * table by month head the section, then a row for each bond.
+ * The year or the period report, every currency apart: its cash flows by month, its sums, its
+ * bonds' yield and a table by month head the section, then a row for each bond.
  */
 export function CurrencyReportList({ wallet, reports, terms, heading, empty }: Props) {
   const sections = reports.map((report): CurrencySection => ({ report, data: report.bonds }));
@@ -45,9 +45,9 @@ export function CurrencyReportList({ wallet, reports, terms, heading, empty }: P
     section: SectionListData<BondReport, CurrencySection>;
   }) => (
     <ReportSectionHeader rowsTitle={`По ОВДП · ${CURRENCY_NAMES[report.currency]}`}>
-      <ReportSummary report={report} terms={terms} />
-      <ReportBondHighlights report={report} terms={terms} />
       <PeriodFlowsChart report={report} />
+      <PeriodSummary report={report} terms={terms} />
+      <PeriodYield report={report} terms={terms} />
       <ReportMonthsTable report={report} />
     </ReportSectionHeader>
   );

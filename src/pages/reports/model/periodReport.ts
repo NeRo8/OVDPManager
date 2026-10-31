@@ -5,6 +5,7 @@ import {
   type ScheduleEvent,
   type Wallet,
   positionIncome,
+  resultsByCurrency,
   sumTotals,
 } from '@/entities/portfolio';
 
@@ -35,14 +36,10 @@ export type BondReport = Flows & {
   incomeShare: number | null;
 };
 
-/**
- * The bonds that stand out in the period; each is left out when there are not two to compare, and
- * the largest income when none is above zero.
- */
+/** The bonds with the highest and the lowest yield; left out when there are not two to compare. */
 export type BondHighlights = {
   highestYield?: BondReport;
   lowestYield?: BondReport;
-  highestIncome?: BondReport;
 };
 
 /** The period of the wallet in one currency. */
@@ -58,6 +55,10 @@ export type CurrencyReport = Flows & {
   balance: number;
   /** «Дохід»: coupons plus what the redemptions brought over the cost of the bonds repaid */
   income: number;
+  /** The coupons spread over the period's months; redemptions return the money put in */
+  averageMonthlyCoupons: number;
+  /** «Річна дохідність» of the period's bonds, averaged by what they cost; null when none is known */
+  annualYield: number | null;
   /** Every month of the period, the earliest first */
   months: MonthFlows[];
   /** Bonds with a purchase or a payment in the period, in wallet order */
@@ -77,12 +78,9 @@ function bondHighlights(bonds: BondReport[]): BondHighlights {
   const byYield = bonds
     .filter((bond) => bond.annualYield !== null)
     .sort((first, second) => (second.annualYield ?? 0) - (first.annualYield ?? 0));
-  const byIncome = [...bonds].sort((first, second) => second.income - first.income);
-  const highestIncome = byIncome.length > 1 && byIncome[0].income > 0 ? byIncome[0] : undefined;
   return {
     highestYield: byYield.length > 1 ? byYield[0] : undefined,
     lowestYield: byYield.length > 1 ? byYield.at(-1) : undefined,
-    highestIncome,
   };
 }
 
@@ -100,20 +98,19 @@ export function periodReport(wallet: Wallet, from: string, to: string): Currency
     );
     const total = flows(inCurrency);
     const totalPayments = round2(total.coupons + total.redemptions);
-    const bonds = wallet.positions
-      .filter((item) => item.currency === currency)
-      .flatMap((item): Omit<BondReport, 'incomeShare'>[] => {
-        const bondEvents = inCurrency.filter((event) => event.isin === item.position.isin);
-        if (!bondEvents.length) return [];
-        return [
-          {
-            isin: item.position.isin,
-            ...flows(bondEvents),
-            income: positionIncome(item, from, to),
-            annualYield: item.annualYield,
-          },
-        ];
-      });
+    const positions = wallet.positions.filter(
+      (item) =>
+        item.currency === currency && inCurrency.some((event) => event.isin === item.position.isin),
+    );
+    const bonds = positions.map((item): Omit<BondReport, 'incomeShare'> => {
+      const bondEvents = inCurrency.filter((event) => event.isin === item.position.isin);
+      return {
+        isin: item.position.isin,
+        ...flows(bondEvents),
+        income: positionIncome(item, from, to),
+        annualYield: item.annualYield,
+      };
+    });
 
     const income = round2(bonds.reduce((sum, bond) => sum + bond.income, 0));
     const withShares = bonds.map((bond): BondReport => ({
@@ -130,6 +127,8 @@ export function periodReport(wallet: Wallet, from: string, to: string): Currency
         expected: sumTotals(payments.filter((payment) => !payment.isPaid)),
         balance: round2(totalPayments - total.invested),
         income,
+        averageMonthlyCoupons: round2(total.coupons / months.length),
+        annualYield: resultsByCurrency(positions)[0]?.annualYield ?? null,
         months: months.map((month) => ({
           month,
           ...flows(inCurrency.filter((event) => event.date.startsWith(month))),

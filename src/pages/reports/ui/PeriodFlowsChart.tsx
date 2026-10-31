@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { CURRENCY_NAMES } from '@/entities/portfolio';
 
-import { formatMoney, MONTHS_SHORT } from '@/shared/lib';
+import { MONTHS_SHORT } from '@/shared/lib';
 import { Card, type ChartSeries, ColumnChart, LegendRow } from '@/shared/ui';
 
 import { periodChartPeriods } from '../model/periodChart';
@@ -12,7 +12,10 @@ import type { CurrencyReport } from '../model/periodReport';
 
 type Props = { report: CurrencyReport };
 
-/** Cash flows by month, or by year when a custom period is longer than twelve months. */
+/**
+ * Cash flows by month, or by year when a custom period is longer than twelve months. The legend
+ * only names the series: the summary under the chart gives their sums.
+ */
 export function PeriodFlowsChart({ report }: Props) {
   const byYear = report.months.length > 12;
   const periods = periodChartPeriods(report.months);
@@ -42,21 +45,9 @@ export function PeriodFlowsChart({ report }: Props) {
       <View style={styles.content}>
         <ColumnChart columns={columns} series={series} currency={report.currency} />
         <View style={styles.legend}>
-          <LegendRow
-            color="coupon"
-            label="Купони"
-            value={formatMoney(report.coupons, report.currency)}
-          />
-          <LegendRow
-            color="redemption"
-            label="Погашення"
-            value={formatMoney(report.redemptions, report.currency)}
-          />
-          <LegendRow
-            color="purchase"
-            label="Купівлі"
-            value={formatMoney(report.invested, report.currency)}
-          />
+          <LegendRow color="coupon" label="Купони" />
+          <LegendRow color="redemption" label="Погашення" />
+          <LegendRow color="purchase" label="Купівлі" />
         </View>
       </View>
     </Card>

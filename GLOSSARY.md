@@ -156,3 +156,7 @@ _Avoid_: cash flow, result
 **Income** (Дохід за рік, Дохід за період):
 The Coupons of a year or period plus what its Redemptions brought over what the bonds they repay cost.
 _Avoid_: Чистий дохід, which is over the whole term
+
+**Average monthly coupons** (Купони в середньому за місяць):
+The Coupons of a year or period divided by its months. Redemptions are left out, as they return what was Invested.
+_Avoid_: Дохід на місяць, as Income also counts Redemptions
