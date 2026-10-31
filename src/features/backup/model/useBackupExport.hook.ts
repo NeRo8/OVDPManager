@@ -63,8 +63,15 @@ export function useBackupExport(onExported: () => void) {
   const exportToFile = form.handleSubmit(({ key }) =>
     run('file', 'Не вдалося створити копію', async () => {
       const json = await serializeBackup(getPurchases(), getInvestmentPlans(), key);
-      // The share sheet is the outcome: the user saves or sends the file from there.
-      await exportBackupFile(json, backupFileName());
+      // The share sheet is the outcome: the user saves or sends the file from there. Closed without
+      // either, the screen stays, so the copy can be made again.
+      const fileName = backupFileName();
+      if (!(await exportBackupFile(json, fileName))) return;
+      showToast({
+        tone: 'success',
+        title: 'Копію створено',
+        message: `${fileName} збережено або надіслано`,
+      });
       onExported();
     }),
   );
