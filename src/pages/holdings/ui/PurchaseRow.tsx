@@ -19,16 +19,25 @@ type Props = {
   /** Missing when the NBU data has no such bond */
   bond?: Bond;
   today: string;
+  onEdit: (purchase: Purchase) => void;
   onDelete: (purchase: Purchase) => void;
 };
 
-/** One purchase of a bond in the wallet: when, how many, for how much, with a way to delete it. */
-export function PurchaseRow({ purchase, bond, today, onDelete }: Props) {
+/**
+ * One purchase of a bond in the wallet: when, how many, for how much. A tap opens it to confirm or
+ * correct; the button deletes it.
+ */
+export function PurchaseRow({ purchase, bond, today, onEdit, onDelete }: Props) {
   const currency = purchaseCurrency(purchase, bond);
+  const isPlanned = isPlannedPurchase(purchase, today);
+  const edit = () => onEdit(purchase);
   const remove = () => onDelete(purchase);
 
   return (
     <ListRow
+      onPress={edit}
+      accessibilityRole="button"
+      accessibilityLabel={`${isPlanned ? 'Підтвердити' : 'Змінити'} купівлю від ${formatDate(purchase.purchaseDate)}`}
       // Badged as the payments' rows below it, in the purchases' color.
       leading={<Avatar label={currencySign(currency)} color={SERIES_COLORS.purchase.badge} />}
       title={
@@ -50,9 +59,9 @@ export function PurchaseRow({ purchase, bond, today, onDelete }: Props) {
         </Pressable>
       }
     >
-      {isPlannedPurchase(purchase, today) && (
+      {isPlanned && (
         <Typography variant="caption1" tone="accent">
-          Заплановано — виплати після цієї дати
+          Заплановано — торкніться, щоб підтвердити справжньою сумою
         </Typography>
       )}
       <Typography variant="caption1" tone="secondary">

@@ -21,6 +21,16 @@ export function removePurchase(id: string): void {
   });
 }
 
+/** Puts in a purchase's real date, quantity and amount: «Підтвердити купівлю» / «Змінити купівлю». */
+export function updatePurchase(
+  id: string,
+  changes: Pick<PlanPurchase, 'purchaseDate' | 'quantity' | 'amount'>,
+): void {
+  updatePurchases((current) =>
+    current.map((purchase) => (purchase.id === id ? { ...purchase, ...changes } : purchase)),
+  );
+}
+
 /** Restores the wallet from a backup, replacing everything in it. */
 export function replacePurchases(purchases: PlanPurchase[]): void {
   usePurchasesStore.setState({ purchases });

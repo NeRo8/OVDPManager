@@ -69,11 +69,22 @@ export default function BondScreen() {
 
   const topUp = () =>
     router.push({ pathname: '/add/[isin]/purchase', params: { isin: position.isin } });
+  const openPurchase = (purchase: Purchase) =>
+    router.push({
+      pathname: '/add/[isin]/purchase',
+      params: { isin: position.isin, purchaseId: purchase.id },
+    });
 
   const renderItem = ({ item, index }: ListRenderItemInfo<BondRow>) => (
     <SectionCell index={index} count={rows.length}>
       {isPurchase(item) ? (
-        <PurchaseRow purchase={item} bond={bond} today={today} onDelete={deletePurchase} />
+        <PurchaseRow
+          purchase={item}
+          bond={bond}
+          today={today}
+          onEdit={openPurchase}
+          onDelete={deletePurchase}
+        />
       ) : (
         <ScheduleEventRow event={item} showQuantity={hasTopUps} />
       )}

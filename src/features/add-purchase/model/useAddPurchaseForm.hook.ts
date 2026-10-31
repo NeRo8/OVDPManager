@@ -8,6 +8,7 @@ import {
   groupPositions,
   isPlannedPurchase,
   pricePerBond,
+  updatePurchase,
   useBonds,
   walletPosition,
   useKeyRate,
@@ -22,11 +23,15 @@ import {
 } from './purchaseForm.schema';
 import { annualYieldText, assessPurchase } from './purchaseHints';
 
+/** The amount as the input shows it, with a decimal comma. */
+const amountText = (amount: number) => String(amount).replace('.', ',');
+
 /**
- * The final step of adding a purchase to the active plan: when, how many and for how much.
- * Validated on every change, so Save is enabled only for a purchase that can be stored.
+ * The final step of adding a purchase to the active plan: when, how many and for how much. With
+ * `purchase` it edits that one instead («Підтвердити купівлю» / «Змінити купівлю»), starting from
+ * its figures. Validated on every change, so Save is enabled only for a purchase that can be stored.
  */
-export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
+export function useAddPurchaseForm(bond: Bond, onSaved: () => void, purchase?: Purchase) {
   const { bonds } = useBonds();
   const today = todayISO();
   const schema = purchaseFormSchema(bond);
@@ -34,7 +39,13 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
     resolver: zodResolver(schema),
     mode: 'onChange',
     // The amount is what the bank or broker charged for the whole purchase, as their apps show it.
-    defaultValues: { purchaseDate: today, quantity: '', amount: '' },
+    defaultValues: purchase
+      ? {
+          purchaseDate: purchase.purchaseDate,
+          quantity: String(purchase.quantity),
+          amount: amountText(purchase.amount),
+        }
+      : { purchaseDate: today, quantity: '', amount: '' },
   });
 
   // Read through hooks, not `form.formState`: the React Compiler would cache a read of the stable
@@ -88,6 +99,11 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void) {
   })();
 
   const submit = form.handleSubmit(({ purchaseDate, quantity, amount }) => {
+    if (purchase) {
+      updatePurchase(purchase.id, { purchaseDate, quantity, amount });
+      onSaved();
+      return;
+    }
     addPurchaseToActivePlan({
       isin: bond.isin,
       purchaseDate,
