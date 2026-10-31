@@ -6,6 +6,13 @@ on:
   push:
     branches: ['master']
 
+# The submit job installs node_modules too but never reads eas.json, so it needs
+# the same Node and Yarn as the build profile's `base` (package.json `engines`).
+defaults:
+  tools:
+    node: 24.22.1
+    yarn: 1.22.22
+
 jobs:
   build_ios:
     name: Build iOS
