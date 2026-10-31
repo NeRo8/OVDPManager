@@ -11,7 +11,8 @@ import { Swatch } from './Swatch';
 export type LegendRowProps = {
   color: SeriesColor;
   label: string;
-  value: string;
+  /** Without it the row only names its series */
+  value?: string;
 };
 
 /** Swatch + name + amount: the chart legend doubles as the breakdown of the total. */
@@ -22,9 +23,11 @@ export function LegendRow({ color, label, value }: LegendRowProps) {
       <Typography variant="footnote" tone="secondary" style={styles.legendLabel}>
         {label}
       </Typography>
-      <Typography variant="footnote" weight="semibold" tabular>
-        {value}
-      </Typography>
+      {value !== undefined && (
+        <Typography variant="footnote" weight="semibold" tabular>
+          {value}
+        </Typography>
+      )}
     </View>
   );
 }
