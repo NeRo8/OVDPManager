@@ -9,6 +9,7 @@ import { Card, type ChartSeries, ColumnChart, LegendRow } from '@/shared/ui';
 
 import { periodChartPeriods } from '../model/periodChart';
 import type { CurrencyReport } from '../model/periodReport';
+import { purchaseValues } from '../model/purchaseValues';
 
 type Props = { report: CurrencyReport };
 
@@ -23,6 +24,8 @@ export function PeriodFlowsChart({ report }: Props) {
     label: byYear ? month : MONTHS_SHORT[Number(month.slice(5, 7)) - 1],
     name: byYear ? `${month} рік` : month,
   }));
+  const { made, planned } = purchaseValues(periods);
+  const hasPlanned = planned.some((value) => value > 0);
   const series: ChartSeries[] = [
     { label: 'купони', color: 'coupon', values: periods.map(({ coupons }) => coupons) },
     {
@@ -30,12 +33,17 @@ export function PeriodFlowsChart({ report }: Props) {
       color: 'redemption',
       values: periods.map(({ redemptions }) => redemptions),
     },
-    {
-      label: 'купівлі',
-      color: 'purchase',
-      direction: 'down',
-      values: periods.map(({ invested }) => invested),
-    },
+    { label: 'купівлі', color: 'purchase', direction: 'down', values: made },
+    ...(hasPlanned
+      ? [
+          {
+            label: 'заплановані купівлі',
+            color: 'plannedPurchase' as const,
+            direction: 'down' as const,
+            values: planned,
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -48,6 +56,7 @@ export function PeriodFlowsChart({ report }: Props) {
           <LegendRow color="coupon" label="Купони" />
           <LegendRow color="redemption" label="Погашення" />
           <LegendRow color="purchase" label="Купівлі" />
+          {hasPlanned && <LegendRow color="plannedPurchase" label="Заплановані купівлі" />}
         </View>
       </View>
     </Card>

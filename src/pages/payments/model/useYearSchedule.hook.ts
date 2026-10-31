@@ -30,7 +30,8 @@ export function useYearSchedule({ wallet, filters }: FilteredWallet) {
 
   // The filters leave one currency, as the chart has one money scale.
   const { currency } = filters;
-  const summary = currency && yearEvents.length > 0 ? yearSummary(yearEvents, currency) : null;
+  const summary =
+    currency && yearEvents.length > 0 ? yearSummary(yearEvents, currency, wallet.today) : null;
 
   const [chosenMonth, setChosenMonth] = useState<{ year: number; month: number } | null>(null);
   const month = chosenMonth?.year === year ? chosenMonth.month : (summary?.defaultMonth ?? null);

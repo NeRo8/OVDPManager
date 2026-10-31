@@ -27,8 +27,8 @@ export function MonthBreakdown({
   onSelectMonth,
 }: Props) {
   const monthRows = selectedMonth === null ? [] : series.filter((s) => s.values[selectedMonth] > 0);
-  const monthPayments = monthRows.filter((s) => s.color !== 'purchase');
-  const monthPurchases = monthRows.filter((s) => s.color === 'purchase');
+  const monthPayments = monthRows.filter((s) => s.type !== 'purchase');
+  const monthPurchases = monthRows.filter((s) => s.type === 'purchase');
 
   return (
     <Card title="По місяцях">

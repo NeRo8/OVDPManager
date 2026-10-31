@@ -17,6 +17,7 @@ const chartColor = (color: ChartColor) =>
     coupon: light.seriesCoupon,
     redemption: light.seriesRedemption,
     purchase: light.seriesPurchase,
+    plannedPurchase: light.seriesPlannedPurchase,
   })[color];
 
 const chartLegend = (series: { label: string; color: ChartColor }[]) =>

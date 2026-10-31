@@ -4,9 +4,10 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { CURRENCY_NAMES } from '@/entities/portfolio';
 
-import { formatMoney } from '@/shared/lib';
+import { formatMoney, round2 } from '@/shared/lib';
 import { Card, type ChartSeries, ColumnChart, LegendRow, Separator } from '@/shared/ui';
 
+import { purchaseValues } from '../model/purchaseValues';
 import type { CurrencyYears } from '../model/yearOverYearReport';
 
 import { yearColumns } from './yearColumns';
@@ -22,15 +23,21 @@ type Props = {
 export function YearsMoneyChart({ report }: Props) {
   const { currency, years, total } = report;
   const columns = yearColumns(years.map(({ year }) => year));
+  const { made, planned } = purchaseValues(years);
   const series: ChartSeries[] = [
     { label: 'купони', color: 'coupon', values: years.map((year) => year.coupons) },
     { label: 'погашення', color: 'redemption', values: years.map((year) => year.redemptions) },
-    {
-      label: 'купівлі',
-      color: 'purchase',
-      values: years.map((year) => year.invested),
-      direction: 'down',
-    },
+    { label: 'купівлі', color: 'purchase', values: made, direction: 'down' },
+    ...(total.planned > 0
+      ? [
+          {
+            label: 'заплановані купівлі',
+            color: 'plannedPurchase' as const,
+            values: planned,
+            direction: 'down' as const,
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -47,7 +54,18 @@ export function YearsMoneyChart({ report }: Props) {
           label="Погашення"
           value={formatMoney(total.redemptions, currency)}
         />
-        <LegendRow color="purchase" label="Купівлі" value={formatMoney(total.invested, currency)} />
+        <LegendRow
+          color="purchase"
+          label="Купівлі"
+          value={formatMoney(round2(total.invested - total.planned), currency)}
+        />
+        {total.planned > 0 && (
+          <LegendRow
+            color="plannedPurchase"
+            label="Заплановані купівлі"
+            value={formatMoney(total.planned, currency)}
+          />
+        )}
       </View>
     </Card>
   );

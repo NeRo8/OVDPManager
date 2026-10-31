@@ -17,8 +17,8 @@ type Props = {
 /** The year's sums: payments, how much of them has come in, and the money invested. */
 export function YearTotals({ summary, series }: Props) {
   const { currency, totalPayments, received, purchaseCount, averageMonthlyPurchase } = summary;
-  const payments = series.filter((s) => s.color !== 'purchase');
-  const purchases = series.filter((s) => s.color === 'purchase');
+  const payments = series.filter((s) => s.type !== 'purchase');
+  const purchases = series.filter((s) => s.type === 'purchase');
   const receivedPercent = totalPayments > 0 ? Math.round((received / totalPayments) * 100) : 0;
 
   return (

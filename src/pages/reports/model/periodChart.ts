@@ -12,6 +12,7 @@ export function periodChartPeriods(months: MonthFlows[]): MonthFlows[] {
     years.set(year, {
       month: year,
       invested: round2((previous?.invested ?? 0) + month.invested),
+      planned: round2((previous?.planned ?? 0) + month.planned),
       coupons: round2((previous?.coupons ?? 0) + month.coupons),
       redemptions: round2((previous?.redemptions ?? 0) + month.redemptions),
     });

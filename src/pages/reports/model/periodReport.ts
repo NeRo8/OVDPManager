@@ -15,6 +15,8 @@ import { monthsBetween, round2 } from '@/shared/lib';
 export type Flows = {
   /** Paid for purchases, planned ones included */
   invested: number;
+  /** The part of `invested` that is planned purchases, dated after today */
+  planned: number;
   coupons: number;
   redemptions: number;
 };
@@ -66,9 +68,11 @@ export type CurrencyReport = Flows & {
   highlights: BondHighlights;
 };
 
-function flows(events: ScheduleEvent[]): Flows {
+function flows(events: ScheduleEvent[], today: string): Flows {
+  const purchases = events.filter((event) => event.type === 'purchase');
   return {
-    invested: sumTotals(events.filter((event) => event.type === 'purchase')),
+    invested: sumTotals(purchases),
+    planned: sumTotals(purchases.filter((event) => event.date > today)),
     coupons: sumTotals(events.filter((event) => event.type === 'coupon')),
     redemptions: sumTotals(events.filter((event) => event.type === 'redemption')),
   };
@@ -96,7 +100,7 @@ export function periodReport(wallet: Wallet, from: string, to: string): Currency
     const payments = inCurrency.filter(
       (event): event is PositionPayment => event.type !== 'purchase',
     );
-    const total = flows(inCurrency);
+    const total = flows(inCurrency, wallet.today);
     const totalPayments = round2(total.coupons + total.redemptions);
     const positions = wallet.positions.filter(
       (item) =>
@@ -106,7 +110,7 @@ export function periodReport(wallet: Wallet, from: string, to: string): Currency
       const bondEvents = inCurrency.filter((event) => event.isin === item.position.isin);
       return {
         isin: item.position.isin,
-        ...flows(bondEvents),
+        ...flows(bondEvents, wallet.today),
         income: positionIncome(item, from, to),
         annualYield: item.annualYield,
       };
@@ -131,7 +135,10 @@ export function periodReport(wallet: Wallet, from: string, to: string): Currency
         annualYield: resultsByCurrency(positions)[0]?.annualYield ?? null,
         months: months.map((month) => ({
           month,
-          ...flows(inCurrency.filter((event) => event.date.startsWith(month))),
+          ...flows(
+            inCurrency.filter((event) => event.date.startsWith(month)),
+            wallet.today,
+          ),
         })),
         bonds: withShares,
         highlights: bondHighlights(withShares),

@@ -6,15 +6,16 @@ import { formatAmount, formatDate, formatMoney, MONTHS_SHORT, plural } from '@/s
 import type { BondReport as SingleBondReport } from './bondReport';
 import type { FxReport } from './fxReport';
 import { periodChartPeriods } from './periodChart';
-import type { CurrencyReport } from './periodReport';
+import type { CurrencyReport, Flows } from './periodReport';
 import type { CurrencyPortfolio } from './portfolioReport';
+import { purchaseValues } from './purchaseValues';
 import type { CurrencyRedemptions } from './redemptionsReport';
 import type { ReportTerms } from './reportTerms';
 import type { StructureReport } from './structureReport';
 import type { CurrencyYears } from './yearOverYearReport';
 import type { CurrencyYield } from './yieldReport';
 
-export type ChartColor = 'coupon' | 'redemption' | 'purchase';
+export type ChartColor = 'coupon' | 'redemption' | 'purchase' | 'plannedPurchase';
 
 export type PdfChart =
   | {
@@ -62,33 +63,38 @@ const pair = (title: string, rows: string[][], note?: string): PdfSection => ({
 });
 const currencyTitle = (currency: Currency) => CURRENCY_NAMES[currency];
 
-const flowChart = (
-  title: string,
-  rows: { month: string; invested: number; coupons: number; redemptions: number }[],
-): PdfSection => ({
-  title,
-  columns: [],
-  rows: [],
-  layout: 'chart',
-  chart: {
-    kind: 'columns',
-    labels: rows.map(({ month }) => month),
-    series: [
-      { label: 'Купони', color: 'coupon', values: rows.map(({ coupons }) => coupons) },
-      {
-        label: 'Погашення',
-        color: 'redemption',
-        values: rows.map(({ redemptions }) => redemptions),
-      },
-      {
-        label: 'Купівлі',
-        color: 'purchase',
-        values: rows.map(({ invested }) => invested),
-        down: true,
-      },
-    ],
-  },
-});
+const flowChart = (title: string, rows: (Flows & { month: string })[]): PdfSection => {
+  const { made, planned } = purchaseValues(rows);
+  return {
+    title,
+    columns: [],
+    rows: [],
+    layout: 'chart',
+    chart: {
+      kind: 'columns',
+      labels: rows.map(({ month }) => month),
+      series: [
+        { label: 'Купони', color: 'coupon', values: rows.map(({ coupons }) => coupons) },
+        {
+          label: 'Погашення',
+          color: 'redemption',
+          values: rows.map(({ redemptions }) => redemptions),
+        },
+        { label: 'Купівлі', color: 'purchase', values: made, down: true },
+        ...(planned.some((value) => value > 0)
+          ? [
+              {
+                label: 'Заплановані купівлі',
+                color: 'plannedPurchase' as const,
+                values: planned,
+                down: true,
+              },
+            ]
+          : []),
+      ],
+    },
+  };
+};
 
 /** All PDF blocks use the report's own calculated values and visual order. */
 export function periodPdf(

@@ -46,6 +46,15 @@ describe('yearReport', () => {
   );
   const [report] = yearReport(wallet, 2025);
 
+  it('tells the planned purchases from those made', () => {
+    expect(report.planned).toBe(0);
+    const ahead = buildWallet(wallet.purchases, wallet.byIsin, '2025-02-01');
+    const [planned] = yearReport(ahead, 2025);
+    expect(planned.planned).toBe(3000);
+    expect(planned.months.find(({ month }) => month === '2025-03')?.planned).toBe(3000);
+    expect(planned.bonds.map((bond) => bond.planned)).toEqual([0, 3000]);
+  });
+
   it('spreads the coupons over the twelve months, leaving the redemption out', () => {
     expect(report).toMatchObject({ invested: 4000, coupons: 240, redemptions: 1000 });
     expect(report.months).toHaveLength(12);

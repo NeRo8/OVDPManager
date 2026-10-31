@@ -16,6 +16,7 @@ export function chartPalette(theme: AppTheme): ChartPalette {
       coupon: theme[SERIES_COLORS.coupon.mark],
       redemption: theme[SERIES_COLORS.redemption.mark],
       purchase: theme[SERIES_COLORS.purchase.mark],
+      plannedPurchase: theme[SERIES_COLORS.plannedPurchase.mark],
     },
   };
 }
