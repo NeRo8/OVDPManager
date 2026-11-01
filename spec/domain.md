@@ -5,13 +5,13 @@
 ## Звідки дані
 
 - `src/entities/portfolio/model/portfolio.ts` — типи `Bond`, `BondPayment`, `Purchase`, `PlanPurchase`, `Position`, `PositionPayment`, `PurchaseEvent`, `ScheduleEvent`; `CURRENCIES`, `bondChoices`, `groupPositions`, `isPlannedPurchase`, `isRedeemed`, `canBuyOn`, `maturesWithin`, `pricePerBond`, `purchaseCurrency`, `positionCurrency`, `positionPayments`, `purchaseEvents`, `compareScheduleEvents`, `sumTotals`, `nextPayment`.
-- `src/entities/portfolio/model/position.ts` — `PositionState`, `PositionResults`, `CurrencyResults`, `WalletPosition`, `hasRedemption`, `walletPosition`, `resultsByCurrency` (усередині: `withNetIncome`, `positionResults`, `positionYield`, `positionState`, `plannedPart`).
-- `src/entities/portfolio/model/wallet.ts` — `Wallet`, `WalletScope`, `buildWallet`, `narrowWallet`, `WalletScopeOptions`, `walletScopeOptions`, `isinsIn`, `fitScope`.
+- `src/entities/portfolio/model/position.ts` — `PositionState`, `PositionResults`, `CurrencyResults`, `WalletPosition`, `hasRedemption`, `walletPosition`, `resultsByCurrency` (усередині: `netIncomeOf`, `positionResults`, `positionYield`, `positionState`, `plannedPart`).
+- `src/entities/portfolio/model/wallet.ts` — `Wallet`, `buildWallet`, `WalletScopeOptions`, `walletScopeOptions`, `isinsIn`.
 - `src/entities/portfolio/model/yield.ts` — `annualYield`, `amountForYield`, `ANNUAL_YIELD_RANGE`.
 - `src/entities/portfolio/model/market.ts` — `maturityTerm`, `NEW_BOND_MONTHS`, `MIN_NEW_BONDS`, `MAX_PLAUSIBLE_YIELD`, `newBondsRate`, `median`, `newBondsLabel`.
 - `src/entities/portfolio/model/hints.ts`, `src/entities/portfolio/model/yieldHints.ts` — `Hint`, `Verdict`, `sortHints`, `worstTone`, `keyRateHint`, `newBondsHint`.
 - `src/entities/portfolio/model/plan.ts` — `InvestmentPlan`, `DEFAULT_PLAN_NAME`, `PLAN_NAME_MAX_LENGTH`; `src/entities/portfolio/model/counts.ts` — `purchaseCount`, `planCount`.
-- `src/entities/portfolio/model/useWallet.hook.ts` — `useActivePurchases`, `useWallet`.
+- `src/entities/portfolio/model/useWallet.hook.ts` — `useWallet`; `src/entities/portfolio/model/activePlan/` — `useActivePlan`, `getActivePlan`, `useActivePurchases`, `getActivePurchases`.
 - `src/entities/portfolio/api/nbuBonds.ts` — як рядок НБУ стає `Bond` (детально — у `spec/data-and-sync.md`).
 - `src/shared/lib/number.ts` (`round2`), `src/shared/lib/date.ts` (дати), `src/shared/lib/format.ts` (гроші, множина, розбір сум).
 

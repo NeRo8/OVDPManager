@@ -1,7 +1,8 @@
 export { useAddPurchaseForm } from './model/useAddPurchaseForm.hook';
-export { useBondPicker, type BondTerm } from './model/useBondPicker.hook';
+export { useBondPicker } from './model/useBondPicker.hook';
 export {
   resetBondPickerFilters,
   updateBondPickerFilters,
   type BondSort,
+  type BondTerm,
 } from './model/bondPickerFilters';

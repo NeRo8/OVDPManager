@@ -6,7 +6,7 @@
 
 - Маршрут: `src/app/bond/[isin]/sale.tsx` → `SaleScreen` у `DeferredScreen skeleton="form"`; заголовок «Продаж» (`src/app/_layout.tsx`).
 - Екран: `src/pages/holdings/ui/SaleScreen.tsx`, `SalePricesSection.tsx`, `saleTexts.ts` (`breakEvenText`), `HintsSection.tsx`; кнопка входу `SaleButton.tsx` на картці ОВДП.
-- Логіка: `src/pages/holdings/model/useSaleForm.hook.ts` (поле ціни), `salePrice.schema.ts`, `useHoldOrSell.hook.ts`, `holdOrSell.ts` (`holdOrSell`, `benchmarkOf`, `saleHints`, `yieldVerdict`).
+- Логіка: `src/pages/holdings/model/useSaleForm.hook.ts` (поле ціни), `salePrice.schema.ts`, `useHoldOrSell.hook.ts`, `holdOrSell.ts` (`holdOrSell`, `benchmarkOf`, `saleHints`, `yieldVerdict`; ставку нових ОВДП `newBondsRate` пораховано один раз для орієнтира й підказки).
 - Сутність: `useWallet()`, `useBonds()`, `useKeyRate(today)`; `walletPosition`, `groupPositions`, `isPlannedPurchase`, `canBuyOn`, `sumTotals`, `annualYield`, `amountForYield`, `newBondsRate`, `newBondsLabel`, `keyRateHint`, `newBondsHint`, `MAX_PLAUSIBLE_YIELD`, `sortHints`, `worstTone` (`src/entities/portfolio/model/`).
 - Спільне: `parseAmount`, `round2`, `formatMoney`, `formatDate` (`src/shared/lib/`), `Input type="decimal"`, `FieldRow`, `InfoRow`, `Section`, `FormScrollView` (`src/shared/ui/`).
 - Сховищ екран не має: ціна живе лише в стані форми (`react-hook-form`).

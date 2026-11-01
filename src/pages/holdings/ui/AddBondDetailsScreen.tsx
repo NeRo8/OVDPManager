@@ -3,20 +3,31 @@ import { FlatList, View } from 'react-native';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { BondParameters, BondsGate, type BondPayment, useWallet } from '@/entities/portfolio';
+import {
+  BondParameters,
+  BondsGate,
+  type BondPayment,
+  canBuyOn,
+  hasRedemption,
+  isRedeemed,
+  useWallet,
+} from '@/entities/portfolio';
 
-import { formatDate, formatMoney } from '@/shared/lib';
+import { formatDate } from '@/shared/lib';
 import {
   EmptyState,
   FAB_CLEARANCE,
   FloatingActionButton,
   InfoRow,
+  Money,
   Section,
   SectionCell,
   SectionTitle,
   Typography,
   screenContent,
 } from '@/shared/ui';
+
+import { hasMadePurchase } from '../model/purchaseScreenTitle';
 
 /** The chosen issue's terms and NBU payments before a purchase is entered. */
 export default function AddBondDetailsScreen() {
@@ -26,6 +37,7 @@ export default function AddBondDetailsScreen() {
   const owned = positions.find(({ position }) => position.isin === isin);
   const ownedQuantity = owned?.position.quantity ?? 0;
   const plannedQuantity = owned?.planned.quantity ?? 0;
+  const isTopUp = hasMadePurchase(owned?.position.purchases ?? [], today);
   const addPurchase = () => router.push({ pathname: '/add/[isin]/purchase', params: { isin } });
   const header = <Stack.Screen options={{ title: isin }} />;
 
@@ -42,11 +54,11 @@ export default function AddBondDetailsScreen() {
   const notes = [
     ownedQuantity > 0 &&
       `У гаманці вже є ${ownedQuantity} шт цієї ОВДП${plannedQuantity > 0 ? `, з них ${plannedQuantity} — заплановані купівлі` : ''}.`,
-    bond.maturityDate === today &&
-      'ОВДП погашається сьогодні; можна додати купівлю з минулою датою.',
-    bond.maturityDate < today && 'ОВДП уже погашена; можна додати купівлю з минулою датою.',
-    !bond.payments.some((payment) => payment.type === 'redemption') &&
-      'НБУ ще не опублікував погашення: розрахунки виплат неповні.',
+    !canBuyOn(bond, today) &&
+      (isRedeemed(bond, today)
+        ? 'ОВДП уже погашена; можна додати купівлю з минулою датою.'
+        : 'ОВДП погашається сьогодні; можна додати купівлю з минулою датою.'),
+    !hasRedemption(bond) && 'НБУ ще не опублікував погашення: розрахунки виплат неповні.',
     'Дохідність залежить від ціни купівлі: її буде розраховано після введення суми й кількості.',
   ]
     .filter(Boolean)
@@ -56,7 +68,7 @@ export default function AddBondDetailsScreen() {
     <SectionCell index={index} count={bond.payments.length}>
       <InfoRow
         label={`${item.type === 'coupon' ? 'Купон' : 'Погашення'} · ${formatDate(item.date)}`}
-        value={formatMoney(item.amount, bond.currency)}
+        value={<Money value={item.amount} currency={bond.currency} />}
       />
     </SectionCell>
   );
@@ -97,7 +109,7 @@ export default function AddBondDetailsScreen() {
             }
           />
           <FloatingActionButton
-            accessibilityLabel={ownedQuantity > 0 ? `Докупити ${isin}` : `Додати купівлю ${isin}`}
+            accessibilityLabel={isTopUp ? `Докупити ${isin}` : `Додати купівлю ${isin}`}
             onPress={addPurchase}
           />
         </View>

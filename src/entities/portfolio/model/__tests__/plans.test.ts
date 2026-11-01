@@ -1,4 +1,4 @@
-import { getActivePlan, setActivePlan } from '../activePlan';
+import { getActivePlan } from '../activePlan';
 import { uniquePlanName } from '../plan';
 import {
   createInvestmentPlan,
@@ -6,6 +6,7 @@ import {
   getInvestmentPlans,
   removeInvestmentPlan,
   restorePortfolio,
+  setActivePlan,
 } from '../plans';
 import { addPurchase, getPurchases } from '../purchases';
 

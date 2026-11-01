@@ -26,6 +26,8 @@ import {
   Typography,
 } from '@/shared/ui';
 
+import { planNameTitle } from '../model/planNameTitle';
+
 const planNameFormSchema = (plans: { id: string; name: string }[], planId?: string) =>
   z
     .object({
@@ -79,11 +81,7 @@ export default function PlanNameScreen() {
   });
   const save = () => void submit();
   const openBackupImport = () => router.push('/backup/import');
-  const header = (
-    <Stack.Screen
-      options={{ title: planTitle(planId, isFirst) }}
-    />
-  );
+  const header = <Stack.Screen options={{ title: planNameTitle(planId, isFirst) }} />;
 
   if (planId && !existing)
     return (
@@ -152,12 +150,6 @@ export default function PlanNameScreen() {
       )}
     </FormScrollView>
   );
-}
-
-function planTitle(planId: string | undefined, isFirst: boolean) {
-  if (planId) return 'Назва плану';
-  if (isFirst) return 'Перший план';
-  return 'Новий план';
 }
 
 const styles = StyleSheet.create((theme) => ({

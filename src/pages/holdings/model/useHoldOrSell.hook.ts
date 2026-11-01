@@ -1,4 +1,4 @@
-import { useBonds, useKeyRate, useWallet } from '@/entities/portfolio';
+import { useKeyRate, useWallet } from '@/entities/portfolio';
 
 import { holdOrSell } from './holdOrSell';
 
@@ -7,8 +7,7 @@ import { holdOrSell } from './holdOrSell';
  * typed. Null for a bond the wallet does not hold or that cannot be sold.
  */
 export function useHoldOrSell(isin: string, salePrice: number | null) {
-  const { positions, byIsin, today } = useWallet();
-  const { bonds } = useBonds();
+  const { positions, byIsin, bonds, today } = useWallet();
   const keyRate = useKeyRate(today);
   const bond = byIsin.get(isin);
   const position = positions.find((item) => item.position.isin === isin)?.position;

@@ -6,16 +6,8 @@ import { showToast } from '@/shared/lib';
 import { keyRateQuery, keyRateYear } from '../api/keyRateQuery';
 import { useBonds } from '../api/useBonds.hook';
 
-import { useActivePlan } from './activePlan';
-import { usePurchases } from './purchases';
+import { useActivePurchases } from './activePlan';
 import { buildWallet } from './wallet';
-
-/** Purchases in the wallet of the active plan. */
-export function useActivePurchases() {
-  const plan = useActivePlan();
-  const purchases = usePurchases().filter((purchase) => purchase.planId === plan?.id);
-  return { plan, purchases };
-}
 
 /**
  * The Wallet of the active plan, built from the stores and the NBU data: what every screen built

@@ -89,9 +89,12 @@ describe('restoreBackup', () => {
   });
 
   it('restores the selected plan from the backup', () => {
-    const second = { id: 'second', name: 'Другий', isActive: false };
-    restoreBackup({ ...backup, plans: [plan, second], activePlanId: second.id }, 'file', jest.fn());
-    expect(getActivePlan()?.id).toBe(second.id);
+    const plans = [
+      { ...plan, isActive: false },
+      { id: 'second', name: 'Другий', isActive: true },
+    ];
+    restoreBackup({ ...backup, plans }, 'file', jest.fn());
+    expect(getActivePlan()?.id).toBe('second');
     expect(getInvestmentPlans().map((item) => item.isActive)).toEqual([false, true]);
   });
 });

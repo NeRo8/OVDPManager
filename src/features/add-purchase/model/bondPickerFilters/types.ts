@@ -1,6 +1,7 @@
-import type { Currency } from '@/entities/portfolio';
+import type { Currency, MaturityTerm } from '@/entities/portfolio';
 
-import type { BondTerm } from '../bondTerm';
+/** The picker's term filter: any term, or one of the terms to maturity. */
+export type BondTerm = 'all' | MaturityTerm;
 
 export type BondSort = 'maturity' | 'rate';
 

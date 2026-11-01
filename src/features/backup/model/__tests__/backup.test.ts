@@ -1,6 +1,6 @@
 import type { InvestmentPlan, PlanPurchase } from '@/entities/portfolio';
 
-import { WrongBackupKeyError } from '../../lib/backupCipher';
+import { WrongBackupKeyError, encryptBackup } from '../../lib/backupCipher';
 import { type Backup, parseBackup, serializeBackup } from '../backup';
 
 // The native module has no place under Jest; it follows Node's crypto API, Argon2id included, so
@@ -57,22 +57,37 @@ const changed = (text: string, change: (backup: Backup) => object) =>
 describe('serializeBackup and parseBackup', () => {
   let file: string;
   beforeAll(async () => {
-    file = await serializeBackup(purchases, plans, KEY);
+    file = await serializeBackup({ purchases, plans }, KEY);
   });
 
   it('gives back every plan and every purchase with the key', async () => {
     await expect(parseBackup(file, KEY)).resolves.toEqual({ purchases, plans });
   });
 
-  it('preserves the active plan and rejects an id absent from the backup', async () => {
-    const saved = await serializeBackup(purchases, plans, KEY, 'plan-2', 'dark');
+  it('preserves the active plan and the theme', async () => {
+    const secondActive = plans.map((plan) => ({ ...plan, isActive: plan.id === 'plan-2' }));
+    const saved = await serializeBackup({ purchases, plans: secondActive, theme: 'dark' }, KEY);
     await expect(parseBackup(saved, KEY)).resolves.toEqual({
       purchases,
-      plans: plans.map((plan) => ({ ...plan, isActive: plan.id === 'plan-2' })),
-      activePlanId: 'plan-2',
+      plans: secondActive,
       theme: 'dark',
     });
-    const invalid = await serializeBackup(purchases, plans, KEY, 'missing');
+  });
+
+  it('rejects an active plan absent from the backup', async () => {
+    // The app never writes such a file; it is made here as one changed by hand would be.
+    const contents = {
+      holdings: [],
+      plans: [{ id: 'plan-1', name: 'Мій план' }],
+      activePlanId: 'missing',
+    };
+    const encrypted = await encryptBackup(JSON.stringify(contents), KEY, 'ovdp-manager-backup:6');
+    const invalid = JSON.stringify({
+      format: 'ovdp-manager-backup',
+      version: 6,
+      exportedAt: new Date().toISOString(),
+      ...encrypted,
+    });
     await expect(parseBackup(invalid, KEY)).rejects.toThrow('Активного плану немає в копії');
   });
 
@@ -94,7 +109,7 @@ describe('serializeBackup and parseBackup', () => {
   });
 
   it('makes a new file every time, so two copies with one key never look alike', async () => {
-    const again = JSON.parse(await serializeBackup(purchases, plans, KEY)) as Backup;
+    const again = JSON.parse(await serializeBackup({ purchases, plans }, KEY)) as Backup;
     const first = JSON.parse(file) as Backup;
     expect(again.encryption.salt).not.toBe(first.encryption.salt);
     expect(again.encryption.iv).not.toBe(first.encryption.iv);
@@ -139,10 +154,10 @@ describe('serializeBackup and parseBackup', () => {
   });
 
   it('refuses a copy without a plan, and a purchase whose plan is not in it', async () => {
-    await expect(parseBackup(await serializeBackup([], [], KEY), KEY)).rejects.toThrow(
+    await expect(parseBackup(await serializeBackup({ purchases: [], plans: [] }, KEY), KEY)).rejects.toThrow(
       'У копії немає жодного плану',
     );
-    const orphan = await serializeBackup(purchases, [plans[0]], KEY);
+    const orphan = await serializeBackup({ purchases, plans: [plans[0]] }, KEY);
     await expect(parseBackup(orphan, KEY)).rejects.toThrow('Купівля №2: її плану немає в копії');
   });
 
@@ -155,12 +170,12 @@ describe('serializeBackup and parseBackup', () => {
       { currency: 'XXX' },
     ]) {
       const invalid = [{ ...purchases[0], ...change }] as PlanPurchase[];
-      await expect(parseBackup(await serializeBackup(invalid, plans, KEY), KEY)).rejects.toThrow(
+      await expect(parseBackup(await serializeBackup({ purchases: invalid, plans }, KEY), KEY)).rejects.toThrow(
         'некоректні дані',
       );
     }
     await expect(
-      parseBackup(await serializeBackup([purchases[0], purchases[0]], plans, KEY), KEY),
+      parseBackup(await serializeBackup({ purchases: [purchases[0], purchases[0]], plans }, KEY), KEY),
     ).rejects.toThrow('повторні ідентифікатори');
   });
 });

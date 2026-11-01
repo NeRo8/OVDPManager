@@ -1,6 +1,7 @@
 import {
   type Bond,
   type Hint,
+  type NewBondsRate,
   ANNUAL_YIELD_RANGE,
   MAX_PLAUSIBLE_YIELD,
   type Position,
@@ -20,7 +21,7 @@ import {
   worstTone,
 } from '@/entities/portfolio';
 
-import { formatMoney, formatRateNumber, round2 } from '@/shared/lib';
+import { formatMoney, formatPercent, round2 } from '@/shared/lib';
 
 /** What the money from a sale could earn instead: new bonds like this one, or the key rate. */
 type Benchmark = {
@@ -79,16 +80,18 @@ const YIELD_VERDICTS = {
   warning: { tone: 'warning', title: 'Дохідність нижча за орієнтир' },
 } as const satisfies Record<'success' | 'warning', Verdict>;
 
-function benchmarkOf({ bond, today, keyRate, bonds }: Input): Benchmark | null {
-  const newBonds = newBondsRate(bond, today, bonds);
+function benchmarkOf(
+  { bond, keyRate }: Input,
+  newBonds: NewBondsRate | null,
+): Benchmark | null {
   if (newBonds) {
     return {
       rate: newBonds.rate,
-      versus: `медіанну ставку купону (${formatRateNumber(newBonds.rate)}%) ${newBondsLabel(newBonds, bond.currency)}`,
+      versus: `медіанну ставку купону (${formatPercent(newBonds.rate)}) ${newBondsLabel(newBonds, bond.currency)}`,
     };
   }
   if (bond.currency === 'UAH' && keyRate !== null) {
-    return { rate: keyRate, versus: `облікову ставку НБУ (${formatRateNumber(keyRate)}%)` };
+    return { rate: keyRate, versus: `облікову ставку НБУ (${formatPercent(keyRate)})` };
   }
   return null;
 }
@@ -115,7 +118,7 @@ function saleHints(
       hints: [
         {
           tone: 'warning',
-          text: `За ${price} дохідність покупця перевищує ${MAX_PLAUSIBLE_YIELD}% або її не вдалося розрахувати. Перевірте ціну: вона — за 1 шт.`,
+          text: `За ${price} дохідність покупця перевищує ${formatPercent(MAX_PLAUSIBLE_YIELD)} або її не вдалося розрахувати. Перевірте ціну: вона — за 1 шт.`,
         },
         ...yieldHints,
       ],
@@ -123,7 +126,7 @@ function saleHints(
   }
   const hints: Hint[] = [];
   const shouldSell = sellAbovePrice !== null && salePrice > sellAbovePrice;
-  const yieldFromToday = `Дохідність від сьогодні ${sale.holdYield === null ? `нижче ${formatRateNumber(ANNUAL_YIELD_RANGE.lowest)}` : formatRateNumber(sale.holdYield)}%`;
+  const yieldFromToday = `Дохідність від сьогодні ${sale.holdYield === null ? `нижче ${formatPercent(ANNUAL_YIELD_RANGE.lowest)}` : formatPercent(sale.holdYield)}`;
   if (benchmark && shouldSell) {
     hints.push({
       tone: 'warning',
@@ -146,13 +149,8 @@ function saleHints(
       text: `За ${price} продаж дасть збиток ${formatMoney(-sale.saleResult, currency)}: виплати й ціна не повернуть вкладене.${shouldSell ? ' Водночас за цим орієнтиром нове вкладення може заробити більше до погашення.' : ''}`,
     });
   }
-  const verdict = benchmark ? saleVerdict(shouldSell) : null;
+  const verdict = benchmark && (shouldSell ? SELL : HOLD);
   return { verdict, hints: [...hints, ...yieldHints] };
-}
-
-function saleVerdict(shouldSell: boolean): Verdict {
-  if (shouldSell) return SELL;
-  return HOLD;
 }
 
 /**
@@ -181,7 +179,8 @@ export function holdOrSell(input: Input): HoldOrSell | null {
     date: payment.date,
     total: payment.amount,
   }));
-  const benchmark = benchmarkOf(input);
+  const newBonds = newBondsRate(bond, today, input.bonds);
+  const benchmark = benchmarkOf(input, newBonds);
   const sellAbovePrice = benchmark ? amountForYield(today, remainingPerBond, benchmark.rate) : null;
 
   const yieldHints = sortHints(
@@ -189,7 +188,7 @@ export function holdOrSell(input: Input): HoldOrSell | null {
       ? []
       : [
           keyRateHint(heldYield, keyRate, bond.currency),
-          newBondsHint(heldYield, newBondsRate(bond, today, input.bonds), bond.currency),
+          newBondsHint(heldYield, newBonds, bond.currency),
         ],
   );
 

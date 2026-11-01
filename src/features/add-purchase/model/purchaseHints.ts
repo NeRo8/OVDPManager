@@ -4,6 +4,7 @@ import {
   type Hint,
   MAX_PLAUSIBLE_YIELD,
   type Verdict,
+  isPlannedPurchase,
   keyRateHint,
   maturityTerm,
   newBondsHint,
@@ -12,7 +13,7 @@ import {
   worstTone,
 } from '@/entities/portfolio';
 
-import { formatDate, formatMoney, formatRateNumber, formatTimeLeft, round2 } from '@/shared/lib';
+import { formatDate, formatMoney, formatPercent, formatTimeLeft, round2 } from '@/shared/lib';
 
 export type PurchaseAssessment = { verdict: Verdict | null; hints: Hint[] };
 
@@ -52,11 +53,11 @@ type YieldInput = Pick<Input, 'annualYield' | 'netIncome' | 'isComplete'>;
  * loses. «—» while the payments are incomplete.
  */
 export function annualYieldText({ annualYield, netIncome, isComplete }: YieldInput): string {
-  if (annualYield !== null) return `${formatRateNumber(annualYield)}%`;
+  if (annualYield !== null) return formatPercent(annualYield);
   if (!isComplete || netIncome === null) return '—';
   return netIncome >= 0
-    ? `понад ${formatRateNumber(ANNUAL_YIELD_RANGE.highest)}%`
-    : `нижче ${formatRateNumber(ANNUAL_YIELD_RANGE.lowest)}%`;
+    ? `понад ${formatPercent(ANNUAL_YIELD_RANGE.highest)}`
+    : `нижче ${formatPercent(ANNUAL_YIELD_RANGE.lowest)}`;
 }
 
 /** A yield no market price gives: most likely a typo in the amount or the quantity. */
@@ -102,7 +103,7 @@ function priceHint({ bond, pricePerBond, annualYield }: Input): Hint | null {
   const counted =
     annualYield === null
       ? ''
-      : ` Різницю вже враховано в річній дохідності (${formatRateNumber(annualYield)}%).`;
+      : ` Різницю вже враховано в річній дохідності (${formatPercent(annualYield)}).`;
   return {
     tone: 'info',
     text:
@@ -150,7 +151,9 @@ function verdictOf(hints: Hint[]): Verdict | null {
 export function assessPurchase(input: Input): PurchaseAssessment {
   if (isImplausible(input)) return { verdict: CHECK_AMOUNT, hints: [implausibleHint(input)] };
   const { bond, purchaseDate, today, annualYield, keyRate, bonds } = input;
-  const comparisonDate = purchaseDate > today ? today : purchaseDate;
+  const isPlanned = isPlannedPurchase({ purchaseDate }, today);
+  // A planned purchase is compared with what is known today.
+  const comparisonDate = isPlanned ? today : purchaseDate;
   const market = newBondsRate(bond, comparisonDate, bonds);
   const hints = sortHints([
     lossHint(input),
@@ -166,7 +169,7 @@ export function assessPurchase(input: Input): PurchaseAssessment {
               : 'Немає доступних ринкових орієнтирів для порівняння дохідності.',
         }
       : null,
-    purchaseDate > today && annualYield !== null
+    isPlanned && annualYield !== null
       ? {
           tone: 'info',
           text: 'Для запланованої купівлі порівняння використовує сьогоднішні ставки; до дати купівлі вони можуть змінитися.',

@@ -9,6 +9,8 @@ import {
   type PositionPayment,
   type Purchase,
   ScheduleEventRow,
+  canBuyOn,
+  isPlannedPurchase,
 } from '@/entities/portfolio';
 
 import {
@@ -82,6 +84,7 @@ export default function BondScreen() {
     { label: `Купівлі (${position.purchases.length})`, value: 'purchases' },
   ];
   const rows: BondRow[] = tab === 'purchases' ? position.purchases : payments;
+  const onlyPlanned = position.purchases.every((purchase) => isPlannedPurchase(purchase, today));
 
   const topUp = () =>
     router.push({ pathname: '/add/[isin]/purchase', params: { isin: position.isin } });
@@ -151,11 +154,7 @@ export default function BondScreen() {
                 <Typography variant="footnote" tone="secondary">
                   {assessment
                     ? 'Немає достатньо даних для порівняння дохідності з ринковими орієнтирами.'
-                    : assessmentMessage(
-                        !!bond,
-                        position.purchases.every((purchase) => purchase.purchaseDate > today),
-                        bond ? bond.maturityDate <= today : false,
-                      )}
+                    : assessmentMessage(!!bond, onlyPlanned, bond ? !canBuyOn(bond, today) : false)}
                 </Typography>
               </Card>
             )}

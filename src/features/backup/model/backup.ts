@@ -53,10 +53,10 @@ const contentsSchema = z.object({
   ),
 });
 
+/** What a backup carries: every plan, the active one marked, their purchases and the theme. */
 export type BackupData = {
   purchases: PlanPurchase[];
   plans: InvestmentPlan[];
-  activePlanId?: string;
   theme?: ThemePreference;
 };
 
@@ -64,14 +64,15 @@ export type BackupData = {
 const CONTEXT = `${FORMAT}:${VERSION}`;
 
 export async function serializeBackup(
-  purchases: PlanPurchase[],
-  plans: InvestmentPlan[],
+  { purchases, plans, theme }: BackupData,
   key: string,
-  activePlanId?: string,
-  theme?: ThemePreference,
 ): Promise<string> {
-  const backupPlans = plans.map(({ isActive: _isActive, ...plan }) => plan);
-  const contents: BackupContents = { holdings: purchases, plans: backupPlans, activePlanId, theme };
+  const contents: BackupContents = {
+    holdings: purchases,
+    plans: plans.map(({ isActive: _isActive, ...plan }) => plan),
+    activePlanId: plans.find((plan) => plan.isActive)?.id,
+    theme,
+  };
   const backup: Backup = {
     format: FORMAT,
     version: VERSION,
@@ -134,7 +135,6 @@ export async function parseBackup(text: string, key: string): Promise<BackupData
       ...plan,
       isActive: activePlanId ? plan.id === activePlanId : index === 0,
     })),
-    ...(activePlanId ? { activePlanId } : {}),
     ...(theme ? { theme } : {}),
   };
 }

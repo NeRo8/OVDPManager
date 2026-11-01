@@ -8,10 +8,7 @@ import {
   useWallet,
 } from '@/entities/portfolio';
 
-import { useBondPickerFilters } from './bondPickerFilters';
-import { type BondTerm } from './bondTerm';
-
-export type { BondTerm };
+import { type BondTerm, useBondPickerFilters } from './bondPickerFilters';
 
 type FilterOption<T> = { value: T; count: number };
 

@@ -1,3 +1,5 @@
+import { createId } from '@/shared/lib';
+
 import { type InvestmentPlan, PLAN_NAME_MAX_LENGTH, uniquePlanName } from '../plan';
 import type { PlanPurchase } from '../portfolio';
 import { copyPlanPurchases, removePlanPurchases, replacePurchases } from '../purchases';
@@ -11,7 +13,7 @@ function updatePlans(update: (current: InvestmentPlan[]) => InvestmentPlan[]): v
 /** `name` comes from the plan-name form, already trimmed and checked. */
 export function createInvestmentPlan(name: string): string {
   const plan: InvestmentPlan = {
-    id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+    id: createId(),
     name,
     isActive: usePlansStore.getState().plans.length === 0,
   };
@@ -59,11 +61,7 @@ export function setActivePlan(id: string): void {
 }
 
 /** Restores from a backup: its plans and their purchases replace everything. */
-export function restorePortfolio(
-  purchases: PlanPurchase[],
-  plans: InvestmentPlan[],
-  activePlanId?: string,
-): void {
+export function restorePortfolio(purchases: PlanPurchase[], plans: InvestmentPlan[]): void {
   replacePurchases(purchases);
-  usePlansStore.setState({ plans: selectActivePlan(plans, activePlanId) });
+  usePlansStore.setState({ plans: selectActivePlan(plans) });
 }

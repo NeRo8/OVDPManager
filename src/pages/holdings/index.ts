@@ -5,3 +5,4 @@ export { default as BondPickerScreen } from './ui/BondPickerScreen';
 export { default as BondScreen } from './ui/BondScreen';
 export { default as BondFiltersScreen } from './ui/BondFiltersScreen';
 export { default as SaleScreen } from './ui/SaleScreen';
+export { purchaseScreenTitle } from './model/purchaseScreenTitle';

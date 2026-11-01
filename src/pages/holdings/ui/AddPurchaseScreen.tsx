@@ -4,6 +4,8 @@ import { BondsGate, isPlannedPurchase, useWallet } from '@/entities/portfolio';
 
 import { EmptyState } from '@/shared/ui';
 
+import { purchaseScreenTitle } from '../model/purchaseScreenTitle';
+
 import { AddPurchaseForm } from './AddPurchaseForm';
 
 /**
@@ -20,16 +22,12 @@ export default function AddPurchaseScreen() {
   const purchase = purchaseId
     ? position?.purchases.find((item) => item.id === purchaseId)
     : undefined;
+  const purchases = position?.purchases ?? [];
   // The other purchases of the bond: the one edited is the form itself.
-  const ownedQuantity = (position?.purchases ?? [])
+  const ownedQuantity = purchases
     .filter((item) => item.id !== purchase?.id && !isPlannedPurchase(item, today))
     .reduce((sum, item) => sum + item.quantity, 0);
-  const title = (() => {
-    if (purchase) {
-      return 'Змінити купівлю';
-    }
-    return ownedQuantity > 0 ? 'Докупити ОВДП' : 'Додати купівлю';
-  })();
+  const title = purchaseScreenTitle(purchases, isin, purchaseId, today);
 
   // Leave the issue open so another purchase can be entered for a different date.
   const closeAdding = () => router.back();
@@ -37,7 +35,7 @@ export default function AddPurchaseScreen() {
   if (purchaseId && !purchase) {
     return (
       <>
-        <Stack.Screen options={{ title: 'Купівлі немає' }} />
+        <Stack.Screen options={{ title }} />
         <EmptyState
           icon="receipt-outline"
           title="Купівлі немає"

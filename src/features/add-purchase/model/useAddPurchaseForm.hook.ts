@@ -7,23 +7,22 @@ import {
   type Bond,
   type Purchase,
   addPurchaseToActivePlan,
-  groupPositions,
   isPlannedPurchase,
   pricePerBond,
   updatePurchase,
   useBonds,
-  walletPosition,
   useKeyRate,
 } from '@/entities/portfolio';
 
-import { showToast, todayISO } from '@/shared/lib';
+import { useToday } from '@/shared/config';
+import { showToast } from '@/shared/lib';
 
 import {
   type PurchaseFormInput,
   type PurchaseFormValues,
   purchaseFormSchema,
 } from './purchaseForm.schema';
-import { annualYieldText, assessPurchase } from './purchaseHints';
+import { purchasePreview } from './purchasePreview';
 
 /** The amount as the input shows it, with a decimal comma. */
 const amountText = (amount: number) => String(amount).replace('.', ',');
@@ -36,7 +35,7 @@ const amountText = (amount: number) => String(amount).replace('.', ',');
 export function useAddPurchaseForm(bond: Bond, onSaved: () => void, purchase?: Purchase) {
   const saving = useRef(false);
   const { bonds } = useBonds();
-  const today = todayISO();
+  const today = useToday();
   const schema = purchaseFormSchema(bond);
   const form = useForm<PurchaseFormInput, unknown, PurchaseFormValues>({
     resolver: zodResolver(schema),
@@ -57,53 +56,16 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void, purchase?: P
   const values = useWatch({ control: form.control });
   const purchaseDate = values.purchaseDate ?? today;
   const keyRate = useKeyRate(purchaseDate);
-  const draft = schema.safeParse(values);
-  const valid = draft.success ? draft.data : null;
+  const parsed = schema.safeParse(values);
+  // The price shows as soon as the amount and the quantity are valid, whatever the date.
   const amount = schema.shape.amount.safeParse(values.amount);
   const quantity = schema.shape.quantity.safeParse(values.quantity);
   const price =
     amount.success && quantity.success ? pricePerBond(amount.data, quantity.data) : null;
   const isPlanned = isPlannedPurchase({ purchaseDate }, today);
-
-  const preview = (() => {
-    if (!valid || price === null) return null;
-    const draft: Purchase = {
-      id: 'draft',
-      isin: bond.isin,
-      purchaseDate: valid.purchaseDate,
-      amount: valid.amount,
-      quantity: valid.quantity,
-      currency: bond.currency,
-    };
-    // The draft is a Position of one purchase, summed up as the wallet's are.
-    const { results, payments, nextPayment, annualYield } = walletPosition(
-      groupPositions([draft])[0],
-      bond,
-      today,
-    );
-    // The bond comes from the NBU data, so its results are always there.
-    if (!results) return null;
-    const yieldInput = { annualYield, netIncome: results.netIncome, isComplete: results.complete };
-    const { hints, verdict } = assessPurchase({
-      ...yieldInput,
-      bond,
-      purchaseDate: valid.purchaseDate,
-      today,
-      pricePerBond: price,
-      keyRate,
-      bonds: bonds ?? [],
-    });
-    return {
-      nextPayment,
-      couponsLeft: payments.filter((p) => p.type === 'coupon' && !p.isPaid).length,
-      totalPayments: results.totalPayments,
-      netIncome: results.netIncome,
-      returnPercent: results.returnPercent,
-      annualYield: annualYieldText(yieldInput),
-      hints,
-      verdict,
-    };
-  })();
+  const preview = parsed.success
+    ? purchasePreview({ bond, values: parsed.data, today, keyRate, bonds: bonds ?? [] })
+    : null;
 
   const submit = () =>
     form.handleSubmit(({ purchaseDate, quantity, amount }) => {

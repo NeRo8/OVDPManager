@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { useActivePurchases } from '../model/useWallet.hook';
+import { useActivePurchases } from '../model/activePlan';
 
 import { BondsGate } from './BondsGate';
 import { EmptyWallet } from './EmptyWallet';

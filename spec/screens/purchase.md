@@ -6,9 +6,9 @@
 
 - Маршрути: `src/app/add/index.tsx` (`BondPickerScreen`, скелет `list`, заголовок «Оберіть ОВДП»), `src/app/bond-filters.tsx` (`BondFiltersScreen`, скелет `filters`, модальне вікно «Фільтри ОВДП»), `src/app/add/[isin]/index.tsx` (`AddBondDetailsScreen`, скелет `list`, заголовок за замовчуванням «ОВДП»), `src/app/add/[isin]/purchase.tsx` (`AddPurchaseScreen`, скелет `form`, заголовок за замовчуванням «Додати купівлю»). Опції заголовків — `src/app/_layout.tsx`.
 - Екрани: `src/pages/holdings/ui/BondPickerScreen.tsx`, `BondChoiceRow.tsx`, `ownedLabel.ts`, `BondFiltersScreen.tsx`, `BondFiltersButton.tsx`, `bondFilterLabels.ts`, `AddBondDetailsScreen.tsx`, `AddPurchaseScreen.tsx`, `AddPurchaseForm.tsx`, `HintsSection.tsx`.
-- Фіча: `src/features/add-purchase/model/useBondPicker.hook.ts`, `bondTerm.ts`, сховище фільтрів `bondPickerFilters/` (ключ `bond-picker-filters-v1`), `purchaseForm.schema.ts`, `useAddPurchaseForm.hook.ts`, `purchaseHints.ts` (`assessPurchase`, `annualYieldText`).
+- Фіча: `src/features/add-purchase/model/useBondPicker.hook.ts`, сховище фільтрів `bondPickerFilters/` (ключ `bond-picker-filters-v1`, типи `BondTerm` і `BondSort`), `purchaseForm.schema.ts`, `useAddPurchaseForm.hook.ts`, `purchasePreview.ts` (`purchasePreview`: чернетка як позиція з однієї купівлі та її оцінка), `purchaseHints.ts` (`assessPurchase`, `annualYieldText`).
 - Сутність: `useWallet()`, `useBonds()`, `useKeyRate(date)`; `bondChoices`, `canBuyOn`, `isRedeemed`, `isPlannedPurchase`, `pricePerBond`, `groupPositions` (`model/portfolio.ts`); `walletPosition` (`model/position.ts`); `maturityTerm`, `newBondsRate`, `MAX_PLAUSIBLE_YIELD` (`model/market.ts`); `ANNUAL_YIELD_RANGE` (`model/yield.ts`); `keyRateHint`, `newBondsHint` (`model/yieldHints.ts`); `sortHints`, `worstTone` (`model/hints.ts`); `BondParameters`, `BondsGate` (`ui/`); дії `addPurchaseToActivePlan` (`model/activePlan/actions.ts`), `updatePurchase` (`model/purchases/actions.ts`).
-- Спільне: `parseAmount`, `round2`, `formatMoney`, `formatDate`, `formatTimeLeft`, `todayISO` (`src/shared/lib/`), `Input` (`src/shared/ui/form/Input.tsx`, очищення введеного), `DateField`, `FieldRow`.
+- Спільне: `parseAmount`, `round2`, `formatMoney`, `formatDate`, `formatTimeLeft`, `formatPercent` (`src/shared/lib/`), `useToday` (`src/shared/config/`), `Input` (`src/shared/ui/form/Input.tsx`, очищення введеного), `DateField`, `FieldRow`.
 
 ## Що на екрані
 
@@ -33,7 +33,7 @@
 3. `BondParameters` — секція «Параметри випуску»: «Ставка купону» (`«<rate>% річних»`), «Номінал», «Купон на 1 шт» (перший купон графіка або «без купону»), «Дата розміщення», «Дата погашення», «Тип».
 4. Заголовок «Виплати на 1 шт» і підпис «Виплати за даними НБУ. Які з них належатимуть вам, залежить від дати купівлі.»
 5. Усі виплати графіка НБУ, минулі теж: `«Купон · ДД.ММ.РРРР»` або `«Погашення · ДД.ММ.РРРР»` і сума на 1 ОВДП.
-6. FAB «Додати купівлю <ISIN>» (або «Докупити <ISIN>», коли ISIN уже є в активному плані).
+6. FAB «Додати купівлю <ISIN>» (або «Докупити <ISIN>», коли в активному плані є зроблена купівля цього ISIN, PICK-16).
 
 ### Форма купівлі (`/add/[isin]/purchase`)
 
@@ -78,7 +78,7 @@
 
 **PICK-15.** Подробиці ОВДП показують усі виплати графіка НБУ на одну ОВДП (також ті, що вже минули), без урахування дати купівлі. Під ISIN зазначено погашення сьогодні або в минулому, відсутність опублікованого погашення та те, що дохідність можна розрахувати після введення ціни. Підпис секції «ОВДП» за N > 0, де N — кількість позиції активного плану разом із запланованими купівлями, а M — скільки з них заплановано (`planned.quantity`): «У гаманці вже є N шт цієї ОВДП.» при M = 0, інакше «У гаманці вже є N шт цієї ОВДП, з них M — заплановані купівлі.» (також коли M = N). Приклад: куплено 7 шт, заплановано 3 → «У гаманці вже є 10 шт цієї ОВДП, з них 3 — заплановані купівлі.» Джерело: `AddBondDetailsScreen`.
 
-**PICK-16.** FAB подробиць є завжди, коли ОВДП є в каталозі, — також для погашеної ОВДП (знайденої пошуком), бо купівлю можна датувати минулим. Підпис — «Докупити <ISIN>», якщо ISIN є в активному плані, інакше «Додати купівлю <ISIN>». Дотик відкриває форму `/add/[isin]/purchase`.
+**PICK-16.** FAB подробиць є завжди, коли ОВДП є в каталозі, — також для погашеної ОВДП (знайденої пошуком), бо купівлю можна датувати минулим. Підпис — «Докупити <ISIN>», якщо в активному плані є зроблена (не запланована) купівля цього ISIN, інакше «Додати купівлю <ISIN>» — те саме правило, що й заголовок форми (BUY-31, `hasMadePurchase`). Приклад: є лише запланована купівля → «Додати купівлю <ISIN>». Дотик відкриває форму `/add/[isin]/purchase`.
 
 **PICK-17.** ISIN з адреси, якого немає в каталозі, — на подробицях і у формі `EmptyState` з іконкою `search-outline`, заголовком ISIN і текстом «Цієї ОВДП немає в даних НБУ.»
 
@@ -161,7 +161,7 @@
 
 **BUY-30.** З `purchaseId` форма шукає купівлю серед купівель позиції цього ISIN в активному плані. Не знайдено (видалено, інший план, інший ISIN) — `EmptyState` з іконкою `receipt-outline`, «Купівлі немає», «Цю купівлю вже видалено з плану або план змінився. Відкрийте ОВДП у гаманці, щоб побачити її купівлі.» Заголовок шапки тоді не змінюється («Додати купівлю»). Ця перевірка йде раніше за `BondsGate`. Джерело: `AddPurchaseScreen`.
 
-**BUY-31.** Заголовок шапки: зміна будь-якої купівлі — «Змінити купівлю»; нова купівля, коли в плані вже є ОВДП цього ISIN (BUY-32 > 0), — «Докупити ОВДП»; інакше «Додати купівлю».
+**BUY-31.** Заголовок шапки (`purchaseScreenTitle`, той самий у `_layout.tsx`, поки форма виїжджає, і на самому екрані): зміна купівлі — «Змінити купівлю», а якщо її вже немає — «Купівлі немає»; нова купівля, коли в плані є зроблена купівля цього ISIN (`hasMadePurchase`, BUY-32 > 0), — «Докупити ОВДП»; інакше «Додати купівлю». `src/pages/holdings/model/purchaseScreenTitle.ts`.
 
 **BUY-32.** «Інші ОВДП цього ISIN» (`ownedQuantity`) = кількість зроблених купівель позиції, крім тієї, що змінюється. Заплановані купівлі не входять.
 
@@ -237,6 +237,6 @@
 
 **GAP-BUY-06.** Підтвердження ніде не зберігається: запланована купівля, чия дата настала, рахується як зроблена з сумою-оцінкою; позначка «Заплановано — торкніться, щоб змінити» зникає того ж дня, а далі купівля вже «Змінити купівлю». Відрізнити непідтверджені оцінки від справжніх цифр неможливо.  Доказ: `isPlannedPurchase`, `updatePurchase`, `PurchaseRow`. Важливість: середня.
 
-**GAP-BUY-10.** Окремі приклади кількості й розбору суми перевіряються тестами, але повідомлення, межі дат і показ (`couponsLeft`, `nextPayment`, заголовки) не мають повного покриття. Доказ: `purchaseForm.schema.test.ts`, `format.test.ts`, `useAddPurchaseForm.hook.ts`. Важливість: середня.
+**GAP-BUY-10.** Окремі приклади кількості й розбору суми перевіряються тестами, а показ чернетки (`couponsLeft`, `nextPayment`, чистий дохід) — тестом `purchasePreview.test.ts`; повідомлення, межі дат і заголовки не мають повного покриття. Доказ: `purchaseForm.schema.test.ts`, `format.test.ts`, `purchasePreview.test.ts`. Важливість: середня.
 
 **BUY-37.** Якщо купівлю видалено або план змінився, заголовок екрана — «Купівлі немає».

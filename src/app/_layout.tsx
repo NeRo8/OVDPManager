@@ -5,14 +5,12 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useUnistyles } from 'react-native-unistyles';
 
+import { purchaseScreenTitle } from '@/pages/holdings';
+import { planNameTitle } from '@/pages/plan';
+
 import { useIsOnboardingCompleted } from '@/features/onboarding';
 
-import {
-  isPlannedPurchase,
-  type Purchase,
-  useActivePurchases,
-  useInvestmentPlans,
-} from '@/entities/portfolio';
+import { getActivePurchases, useInvestmentPlans } from '@/entities/portfolio';
 
 import { QueryProvider } from '@/shared/api';
 import { useToday } from '@/shared/config';
@@ -31,29 +29,10 @@ const filtersModal = (fallback: Href) =>
 // LaunchSplash hides the native splash once it covers the screen; until then nothing shows through.
 SplashScreen.preventAutoHideAsync();
 
-type PurchaseScreenTitleParams = {
-  purchases: Purchase[];
-  isin?: string;
-  purchaseId?: string;
-  today: string;
-};
-
-function purchaseScreenTitle({ purchases, isin, purchaseId, today }: PurchaseScreenTitleParams) {
-  const position = purchases.filter((purchase) => purchase.isin === isin);
-  if (purchaseId) {
-    return position.some((purchase) => purchase.id === purchaseId)
-      ? 'Змінити купівлю'
-      : 'Купівлі немає';
-  }
-  if (position.some((purchase) => !isPlannedPurchase(purchase, today))) return 'Докупити ОВДП';
-  return 'Додати купівлю';
-}
-
 export default function RootLayout() {
   const { theme, rt } = useUnistyles();
   const isOnboarded = useIsOnboardingCompleted();
   const hasPlans = useInvestmentPlans().length > 0;
-  const { purchases } = useActivePurchases();
   const today = useToday();
   const base = rt.themeName === 'dark' ? DarkTheme : DefaultTheme;
   // Navigator surfaces use the app palette; NativeStack sets the header colors itself.
@@ -102,15 +81,16 @@ export default function RootLayout() {
                       isin?: string;
                       purchaseId?: string;
                     };
-                    return { title: purchaseScreenTitle({ purchases, isin, purchaseId, today }) };
+                    // Read when the screen is pushed; the screen keeps its title current itself.
+                    return {
+                      title: purchaseScreenTitle(getActivePurchases(), isin, purchaseId, today),
+                    };
                   }}
                 />
                 <NativeStack.Screen
                   name="plan/name"
                   options={({ route }) => ({
-                    title: (route.params as { planId?: string })?.planId
-                      ? 'Назва плану'
-                      : 'Новий план',
+                    title: planNameTitle((route.params as { planId?: string })?.planId, false),
                   })}
                 />
                 <NativeStack.Screen name="plan/list" options={{ title: 'Мої плани' }} />
@@ -146,7 +126,10 @@ export default function RootLayout() {
                 guard={isOnboarded && !hasPlans}
                 redirectTo={isOnboarded ? '/holdings' : '/onboarding'}
               >
-                <NativeStack.Screen name="welcome" options={{ title: 'Перший план' }} />
+                <NativeStack.Screen
+                  name="welcome"
+                  options={{ title: planNameTitle(undefined, true) }}
+                />
               </NativeStack.Protected>
               {/* Reachable without plans too: a backup brings its plans along. */}
               <NativeStack.Screen name="backup/import" options={{ title: 'Відновити з копії' }} />

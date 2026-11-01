@@ -83,30 +83,36 @@ export function hasRedemption(bond: Bond): boolean {
   return bond.payments.some((payment) => payment.type === 'redemption');
 }
 
-function withNetIncome(
-  sums: Omit<PositionResults, 'netIncome' | 'returnPercent'>,
-): PositionResults {
-  const netIncome = sums.complete ? round2(sums.totalPayments - sums.invested) : null;
-  return {
-    ...sums,
-    netIncome,
-    returnPercent:
-      netIncome !== null && sums.invested ? round2((netIncome / sums.invested) * 100) : null,
-  };
+/** The payments minus what they cost, and that as % of the cost; null while incomplete. */
+function netIncomeOf(
+  { invested, totalPayments }: { invested: number; totalPayments: number },
+  complete: boolean,
+): Pick<PositionResults, 'netIncome' | 'returnPercent'> {
+  if (!complete) return { netIncome: null, returnPercent: null };
+  const netIncome = round2(totalPayments - invested);
+  return { netIncome, returnPercent: invested ? round2((netIncome / invested) * 100) : null };
 }
 
-function positionResults(position: Position, bond: Bond, payments: PositionPayment[]) {
+function positionResults(
+  position: Position,
+  bond: Bond,
+  payments: PositionPayment[],
+): PositionResults {
   const coupons = sumTotals(payments.filter((payment) => payment.type === 'coupon'));
   const redemption = sumTotals(payments.filter((payment) => payment.type === 'redemption'));
-  return withNetIncome({
-    invested: position.investedAmount,
+  const invested = position.investedAmount;
+  const totalPayments = round2(coupons + redemption);
+  const complete = hasRedemption(bond);
+  return {
+    invested,
     coupons,
     redemption,
     received: sumTotals(payments.filter((payment) => payment.isPaid)),
     expected: sumTotals(payments.filter((payment) => !payment.isPaid)),
-    totalPayments: round2(coupons + redemption),
-    complete: hasRedemption(bond),
-  });
+    totalPayments,
+    complete,
+    ...netIncomeOf({ invested, totalPayments }, complete),
+  };
 }
 
 /**
@@ -176,14 +182,7 @@ export function resultsByCurrency(positions: WalletPosition[]): CurrencyResults[
       totalPayments: sum(withRedemption, (item) => item.totalPayments),
     };
     // The net income and the return over the term of the Positions with every payment known.
-    const { netIncome, returnPercent } = withNetIncome({
-      ...published,
-      coupons: 0,
-      redemption: 0,
-      received: 0,
-      expected: 0,
-      complete: withRedemption.length > 0,
-    });
+    const { netIncome, returnPercent } = netIncomeOf(published, withRedemption.length > 0);
     const withYield = known.flatMap(({ annualYield, position }) =>
       annualYield === null ? [] : [{ annualYield, invested: position.investedAmount }],
     );

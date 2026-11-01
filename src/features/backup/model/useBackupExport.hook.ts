@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useForm, useFormState } from 'react-hook-form';
 import { z } from 'zod';
 
-import { getActivePlan, getInvestmentPlans, getPurchases } from '@/entities/portfolio';
+import { getInvestmentPlans, getPurchases } from '@/entities/portfolio';
 
 import { askDestructive, formatDateTime, showToast } from '@/shared/lib';
 import { getThemePreference } from '@/shared/theme';
@@ -29,6 +29,13 @@ const BackupExportSchema = z
   });
 
 type BackupExportForm = z.infer<typeof BackupExportSchema>;
+
+/** Every plan and purchase on the device, and the theme, as a backup holds them. */
+const currentBackup = () => ({
+  purchases: getPurchases(),
+  plans: getInvestmentPlans(),
+  theme: getThemePreference(),
+});
 
 /** Where the backup goes: the account's cloud copy or a file from the share sheet. */
 type ExportTarget = 'cloud' | 'file';
@@ -63,13 +70,7 @@ export function useBackupExport(onExported: () => void) {
 
   const exportToFile = form.handleSubmit(({ key }) =>
     run('file', 'Не вдалося створити копію', async () => {
-      const json = await serializeBackup(
-        getPurchases(),
-        getInvestmentPlans(),
-        key,
-        getActivePlan()?.id,
-        getThemePreference(),
-      );
+      const json = await serializeBackup(currentBackup(), key);
       // The share sheet is the outcome: the user saves or sends the file from there. Closed without
       // either, the screen stays, so the copy can be made again.
       const fileName = backupFileName();
@@ -97,13 +98,7 @@ export function useBackupExport(onExported: () => void) {
           'Замінити',
         ));
       if (!replace) return;
-      const json = await serializeBackup(
-        getPurchases(),
-        getInvestmentPlans(),
-        key,
-        getActivePlan()?.id,
-        getThemePreference(),
-      );
+      const json = await serializeBackup(currentBackup(), key);
       const saved = await saveCloudBackup(signedIn, json);
       queryClient.setQueryData(cloudBackupQueryKey(signedIn.uid), saved);
       showToast({
