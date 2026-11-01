@@ -2,9 +2,7 @@ import { Appearance } from 'react-native';
 
 import { UnistylesRuntime } from 'react-native-unistyles';
 
-import { setPreferredTheme } from '@/shared/config/appSettings';
-
-import type { ThemePreference } from './types';
+import { setPreferredTheme, type ThemePreference } from '@/shared/config/appSettings';
 
 /**
  * Native controls (date picker, alerts, keyboard, status bar) take their appearance from the OS,

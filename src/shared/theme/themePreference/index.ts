@@ -1,3 +1,3 @@
 export * from './actions';
-export * from './selectors';
-export type * from './types';
+export { getThemePreference, useThemePreference } from '@/shared/config/appSettings';
+export type { ThemePreference } from '@/shared/config/appSettings';
