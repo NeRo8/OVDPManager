@@ -98,6 +98,21 @@ describe('walletPosition', () => {
     expect(both).toBeCloseTo((alone(cheap) * 900 + alone(dear) * 1100) / 2000, 1);
   });
 
+  it('leaves a purchase with no yield out of the yield and counts it, the others still yielding', () => {
+    const atNominal = purchase({ purchaseDate: '2025-01-01', amount: 1000 });
+    // 1 ₴ for a bond that pays 1 200 ₴: no yield up to 1000 % fits, most likely a typo.
+    const typo = purchase({ purchaseDate: '2025-01-01', amount: 1 });
+    const position = positionOf([atNominal, typo], '2026-03-15');
+    expect(position.annualYield).toBe(positionOf([atNominal], '2026-03-15').annualYield);
+    expect(position.annualYieldBasis).toBe(1000);
+    expect(position.purchasesWithoutYield).toBe(1);
+    expect(positionOf([typo], '2026-03-15')).toMatchObject({
+      annualYield: null,
+      annualYieldBasis: 0,
+      purchasesWithoutYield: 1,
+    });
+  });
+
   it('gives a payment on the purchase day to the previous owner', () => {
     const onCouponDay = [purchase({ purchaseDate: '2026-01-01', amount: 1000 })];
     const { payments } = positionOf(onCouponDay, '2026-03-15');

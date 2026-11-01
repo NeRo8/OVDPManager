@@ -63,20 +63,18 @@ export default function BondScreen() {
   const [tab, setTab] = useState<BondTab>('payments');
   const {
     today,
+    item,
     position,
     bond,
     payments,
-    currency,
     hasTopUps,
-    results,
-    planned,
     canTopUp,
     deletePurchase,
     deletePosition,
   } = useBondDetails(isin);
   const { assessment } = useHoldOrSell(isin, null);
 
-  if (!position || !currency)
+  if (!item || !position)
     return <EmptyState icon="search-outline" message="У гаманці немає цієї ОВДП" />;
 
   const tabs: { label: string; value: BondTab }[] = [
@@ -135,13 +133,7 @@ export default function BondScreen() {
                 </Typography>
               )}
             </Card>
-            <PositionSummary
-              position={position}
-              currency={currency}
-              hasTopUps={hasTopUps}
-              results={results}
-              planned={planned}
-            />
+            <PositionSummary item={item} hasTopUps={hasTopUps} />
             {assessment && assessment.hints.length > 0 ? (
               <HintsSection
                 title="Тримати чи продати"

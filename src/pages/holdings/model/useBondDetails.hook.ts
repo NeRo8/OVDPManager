@@ -12,16 +12,11 @@ import { formatDate, formatMoney, confirmDestructive, goBackOrHome, showToast } 
 export function useBondDetails(isin: string) {
   const { positions, byIsin, today } = useWallet();
   const bond = byIsin.get(isin);
-  const walletPosition = positions.find(({ position }) => position.isin === isin);
-  const position = walletPosition?.position;
-  const payments = walletPosition?.payments ?? [];
-  /** Comes with the position */
-  const currency = walletPosition?.currency;
+  /** The Position with its payments, results and yields; missing when the wallet has no such bond */
+  const item = positions.find(({ position }) => position.isin === isin);
+  const position = item?.position;
+  const payments = item?.payments ?? [];
   const hasTopUps = (position?.purchases.length ?? 0) > 1;
-  /** Missing when the NBU data has no such bond */
-  const results = walletPosition?.results;
-  /** Its purchases still planned */
-  const planned = walletPosition?.planned ?? { quantity: 0, amount: 0 };
   const canTopUp = !!bond && canBuyOn(bond, today);
 
   function deletePurchase(purchase: Purchase) {
@@ -54,13 +49,11 @@ export function useBondDetails(isin: string) {
 
   return {
     today,
+    item,
     position,
     bond,
     payments,
-    currency,
     hasTopUps,
-    results,
-    planned,
     canTopUp,
     deletePurchase,
     deletePosition,

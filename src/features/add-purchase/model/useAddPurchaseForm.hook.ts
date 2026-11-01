@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useFormState, useWatch } from 'react-hook-form';
@@ -49,6 +49,12 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void, purchase?: P
         }
       : { purchaseDate: today, quantity: '', amount: '' },
   });
+
+  // A new purchase starts today, which a bond no longer for sale (or not yet placed) does not allow:
+  // the date's error shows at once, rather than Save staying off without a reason.
+  useEffect(() => {
+    if (!purchase) void form.trigger('purchaseDate');
+  }, [form, purchase]);
 
   // Read through hooks, not `form.formState`: the React Compiler would cache a read of the stable
   // `form` object, and the Save button would stop following the form.

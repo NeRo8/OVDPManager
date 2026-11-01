@@ -99,7 +99,7 @@
 
 Приклад (`position.test.ts`): ОВДП 10 %, номінал 1000, купони по 50 щопівроку з 2025-07-01 до 2027-01-01, погашення 1000 у 2027-01-01. Дві ОВДП куплено 2025-01-01 за 1980, сьогодні 2026-03-15: `invested` 1980, `coupons` 400, `redemption` 2000, `received` 200, `expected` 2200, `totalPayments` 2400, `netIncome` 420, `returnPercent` 21,21.
 
-**DOM-30.** «Річна дохідність» позиції (`positionYield`): `null`, якщо погашення не опубліковано або вкладена сума недодатна. Інакше для кожної купівлі окремо рахується `annualYield(amount, purchaseDate, виплати лише цієї купівлі за DOM-21)`; якщо хоч одна купівля дає `null`, уся позиція дає `null`. Результат — `round2(Σ (дохідність × amount) / investedAmount)`. Заплановані купівлі входять. `position.ts`, `positionYield`.
+**DOM-30.** «Річна дохідність» позиції (`positionYield`): `null`, якщо погашення не опубліковано або вкладена сума недодатна. Інакше для кожної купівлі окремо рахується `annualYield(amount, purchaseDate, виплати лише цієї купівлі за DOM-21)`. Купівля з `null` (ціна, якій не відповідає жодна дохідність у межах −99…1000 %, найімовірніше помилка в сумі) у середню не входить і рахується в `purchasesWithoutYield`, тож не ховає дохідність решти. Результат — `round2(Σ (дохідність × amount) / Σ amount)` за купівлями з дохідністю; ця сума — `annualYieldBasis`. Без жодної такої купівлі — `null`. Заплановані купівлі входять. Приклад: купівля 1 шт за 1 000 ₴ і помилкова за 1 ₴ — дохідність позиції як у першої, `purchasesWithoutYield = 1`, `annualYieldBasis = 1000`. `position.ts`, `positionYield`.
 
 ### Підсумки за валютою (resultsByCurrency)
 
@@ -109,7 +109,7 @@
 
 **DOM-33.** `netIncome` і `returnPercent` валюти рахуються лише за позиціями з опублікованим погашенням: `netIncome = round2(round2(Σ totalPayments опублікованих) − round2(Σ invested опублікованих))`, `returnPercent` — від `invested` лише опублікованих. Якщо опублікованих немає — обидва `null`. Тож поруч стоять `invested` усіх позицій і `netIncome` лише частини з них. Приклад (`position.test.ts`): позиція 1000 → 1200 і позиція без погашення за 1000: `invested` 2000, `netIncome` 200, `returnPercent` 20, `incompleteCount` 1. `resultsByCurrency`. `published = { invested, totalPayments }` — ці дві суми опублікованих позицій, з яких рахується `netIncome`; коли всі позиції опубліковані, вони збігаються з `invested` і `totalPayments` валюти. `netIncomeBasis(results)` — текст «Виплати <published.totalPayments> мінус вкладено <published.invested>, лише ОВДП з опублікованим погашенням» для підказки під «Чистим доходом»; дохідність окремо пояснює вкладену суму, яку використано як базу. Повертає `undefined`, коли `incompleteCount = 0`: тоді суми над ним сходяться і так.
 
-**DOM-34.** `annualYield` валюти — середня «Річна дохідність» позицій, у яких вона є (не `null`), зважена на `position.investedAmount`, з `round2`; `null`, якщо таких позицій немає. Позиції з `null`-дохідністю враховуються в `withoutYieldCount`; кількість показується біля середньої дохідності. `resultsByCurrency`.
+**DOM-34.** `annualYield` валюти — середня «Річна дохідність» позицій, у яких вона є (не `null`), зважена на `annualYieldBasis` (суму купівель, за якими її пораховано, DOM-30), з `round2`; `null`, якщо таких позицій немає. Позиції з `null`-дохідністю враховуються в `withoutYieldCount`; кількість показується біля середньої дохідності. `resultsByCurrency`.
 
 ### Гаманець (Wallet)
 
@@ -193,7 +193,7 @@
 6. **Інші валюти.** `keyRateHint` для не-`UAH` — `null`; `newBondsRate` бере ОВДП лише тієї самої валюти. ОВДП не в UAH/USD/EUR до застосунку не потрапляють.
 7. **Валюта купівлі не збігається з валютою ОВДП.** Виграє валюта ОВДП з даних НБУ (DOM-15); `purchase.currency` лишається лише як запасна.
 8. **Дублікати ISIN у каталозі НБУ.** `byIsin` — `Map`, тож останній рядок перезаписує попередні; список `bonds` містить обидва.
-9. **Позиція з однією купівлею без дохідності** (поза діапазоном −99…1000 %) робить `null` дохідність усієї позиції (DOM-30), а у валюті ця позиція випадає з середньої (DOM-34).
+9. **Позиція з однією купівлею без дохідності** (поза діапазоном −99…1000 %): дохідність позиції рахується за рештою купівель, а пропущені купівлі видно на картці ОВДП (DOM-30, BND-15); у середній валюти позиція важить лише суму купівель з дохідністю (DOM-34).
 10. **Без планів** `useActivePlan()` — `undefined`, гаманець порожній; екрани до цього не доходять (див. охоронці в `spec/backup-settings-onboarding.md`).
 11. **Опівночі.** Якщо застосунок залишається відкритим, дата у сховищі не змінюється від самого рендеру; `isPaid`, стан і «заплановано» оновляться після наступного відкриття або повернення на передній план (DOM-41).
 12. **Високосний рік.** Півроки рахуються як `дні / 365 × 2` (DOM-43), тож 366-денний рік дає трохи більше двох півроків.
@@ -206,7 +206,7 @@
 - `src/shared/lib/__tests__/number.test.ts`: округлення до копійок і відсутність від’ємного нуля (DOM-54).
 - `src/entities/portfolio/model/__tests__/market.test.ts`: DOM-11, DOM-45, DOM-47 (з DOM-48 для парної кількості — неявно, медіана двох значень), DOM-49.
 - `src/entities/portfolio/model/__tests__/position.test.ts`: DOM-21 (купон у день купівлі), DOM-24, DOM-25 (без даних НБУ), DOM-60 («tells what of the Position is still only planned»), DOM-26, DOM-27, DOM-30, DOM-31, DOM-32, DOM-33, DOM-34.
-- `src/entities/portfolio/model/__tests__/wallet.test.ts`: DOM-20 (порядок позицій), DOM-35, DOM-36 (порядок подій, купівля без даних НБУ), DOM-38.
+- `src/entities/portfolio/model/__tests__/wallet.test.ts`: DOM-20 (порядок позицій), DOM-35, DOM-36 (порядок подій, купівля без даних НБУ).
 - `src/features/payment-filters/model/__tests__/filterSchedule.test.ts`: DOM-37, DOM-39 (опосередковано), DOM-61 і DOM-40 для ISIN іншої валюти (через `effectiveFilters`, «keeps only the bonds of the currency shown…»).
 - `src/entities/portfolio/model/__tests__/portfolio.test.ts`: DOM-59 (`plannedQuantity` виплат до і після запланованої купівлі).
 - `src/features/add-purchase/model/__tests__/purchaseHints.test.ts`: DOM-51, DOM-52, DOM-46 (опосередковано, через `assessPurchase`).

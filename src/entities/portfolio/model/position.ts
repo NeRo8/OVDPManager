@@ -72,8 +72,15 @@ export type WalletPosition = {
   state: PositionState;
   /** Missing without the NBU data */
   results?: PositionResults;
-  /** «Річна дохідність»; null until NBU publishes the redemption */
+  /**
+   * «Річна дохідність» of the purchases that have one, weighted by what they cost; null until NBU
+   * publishes the redemption, or when no purchase has one
+   */
   annualYield: number | null;
+  /** What the purchases in `annualYield` cost: its weight in an average over several Positions */
+  annualYieldBasis: number;
+  /** Purchases left out of `annualYield`, as no yield `annualYield` can find fits their price */
+  purchasesWithoutYield: number;
   /** Its purchases still planned (dated after today), together; zero when all are made */
   planned: { quantity: number; amount: number };
 };
@@ -115,20 +122,43 @@ function positionResults(
   };
 }
 
+type PositionYield = Pick<
+  WalletPosition,
+  'annualYield' | 'annualYieldBasis' | 'purchasesWithoutYield'
+>;
+
+const NO_YIELD: PositionYield = {
+  annualYield: null,
+  annualYieldBasis: 0,
+  purchasesWithoutYield: 0,
+};
+
 /**
- * «Річна дохідність» of a position: each purchase's yield weighted by the amount paid. Null while
- * NBU has not published the redemption, as the payments fall short.
+ * «Річна дохідність» of a position: each purchase's yield weighted by the amount paid. A purchase
+ * without one (a price no yield in `ANNUAL_YIELD_RANGE` fits) is left out and counted, so it does
+ * not hide the others'. Null while NBU has not published the redemption, as the payments fall
+ * short, and when no purchase has a yield.
  */
-function positionYield(position: Position, bond: Bond, today: string): number | null {
-  if (!hasRedemption(bond) || position.investedAmount <= 0) return null;
+function positionYield(position: Position, bond: Bond, today: string): PositionYield {
+  if (!hasRedemption(bond)) return NO_YIELD;
   let weighted = 0;
+  let weight = 0;
+  let purchasesWithoutYield = 0;
   for (const purchase of position.purchases) {
     const payments = positionPayments([purchase], bond, today);
     const yearly = annualYield(purchase.amount, purchase.purchaseDate, payments);
-    if (yearly === null) return null;
-    weighted += yearly * purchase.amount;
+    if (yearly === null) {
+      purchasesWithoutYield += 1;
+    } else {
+      weighted += yearly * purchase.amount;
+      weight += purchase.amount;
+    }
   }
-  return round2(weighted / position.investedAmount);
+  return {
+    annualYield: weight > 0 ? round2(weighted / weight) : null,
+    annualYieldBasis: round2(weight),
+    purchasesWithoutYield,
+  };
 }
 
 function positionState(position: Position, bond: Bond | undefined, today: string): PositionState {
@@ -152,7 +182,7 @@ export function walletPosition(
     nextPayment: nextPayment(payments),
     state: positionState(position, bond, today),
     results: bond && positionResults(position, bond, payments),
-    annualYield: bond ? positionYield(position, bond, today) : null,
+    ...(bond ? positionYield(position, bond, today) : NO_YIELD),
     planned: plannedPart(position, today),
   };
 }
@@ -184,8 +214,8 @@ export function resultsByCurrency(positions: WalletPosition[]): CurrencyResults[
     };
     // The net income and the return over the term of the Positions with every payment known.
     const { netIncome, returnPercent } = netIncomeOf(published, withRedemption.length > 0);
-    const withYield = known.flatMap(({ annualYield, position }) =>
-      annualYield === null ? [] : [{ annualYield, invested: position.investedAmount }],
+    const withYield = known.flatMap(({ annualYield, annualYieldBasis }) =>
+      annualYield === null ? [] : [{ annualYield, invested: annualYieldBasis }],
     );
     const yieldWeight = withYield.reduce((total, item) => total + item.invested, 0);
     return [

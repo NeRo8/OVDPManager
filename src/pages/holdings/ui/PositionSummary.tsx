@@ -1,28 +1,18 @@
-import {
-  type Currency,
-  type Position,
-  type PositionResults,
-  type WalletPosition,
-  pricePerBond,
-} from '@/entities/portfolio';
+import { type WalletPosition, pricePerBond } from '@/entities/portfolio';
 
-import { InfoRow, Money, Section } from '@/shared/ui';
+import { InfoRow, Money, Percent, Section } from '@/shared/ui';
 
 import { ownedLabel } from './ownedLabel';
 
 type Props = {
-  position: Position;
-  currency: Currency;
+  item: WalletPosition;
   /** Bought in several purchases: the average price is worth showing */
   hasTopUps: boolean;
-  /** Missing when the NBU data has no such bond */
-  results?: PositionResults;
-  /** Its purchases still planned */
-  planned: WalletPosition['planned'];
 };
 
-/** What a bond in the wallet has cost, brought and will bring. */
-export function PositionSummary({ position, currency, hasTopUps, results, planned }: Props) {
+/** What a bond in the wallet has cost, brought and will bring, and what that comes to a year. */
+export function PositionSummary({ item, hasTopUps }: Props) {
+  const { position, currency, results, planned, annualYield, purchasesWithoutYield } = item;
   const price = pricePerBond(position.investedAmount, position.quantity);
   return (
     <Section title="Підсумок">
@@ -63,6 +53,20 @@ export function PositionSummary({ position, currency, hasTopUps, results, planne
             signedValue={results.netIncome ?? undefined}
           />
         </>
+      )}
+      {results?.returnPercent != null && (
+        <InfoRow
+          label="Дохідність за весь строк"
+          hint="Чистий дохід у відсотках від вкладеного, без перерахунку на рік, податків і комісій"
+          value={<Percent value={results.returnPercent} />}
+        />
+      )}
+      {annualYield !== null && (
+        <InfoRow
+          label="Річна дохідність"
+          hint={`Ціна купівлі й виплати до погашення, перераховані на рік; середня зважена на суму купівель. Її можна порівнювати з депозитом.${purchasesWithoutYield ? ` Не враховано купівель без розрахованої дохідності: ${purchasesWithoutYield}.` : ''}`}
+          value={<Percent value={annualYield} />}
+        />
       )}
     </Section>
   );

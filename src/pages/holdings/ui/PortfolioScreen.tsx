@@ -21,11 +21,13 @@ import {
   screenContent,
 } from '@/shared/ui';
 
+import { sortWalletPositions } from '../model/walletOrder';
+
 import { PositionRow } from './PositionRow';
 
 export default function PortfolioScreen() {
-  const wallet = useWallet();
-  const { refresh, positions } = wallet;
+  const { refresh, positions: unsorted } = useWallet();
+  const positions = sortWalletPositions(unsorted);
   const pullToRefresh = usePullToRefresh(refresh);
   const openBond = (isin: string) => router.push({ pathname: '/bond/[isin]', params: { isin } });
   const addBond = () => router.push('/add');
