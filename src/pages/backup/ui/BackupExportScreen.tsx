@@ -3,7 +3,14 @@ import { Controller } from 'react-hook-form';
 
 import { useBackupExport } from '@/features/backup';
 
-import { Button, PasswordInput, FormScrollView, Section, Typography } from '@/shared/ui';
+import {
+  Button,
+  FormScrollView,
+  OnlineOnly,
+  PasswordInput,
+  Section,
+  Typography,
+} from '@/shared/ui';
 
 /**
  * Making a backup: the key that encrypts it, typed twice, then the Google account's cloud copy or
@@ -72,20 +79,22 @@ export default function BackupExportScreen() {
           )}
         />
       </Section>
-      <Section
-        title="У хмарі"
-        footer={
-          accountEmail
-            ? `Копія належить акаунту ${accountEmail} і замінює попередню. Відновити її можна на будь-якому пристрої, увійшовши в цей акаунт.`
-            : 'Застосунок попросить увійти через Google. Відновити копію можна на будь-якому пристрої з тим самим акаунтом.'
-        }
-      >
-        <Button
-          title={exportingTo === 'cloud' ? 'Зберігаємо…' : 'Зберегти в хмарі'}
-          disabled={!canExport}
-          onPress={saveToCloud}
-        />
-      </Section>
+      <OnlineOnly offlineMessage="Немає зв’язку з інтернетом — зберегти копію в хмарі можна буде, щойно зв’язок відновиться. У файл копія зберігається й без нього.">
+        <Section
+          title="У хмарі"
+          footer={
+            accountEmail
+              ? `Копія належить акаунту ${accountEmail} і замінює попередню. Відновити її можна на будь-якому пристрої, увійшовши в цей акаунт.`
+              : 'Застосунок попросить увійти через Google. Відновити копію можна на будь-якому пристрої з тим самим акаунтом.'
+          }
+        >
+          <Button
+            title={exportingTo === 'cloud' ? 'Зберігаємо…' : 'Зберегти в хмарі'}
+            disabled={!canExport}
+            onPress={saveToCloud}
+          />
+        </Section>
+      </OnlineOnly>
       <Section title="У файлі" footer="JSON-файл можна зберегти чи надіслати з меню «Поділитися».">
         <Button
           title={exportingTo === 'file' ? 'Шифруємо…' : 'Зберегти у файл…'}

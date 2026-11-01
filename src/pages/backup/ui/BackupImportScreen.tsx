@@ -5,7 +5,15 @@ import { useBackupImport } from '@/features/backup';
 
 import { useInvestmentPlans } from '@/entities/portfolio';
 
-import { Button, Input, PasswordInput, FormScrollView, Section, Typography } from '@/shared/ui';
+import {
+  Button,
+  FormScrollView,
+  Input,
+  OnlineOnly,
+  PasswordInput,
+  Section,
+  Typography,
+} from '@/shared/ui';
 
 export default function BackupImportScreen() {
   const hasPlans = useInvestmentPlans().length > 0;
@@ -59,20 +67,22 @@ export default function BackupImportScreen() {
           )}
         />
       </Section>
-      <Section
-        title="З хмари"
-        footer={
-          accountEmail
-            ? `Копія акаунта ${accountEmail}. Усі поточні плани та їхні купівлі буде замінено даними з копії.`
-            : 'Застосунок попросить увійти в Google-акаунт, з якого копію зберегли. Усі поточні плани та їхні купівлі буде замінено даними з копії.'
-        }
-      >
-        <Button
-          title={busySource === 'cloud' ? 'Відновлюємо…' : 'Відновити з хмари'}
-          onPress={loadFromCloud}
-          disabled={!canRestore}
-        />
-      </Section>
+      <OnlineOnly offlineMessage="Немає зв’язку з інтернетом — відновити копію з хмари можна буде, щойно зв’язок відновиться. З файлу чи вставленого тексту копія відновлюється й без нього.">
+        <Section
+          title="З хмари"
+          footer={
+            accountEmail
+              ? `Копія акаунта ${accountEmail}. Усі поточні плани та їхні купівлі буде замінено даними з копії.`
+              : 'Застосунок попросить увійти в Google-акаунт, з якого копію зберегли. Усі поточні плани та їхні купівлі буде замінено даними з копії.'
+          }
+        >
+          <Button
+            title={busySource === 'cloud' ? 'Відновлюємо…' : 'Відновити з хмари'}
+            onPress={loadFromCloud}
+            disabled={!canRestore}
+          />
+        </Section>
+      </OnlineOnly>
       <Section
         title="З файлу"
         footer="Усі поточні плани та їхні купівлі буде замінено даними з копії."

@@ -8,5 +8,6 @@ export { goBackOr, goBackOrHome } from './navigation';
 export * from './number';
 export { mmkvStorage } from './storage';
 export * from './toast';
+export { useIsOnline } from './useIsOnline.hook';
 export { useOptionChoice } from './useOptionChoice.hook';
 export { usePullToRefresh } from './usePullToRefresh.hook';

@@ -18,7 +18,14 @@ import {
 import { useToday } from '@/shared/config';
 import { formatDateTime, showToast } from '@/shared/lib';
 import { setThemePreference, useThemePreference, type ThemePreference } from '@/shared/theme';
-import { InfoRow, LinkRow, ScreenScrollView, Section, SegmentedSelect } from '@/shared/ui';
+import {
+  InfoRow,
+  LinkRow,
+  OnlineOnly,
+  ScreenScrollView,
+  Section,
+  SegmentedSelect,
+} from '@/shared/ui';
 
 import { CloudAccountSection } from './CloudAccountSection';
 
@@ -53,7 +60,9 @@ export default function SettingsScreen() {
         <LinkRow title="Відновити з копії" onPress={openBackupImport} />
       </Section>
 
-      <CloudAccountSection />
+      <OnlineOnly offlineMessage="Немає зв’язку з інтернетом — хмарна копія з’явиться тут, щойно зв’язок відновиться.">
+        <CloudAccountSection />
+      </OnlineOnly>
 
       <Section title="Оформлення" footer="Системна тема повторює світлий чи темний режим пристрою.">
         <View style={styles.themePicker}>

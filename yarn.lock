@@ -5293,6 +5293,11 @@ expo-modules-macros@0.27.1:
     "@expo/modules-macros-win32-arm64" "0.27.1"
     "@expo/modules-macros-win32-x64" "0.27.1"
 
+expo-network@~58.0.4:
+  version "58.0.4"
+  resolved "https://registry.yarnpkg.com/expo-network/-/expo-network-58.0.4.tgz#463622d401facb9d1cb5826a8991605a93b569ee"
+  integrity sha512-E3dYtnku+LDal+4OtKdxGotX7DLjaq+GOvrtN0RiYDTNum8lhMB7dK4GqGgBqHjwsC0awEds5DhTkm+w7O1TtQ==
+
 expo-router@~58.0.28:
   version "58.0.28"
   resolved "https://registry.yarnpkg.com/expo-router/-/expo-router-58.0.28.tgz#d643e38ed1cd10ab4f728552cfadba282618ddcc"
