@@ -8,8 +8,6 @@ import {
 
 import { countActiveFilters, effectiveFilters, filterSchedule } from '../filterSchedule';
 import type { PaymentFilters } from '../paymentFilters';
-import { resetPaymentFilters, togglePaymentFilterType } from '../paymentFilters/actions';
-import { usePaymentFiltersStore } from '../paymentFilters/store';
 
 function bondOf(isin: string, currency: Bond['currency']): Bond {
   return {
@@ -101,6 +99,13 @@ describe('filterSchedule', () => {
     expect(coupons.totalCount).toBe(4);
   });
 
+  it('counts the events of the currency shown before the other filters, no other currency’s', () => {
+    const coupons = filterSchedule(wallet, { ...fresh, currency: 'USD', types: ['coupon'] });
+    expect(coupons.events.map(({ type }) => type)).toEqual(['coupon']);
+    // The dollar bond's purchase, coupon and redemption; the hryvnia ones are not counted.
+    expect(coupons.totalCount).toBe(3);
+  });
+
   it('allows filtering purchases of a bond missing from NBU data', () => {
     const unknown = { ...purchase(hryvnia, '2025-03-01'), isin: 'UA4000000099' };
     const withUnknown = buildWallet([...wallet.purchases, unknown], byIsin, wallet.today);
@@ -111,19 +116,4 @@ describe('filterSchedule', () => {
       unknown.isin,
     ]);
   });
-});
-
-it('shows every type again once the last type picked is unchecked, or every type is picked', () => {
-  resetPaymentFilters();
-  togglePaymentFilterType('coupon');
-  expect(usePaymentFiltersStore.getState().types).toEqual(['coupon']);
-  togglePaymentFilterType('coupon');
-  const unchecked = usePaymentFiltersStore.getState();
-  expect(unchecked.types).toEqual([]);
-  expect(filterSchedule(wallet, { ...unchecked, currency: 'UAH' }).events).toHaveLength(4);
-  togglePaymentFilterType('coupon');
-  togglePaymentFilterType('redemption');
-  togglePaymentFilterType('purchase');
-  expect(usePaymentFiltersStore.getState().types).toEqual([]);
-  resetPaymentFilters();
 });

@@ -1,5 +1,5 @@
 import { getActivePlan } from '../activePlan';
-import { uniquePlanName } from '../plan';
+import { samePlanName, uniquePlanName } from '../plan';
 import {
   createInvestmentPlan,
   duplicateInvestmentPlan,
@@ -11,6 +11,11 @@ import {
 import { addPurchase, getPurchases } from '../purchases';
 
 beforeEach(() => restorePortfolio([], []));
+
+it('takes names that differ only in case or outer spaces for the same', () => {
+  expect(samePlanName(' Мій План ', 'мій план')).toBe(true);
+  expect(samePlanName('План 1', 'План 2')).toBe(false);
+});
 
 it('chooses unique names within the length limit', () => {
   expect(uniquePlanName('План 2', [{ name: 'план 2' }])).toBe('План 2 (2)');
