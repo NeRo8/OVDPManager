@@ -208,7 +208,10 @@
 
 ## Покриття тестами
 
-- `src/entities/portfolio/model/__tests__/portfolio.test.ts`: DOM-08, DOM-09, DOM-10, DOM-42.
+- `src/entities/portfolio/model/__tests__/portfolio.test.ts`: DOM-08, DOM-09, DOM-10, DOM-36 (`isTopUp`, зокрема однакові дати й переставлений вхідний масив), DOM-42 і вибір наступної виплати.
+- `yield.test.ts`: відсутні виплати, обидві межі дохідності та скінченна від’ємна дохідність (DOM-43/44).
+- `hints.test.ts`: порядок і найсерйозніший тон підказок (DOM-50).
+- `src/shared/lib/__tests__/number.test.ts`: округлення до копійок і відсутність від’ємного нуля (DOM-54).
 - `src/entities/portfolio/model/__tests__/market.test.ts`: DOM-11, DOM-45, DOM-47 (з DOM-48 для парної кількості — неявно, медіана двох значень), DOM-49.
 - `src/entities/portfolio/model/__tests__/position.test.ts`: DOM-21 (купон у день купівлі), DOM-24, DOM-25 (без даних НБУ), DOM-60 («tells what of the Position is still only planned»), DOM-26, DOM-27, DOM-29 (з DOM-28 для часткових погашень), DOM-30, DOM-31, DOM-32, DOM-33, DOM-34.
 - `src/entities/portfolio/model/__tests__/wallet.test.ts`: DOM-20 (порядок позицій), DOM-35, DOM-36 (порядок подій, купівля без даних НБУ), DOM-38.
@@ -218,18 +221,18 @@
 - `src/features/add-purchase/model/__tests__/purchaseHints.test.ts`: DOM-51, DOM-52, DOM-46 (опосередковано, через `assessPurchase`).
 - `src/pages/holdings/model/__tests__/holdOrSell.test.ts`: DOM-45, DOM-51/DOM-52 без `errorGap` (опосередковано).
 
-**Без тестів:** DOM-02, DOM-03, DOM-04, DOM-05 (`mapNbuSecurityToBond`, `fetchBonds`), DOM-06 окремо, DOM-12 окремо, DOM-13, DOM-15, DOM-16, DOM-19, DOM-22 (межа «сьогодні»), DOM-23, DOM-36 (`isTopUp`), DOM-41, DOM-43/DOM-44 (межі `null` у `annualYield` напряму), DOM-50 (`sortHints`, `worstTone`), DOM-53, DOM-54 (`round2`), DOM-56, DOM-57, DOM-58 (`parseAmount`).
+**Без тестів:** DOM-02, DOM-03, DOM-04, DOM-05 (`mapNbuSecurityToBond`, `fetchBonds`), DOM-06 окремо, DOM-12 окремо, DOM-13, DOM-15, DOM-16, DOM-19, DOM-22 (межа «сьогодні»), DOM-23, DOM-41, DOM-53, DOM-56, DOM-57, DOM-58 (`parseAmount`).
 
 ## Прогалини й питання
 
 **GAP-DOM-01. ОЗДП змішані з ОВДП.** Каталог залишає `XS…` ОЗДП з номіналом 1 разом із внутрішніми ОВДП (DOM-05). Вони з'являються у виборі ОВДП і, головне, входять до `newBondsRate` для USD/EUR, де медіана ставок може змішати два різні ринки. Варто з'ясувати, чи це задумано і чи `GLOSSARY.md` («номінал зазвичай 1 000») це передбачає. Доказ: `src/entities/portfolio/api/nbuBonds.ts`, `fetchBonds`; `market.ts`, `newBondsRate`. Серйозність: середня.
 
-**GAP-DOM-02. Позиції без даних НБУ зникають з підсумків без лічильника.** `resultsByCurrency` пропускає їх повністю (DOM-31): «Вкладено» валюти менше, ніж справді заплачено, а `CurrencyResults` не каже, скільки позицій випало (є лише `incompleteCount` для неопублікованих погашень). Екран мусить рахувати це сам. Доказ: `position.ts`, `resultsByCurrency`. Серйозність: середня.
+**GAP-DOM-02. `CurrencyResults` не рахує позиції без даних НБУ.** `resultsByCurrency` пропускає їх повністю (DOM-31): «Вкладено» валюти менше, ніж справді заплачено, а модель не каже, скільки позицій випало (є лише `incompleteCount` для неопублікованих погашень). Екран плану показує окреме загальне застереження з кількістю таких ОВДП, але не кількість на валюту. Доказ: `position.ts`, `resultsByCurrency`; `PlanScreen.tsx`. Серйозність: середня.
 
 **GAP-DOM-05. Одна «погана» купівля обнуляє дохідність усієї позиції.** Якщо будь-яка купівля позиції дає `null` (наприклад, купівля без виплат після неї), `positionYield` повертає `null` для всієї позиції, хоча інші купівлі мають дохідність (DOM-30). Доказ: `position.ts`, `positionYield`. Серйозність: низька.
 
 **GAP-DOM-10. Ціль не можна змінити на місці.** Немає дії, що змінює чи прибирає `goal` плану (DOM-19); перерахунок цілі з «Плану з ціллю» робить копію копії (`createGoalPlan` копіює всі купівлі активного плану, разом із попередніми купівлями під ціль, і додає суфікс ще раз: «Мій план · ціль 2027 · ціль 2027»). Перевірити разом зі специфікацією цілі. Доказ: `src/entities/portfolio/model/activePlan/actions.ts`, `createGoalPlan`; `src/features/coupon-goal/model/useCouponGoal.hook.ts`. Серйозність: середня.
 
-**GAP-DOM-13. Багато чистих функцій без тестів.** Не покриті `round2`, межі `annualYield` (`null`), `sortHints`/`worstTone`, `mapNbuSecurityToBond` (сортування виплат, відкидання валют), `isTopUp`, `nextPayment`. Доказ: розділ «Покриття тестами». Серйозність: середня.
+**GAP-DOM-13. Мапінг відповіді НБУ без тестів.** Окремі тести вже перевіряють `round2`, межі `annualYield`, підказки, `isTopUp` і `nextPayment`. Сортування виплат і відкидання валют у мапінгу відповіді НБУ залишаються неперевіреними. Доказ: розділ «Покриття тестами». Серйозність: середня.
 
 **DOM-62.** Купівлі одного ISIN з однаковою датою впорядковуються за id, тому ознака докупівлі не залежить від порядку збереження. `parseAmount` приймає десяткові кому й крапку та однозначні формати `1,000.50` і `1.000,50`; некоректне `1,000,50` відхиляється.

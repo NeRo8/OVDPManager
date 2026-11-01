@@ -18,6 +18,7 @@ import {
   QUARTER_LABELS,
   amountCell,
   changeCell,
+  flowCells,
   monthName,
   pointsCell,
   shareCell,
@@ -162,14 +163,20 @@ const flowChart = (title: string, rows: (Flows & { month: string })[]): PdfSecti
   };
 };
 
-/** The year's or the period's months, a row with the year above each year's when they span several. */
+/** Monthly flows for periods up to a year, or yearly flows for longer periods. */
 function monthsTable(report: CurrencyReport): PdfSection {
   const { months } = report;
+  const byYear = months.length > 12;
+  const periods = periodChartPeriods(months);
   const yearOf = (month: string) => month.slice(0, 4);
   const severalYears = yearOf(months[0].month) !== yearOf(months.at(-1)?.month ?? '');
   const rows: string[][] = [];
   const groupRows: number[] = [];
-  months.forEach((month, index) => {
+  periods.forEach((month, index) => {
+    if (byYear) {
+      rows.push([month.month, ...flowCells(month)]);
+      return;
+    }
     const year = yearOf(month.month);
     if (severalYears && year !== yearOf(months[index - 1]?.month ?? '')) {
       groupRows.push(rows.length);
@@ -183,8 +190,8 @@ function monthsTable(report: CurrencyReport): PdfSection {
     ]);
   });
   return {
-    title: titled('По місяцях', report.currency),
-    columns: ['Місяць', 'Купівлі', 'Купони', 'Погашення'],
+    title: titled(byYear ? 'По роках' : 'По місяцях', report.currency),
+    columns: [byYear ? 'Рік' : 'Місяць', 'Купівлі', 'Купони', 'Погашення'],
     rows,
     groupRows,
     layout: 'table',
@@ -1018,6 +1025,7 @@ export function fxPdf(
   wallet: ActiveWallet,
   report: FxReport,
   currency: ExchangeCurrency,
+  fallbackDate: string | null = null,
 ): ReportPdf {
   const fxMoney = (value: number) => formatMoney(value, currency);
   const { year, snapshot } = report;
@@ -1027,7 +1035,7 @@ export function fxPdf(
     : '«Вкладено» — накопичені купівлі за курсом їхніх дат. Друга лінія — залишок гривневих вкладень за курсом на кінець місяця та отримані виплати за курсом їхніх дат. Ринкову ціну ОВДП не враховано. Виплати, вкладені знову, залишаються у сумі виплат, тому друга лінія не є сумою грошей, доступних зараз.';
   return {
     title: 'Валютний еквівалент',
-    scope: `${year ?? 'Увесь час'} · ${allTime ? `з ${formatDate(report.fromDate)} ` : ''}до ${formatDate(report.throughDate)} · ${currency}`,
+    scope: `${year ?? 'Увесь час'} · ${allTime ? `з ${formatDate(report.fromDate)} ` : ''}до ${formatDate(report.throughDate)} · ${currency}${fallbackDate ? ` · Курс на сьогодні оцінено за збереженим курсом від ${formatDate(fallbackDate)}` : ''}`,
     fileStem: 'fx',
     wallet,
     sections:

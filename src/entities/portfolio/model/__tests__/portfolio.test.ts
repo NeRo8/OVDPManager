@@ -4,6 +4,7 @@ import {
   canBuyOn,
   isRedeemed,
   maturesWithin,
+  nextPayment,
   positionPayments,
   pricePerBond,
   purchaseEvents,
@@ -131,5 +132,12 @@ describe('positionPayments', () => {
       ['2026-09-01', 5, 3],
       ['2027-03-01', 5, 3],
     ]);
+  });
+
+  it('finds the first unpaid payment, including a payment due today', () => {
+    const payments = positionPayments([purchase('made', '2025-01-10', 1)], bond, '2026-09-01');
+    expect(nextPayment(payments)?.date).toBe('2026-09-01');
+    expect(nextPayment(payments.filter((payment) => payment.isPaid))).toBeUndefined();
+    expect(nextPayment([])).toBeUndefined();
   });
 });

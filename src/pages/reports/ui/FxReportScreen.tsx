@@ -58,7 +58,7 @@ export default function FxReportScreen() {
   const { wallet, narrowed, filters, activeFilterCount } = useReport('fx');
   const { year, targetCurrency } = filters;
   const dates = fxEventDates(narrowed, year);
-  const { rateOn, loading, error, retry } = useExchangeRates(targetCurrency, dates);
+  const { rateOn, loading, error, retry, fallbackDate } = useExchangeRates(targetCurrency, dates);
   const report = fxReport(narrowed, year, rateOn);
   const sections: FxSection[] = report?.bonds.map((bond) => ({ ...bond, data: bond.events })) ?? [];
   const refresh = async () => {
@@ -102,7 +102,9 @@ export default function FxReportScreen() {
             <ReportHeaderActions
               activeFilterCount={activeFilterCount}
               report="fx"
-              createDocument={() => (report ? fxPdf(wallet, report, targetCurrency) : null)}
+              createDocument={() =>
+                report ? fxPdf(wallet, report, targetCurrency, fallbackDate) : null
+              }
               scope={filters}
               available={!!report && report.bonds.length > 0}
             />
@@ -122,9 +124,16 @@ export default function FxReportScreen() {
                 title={year === null ? 'Увесь час' : String(year)}
                 subtitle={`Гривневі ОВДП · еквівалент у ${targetCurrency} · ${year === null ? `з ${formatDate(report.fromDate)} до` : 'до'} ${formatDate(report.throughDate)}`}
               />
+              {fallbackDate && (
+                <Typography variant="caption1" tone="warning">
+                  Курс на сьогодні недоступний. Для оцінки використано останній збережений курс від{' '}
+                  {formatDate(fallbackDate)}.
+                </Typography>
+              )}
               <Typography variant="caption1" tone="secondary">
-                Кожну купівлю й фактично минулу виплату перераховано за офіційним курсом НБУ на її
-                дату. Це валютний еквівалент, фактичний курс обміну може відрізнятися.
+                {fallbackDate
+                  ? 'Події перераховано за курсами НБУ на їхні дати; для сьогодні використано зазначений збережений курс. Фактичний курс обміну може відрізнятися.'
+                  : 'Кожну купівлю й фактично минулу виплату перераховано за офіційним курсом НБУ на її дату. Це валютний еквівалент, фактичний курс обміну може відрізнятися.'}
               </Typography>
               {report.bonds.length > 0 && (
                 <>

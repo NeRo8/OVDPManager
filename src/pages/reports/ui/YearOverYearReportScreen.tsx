@@ -4,12 +4,12 @@ import { RefreshControl, View } from 'react-native';
 import { Stack } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { isScopeOn, reportYears } from '@/features/report-filters';
+import { reportYears } from '@/features/report-filters';
 
 import { NbuSourceNote, StaleBondsNotice, WalletGate } from '@/entities/portfolio';
 
 import { usePullToRefresh } from '@/shared/lib';
-import { EmptyState, ScreenScrollView } from '@/shared/ui';
+import { ScreenScrollView } from '@/shared/ui';
 
 import { yearsPdf } from '../model/reportPdf';
 import { ALL_YEARS_TERMS } from '../model/reportTerms';
@@ -25,27 +25,6 @@ import { YearsFlowsTable } from './YearsFlowsTable';
 import { YearsIncomeBars } from './YearsIncomeBars';
 import { YearsMoneyChart } from './YearsMoneyChart';
 import { YearsResultsTable } from './YearsResultsTable';
-
-function EmptyYears({ filtered }: { filtered: boolean }) {
-  if (filtered) {
-    return (
-      <EmptyState
-        layout="inline"
-        icon="funnel-outline"
-        title="Купівель і виплат немає"
-        message="Обрані у фільтрах валюта чи ОВДП не мають жодної купівлі чи виплати. Змініть фільтри."
-      />
-    );
-  }
-  return (
-    <EmptyState
-      layout="inline"
-      icon="calendar-outline"
-      title="Купівель і виплат немає"
-      message="У плані ще немає купівель, тож і років для порівняння немає. Додайте ОВДП у гаманці."
-    />
-  );
-}
 
 /**
  * Every year of the active plan side by side, with the currency and bonds picked in its filters,
@@ -76,7 +55,7 @@ export default function YearOverYearReportScreen() {
           }}
         />
         <StaleBondsNotice />
-        {currencies.length > 0 ? (
+        {currencies.length > 0 && (
           <>
             <ReportHeading
               title={firstYear === lastYear ? String(firstYear) : `${firstYear} – ${lastYear}`}
@@ -97,8 +76,6 @@ export default function YearOverYearReportScreen() {
               </Fragment>
             ))}
           </>
-        ) : (
-          <EmptyYears filtered={isScopeOn(filters)} />
         )}
         <View style={styles.footer}>
           <NbuSourceNote />

@@ -26,4 +26,25 @@ describe('structureReport', () => {
     expect(report.bonds[0].share).toBe(100);
     expect(report.terms.find(({ count }) => count > 0)?.share).toBe(100);
   });
+
+  it('splits bonds at maturity boundaries and weights their coupon rates by cost', () => {
+    const dates = ['2026-09-01', '2026-09-02', '2027-03-02', '2028-03-02', '2029-03-02'];
+    const bonds = dates.map((maturityDate, index) => ({
+      ...bond,
+      isin: `UA000000000${index}`,
+      maturityDate,
+      rate: index === 0 ? 20 : 10,
+    }));
+    const purchases = bonds.map((item, index) => ({
+      ...plannedWallet.purchases[0],
+      id: String(index),
+      isin: item.isin,
+      amount: index === 0 ? 4000 : 1000,
+    }));
+    const wallet = buildWallet(purchases, new Map(bonds.map((item) => [item.isin, item])), '2026-03-01');
+    const [report] = structureReport(wallet, 'all').currencies;
+    expect(report.terms.map(({ count }) => count)).toEqual([1, 1, 1, 1, 1]);
+    expect(report.averageRate).toBe(15);
+    expect(report.bonds[0].share).toBe(50);
+  });
 });

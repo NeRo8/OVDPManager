@@ -18,7 +18,7 @@
 
 ### Сховище MMKV
 
-**DATA-01.** Усі збережені сховища пишуть в один екземпляр MMKV без шифрування (`createMMKV()` без параметрів). Адаптер синхронний: `getItem` → `mmkv.getString(key) ?? null`, `setItem` → `mmkv.set`, `removeItem` → `mmkv.remove`. `src/shared/lib/storage.ts`.
+**DATA-01.** Усі збережені сховища пишуть в один екземпляр MMKV без шифрування (`createMMKV()` без параметрів); це обране правило зберігання на пристрої. Резервні копії шифруються перед збереженням у файл чи відправленням у хмару. Адаптер синхронний: `getItem` → `mmkv.getString(key) ?? null`, `setItem` → `mmkv.set`, `removeItem` → `mmkv.remove`. `src/shared/lib/storage.ts`.
 
 **DATA-02.** Кожне збережене сховище — `create()(persist(() => initialState, { name: STORAGE_KEY, storage: createJSONStorage(() => mmkvStorage) }))`: стан зберігається як JSON-рядок під своїм ключем; `appSettings` зберігає лише тему і час останнього відкриття, а поточну дату відновлює під час запуску; бо адаптер синхронний, сховище читається під час створення, ще до першого екрана. `version` і `migrate` немає: дані іншого вигляду не перетворюються. Сховища змінюються лише через функції з `actions.ts` (`setState`). Усі `store.ts`.
 
@@ -80,7 +80,7 @@
 
 **DATA-19.** `exchangeRateQuery(currency, year)`: ключ `['nbu', 'exchange-rates', currency, year]`; `throughDate` = сьогодні для поточного року, інакше `year-12-31` (також для майбутнього року); ключ сховища `"<валюта>-<рік>"`; `initialData` лише для повного року; `staleTime` = `Infinity` для `year < поточного`, інакше 12 годин; `meta.errorTitle` = «Не вдалося оновити курс <валюта>». `src/entities/portfolio/api/exchangeRateQuery.ts`.
 
-**DATA-20.** `useExchangeRates(currency, dates)`: по запиту на кожен рік дат; `rateOn(date)` = `byCurrencyYear["<валюта>-<рік>"].rates[date] ?? null` (без запасного «останнього дня», на відміну від DATA-16); `loading` — хоч один запит `isPending`; `error` — текст першої помилки; `retry` — повторює всі запити. `src/entities/portfolio/api/useExchangeRates.hook.ts`.
+**DATA-20.** `useExchangeRates(currency, dates)`: по запиту на кожен рік дат; `rateOn(date)` читає збережений курс потрібного дня. Якщо після помилки запиту поточного року немає курсу на сьогодні, використовує останній збережений курс цієї валюти й повертає його дату як `fallbackDate`; інші відсутні дати дають `null`. Звіт показує дату запасного курсу на екрані та в PDF. `loading` — хоч один запит `isPending`; `error` — текст першої помилки; `retry` — повторює всі запити. `src/entities/portfolio/api/useExchangeRates.hook.ts`.
 
 ### Правила TanStack Query
 
@@ -142,8 +142,5 @@
 
 **GAP-DATA-05. Сьогоднішня ставка «вгадується» і зберігається як справжня.** Див. крайній випадок 6–7: заповнений учорашньою ставкою сьогоднішній день зберігається з `throughDate` = сьогодні, а «новий день» перевіряється лише для нового запиту. У день зміни ставки підказки можуть до 12 годин порівнювати зі старою. Доказ: `nbuKeyRate.ts`, `keyRateQuery.ts`. Серйозність: низька.
 
-**GAP-DATA-08. Дані на пристрої не зашифровані.** MMKV створено без `encryptionKey`, Онбординг і налаштування прямо повідомляють про це, але додаткового шифрування локального сховища досі немає. Доказ: `src/shared/lib/storage.ts`. Серйозність: низька.
-
-**GAP-DATA-09. `rateOn` курсів без запасного дня.** На відміну від `keyRateOn`, курс дати після `throughDate` (наприклад, сьогодні, коли збережено вчора, а запит не вдався) — `null`. Доказ: `useExchangeRates.hook.ts`. Серйозність: низька.
 
 **GAP-DATA-12. Недостатнє покриття мережевого шару й сховищ.** Не покриті мапінг відповідей НБУ, `keyRateQuery`/`exchangeRateQuery` (повнота року, `staleTime`), `notFailedRecently` і `onError` зі сповіщенням. Дії планів і запасний активний план частково перевіряє `plans.test.ts`. Доказ: розділ «Покриття тестами». Серйозність: середня.

@@ -96,13 +96,13 @@
 
 ## Покриття тестами
 
-- `src/pages/reports/model/__tests__/redemptionsReport.test.ts`: RRED-04 лише для `planned` (і `total`, `expected` у тому самому прикладі «Майбутні»).
+- `src/pages/reports/model/__tests__/redemptionsReport.test.ts`: `planned`, фільтр часу, суми, роки без погашень, частки кварталу й року, `next` і `last`.
 - `src/pages/reports/model/__tests__/reportPdf.test.ts`: RRED-13 — стан погашення з позначкою «очікується · 3 з 5 шт заплановано».
 - `isPaid` і право на виплату покрито доменними тестами (`position.test.ts`, `wallet.test.ts`); `plannedQuantity` — DOM-59.
-- Без тестів: RRED-01 … RRED-03, RRED-04 (`received`, `next`, `last`), RRED-05, RRED-06, RRED-07 … RRED-12 (екран і `RedemptionsEmpty`), RRED-13 (решта PDF).
+- Частина крайніх випадків, RRED-07 … RRED-12 (екран і `RedemptionsEmpty`) та решта RRED-13 (PDF) не перевірені.
 
 ## Прогалини й питання
 
 **GAP-RRED-01.** ОВДП без даних НБУ чи без опублікованого погашення мовчки відсутні в звіті; на відміну від звіту по портфелю, немає ні лічильника, ні примітки. Чому важливо: «Усього погашень» виглядає повним, хоча частини номіналу бракує. Доказ: `redemptionsReport` (лише `wallet.payments`), `RedemptionsSummary.tsx`. Серйозність: середня.
 
-**GAP-RRED-05.** Майже немає тестів: перевірено лише `planned` (`redemptionsReport.test.ts`); фільтр часу, роки з нулями, частки, `next`/`last` і вибір порожнього стану не перевіряються. Доказ: `src/pages/reports/model/__tests__/`. Серйозність: середня.
+**GAP-RRED-05.** Модель погашень перевіряється для минулих, майбутніх і всіх виплат, порожнього року, часток, `next`/`last` і запланованих купівель; вибір порожнього стану та інші крайні випадки залишаються без тестів. Серйозність: середня.

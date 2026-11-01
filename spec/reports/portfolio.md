@@ -99,12 +99,11 @@
 
 - `fitReportFilters.test.ts`: звуження за валютою і лічильник для `portfolio` (RFLT-10, RFLT-11).
 - Доменні `resultsByCurrency` і `walletPosition` покриті `position.test.ts` (з `netIncomeBasis`).
-- `src/pages/reports/model/__tests__/portfolioReport.test.ts`: RPORT-05 (`planned` рядка й валюти).
+- `src/pages/reports/model/__tests__/portfolioReport.test.ts`: RPORT-05 (`planned` рядка й валюти), частки від тієї самої відомої суми; перевіряє також, що позиція без даних НБУ зберігається у звіті періоду.
 - `src/pages/reports/model/__tests__/reportPdf.test.ts`: RPORT-13 частково (рядок «З них заплановано» з підказкою в підсумку PDF, стан «до 01.03.2027» у рядку).
-- Без тестів: RPORT-02 (`passesStatus`), RPORT-03, RPORT-04, RPORT-06, RPORT-07, RPORT-08 … RPORT-12 (екран), решта RPORT-13.
+- Фільтр стану, порядок за датою погашення й `unknownCount` перевірені в `portfolioReport.test.ts`; підсумок без невідомої позиції та частки перевірені на одному сценарії. Екрани RPORT-08 … RPORT-12 не тестуються за правилами проєкту; решта RPORT-13 і далі без перевірки.
 
 ## Прогалини й питання
 
-**GAP-RPORT-06.** Тест `portfolioReport` перевіряє лише `planned` (`portfolioReport.test.ts`): фільтр стану, частки, порядок і `unknownCount` не перевіряються. Серйозність: середня.
 
 **RPORT-16.** Частки вкладень обчислюються лише для ОВДП з даними НБУ, від суми, що входить до підсумку. Для решти частку не показано.

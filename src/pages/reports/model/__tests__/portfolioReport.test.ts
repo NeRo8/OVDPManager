@@ -3,7 +3,7 @@ import { buildWallet } from '@/entities/portfolio';
 import { periodReport } from '../periodReport';
 import { portfolioReport } from '../portfolioReport';
 
-import { plannedWallet } from './plannedWallet';
+import { bond, plannedWallet } from './plannedWallet';
 
 describe('portfolioReport', () => {
   it('tells what of the money in a bond is still planned', () => {
@@ -29,5 +29,26 @@ describe('portfolioReport', () => {
     expect(report.bonds.map(({ investedShare }) => investedShare)).toEqual([100, null]);
     const [period] = periodReport(wallet, '2025-01-01', '2025-12-31');
     expect(period.bonds.find(({ isin }) => isin === unknown.isin)?.hasBondData).toBe(false);
+  });
+
+  it('filters by status, orders by maturity and counts missing NBU data', () => {
+    const redeemed = { ...bond, isin: 'UA000REDEEMED', maturityDate: '2025-12-01' };
+    const missing = { ...plannedWallet.purchases[0], id: 'missing', isin: 'UA000UNKNOWN' };
+    const old = { ...plannedWallet.purchases[0], id: 'old', isin: redeemed.isin };
+    const wallet = buildWallet(
+      [missing, ...plannedWallet.purchases, old],
+      new Map([[bond.isin, bond], [redeemed.isin, redeemed]]),
+      plannedWallet.today,
+    );
+    const [all] = portfolioReport(wallet, 'all');
+    expect(all.bonds.map(({ isin }) => isin)).toEqual([redeemed.isin, bond.isin, missing.isin]);
+    expect(all.unknownCount).toBe(1);
+    expect(portfolioReport(wallet, 'redeemed')[0].bonds.map(({ isin }) => isin)).toEqual([
+      redeemed.isin,
+    ]);
+    expect(portfolioReport(wallet, 'inCirculation')[0].bonds.map(({ isin }) => isin)).toEqual([
+      bond.isin,
+      missing.isin,
+    ]);
   });
 });
