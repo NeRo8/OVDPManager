@@ -144,31 +144,6 @@ export default function RootLayout() {
                   })}
                 />
                 <NativeStack.Screen name="bond/[isin]/sale" options={{ title: 'Продаж' }} />
-                <NativeStack.Screen name="reports/year" options={{ title: 'Звіт за рік' }} />
-                <NativeStack.Screen name="reports/fx" options={{ title: 'Валютний еквівалент' }} />
-                <NativeStack.Screen name="reports/period" options={{ title: 'Звіт за період' }} />
-                <NativeStack.Screen
-                  name="report-filters/[report]"
-                  options={{ title: 'Фільтри звіту', ...filtersModal('/reports') }}
-                />
-                <NativeStack.Screen
-                  name="reports/year-over-year"
-                  options={{ title: 'Від року до року' }}
-                />
-                <NativeStack.Screen
-                  name="reports/redemptions"
-                  options={{ title: 'Графік погашень' }}
-                />
-                <NativeStack.Screen
-                  name="reports/portfolio"
-                  options={{ title: 'Звіт по портфелю' }}
-                />
-                <NativeStack.Screen
-                  name="reports/structure"
-                  options={{ title: 'Структура портфеля' }}
-                />
-                <NativeStack.Screen name="reports/yield" options={{ title: 'Річна дохідність' }} />
-                <NativeStack.Screen name="reports/bond" options={{ title: 'Звіт по ОВДП' }} />
                 <NativeStack.Screen name="backup/export" options={{ title: 'Створити копію' }} />
               </NativeStack.Protected>
               <NativeStack.Protected

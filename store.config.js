@@ -33,7 +33,7 @@ module.exports = {
         '1. On the first screen enter any plan name and continue.',
         '2. On the «Гаманець» (Wallet) tab tap + and pick any bond from the list.',
         '3. Enter a date, a quantity and the amount paid, then save.',
-        "4. The «Виплати» (Payments), «Звіти» (Reports) and «План» (Plan) tabs now show the bond's coupons and redemption.",
+        "4. The «Виплати» (Payments) and «План» (Plan) tabs now show the bond's coupons and redemption.",
         '',
         'Bond and key rate data come from the National Bank of Ukraine open data API (bank.gov.ua), which is free to reuse under Ukrainian law.',
         '',

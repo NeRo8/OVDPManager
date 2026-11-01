@@ -1,14 +1,14 @@
 # Дані, сховища й синхронізація з НБУ
 
-**Що це й навіщо.** Тут описано, що застосунок зберігає на пристрої, під якими ключами і в якому вигляді, які запити він робить до НБУ (каталог ОВДП, облікова ставка, курси валют), коли їх повторює, як заповнює дні без даних і що бачить користувач, коли даних ще немає, вони застаріли чи запит не вдався. Правила описують поточну поведінку коду.
+**Що це й навіщо.** Тут описано, що застосунок зберігає на пристрої, під якими ключами і в якому вигляді, які запити він робить до НБУ (каталог ОВДП та облікова ставка), коли їх повторює, як заповнює дні без даних і що бачить користувач, коли даних ще немає, вони застаріли чи запит не вдався. Правила описують поточну поведінку коду.
 
 ## Звідки дані
 
 - Сховище: `src/shared/lib/storage.ts` (`mmkvStorage`).
 - Сховища стану (папка на кожне, `types.ts` / `store.ts` / `selectors.ts` / `actions.ts` / `index.ts`):
-  `src/entities/portfolio/model/purchases/`, `src/entities/portfolio/model/plans/`, `src/entities/portfolio/model/activePlan/`, `src/entities/portfolio/api/bonds/`, `src/entities/portfolio/api/keyRate/`, `src/entities/portfolio/api/exchangeRate/`, `src/features/payment-filters/model/paymentFilters/`, `src/features/add-purchase/model/bondPickerFilters/`, `src/features/report-filters/model/reportFilters/`, `src/features/onboarding/model/onboarding/`, `src/shared/config/appSettings/`, `src/shared/lib/toast/`.
+  `src/entities/portfolio/model/purchases/`, `src/entities/portfolio/model/plans/`, `src/entities/portfolio/model/activePlan/`, `src/entities/portfolio/api/bonds/`, `src/entities/portfolio/api/keyRate/`, `src/features/payment-filters/model/paymentFilters/`, `src/features/add-purchase/model/bondPickerFilters/`, `src/features/onboarding/model/onboarding/`, `src/shared/config/appSettings/`, `src/shared/lib/toast/`.
 - Клієнт НБУ: `src/shared/api/nbu/client.ts` (`nbuClient`, `NbuError`).
-- Запити: `src/entities/portfolio/api/nbuBonds.ts`, `nbuKeyRate.ts`, `nbuExchangeRates.ts`, `dailyRates.ts`, `useBonds.hook.ts`, `keyRateQuery.ts`, `useKeyRate.hook.ts`, `useKeyRates.hook.ts`, `exchangeRateQuery.ts`, `useExchangeRates.hook.ts`.
+- Запити: `src/entities/portfolio/api/nbuBonds.ts`, `nbuKeyRate.ts`, `dailyRates.ts`, `useBonds.hook.ts`, `keyRateQuery.ts`, `useKeyRate.hook.ts`.
 - TanStack Query: `src/shared/api/queryClient.ts`, `src/shared/api/QueryProvider.tsx`.
 - Сповіщення: `src/shared/lib/toast/`, `src/shared/ui/toast/ToastHost.tsx`, `src/shared/ui/toast/ToastView.tsx`.
 - Оновлення жестом: `src/shared/lib/usePullToRefresh.hook.ts`.
@@ -30,10 +30,8 @@
 | `investment-plan-v1`     | `entities/portfolio/model/plans`            | `{ plans: InvestmentPlan[] }`                                                       | `{ plans: [] }`                                   |
 | `nbu-bonds-v1`           | `entities/portfolio/api/bonds`              | `{ bonds: Bond[] \| null; updatedAt: number \| null }` (мс)                         | `{ bonds: null, updatedAt: null }`                |
 | `nbu-key-rate-v1`        | `entities/portfolio/api/keyRate`            | `{ byYear: Record<рік, { rates: Record<дата, %>; throughDate; updatedAt }> }`       | `{ byYear: {} }`                                  |
-| `nbu-exchange-rates-v1`  | `entities/portfolio/api/exchangeRate`       | `{ byCurrencyYear: Record<'USD-2025' \| …, { rates; throughDate; updatedAt }> }`    | `{ byCurrencyYear: {} }`                          |
 | `payment-filters-v1`     | `features/payment-filters/…/paymentFilters` | `{ types; time: 'all' \| 'upcoming' \| 'past'; currency; isins }`                   | див. сховище                                      |
 | `bond-picker-filters-v1` | `features/add-purchase/…/bondPickerFilters` | `{ currency; term; sort: 'maturity' \| 'rate' }`                                    | див. сховище                                      |
-| `report-filters-v1`      | `features/report-filters/…/reportFilters`   | фільтри кожного звіту за назвою (`year`, `fx`, `period`, `yearOverYear`, …, `bond`) | див. сховище                                      |
 | `onboarding-v1`          | `features/onboarding/model/onboarding`      | `{ isCompleted: boolean }`                                                          | `{ isCompleted: false }`                          |
 | `theme-preference-v1`    | `shared/config/appSettings`                 | `{ preference, lastOpenedAt }`; дата `today` лише в пам’яті                         | тема `system`, дата запуску, `lastOpenedAt: null` |
 
@@ -71,21 +69,13 @@
 
 **DATA-16.** `keyRateOn(byYear, date)`: `null`, якщо рік дати не завантажено; інакше `rates[date]`; якщо такого дня немає і `date > throughDate` — ставка дня `throughDate`; інакше `null`. `src/entities/portfolio/api/keyRate/selectors.ts`.
 
-**DATA-17.** `useKeyRate(date)` повертає `keyRateOn(збережені роки, keyRateDate(date))` і запускає `keyRateQuery(keyRateYear(date))`; до першого завантаження року — `null`. `useKeyRates(dates)` запускає по одному запиту на кожен різний рік і повертає функцію `date → keyRateOn(…, keyRateDate(date))`. Обидва використовують той самий `keyRateQuery`, тож рік завантажується один раз на всі дати. `useKeyRate.hook.ts`, `useKeyRates.hook.ts`.
-
-### Курси валют (для валютного звіту)
-
-**DATA-18.** Курси: `GET /NBU_Exchange/exchange_site` з `start` (1 січня мінус 14 днів), `end` (`throughDate`), `valcode` (`USD` | `EUR`), `sort=exchangedate`, `order=asc`, `json`. Відповідь типізується як `NbuExchangeRow[]`; залишаються рядки з `cc === currency`; `exchangedate` (`DD.MM.YYYY`) → `YYYY-MM-DD`. Далі `fillDailyRates` з помилкою «НБУ не повернув курс <валюта> на <дата>». `src/entities/portfolio/api/nbuExchangeRates.ts`.
-
-**DATA-19.** `exchangeRateQuery(currency, year)`: ключ `['nbu', 'exchange-rates', currency, year]`; `throughDate` = сьогодні для поточного року, інакше `year-12-31` (також для майбутнього року); ключ сховища `"<валюта>-<рік>"`; `initialData` лише для повного року; `staleTime` = `Infinity` для `year < поточного`, інакше 12 годин; `meta.errorTitle` = «Не вдалося оновити курс <валюта>». `src/entities/portfolio/api/exchangeRateQuery.ts`.
-
-**DATA-20.** `useExchangeRates(currency, dates)`: по запиту на кожен рік дат; `rateOn(date)` читає збережений курс потрібного дня. Якщо після помилки запиту поточного року немає курсу на сьогодні, використовує останній збережений курс цієї валюти й повертає його дату як `fallbackDate`; інші відсутні дати дають `null`. Звіт показує дату запасного курсу на екрані та в PDF. `loading` — хоч один запит `isPending`; `error` — текст першої помилки; `retry` — повторює всі запити. `src/entities/portfolio/api/useExchangeRates.hook.ts`.
+**DATA-17.** `useKeyRate(date)` повертає `keyRateOn(збережені роки, keyRateDate(date))` і запускає `keyRateQuery(keyRateYear(date))`; до першого завантаження року — `null`. `useKeyRate.hook.ts`.
 
 ### Правила TanStack Query
 
 **DATA-21.** Типові налаштування запитів: `retry: 1` (одна повторна спроба з типовою затримкою бібліотеки). Після остаточної помилки автоматичні повтори під час відкриття екрана, повернення на передній план і відновлення з’єднання чекають понад 5 хвилин (`notFailedRecently`). Ручні `refetch` (кнопки «Спробувати ще раз», «Повторити», жест оновлення) це правило обходять. `src/shared/api/queryClient.ts`.
 
-**DATA-22.** Під час запуску й повернення на передній план `recordAppOpening` оновлює календарну дату та час відкриття. Повернення на передній план передається у `focusManager`: активні запити оновлюються лише тоді, коли їхній кеш застарів і минуло понад 5 хвилин після останньої помилки. Минулі роки ставок і курсів із `staleTime: Infinity` примусово не оновлюються. `onlineManager` не налаштовано для мережі пристрою. `src/shared/api/QueryProvider.tsx`.
+**DATA-22.** Під час запуску й повернення на передній план `recordAppOpening` оновлює календарну дату та час відкриття. Повернення на передній план передається у `focusManager`: активні запити оновлюються лише тоді, коли їхній кеш застарів і минуло понад 5 хвилин після останньої помилки. Минулі роки ставки із `staleTime: Infinity` примусово не оновлюються. `onlineManager` не налаштовано для мережі пристрою. `src/shared/api/QueryProvider.tsx`.
 
 **DATA-23.** Коли запит із `meta.errorTitle` остаточно не вдався (після повторної спроби) і в нього вже є дані (`query.state.data !== undefined`), показується сповіщення: `tone: 'error'`, заголовок — `errorTitle`, текст — «<повідомлення помилки>. Показано збережені дані.», дія «Повторити» (`refetchQueries` за ключем запиту). Без даних сповіщення немає: помилку показує екран. `queryClient.ts`, `QueryCache.onError`.
 
@@ -95,17 +85,17 @@
 
 ### Оновлення жестом
 
-**DATA-25.** `usePullToRefresh(refresh)` показує індикатор лише під час оновлення, яке запустив жест. Гаманець, план і «Виплати» оновлюють каталог НБУ та облікову ставку; валютний звіт оновлює дані гаманця та курси. Ручне оновлення обходить строк свіжості кешу й паузу після помилки. `src/shared/lib/usePullToRefresh.hook.ts`, `src/entities/portfolio/model/useWallet.hook.ts`, `src/pages/reports/ui/FxReportScreen.tsx`.
+**DATA-25.** `usePullToRefresh(refresh)` показує індикатор лише під час оновлення, яке запустив жест. Гаманець, план і «Виплати» оновлюють каталог НБУ та облікову ставку. Ручне оновлення обходить строк свіжості кешу й паузу після помилки. `src/shared/lib/usePullToRefresh.hook.ts`, `src/entities/portfolio/model/useWallet.hook.ts`.
 
 ## Стани
 
 **DATA-26.** `BondsGate` (вибір ОВДП, деталі ОВДП, форма купівлі, екран цілі): показує вміст, щойно `bonds` не `null`. Інакше: без помилки — `LoadingState` (скелет) з підписом «Завантажуємо дані НБУ…»; з помилкою — `EmptyState` з іконкою `cloud-offline-outline`, заголовком «Немає зв’язку з НБУ», текстом помилки й кнопкою «Спробувати ще раз» (ручний `refresh`). `src/entities/portfolio/ui/BondsGate.tsx`, `BondsUnavailable.tsx`.
 
-**DATA-27.** `WalletGate` (гаманець, «Виплати», усі звіти): якщо в активному плані немає купівель — `EmptyWallet` («Гаманець порожній», «Додайте ОВДП за її номером (ISIN), датою купівлі та сумою — і побачите виплати купонів.», кнопки «Додати ОВДП» → `/add` і «Відновити з копії» → `/backup/import`); інакше — `BondsGate` (DATA-26). Порожній план перевіряється раніше, ніж наявність даних НБУ. `WalletGate.tsx`, `EmptyWallet.tsx`.
+**DATA-27.** `WalletGate` (гаманець, «Виплати»): якщо в активному плані немає купівель — `EmptyWallet` («Гаманець порожній», «Додайте ОВДП за її номером (ISIN), датою купівлі та сумою — і побачите виплати купонів.», кнопки «Додати ОВДП» → `/add` і «Відновити з копії» → `/backup/import`); інакше — `BondsGate` (DATA-26). Порожній план перевіряється раніше, ніж наявність даних НБУ. `WalletGate.tsx`, `EmptyWallet.tsx`.
 
 **DATA-28.** `BondsUnavailableCard` (вкладка «План»): нічого, коли каталог є; без каталогу й без помилки — `SkeletonCard` у `SkeletonGroup` з підписом «Завантажуємо дані НБУ…»; з помилкою — картка «Немає зв’язку з НБУ», текст помилки, кнопка «Спробувати ще раз». Решта екрана показується без даних НБУ. `BondsUnavailableCard.tsx`.
 
-**DATA-29.** `StaleBondsNotice` (гаманець, «Виплати», «План», список звітів, «Від року до року»): рядок «Не вдалося оновити дані НБУ — показано збережені.» тоном `warning`, коли є і помилка, і збережений каталог; інакше нічого. Показується разом зі сповіщенням з DATA-23 і тримається, доки наступний запит не вдасться. `StaleBondsNotice.tsx`.
+**DATA-29.** `StaleBondsNotice` (гаманець, «Виплати», «План»): рядок «Не вдалося оновити дані НБУ — показано збережені.» тоном `warning`, коли є і помилка, і збережений каталог; інакше нічого. Показується разом зі сповіщенням з DATA-23 і тримається, доки наступний запит не вдасться. `StaleBondsNotice.tsx`.
 
 **DATA-30.** `NbuSourceNote` — підпис під списками з даними НБУ: «Графіки виплат — з депозитарію НБУ. Потягніть донизу, щоб оновити.» `NbuSourceNote.tsx`.
 
@@ -120,8 +110,8 @@
 5. **Неочікувана відповідь.** Структура відповідей НБУ задається типами TypeScript без перевірки під час виконання; якщо контракт сервера зміниться, застосунок потребуватиме виправлення.
 6. **Сьогоднішню ставку ще не опубліковано.** `fillDailyRates` заповнює сьогодні вчорашньою ставкою, і рік зберігається з `throughDate` = сьогодні; якщо ставка змінилася з сьогодні, застосунок покаже стару до наступного запиту (через 12 годин або на наступному запуску наступного дня).
 7. **Новий день без перезапуску.** «Повнота» поточного року (DATA-14) перевіряється лише під час створення запиту; якщо запит уже в пам'яті, оновлення чекає `staleTime` 12 годин. `keyRateOn` тим часом дає ставку останнього збереженого дня (DATA-16).
-8. **Майбутня дата.** Для ставки — сьогоднішня (DATA-15). Для курсів майбутній рік дає `throughDate` 31 грудня й, імовірно, помилку «НБУ не повернув курс…», якщо до 1 січня того року немає курсів; валютний звіт запитує лише минулі дати.
-9. **Ранні роки.** Якщо НБУ не має ставки чи курсу до 1 січня року (з запасом 14 днів), `fillDailyRates` кидає помилку, і цей рік не завантажується; для ставки — мовчки.
+8. **Майбутня дата.** Для ставки — сьогоднішня (DATA-15).
+9. **Ранні роки.** Якщо НБУ не має ставки до 1 січня року (з запасом 14 днів), `fillDailyRates` кидає помилку, і цей рік не завантажується; для ставки — мовчки.
 10. **Минулий рік, збережений як поточний.** Наприклад, 2025 рік, збережений 15.12.2025: у 2026 він «неповний» (`throughDate` < 2025-12-31), тож запит повториться один раз і далі не повторюватиметься (`staleTime: Infinity`).
 
 ## Покриття тестами
@@ -135,8 +125,8 @@
 
 **GAP-DATA-02. Помилка автоматичного завантаження облікової ставки не пояснюється.** `useKeyRate` повертає ставку або `null`, не повідомляючи причину відсутності під час звичайного запиту. Ручне оновлення гаманця й плану також оновлює ставку та показує сповіщення в разі помилки. Доказ: `keyRateQuery.ts`, `useKeyRate.hook.ts`, `useWallet.hook.ts`. Серйозність: середня.
 
-**GAP-DATA-03. Каталог замінюється цілком.** Якщо НБУ прибере ОВДП зі списку (наприклад, давно погашені) або поверне порожній масив, старі позиції втратять виплати й результати, а звіти за минулі роки зміняться. Чи прибирає `depo_securities` погашені ОВДП — невідомо, варто перевірити на справжній відповіді. Доказ: `useBonds.hook.ts` (`saveBonds(fetched, …)`), `bonds/actions.ts`. Серйозність: середня.
+**GAP-DATA-03. Каталог замінюється цілком.** Якщо НБУ прибере ОВДП зі списку (наприклад, давно погашені) або поверне порожній масив, старі позиції втратять виплати й результати. Чи прибирає `depo_securities` погашені ОВДП — невідомо, варто перевірити на справжній відповіді. Доказ: `useBonds.hook.ts` (`saveBonds(fetched, …)`), `bonds/actions.ts`. Серйозність: середня.
 
 **GAP-DATA-05. Сьогоднішня ставка «вгадується» і зберігається як справжня.** Див. крайній випадок 6–7: заповнений учорашньою ставкою сьогоднішній день зберігається з `throughDate` = сьогодні, а «новий день» перевіряється лише для нового запиту. У день зміни ставки підказки можуть до 12 годин порівнювати зі старою. Доказ: `nbuKeyRate.ts`, `keyRateQuery.ts`. Серйозність: низька.
 
-**GAP-DATA-12. Недостатнє покриття мережевого шару й сховищ.** Не покриті мапінг відповідей НБУ, `keyRateQuery`/`exchangeRateQuery` (повнота року, `staleTime`), `notFailedRecently` і `onError` зі сповіщенням. Дії планів і запасний активний план частково перевіряє `plans.test.ts`. Доказ: розділ «Покриття тестами». Серйозність: середня.
+**GAP-DATA-12. Недостатнє покриття мережевого шару й сховищ.** Не покриті мапінг відповідей НБУ, `keyRateQuery` (повнота року, `staleTime`), `notFailedRecently` і `onError` зі сповіщенням. Дії планів і запасний активний план частково перевіряє `plans.test.ts`. Доказ: розділ «Покриття тестами». Серйозність: середня.

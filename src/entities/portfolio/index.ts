@@ -4,9 +4,6 @@ export { useActivePurchases, useWallet, type ActiveWallet } from './model/useWal
 export * from './model/wallet';
 export { useBonds } from './api/useBonds.hook';
 export { useKeyRate, useKeyRateUpdatedAt } from './api/useKeyRate.hook';
-export { useKeyRates } from './api/useKeyRates.hook';
-export { useExchangeRates } from './api/useExchangeRates.hook';
-export type { ExchangeCurrency } from './api/nbuExchangeRates';
 export { ANNUAL_YIELD_RANGE, amountForYield, annualYield } from './model/yield';
 export * from './model/hints';
 export * from './model/market';

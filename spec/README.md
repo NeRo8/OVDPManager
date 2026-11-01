@@ -21,15 +21,6 @@
 | [screens/payments.md](screens/payments.md)                     | Вкладка «Виплати» і її фільтри                                                                                          | `PAY-`, `PFLT-`         |
 | [screens/plan.md](screens/plan.md)                             | Вкладка «План», найближчі купівлі, картка цілі, «Мої плани»                                                             | `PLAN-`, `UPC-`         |
 | [features/coupon-goal.md](features/coupon-goal.md)             | Ціль «Купони на місяць»: алгоритм підбору, «План з ціллю»                                                               | `GOAL-`                 |
-| [reports/README.md](reports/README.md)                         | Що спільне для всіх звітів, фільтри звітів, PDF                                                                         | `REP-`, `RFLT-`, `PDF-` |
-| [reports/year-and-period.md](reports/year-and-period.md)       | Звіт за рік і за період                                                                                                 | `RPER-`                 |
-| [reports/year-over-year.md](reports/year-over-year.md)         | Від року до року                                                                                                        | `RYOY-`                 |
-| [reports/redemptions.md](reports/redemptions.md)               | Графік погашень                                                                                                         | `RRED-`                 |
-| [reports/portfolio.md](reports/portfolio.md)                   | Звіт по портфелю                                                                                                        | `RPORT-`                |
-| [reports/structure.md](reports/structure.md)                   | Структура портфеля                                                                                                      | `RSTR-`                 |
-| [reports/yield.md](reports/yield.md)                           | Річна дохідність                                                                                                        | `RYLD-`                 |
-| [reports/bond.md](reports/bond.md)                             | Звіт по ОВДП                                                                                                            | `RBOND-`                |
-| [reports/fx.md](reports/fx.md)                                 | Валютний еквівалент                                                                                                     | `RFX-`                  |
 | [gaps.md](gaps.md)                                             | Усі знайдені прогалини й питання в одному списку, за важливістю                                                         | `GAP-`                  |
 
 ## Як читати файл
@@ -38,7 +29,7 @@
 
 - **Що це й навіщо** — один абзац.
 - **Звідки дані** — файли, функції й сховища, з яких береться все на екрані.
-- **Що на екрані / Що в звіті** — блоки в тому порядку, як їх видно, і як рахується кожне число.
+- **Що на екрані** — блоки в тому порядку, як їх видно, і як рахується кожне число.
 - **Правила** — пронумеровані твердження, кожне можна перевірити: `**PAY-03.** …`, далі формула, приклад з числами й місце в коді.
 - **Стани** — порожньо, завантаження, помилка, немає даних НБУ.
 - **Крайні випадки** — межі: той самий день, дата погашення, часткове погашення, інша валюта тощо.

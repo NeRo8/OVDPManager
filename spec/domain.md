@@ -5,7 +5,7 @@
 ## Звідки дані
 
 - `src/entities/portfolio/model/portfolio.ts` — типи `Bond`, `BondPayment`, `Purchase`, `PlanPurchase`, `Position`, `PositionPayment`, `PurchaseEvent`, `ScheduleEvent`; `CURRENCIES`, `bondChoices`, `groupPositions`, `isPlannedPurchase`, `isRedeemed`, `canBuyOn`, `maturesWithin`, `pricePerBond`, `purchaseCurrency`, `positionCurrency`, `positionPayments`, `purchaseEvents`, `compareScheduleEvents`, `sumTotals`, `nextPayment`.
-- `src/entities/portfolio/model/position.ts` — `PositionState`, `PositionResults`, `CurrencyResults`, `WalletPosition`, `hasRedemption`, `walletPosition`, `positionIncome`, `resultsByCurrency` (усередині: `withNetIncome`, `positionResults`, `positionYield`, `positionState`, `plannedPart`, `nominalLeft`, `redemptionCost`).
+- `src/entities/portfolio/model/position.ts` — `PositionState`, `PositionResults`, `CurrencyResults`, `WalletPosition`, `hasRedemption`, `walletPosition`, `resultsByCurrency` (усередині: `withNetIncome`, `positionResults`, `positionYield`, `positionState`, `plannedPart`).
 - `src/entities/portfolio/model/wallet.ts` — `Wallet`, `WalletScope`, `buildWallet`, `narrowWallet`, `WalletScopeOptions`, `walletScopeOptions`, `isinsIn`, `fitScope`.
 - `src/entities/portfolio/model/yield.ts` — `annualYield`, `amountForYield`, `ANNUAL_YIELD_RANGE`.
 - `src/entities/portfolio/model/market.ts` — `maturityTerm`, `NEW_BOND_MONTHS`, `MIN_NEW_BONDS`, `MAX_PLAUSIBLE_YIELD`, `newBondsRate`, `median`, `newBondsLabel`.
@@ -71,7 +71,7 @@
 
 Приклад: купівля 2026-01-01, купон теж 2026-01-01 — купон у виплати позиції не потрапляє; перший купон — 2026-07-01.
 
-**DOM-59.** `plannedQuantity` виплати (`PositionPayment`) — скільки з її `quantity` припадає на купівлі, яких ще не зроблено: купівлі, датовані раніше за виплату (DOM-21) і пізніше за сьогодні (DOM-12). Отримана виплата завжди має `plannedQuantity = 0`: її дата раніше за сьогодні, тож і всі купівлі до неї вже зроблені. Приклад від 2026-10-31: куплено 2 шт 2026-03-01 і заплановано 3 шт на 2026-12-01; купон 2027-01-15 має `quantity = 5`, `plannedQuantity = 3`; купон 2026-11-15 — `quantity = 2`, `plannedQuantity = 0`. З цього рядки виплат пишуть «заплановано» (див. `ScheduleEventRow` у [screens/payments.md](screens/payments.md)), а звіти рахують, яка частина сум ще лише запланована. `portfolio.ts`, `positionPayments`.
+**DOM-59.** `plannedQuantity` виплати (`PositionPayment`) — скільки з її `quantity` припадає на купівлі, яких ще не зроблено: купівлі, датовані раніше за виплату (DOM-21) і пізніше за сьогодні (DOM-12). Отримана виплата завжди має `plannedQuantity = 0`: її дата раніше за сьогодні, тож і всі купівлі до неї вже зроблені. Приклад від 2026-10-31: куплено 2 шт 2026-03-01 і заплановано 3 шт на 2026-12-01; купон 2027-01-15 має `quantity = 5`, `plannedQuantity = 3`; купон 2026-11-15 — `quantity = 2`, `plannedQuantity = 0`. З цього рядки виплат пишуть «заплановано» (див. `ScheduleEventRow` у [screens/payments.md](screens/payments.md)). `portfolio.ts`, `positionPayments`.
 
 **DOM-22.** Виплата «отримано» (`isPaid`), коли її дата строго раніше за сьогодні; виплата, датована сьогодні, ще очікується. `positionPayments`.
 
@@ -101,12 +101,6 @@
 
 Приклад (`position.test.ts`): ОВДП 10 %, номінал 1000, купони по 50 щопівроку з 2025-07-01 до 2027-01-01, погашення 1000 у 2027-01-01. Дві ОВДП куплено 2025-01-01 за 1980, сьогодні 2026-03-15: `invested` 1980, `coupons` 400, `redemption` 2000, `received` 200, `expected` 2200, `totalPayments` 2400, `netIncome` 420, `returnPercent` 21,21.
 
-**DOM-28.** «Вартість погашення» (`redemptionCost`): для виплати-погашення — сума по купівлях, датованих раніше за неї, `purchase.amount × payment.amount / nominalLeft(bond, purchase.purchaseDate)`. `nominalLeft(bond, date)` = `bond.nominal − Σ amount погашень із датою <= date` (погашення в день купівлі належить попередньому власнику, тому вже відняте). Для ОВДП, погашеної одразу, це вся сума купівлі; для часткових погашень частки однієї купівлі в сумі дають її вартість, також для докупівлі між частковими погашеннями. `position.ts`, `nominalLeft`, `redemptionCost`.
-
-**DOM-29.** «Дохід» позиції за проміжок `[from, to]`, обидва дні включно (`positionIncome`): `round2(купони проміжку + Σ (total погашення − redemptionCost) по погашеннях проміжку)`. Без ОВДП у даних НБУ — 0. `position.ts`, `positionIncome`.
-
-Приклади (`position.test.ts`): ОВДП з DOM-27 за 2026 рік — 200 (лише купони); за 2027 рік — 120 (купони 100 + погашення 2000 − 1980). ОВДП, що гаситься двома частинами по 500 (2026-01-01 і 2027-01-01): купівля 2025-01-01 за 990 і докупівля 2026-06-01 за 495; дохід за весь час = (500 − 990 × ½) + (1000 − (990 × ½ + 495 × 1)) = 15.
-
 **DOM-30.** «Річна дохідність» позиції (`positionYield`): `null`, якщо погашення не опубліковано або вкладена сума недодатна. Інакше для кожної купівлі окремо рахується `annualYield(amount, purchaseDate, виплати лише цієї купівлі за DOM-21)`; якщо хоч одна купівля дає `null`, уся позиція дає `null`. Результат — `round2(Σ (дохідність × amount) / investedAmount)`. Заплановані купівлі входять. `position.ts`, `positionYield`.
 
 ### Підсумки за валютою (resultsByCurrency)
@@ -131,9 +125,9 @@
 
 **DOM-39.** `walletScopeOptions(wallet)`: `isins` — ISIN усіх позицій, зокрема без даних НБУ, відсортовані за абеткою; `currencyOf` — валюта кожного з цих ISIN (валюта позиції, DOM-15); `currencies` — валюти з `CURRENCIES`, що трапляються серед виплат або подій купівлі гаманця (фактично — валюти всіх купівель, бо кожна купівля дає подію). `wallet.ts`, `walletScopeOptions`.
 
-**DOM-40.** `fitScope(scope, options)` підганяє збережений вибір до гаманця: валюта, якої немає в `options.currencies`, стає `null` («усі валюти»); далі ISIN лишаються лише ті, що є серед `isinsIn(options, підігнана валюта)` (DOM-61) — тобто відкидаються і ISIN, яких у гаманці вже немає, і ISIN іншої валюти, ніж обрана. Сховище фільтрів при цьому не змінюється, тож ISIN іншої валюти повертається, щойно цю валюту оберуть знову. Інші поля `scope` лишаються. Приклад: збережено `{ currency: 'USD', isins: [гривнева ОВДП] }` → `{ currency: 'USD', isins: [] }`, тобто всі доларові ОВДП, а не порожній звіт. (Фільтри виплат замінюють відсутню валюту на першу наявну й так само відкидають ISIN інших валют — це їхнє власне правило поза `fitScope`, PFLT-02 у [screens/payments.md](screens/payments.md).) `wallet.ts`, `fitScope`.
+**DOM-40.** `fitScope(scope, options)` підганяє збережений вибір до гаманця: валюта, якої немає в `options.currencies`, стає `null` («усі валюти»); далі ISIN лишаються лише ті, що є серед `isinsIn(options, підігнана валюта)` (DOM-61) — тобто відкидаються і ISIN, яких у гаманці вже немає, і ISIN іншої валюти, ніж обрана. Сховище фільтрів при цьому не змінюється, тож ISIN іншої валюти повертається, щойно цю валюту оберуть знову. Інші поля `scope` лишаються. Приклад: збережено `{ currency: 'USD', isins: [гривнева ОВДП] }` → `{ currency: 'USD', isins: [] }`, тобто всі доларові ОВДП, а не порожній список. (Фільтри виплат замінюють відсутню валюту на першу наявну й так само відкидають ISIN інших валют — це їхнє власне правило поза `fitScope`, PFLT-02 у [screens/payments.md](screens/payments.md).) `wallet.ts`, `fitScope`.
 
-**DOM-61.** ОВДП валюти (`isinsIn(options, currency)`): ISIN з `options.isins`, у яких `currencyOf` дорівнює `currency`, у тому самому порядку; за `currency = null` — усі `options.isins`. З цього списку фільтри виплат і звітів показують розділ «ОВДП» (лише ОВДП обраної валюти). `wallet.ts`, `isinsIn`.
+**DOM-61.** ОВДП валюти (`isinsIn(options, currency)`): ISIN з `options.isins`, у яких `currencyOf` дорівнює `currency`, у тому самому порядку; за `currency = null` — усі `options.isins`. З цього списку фільтри виплат показують розділ «ОВДП» (лише ОВДП обраної валюти). `wallet.ts`, `isinsIn`.
 
 **DOM-41.** `useWallet()` = `buildWallet(купівлі активного плану, byIsin з useBonds, today)` плюс `plan`, `bonds` (увесь каталог або `null`) і `refresh`. `useToday` читає календарну дату зі спільного сховища налаштувань. Дата оновлюється під час запуску та повернення застосунку на передній план; окремого таймера опівночі немає. Сесії зазвичай тривають до 15 хвилин, тому для оновлення дати після опівночі достатньо знову відкрити застосунок. `src/entities/portfolio/model/useWallet.hook.ts`.
 
@@ -187,7 +181,7 @@
 
 ## Стани
 
-- **Немає ОВДП у даних НБУ** (каталог ще не завантажено або ISIN там відсутній): позиція `unknown`, без виплат, `results` і дохідності; її купівлі все одно є серед `purchaseEvents` і рахуються у валюті `purchase.currency`; `resultsByCurrency` її пропускає; `positionIncome` дає 0.
+- **Немає ОВДП у даних НБУ** (каталог ще не завантажено або ISIN там відсутній): позиція `unknown`, без виплат, `results` і дохідності; її купівлі все одно є серед `purchaseEvents` і рахуються у валюті `purchase.currency`; `resultsByCurrency` її пропускає.
 - **Погашення ще не опубліковано**: `complete: false`, `netIncome`/`returnPercent`/`annualYield` — `null`; виплати-купони й суми `coupons`, `received`, `expected` рахуються.
 - **Порожній план**: `buildWallet([])` дає порожні масиви; `resultsByCurrency` — порожній список.
 
@@ -195,7 +189,7 @@
 
 1. **Купівля в день купона / погашення.** Виплата цього дня не належить купівлі (DOM-21). Купівлю в день погашення форма не дозволяє (DOM-9), але якщо вона є (з резервної копії), позиція не має виплат: `coupons = redemption = 0`, і за опублікованого погашення `netIncome = −invested`, а `annualYield` — `null`.
 2. **День погашення.** ОВДП ще `inCirculation`, погашення ще не `isPaid` (DOM-8, DOM-22); з наступного дня — `redeemed` і `isPaid`.
-3. **Часткові погашення.** `redemption` — сума всіх часткових; `redemptionCost` ділить вартість купівлі за залишком номіналу на дату купівлі (DOM-28). Докупівля в день часткового погашення не отримує його і рахується від уже зменшеного залишку.
+3. **Часткові погашення.** `redemption` — сума всіх часткових погашень. Докупівля в день часткового погашення не отримує його і рахується від уже зменшеного залишку.
 4. **Купівля, датована сьогодні**, — зроблена, не запланована (DOM-12); виплата, датована сьогодні, — не отримана (DOM-22).
 5. **Нульова кількість або сума.** `pricePerBond`, `positionYield` і `returnPercent` повертають `null` замість ділення на нуль; форма й відновлення копії відхиляють такі купівлі.
 6. **Інші валюти.** `keyRateHint` для не-`UAH` — `null`; `newBondsRate` бере ОВДП лише тієї самої валюти. ОВДП не в UAH/USD/EUR до застосунку не потрапляють.
@@ -213,10 +207,9 @@
 - `hints.test.ts`: порядок і найсерйозніший тон підказок (DOM-50).
 - `src/shared/lib/__tests__/number.test.ts`: округлення до копійок і відсутність від’ємного нуля (DOM-54).
 - `src/entities/portfolio/model/__tests__/market.test.ts`: DOM-11, DOM-45, DOM-47 (з DOM-48 для парної кількості — неявно, медіана двох значень), DOM-49.
-- `src/entities/portfolio/model/__tests__/position.test.ts`: DOM-21 (купон у день купівлі), DOM-24, DOM-25 (без даних НБУ), DOM-60 («tells what of the Position is still only planned»), DOM-26, DOM-27, DOM-29 (з DOM-28 для часткових погашень), DOM-30, DOM-31, DOM-32, DOM-33, DOM-34.
+- `src/entities/portfolio/model/__tests__/position.test.ts`: DOM-21 (купон у день купівлі), DOM-24, DOM-25 (без даних НБУ), DOM-60 («tells what of the Position is still only planned»), DOM-26, DOM-27, DOM-30, DOM-31, DOM-32, DOM-33, DOM-34.
 - `src/entities/portfolio/model/__tests__/wallet.test.ts`: DOM-20 (порядок позицій), DOM-35, DOM-36 (порядок подій, купівля без даних НБУ), DOM-38.
 - `src/features/payment-filters/model/__tests__/filterSchedule.test.ts`: DOM-37, DOM-39 (опосередковано), DOM-61 і DOM-40 для ISIN іншої валюти (через `effectiveFilters`, «keeps only the bonds of the currency shown…»).
-- `src/features/report-filters/model/__tests__/fitReportFilters.test.ts`: DOM-40 (опосередковано, через `fitReportFilters`).
 - `src/entities/portfolio/model/__tests__/portfolio.test.ts`: DOM-59 (`plannedQuantity` виплат до і після запланованої купівлі).
 - `src/features/add-purchase/model/__tests__/purchaseHints.test.ts`: DOM-51, DOM-52, DOM-46 (опосередковано, через `assessPurchase`).
 - `src/pages/holdings/model/__tests__/holdOrSell.test.ts`: DOM-45, DOM-51/DOM-52 без `errorGap` (опосередковано).

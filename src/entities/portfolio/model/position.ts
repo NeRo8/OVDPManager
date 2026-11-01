@@ -6,7 +6,6 @@ import {
   type Currency,
   type Position,
   type PositionPayment,
-  type Purchase,
   isPlannedPurchase,
   isRedeemed,
   nextPayment,
@@ -158,53 +157,6 @@ function plannedPart(position: Position, today: string): WalletPosition['planned
     quantity: planned.reduce((sum, purchase) => sum + purchase.quantity, 0),
     amount: round2(planned.reduce((sum, purchase) => sum + purchase.amount, 0)),
   };
-}
-
-/**
- * The nominal of one bond not yet repaid on a date. A redemption on that day goes to the previous
- * owner, as any payment does.
- */
-function nominalLeft(bond: Bond, date: string): number {
-  return bond.payments
-    .filter((payment) => payment.type === 'redemption' && payment.date <= date)
-    .reduce((left, payment) => left - payment.amount, bond.nominal);
-}
-
-/**
- * What the bonds a redemption repays cost: of each purchase held on its date, the share of what
- * was left of the nominal when it was bought that the redemption repays (all of it for a bond
- * redeemed at once). A purchase's redemptions so add up to what it cost, a top-up between partial
- * redemptions too.
- */
-function redemptionCost(purchases: Purchase[], payment: PositionPayment, bond: Bond): number {
-  return purchases
-    .filter((purchase) => purchase.purchaseDate < payment.date)
-    .reduce(
-      (total, purchase) =>
-        total + (purchase.amount * payment.amount) / nominalLeft(bond, purchase.purchaseDate),
-      0,
-    );
-}
-
-/**
- * «Дохід» of a Position from one date to another, both included: its coupons plus what its
- * redemptions brought over the cost of the bonds they repay.
- */
-export function positionIncome(
-  { position, bond, payments }: WalletPosition,
-  from: string,
-  to: string,
-) {
-  if (!bond) return 0;
-  const inSpan = payments.filter((payment) => payment.date >= from && payment.date <= to);
-  const coupons = sumTotals(inSpan.filter((payment) => payment.type === 'coupon'));
-  const gains = inSpan
-    .filter((payment) => payment.type === 'redemption')
-    .reduce(
-      (sum, payment) => sum + payment.total - redemptionCost(position.purchases, payment, bond),
-      0,
-    );
-  return round2(coupons + gains);
 }
 
 /**

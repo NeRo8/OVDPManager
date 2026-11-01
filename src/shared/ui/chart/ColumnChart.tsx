@@ -18,7 +18,6 @@ import {
   describeColumn,
 } from './columnStacks';
 import { ColumnValueLabel } from './ColumnValueLabel';
-import { HorizontalColumnChart } from './HorizontalColumnChart';
 
 export type { ChartColumn, ChartSeries } from './columnStacks';
 
@@ -35,7 +34,6 @@ type Props = {
   columns: ChartColumn[];
   series: ChartSeries[];
   currency: string;
-  orientation?: 'vertical' | 'horizontal';
   valueFormat?: ChartValueFormat;
   selected?: number | null;
   onSelect?: (column: number) => void;
@@ -48,7 +46,6 @@ function ColumnChartView({
   columns,
   series,
   currency,
-  orientation = 'vertical',
   valueFormat = 'money',
   selected = null,
   onSelect,
@@ -77,20 +74,6 @@ function ColumnChartView({
     `${formatGridTick(value, grid.step)}${valueFormat === 'percent' ? ' %' : ''}`;
   const formatSelected = (value: number) =>
     valueFormat === 'percent' ? formatTick(value) : formatCompact(value);
-
-  if (orientation === 'horizontal') {
-    return (
-      <HorizontalColumnChart
-        columns={columns}
-        series={series}
-        currency={currency}
-        valueFormat={valueFormat}
-        selected={selected}
-        onSelect={onSelect}
-        palette={palette}
-      />
-    );
-  }
 
   return (
     <View style={[styles.chart, onSelect && styles.labelRoom]}>

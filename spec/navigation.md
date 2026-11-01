@@ -1,6 +1,6 @@
 # Навігація: маршрути, вкладки, заголовки
 
-**Що це й навіщо.** Застосунок побудовано на Expo Router: кожен файл у `src/app/` — маршрут. Корінь — один нативний стек, у якому лежать п'ять вкладок (кожна зі своїм стеком і заголовком) і всі екрани, що відкриваються поверх вкладок. Три захищені групи (`Stack.Protected`) вирішують, що доступно: знайомство з застосунком — один раз, далі перший план, далі весь застосунок. Екрани поверх інших спершу виїжджають скелетом і монтуються лише після анімації переходу (`DeferredScreen`). Тут описано повну карту маршрутів, охорону, заголовки й кнопки, поведінку переходів.
+**Що це й навіщо.** Застосунок побудовано на Expo Router: кожен файл у `src/app/` — маршрут. Корінь — один нативний стек, у якому лежать чотири вкладки (кожна зі своїм стеком і заголовком) і всі екрани, що відкриваються поверх вкладок. Три захищені групи (`Stack.Protected`) вирішують, що доступно: знайомство з застосунком — один раз, далі перший план, далі весь застосунок. Екрани поверх інших спершу виїжджають скелетом і монтуються лише після анімації переходу (`DeferredScreen`). Тут описано повну карту маршрутів, охорону, заголовки й кнопки, поведінку переходів.
 
 ## Звідки дані
 
@@ -9,7 +9,7 @@
 - Файли маршрутів `src/app/**.tsx` — тонкі обгортки, що рендерять екран з `pages` (більшість — у `DeferredScreen`).
 - `src/app/+native-intent.ts` — `redirectSystemPath`.
 - `src/shared/ui/navigation/NativeStack.tsx` — стек з параметрами заголовка застосунку; `DeferredScreen.tsx` — відкладене монтування; `ResetFiltersHeader.tsx` — кнопка скидання фільтрів.
-- `src/shared/ui/skeleton/ScreenSkeleton.tsx` — форми скелетів `list`, `report`, `form`, `filters`.
+- `src/shared/ui/skeleton/ScreenSkeleton.tsx` — форми скелетів `list`, `form`, `filters`.
 - `src/shared/lib/navigation.ts` — `goBackOrHome`.
 - Стан охорони: `useIsOnboardingCompleted()` (`src/features/onboarding`, сховище `onboarding-v1`) і `useInvestmentPlans().length > 0` (сховище `investment-plan-v1`).
 
@@ -23,7 +23,6 @@
 | `welcome.tsx`                    | `/welcome`                 | `PlanNameScreen` (перший план) | push      | «Перший план»                                                             | —         | W       | редирект, коли планів немає                                                            |
 | `(tabs)/(payments)/index.tsx`    | `/`                        | `PaymentsScreen`               | вкладка   | «Виплати»                                                                 | —         | А       | вкладка «Виплати»                                                                      |
 | `(tabs)/(holdings)/holdings.tsx` | `/holdings`                | `PortfolioScreen`              | вкладка   | «Гаманець»                                                                | —         | А       | вкладка «Гаманець»; `goBackOrHome` без історії                                         |
-| `(tabs)/(reports)/reports.tsx`   | `/reports`                 | `ReportsScreen`                | вкладка   | «Звіти»                                                                   | —         | А       | вкладка «Звіти»                                                                        |
 | `(tabs)/(plan)/plan.tsx`         | `/plan`                    | `PlanScreen`                   | вкладка   | «План» → назва активного плану                                            | —         | А       | вкладка «План»; `dismissTo('/plan')` після нового плану                                |
 | `(tabs)/(settings)/settings.tsx` | `/settings`                | `SettingsScreen`               | вкладка   | «Налаштування»                                                            | —         | А       | вкладка «Налаштування»                                                                 |
 | `add/index.tsx`                  | `/add`                     | `BondPickerScreen`             | push      | «Оберіть ОВДП»                                                            | `list`    | А       | FAB «Додати ОВДП» у гаманці; `EmptyWallet`                                             |
@@ -37,16 +36,6 @@
 | `plan/name.tsx`                  | `/plan/name`               | `PlanNameScreen`               | push      | «Новий план» → «Новий план» / «Назва плану» (`planId`)                    | `form`    | А       | «+» у «Моїх планах»; «Перейменувати план» в аркуші                                     |
 | `plan/goal.tsx`                  | `/plan/goal`               | `CouponGoalScreen`             | push      | «Купони на місяць»                                                        | `form`    | А       | прапорець вкладки «План»; «Перерахувати ціль»                                          |
 | `plan/actions.tsx`               | `/plan/actions`            | `PlanActionsScreen`            | formSheet | без заголовка                                                             | —         | А       | кнопка ⋮ рядка в «Моїх планах»                                                         |
-| `reports/year.tsx`               | `/reports/year`            | `YearReportScreen`             | push      | «Звіт за рік»                                                             | `report`  | А       | список звітів                                                                          |
-| `reports/fx.tsx`                 | `/reports/fx`              | `FxReportScreen`               | push      | «Валютний еквівалент»                                                     | `report`  | А       | список звітів                                                                          |
-| `reports/period.tsx`             | `/reports/period`          | `PeriodReportScreen`           | push      | «Звіт за період»                                                          | `report`  | А       | список звітів                                                                          |
-| `reports/year-over-year.tsx`     | `/reports/year-over-year`  | `YearOverYearReportScreen`     | push      | «Від року до року»                                                        | `report`  | А       | список звітів                                                                          |
-| `reports/redemptions.tsx`        | `/reports/redemptions`     | `RedemptionsReportScreen`      | push      | «Графік погашень»                                                         | `report`  | А       | список звітів                                                                          |
-| `reports/portfolio.tsx`          | `/reports/portfolio`       | `PortfolioReportScreen`        | push      | «Звіт по портфелю»                                                        | `report`  | А       | список звітів                                                                          |
-| `reports/structure.tsx`          | `/reports/structure`       | `StructureReportScreen`        | push      | «Структура портфеля»                                                      | `report`  | А       | список звітів                                                                          |
-| `reports/yield.tsx`              | `/reports/yield`           | `YieldReportScreen`            | push      | «Річна дохідність»                                                        | `report`  | А       | список звітів                                                                          |
-| `reports/bond.tsx`               | `/reports/bond`            | `BondReportScreen`             | push      | «Звіт по ОВДП»                                                            | `report`  | А       | список звітів                                                                          |
-| `report-filters/[report].tsx`    | `/report-filters/[report]` | `ReportFiltersScreen`          | modal     | «Фільтри звіту»                                                           | `filters` | А       | кнопка `ReportFiltersButton` у заголовку звіту                                         |
 | `backup/export.tsx`              | `/backup/export`           | `BackupExportScreen`           | push      | «Створити копію»                                                          | `form`    | А       | «Налаштування»                                                                         |
 | `backup/import.tsx`              | `/backup/import`           | `BackupImportScreen`           | push      | «Відновити з копії»                                                       | `form`    | —       | «Налаштування»; «Відновити з копії» на `/welcome`; `EmptyWallet`                       |
 | `+native-intent.ts`              | —                          | —                              | —         | —                                                                         | —         | —       | системні посилання (NAV-13)                                                            |
@@ -68,19 +57,19 @@
 
 **NAV-03.** Що бачить користувач залежно від стану: знайомство не пройдено → `/onboarding` (незалежно від планів); пройдено, планів немає → `/welcome` (і доступний `/backup/import`); пройдено, плани є → `/` (вкладка «Виплати»). Перехід між станами робить сама охорона, коли змінюється сховище: `completeOnboarding()`, створення першого плану (`createActivePlan`), відновлення з копії, видалення останнього плану.
 
-**NAV-04.** Вкладки (`NativeTabs`, порядок зліва направо): «Виплати» (SF `calendar`, Material `calendar_month`), «Гаманець» (`wallet.bifold` / `wallet.bifold.fill`, `account_balance_wallet`), «Звіти» (`doc.text` / `doc.text.fill`, `summarize`), «План» (`chart.bar` / `chart.bar.fill`, `bar_chart`), «Налаштування» (`gearshape` / `gearshape.fill`, `settings`). Вибрана вкладка має колір `accent` і заповнений SF Symbol, де він є; підписи видно на всіх вкладках (`labelVisibilityMode="labeled"`). На iOS 26 смугу вкладок малює система (Liquid Glass), інакше фон `card`, індикатор `muted`.
+**NAV-04.** Вкладки (`NativeTabs`, порядок зліва направо): «Виплати» (SF `calendar`, Material `calendar_month`), «Гаманець» (`wallet.bifold` / `wallet.bifold.fill`, `account_balance_wallet`), «План» (`chart.bar` / `chart.bar.fill`, `bar_chart`), «Налаштування» (`gearshape` / `gearshape.fill`, `settings`). Вибрана вкладка має колір `accent` і заповнений SF Symbol, де він є; підписи видно на всіх вкладках (`labelVisibilityMode="labeled"`). На iOS 26 смугу вкладок малює система (Liquid Glass), інакше фон `card`, індикатор `muted`.
 
-**NAV-05.** Кожна вкладка — тека-група зі своїм `NativeStack` і одним екраном; нативні вкладки заголовків не малюють, тож заголовок дає стек вкладки. Екрани, відкриті з вкладки (`/add`, `/bond/…`, `/plan/list`, звіти тощо), відкриваються в кореневому стеку поверх смуги вкладок, а не в стеку вкладки. Вкладки лишаються змонтованими: стан екрана вкладки (вибраний рік, місяць, валюта) зберігається при перемиканні вкладок і планів.
+**NAV-05.** Кожна вкладка — тека-група зі своїм `NativeStack` і одним екраном; нативні вкладки заголовків не малюють, тож заголовок дає стек вкладки. Екрани, відкриті з вкладки (`/add`, `/bond/…`, `/plan/list`, тощо), відкриваються в кореневому стеку поверх смуги вкладок, а не в стеку вкладки. Вкладки лишаються змонтованими: стан екрана вкладки (вибраний рік, місяць, валюта) зберігається при перемиканні вкладок і планів.
 
 **NAV-06.** Параметри заголовка всіх стеків (`NativeStack`): кнопка «назад» лише стрілкою (`headerBackButtonDisplayMode: 'minimal'`); з Liquid Glass (`hasLiquidGlass`, iOS 26+) заголовок прозорий і вміст прокручується під ним, інакше суцільний фон `background`; без тіні; колір кнопок `accent`; заголовок шрифтом застосунку `semibold` у кольорі `text`; фон вмісту `background`. Екрани кольорів заголовка не задають.
 
-**NAV-07.** Модальні фільтри («Фільтри виплат», «Фільтри ОВДП», «Фільтри звіту») — `presentation: 'modal'` з кнопкою «Закрити» (✕, `close`) ліворуч, що викликає `goBackOr` із запасним маршрутом відповідного списку; праворуч екран фільтрів ставить «Скинути фільтри» (`refresh`), вимкнену, коли фільтрів немає (`ResetFiltersHeader`). Зміни фільтрів застосовуються одразу, тож модальне вікно лише закривають. Джерело: `FILTERS_MODAL` у `_layout.tsx`.
+**NAV-07.** Модальні фільтри («Фільтри виплат», «Фільтри ОВДП») — `presentation: 'modal'` з кнопкою «Закрити» (✕, `close`) ліворуч, що викликає `goBackOr` із запасним маршрутом відповідного списку; праворуч екран фільтрів ставить «Скинути фільтри» (`refresh`), вимкнену, коли фільтрів немає (`ResetFiltersHeader`). Зміни фільтрів застосовуються одразу, тож модальне вікно лише закривають. Джерело: `FILTERS_MODAL` у `_layout.tsx`.
 
 **NAV-08.** `/plan/actions` — `formSheet` з висотою за вмістом (`sheetAllowedDetents: 'fitToContents'`), видимим «язичком» і без заголовка; закривається свайпом униз або дотиком поза аркушем. Маршрут не відкладено: скелет дав би аркушу хибну висоту.
 
 **NAV-09.** Відкладене монтування (`DeferredScreen`): якщо маршрут — перший у своєму стеку (`navigation.getState().index === 0`), вміст показано одразу. Інакше спершу видно `ScreenSkeleton` вибраної форми, а вміст монтується, коли стек повідомить `transitionEnd` для відкриття (не закриття), або через 1,5 секунди, якщо події немає, і з'являється з `FadeIn` за 200 мс. Разом із вмістом монтуються його хуки, `Stack.Screen`-параметри й кнопки заголовка, тож до кінця переходу заголовок бере назву з `_layout.tsx` (для плану, ISIN і купівлі — з параметрів маршруту та стану активного плану) і не має кнопок екрана. Відкладено всі маршрути кореневого стеку, крім `onboarding`, `welcome`, `(tabs)` і `plan/actions`. Джерело: `DeferredScreen.tsx`.
 
-**NAV-10.** Форми скелетів: `list` — картка над шістьма рядками; `report` — заголовок, картка, картка-графік, чотири рядки; `form` — два блоки полів (3 і 2); `filters` — блоки варіантів з позначками. Скелет оголошується читачу екрана як «Завантаження…» і стоїть нерухомо при зменшеному русі. Джерело: `ScreenSkeleton.tsx`.
+**NAV-10.** Форми скелетів: `list` — картка над шістьма рядками; `form` — два блоки полів (3 і 2); `filters` — блоки варіантів з позначками. Скелет оголошується читачу екрана як «Завантаження…» і стоїть нерухомо при зменшеному русі. Джерело: `ScreenSkeleton.tsx`.
 
 **NAV-11.** Кнопки заголовків (одна дія — одна кнопка, праворуч):
 
@@ -91,7 +80,6 @@
 | «Мої плани»      | `add` «Створити план» → `/plan/name`                                                                       |
 | «Оберіть ОВДП»   | `BondFiltersButton` → `/bond-filters`                                                                      |
 | Картка ОВДП      | `SaleButton` → `/bond/[isin]/sale`, лише коли є оцінка «Тримати чи продати»                                |
-| Кожен звіт       | `ReportFiltersButton` → `/report-filters/[report]`                                                         |
 | Модальні фільтри | ліворуч «Закрити», праворуч «Скинути фільтри»                                                              |
 
 «Гаманець» має не кнопку заголовка, а плаваючу кнопку «Додати ОВДП» (FAB).
@@ -102,7 +90,7 @@
 
 **NAV-14.** `goBackOrHome`: якщо є куди повертатися — `router.back()`, інакше `router.replace('/holdings')` (вкладка «Гаманець»). Нею картка ОВДП виходить, коли видалено останню купівлю позиції.
 
-**NAV-15.** Параметри маршрутів: `/add/[isin]`, `/add/[isin]/purchase`, `/bond/[isin]`, `/bond/[isin]/sale` — `isin`; `/add/[isin]/purchase?purchaseId=…` — редагування купівлі; `/plan/name?planId=…` — перейменування; `/plan/actions?planId=…` — план аркуша; `/report-filters/[report]` — назва звіту (`ReportName`). Параметра `planId` у `/add` немає.
+**NAV-15.** Параметри маршрутів: `/add/[isin]`, `/add/[isin]/purchase`, `/bond/[isin]`, `/bond/[isin]/sale` — `isin`; `/add/[isin]/purchase?purchaseId=…` — редагування купівлі; `/plan/name?planId=…` — перейменування; `/plan/actions?planId=…` — план аркуша. Параметра `planId` у `/add` немає.
 
 **NAV-16.** Навігація після дій:
 

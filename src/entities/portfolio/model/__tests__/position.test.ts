@@ -1,7 +1,7 @@
 import { formatMoney } from '@/shared/lib';
 
 import { type Bond, type Purchase, groupPositions } from '../portfolio';
-import { netIncomeBasis, positionIncome, resultsByCurrency, walletPosition } from '../position';
+import { netIncomeBasis, resultsByCurrency, walletPosition } from '../position';
 
 /** Two years, a 10% coupon paid twice a year on a nominal of 1000, redeemed at once. */
 const bond: Bond = {
@@ -106,39 +106,6 @@ describe('walletPosition', () => {
       '2027-01-01',
       '2027-01-01',
     ]);
-  });
-});
-
-describe('positionIncome', () => {
-  const bought = [purchase({ purchaseDate: '2025-01-01', amount: 1980, quantity: 2 })];
-
-  it('counts the coupons of the span', () => {
-    expect(positionIncome(positionOf(bought, '2026-03-15'), '2026-01-01', '2026-12-31')).toBe(200);
-  });
-
-  it('adds what a redemption brought over the cost of the bonds it repays', () => {
-    expect(positionIncome(positionOf(bought, '2026-03-15'), '2027-01-01', '2027-12-31')).toBe(120);
-  });
-
-  it('costs a top-up between partial redemptions against the nominal left', () => {
-    const amortizing: Bond = {
-      ...bond,
-      payments: [
-        { date: '2026-01-01', type: 'redemption', amount: 500 },
-        { date: '2027-01-01', type: 'redemption', amount: 500 },
-      ],
-    };
-    const first = purchase({ purchaseDate: '2025-01-01', amount: 990 });
-    const topUp = purchase({ purchaseDate: '2026-06-01', amount: 495 });
-    const item = positionOf([first, topUp], '2026-03-15', amortizing);
-    // 500 − 990 × ½ for the first part, then 1000 − (990 × ½ + 495 × 1) for the rest.
-    expect(positionIncome(item, '2025-01-01', '2027-12-31')).toBe(15);
-  });
-
-  it('is nothing without the NBU data', () => {
-    expect(positionIncome(positionOf(bought, '2026-03-15', null), '2025-01-01', '2027-12-31')).toBe(
-      0,
-    );
   });
 });
 
