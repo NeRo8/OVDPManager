@@ -8,7 +8,7 @@ import { holdOrSell } from './holdOrSell';
  */
 export function useHoldOrSell(isin: string, salePrice: number | null) {
   const { positions, byIsin, bonds, today } = useWallet();
-  const keyRate = useKeyRate(today);
+  const { rate: keyRate, failed: keyRateFailed } = useKeyRate(today);
   const bond = byIsin.get(isin);
   const position = positions.find((item) => item.position.isin === isin)?.position;
   return {
@@ -17,7 +17,15 @@ export function useHoldOrSell(isin: string, salePrice: number | null) {
     today,
     assessment:
       position && bond
-        ? holdOrSell({ position, bond, today, keyRate, bonds: bonds ?? [], salePrice })
+        ? holdOrSell({
+            position,
+            bond,
+            today,
+            keyRate,
+            keyRateFailed,
+            bonds: bonds ?? [],
+            salePrice,
+          })
         : null,
   };
 }

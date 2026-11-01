@@ -28,6 +28,8 @@ type Input = {
   today: string;
   /** NBU key policy rate on the purchase date, % a year; null until loaded */
   keyRate: number | null;
+  /** The key rate is missing as NBU could not be asked for it */
+  keyRateFailed: boolean;
   /** The whole NBU catalog, to find the bonds placed lately */
   bonds: Bond[];
 };
@@ -41,6 +43,7 @@ export function purchasePreview({
   values,
   today,
   keyRate,
+  keyRateFailed,
   bonds,
 }: Input): PurchasePreview | null {
   const draft = { ...values, id: 'draft', isin: bond.isin, currency: bond.currency };
@@ -57,6 +60,7 @@ export function purchasePreview({
       today,
       pricePerBond: price,
       keyRate,
+      keyRateFailed,
       bonds,
     }),
     nextPayment,

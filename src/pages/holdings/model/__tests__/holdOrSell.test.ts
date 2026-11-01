@@ -49,6 +49,7 @@ function assess(
     bond,
     today,
     keyRate: 16,
+    keyRateFailed: false,
     bonds: [bond, ...newBonds],
     salePrice: null,
     ...rest,
@@ -161,5 +162,14 @@ describe('holdOrSell', () => {
     expect(assess({ today: '2027-01-01' })).toBeNull();
     const unpublished = { ...bond, payments: bond.payments.filter((p) => p.type === 'coupon') };
     expect(assess({ bond: unpublished })).toBeNull();
+  });
+
+  it('says why the key rate is not compared when it did not load, the verdict as before', () => {
+    const failed = assess({ keyRate: null, keyRateFailed: true });
+    expect(failed?.hints).toContainEqual({
+      tone: 'info',
+      text: 'Не вдалося завантажити облікову ставку НБУ, тож порівняння з нею немає. Спробуйте пізніше.',
+    });
+    expect(failed?.verdict).toEqual(assess({ keyRate: null })?.verdict);
   });
 });

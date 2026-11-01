@@ -57,3 +57,15 @@ export function newBondsHint(
         : `Річна дохідність ${formatPercent(annualYield)} близька до медіанної ставки купону ${rate}.`,
   };
 }
+
+/**
+ * Why a hryvnia yield is not set against the key rate: NBU could not be asked for it. Neutral, as
+ * a rate that did not load says nothing about the purchase.
+ */
+export function keyRateFailedHint(keyRateFailed: boolean, currency: Currency): Hint | null {
+  if (!keyRateFailed || currency !== 'UAH') return null;
+  return {
+    tone: 'info',
+    text: 'Не вдалося завантажити облікову ставку НБУ, тож порівняння з нею немає. Спробуйте пізніше.',
+  };
+}

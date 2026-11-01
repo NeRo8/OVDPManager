@@ -24,6 +24,7 @@ const preview = (fields: Partial<Bond> = {}) =>
     values: { purchaseDate: '2026-03-01', quantity: 2, amount: 2000 },
     today: '2026-10-01',
     keyRate: 16,
+    keyRateFailed: false,
     bonds: [],
   });
 

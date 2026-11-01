@@ -5,6 +5,7 @@ import {
   MAX_PLAUSIBLE_YIELD,
   type Verdict,
   isPlannedPurchase,
+  keyRateFailedHint,
   keyRateHint,
   maturityTerm,
   newBondsHint,
@@ -41,6 +42,8 @@ type Input = {
   annualYield: number | null;
   /** NBU key policy rate, % a year; null until loaded */
   keyRate: number | null;
+  /** The key rate is missing as NBU could not be asked for it */
+  keyRateFailed: boolean;
   /** The whole NBU catalog, to find the bonds placed lately */
   bonds: Bond[];
 };
@@ -137,6 +140,33 @@ function otherHints({ bond, purchaseDate, isComplete }: Input): Hint[] {
   return hints;
 }
 
+/**
+ * Nothing to set the yield against: no new bonds like this one, and in hryvnia no key rate either,
+ * saying why when it did not load.
+ */
+function noBenchmarkHint({ bond, keyRate, keyRateFailed }: Input): Hint | null {
+  if (bond.currency !== 'UAH') {
+    return { tone: 'info', text: 'Немає доступних ринкових орієнтирів для порівняння дохідності.' };
+  }
+  if (keyRate !== null) return null;
+  return {
+    tone: 'info',
+    text: keyRateFailed
+      ? 'Не вдалося завантажити облікову ставку НБУ, а нових ОВДП для порівняння недостатньо. Спробуйте пізніше.'
+      : 'Облікова ставка НБУ недоступна, а нових ОВДП для порівняння недостатньо.',
+  };
+}
+
+/**
+ * What the yield could not be set against: without new bonds one hint says what is missing; with
+ * them only a key rate that did not load may be. Nothing while there is no yield to compare.
+ */
+function missingBenchmarkHint(input: Input, hasNewBonds: boolean): Hint | null {
+  if (input.annualYield === null) return null;
+  if (hasNewBonds) return keyRateFailedHint(input.keyRateFailed, input.bond.currency);
+  return noBenchmarkHint(input);
+}
+
 /** The purchase takes its worst hint's tone; with only neutral hints there is no verdict. */
 function verdictOf(hints: Hint[]): Verdict | null {
   const worst = worstTone(hints);
@@ -160,15 +190,7 @@ export function assessPurchase(input: Input): PurchaseAssessment {
     annualYield === null ? null : keyRateHint(annualYield, keyRate, bond.currency, ERROR_GAP),
     annualYield === null ? null : newBondsHint(annualYield, market, bond.currency),
     priceHint(input),
-    annualYield !== null && !market && (bond.currency !== 'UAH' || keyRate === null)
-      ? {
-          tone: 'info',
-          text:
-            bond.currency === 'UAH'
-              ? 'Облікова ставка НБУ недоступна, а нових ОВДП для порівняння недостатньо.'
-              : 'Немає доступних ринкових орієнтирів для порівняння дохідності.',
-        }
-      : null,
+    missingBenchmarkHint(input, market !== null),
     isPlanned && annualYield !== null
       ? {
           tone: 'info',

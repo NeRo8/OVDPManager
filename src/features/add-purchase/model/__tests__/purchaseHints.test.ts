@@ -33,6 +33,7 @@ function assess(fields: Partial<Parameters<typeof assessPurchase>[0]> = {}) {
     isComplete: true,
     annualYield: 16,
     keyRate: 16,
+    keyRateFailed: false,
     bonds: [],
     ...fields,
   });
@@ -155,6 +156,25 @@ describe('assessPurchase', () => {
         text: 'Облікова ставка НБУ недоступна, а нових ОВДП для порівняння недостатньо.',
       },
     ]);
+  });
+
+  it('says the key rate did not load, with or without new bonds, the verdict unchanged', () => {
+    const fewNewBonds = [bondOf({ rate: 20, issueDate: '2026-06-01' })];
+    expect(assess({ keyRate: null, keyRateFailed: true, bonds: fewNewBonds }).hints).toEqual([
+      {
+        tone: 'info',
+        text: 'Не вдалося завантажити облікову ставку НБУ, а нових ОВДП для порівняння недостатньо. Спробуйте пізніше.',
+      },
+    ]);
+    const newBonds = [
+      bondOf({ rate: 16, issueDate: '2026-06-01' }),
+      bondOf({ rate: 16, issueDate: '2026-07-01' }),
+    ];
+    const withNewBonds = assess({ keyRate: null, keyRateFailed: true, bonds: newBonds });
+    expect(withNewBonds.hints.map(({ text }) => text)).toContain(
+      'Не вдалося завантажити облікову ставку НБУ, тож порівняння з нею немає. Спробуйте пізніше.',
+    );
+    expect(withNewBonds.verdict).toEqual(assess({ keyRate: null, bonds: newBonds }).verdict);
   });
 
   it('compares a bond in another currency with new bonds only, not with the key rate', () => {

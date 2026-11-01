@@ -61,7 +61,7 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void, purchase?: P
   const { isValid } = useFormState({ control: form.control });
   const values = useWatch({ control: form.control });
   const purchaseDate = values.purchaseDate ?? today;
-  const keyRate = useKeyRate(purchaseDate);
+  const { rate: keyRate, failed: keyRateFailed } = useKeyRate(purchaseDate);
   const parsed = schema.safeParse(values);
   // The price shows as soon as the amount and the quantity are valid, whatever the date.
   const amount = schema.shape.amount.safeParse(values.amount);
@@ -70,7 +70,14 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void, purchase?: P
     amount.success && quantity.success ? pricePerBond(amount.data, quantity.data) : null;
   const isPlanned = isPlannedPurchase({ purchaseDate }, today);
   const preview = parsed.success
-    ? purchasePreview({ bond, values: parsed.data, today, keyRate, bonds: bonds ?? [] })
+    ? purchasePreview({
+        bond,
+        values: parsed.data,
+        today,
+        keyRate,
+        keyRateFailed,
+        bonds: bonds ?? [],
+      })
     : null;
 
   const submit = () =>

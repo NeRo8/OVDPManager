@@ -1,5 +1,5 @@
 import type { NewBondsRate } from '../market';
-import { keyRateHint, newBondsHint } from '../yieldHints';
+import { keyRateFailedHint, keyRateHint, newBondsHint } from '../yieldHints';
 
 const newBonds: NewBondsRate = { rate: 16, count: 3, term: 'medium' };
 const tone = (hint: { tone: string } | null) => hint?.tone ?? null;
@@ -48,5 +48,16 @@ describe('newBondsHint', () => {
   it('praises a yield above their median or within a point of it', () => {
     expect(tone(newBondsHint(16.5, newBonds, 'UAH'))).toBe('success');
     expect(newBondsHint(15, newBonds, 'UAH')?.text).toMatch(/^Річна дохідність 15% близька/);
+  });
+});
+
+describe('keyRateFailedHint', () => {
+  it('explains a missing key rate only when it failed to load, and only in hryvnia', () => {
+    expect(keyRateFailedHint(true, 'UAH')).toEqual({
+      tone: 'info',
+      text: 'Не вдалося завантажити облікову ставку НБУ, тож порівняння з нею немає. Спробуйте пізніше.',
+    });
+    expect(keyRateFailedHint(false, 'UAH')).toBeNull();
+    expect(keyRateFailedHint(true, 'USD')).toBeNull();
   });
 });

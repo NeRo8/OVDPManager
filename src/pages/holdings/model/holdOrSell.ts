@@ -11,6 +11,7 @@ import {
   canBuyOn,
   groupPositions,
   isPlannedPurchase,
+  keyRateFailedHint,
   keyRateHint,
   newBondsHint,
   newBondsLabel,
@@ -65,6 +66,8 @@ type Input = {
   today: string;
   /** NBU key policy rate today, % a year; null until loaded */
   keyRate: number | null;
+  /** The key rate is missing as NBU could not be asked for it */
+  keyRateFailed: boolean;
   /** The whole NBU catalog, to find the bonds placed lately */
   bonds: Bond[];
   /** What a buyer pays for 1 bond today, as typed; null until typed */
@@ -186,6 +189,7 @@ export function holdOrSell(input: Input): HoldOrSell | null {
       : [
           keyRateHint(heldYield, keyRate, bond.currency),
           newBondsHint(heldYield, newBonds, bond.currency),
+          keyRateFailedHint(input.keyRateFailed, bond.currency),
         ],
   );
 
