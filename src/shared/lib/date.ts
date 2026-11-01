@@ -2,6 +2,7 @@ import {
   addDays,
   addMonths,
   differenceInCalendarDays,
+  differenceInMilliseconds,
   differenceInMonths,
   addQuarters,
   eachMonthOfInterval,
@@ -40,6 +41,11 @@ export function toISODate(date: Date): string {
 
 export function todayISO(): string {
   return toISODate(new Date());
+}
+
+/** Whether more than 24 elapsed hours separate two moments. */
+export function isMoreThanADayLater(now: Date, previous: number): boolean {
+  return differenceInMilliseconds(now, previous) > 24 * 60 * 60 * 1000;
 }
 
 /** Local midnight of the calendar date. */

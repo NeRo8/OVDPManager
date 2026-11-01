@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 
-import { showToast, useToday } from '@/shared/lib';
+import { useToday } from '@/shared/config/appSettings';
+import { showToast } from '@/shared/lib';
 
 import { keyRateQuery, keyRateYear } from '../api/keyRateQuery';
 import { useBonds } from '../api/useBonds.hook';

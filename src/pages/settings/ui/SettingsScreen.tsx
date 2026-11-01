@@ -15,7 +15,8 @@ import {
   usePurchases,
 } from '@/entities/portfolio';
 
-import { formatDateTime, showToast, useToday } from '@/shared/lib';
+import { useToday } from '@/shared/config/appSettings';
+import { formatDateTime, showToast } from '@/shared/lib';
 import { setThemePreference, useThemePreference, type ThemePreference } from '@/shared/theme';
 import { InfoRow, LinkRow, ScreenScrollView, Section, SegmentedSelect } from '@/shared/ui';
 

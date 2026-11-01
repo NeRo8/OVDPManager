@@ -40,6 +40,14 @@ Docs: https://docs.expo.dev/eas/index.md
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
 
+## Data validation
+
+- Implement forms with React Hook Form and a Zod schema; validate user input when the form is submitted before writing it to Zustand. Validation during editing may also be used for feedback.
+- Treat data written to Zustand through these validated boundaries as valid in internal code. Do not repeat the same defensive checks in calculations; keep checks needed for the calculation's actual domain or possible states.
+- Validate the contents of the app's backups after receiving and decrypting them, before replacing local data, whether the backup comes from the server or a file. Encryption integrity and schema validation serve different purposes.
+- Type responses from third-party APIs such as NBU and trust their declared contract instead of adding runtime response-shape validation. If the contract changes, update the app in a patch.
+- When changing persisted data formats, account for existing stored data and backup compatibility; provide a migration where needed.
+
 ## Skills and project overrides
 
 Third-party skills in `.claude/skills/` are general guides; this project's setup wins when they disagree. Code layout and data flow are described in `CLAUDE.md`.

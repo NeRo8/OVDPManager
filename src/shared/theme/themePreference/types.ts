@@ -1,6 +1,2 @@
-/** `system` follows the device's light or dark appearance. */
-export type ThemePreference = 'system' | 'light' | 'dark';
+export type { ThemePreference } from '@/shared/config/appSettings';
 
-export type ThemePreferenceState = {
-  preference: ThemePreference;
-};

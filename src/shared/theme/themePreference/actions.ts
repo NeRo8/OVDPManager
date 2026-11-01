@@ -2,7 +2,8 @@ import { Appearance } from 'react-native';
 
 import { UnistylesRuntime } from 'react-native-unistyles';
 
-import { useThemePreferenceStore } from './store';
+import { setPreferredTheme } from '@/shared/config/appSettings';
+
 import type { ThemePreference } from './types';
 
 /**
@@ -15,7 +16,7 @@ export function applyNativeColorScheme(preference: ThemePreference): void {
 
 /** Switches the theme right away and remembers it. */
 export function setThemePreference(preference: ThemePreference): void {
-  useThemePreferenceStore.setState({ preference });
+  setPreferredTheme(preference);
   if (preference === 'system') {
     UnistylesRuntime.setAdaptiveThemes(true);
   } else {

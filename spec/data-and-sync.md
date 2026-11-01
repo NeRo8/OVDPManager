@@ -6,7 +6,7 @@
 
 - Сховище: `src/shared/lib/storage.ts` (`mmkvStorage`).
 - Сховища стану (папка на кожне, `types.ts` / `store.ts` / `selectors.ts` / `actions.ts` / `index.ts`):
-  `src/entities/portfolio/model/purchases/`, `src/entities/portfolio/model/plans/`, `src/entities/portfolio/model/activePlan/`, `src/entities/portfolio/api/bonds/`, `src/entities/portfolio/api/keyRate/`, `src/entities/portfolio/api/exchangeRate/`, `src/features/payment-filters/model/paymentFilters/`, `src/features/add-purchase/model/bondPickerFilters/`, `src/features/report-filters/model/reportFilters/`, `src/features/onboarding/model/onboarding/`, `src/shared/theme/themePreference/`, `src/shared/lib/toast/`.
+  `src/entities/portfolio/model/purchases/`, `src/entities/portfolio/model/plans/`, `src/entities/portfolio/model/activePlan/`, `src/entities/portfolio/api/bonds/`, `src/entities/portfolio/api/keyRate/`, `src/entities/portfolio/api/exchangeRate/`, `src/features/payment-filters/model/paymentFilters/`, `src/features/add-purchase/model/bondPickerFilters/`, `src/features/report-filters/model/reportFilters/`, `src/features/onboarding/model/onboarding/`, `src/shared/config/appSettings/`, `src/shared/lib/toast/`.
 - Клієнт НБУ: `src/shared/api/nbu/client.ts` (`nbuClient`, `NbuError`).
 - Запити: `src/entities/portfolio/api/nbuBonds.ts`, `nbuKeyRate.ts`, `nbuExchangeRates.ts`, `dailyRates.ts`, `useBonds.hook.ts`, `keyRateQuery.ts`, `useKeyRate.hook.ts`, `useKeyRates.hook.ts`, `exchangeRateQuery.ts`, `useExchangeRates.hook.ts`.
 - TanStack Query: `src/shared/api/queryClient.ts`, `src/shared/api/QueryProvider.tsx`.
@@ -36,7 +36,7 @@
 | `bond-picker-filters-v1` | `features/add-purchase/…/bondPickerFilters` | `{ currency; term; sort: 'maturity' \| 'rate' }`                                    | див. сховище                       |
 | `report-filters-v1`      | `features/report-filters/…/reportFilters`   | фільтри кожного звіту за назвою (`year`, `fx`, `period`, `yearOverYear`, …, `bond`) | див. сховище                       |
 | `onboarding-v1`          | `features/onboarding/model/onboarding`      | `{ isCompleted: boolean }`                                                          | `{ isCompleted: false }`           |
-| `theme-preference-v1`    | `shared/theme/themePreference`              | `{ preference: 'system' \| 'light' \| 'dark' }`                                     | `{ preference: 'system' }`         |
+| `theme-preference-v1`    | `shared/config/appSettings`                 | `{ preference, lastOpenedAt }`; дата `today` лише в пам’яті                     | тема `system`, дата запуску, `lastOpenedAt: null`         |
 
 **DATA-04.** Дії сховища купівель (`src/entities/portfolio/model/purchases/actions.ts`): `addPurchase` (новий `id` = `Date.now()` у base36 + `-` + 6 випадкових символів, додається в кінець), `removePurchase(id)` (прибирає першу з таким `id`), `updatePurchase(id, { purchaseDate, quantity, amount })` (змінює лише ці три поля; `currency`, `isin`, `planId` лишаються), `replacePurchases` (замінює все), `removePosition(planId, isin)`, `removePlanPurchases(planId)`, `copyPlanPurchases(from, to)` (копії з новими `id` додаються в кінець). Селектори: `usePurchases`, `getPurchases` — купівлі всіх планів.
 
@@ -86,7 +86,7 @@
 
 **DATA-21.** Типові налаштування запитів: `retry: 1` (одна повторна спроба з типовою затримкою бібліотеки); `refetchOnMount` і `retryOnMount` — функція `notFailedRecently`: `Date.now() − query.state.errorUpdatedAt > 5 хв`. Тож протягом 5 хвилин після невдачі екран, що відкривається, сам запит не повторює. Ручні `refetch` (кнопки «Спробувати ще раз», «Повторити», жест оновлення) це правило обходять. `src/shared/api/queryClient.ts`.
 
-**DATA-22.** Повернення застосунку на передній план вмикає `focusManager.setFocused(true)` (`AppState` = `active`), і застарілі запити з активними спостерігачами оновлюються (типовий `refetchOnWindowFocus`). Правило 5 хвилин (DATA-21) на це не поширюється. `onlineManager` не налаштовано, тож «повернення мережі» запитів не запускає. `src/shared/api/QueryProvider.tsx`.
+**DATA-22.** Під час запуску й повернення на передній план `recordAppOpening` оновлює календарну дату та зберігає час відкриття. Якщо після попереднього відкриття минуло понад 24 години, `QueryProvider` позначає запити НБУ застарілими й повторює активні; запит, що вже триває, не скасовується. Під час першого відкриття попереднього часу немає. Окремого таймера опівночі немає. Повернення застосунку на передній план вмикає `focusManager.setFocused(true)` (`AppState` = `active`), і застарілі запити з активними спостерігачами оновлюються (типовий `refetchOnWindowFocus`). Правило 5 хвилин (DATA-21) на це не поширюється. `onlineManager` не налаштовано, тож «повернення мережі» запитів не запускає. `src/shared/api/QueryProvider.tsx`.
 
 **DATA-23.** Коли запит із `meta.errorTitle` остаточно не вдався (після повторної спроби) і в нього вже є дані (`query.state.data !== undefined`), показується сповіщення: `tone: 'error'`, заголовок — `errorTitle`, текст — «<повідомлення помилки>. Показано збережені дані.», дія «Повторити» (`refetchQueries` за ключем запиту). Без даних сповіщення немає: помилку показує екран. `queryClient.ts`, `QueryCache.onError`.
 

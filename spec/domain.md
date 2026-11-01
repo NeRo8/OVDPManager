@@ -135,7 +135,7 @@
 
 **DOM-61.** ОВДП валюти (`isinsIn(options, currency)`): ISIN з `options.isins`, у яких `currencyOf` дорівнює `currency`, у тому самому порядку; за `currency = null` — усі `options.isins`. З цього списку фільтри виплат і звітів показують розділ «ОВДП» (лише ОВДП обраної валюти). `wallet.ts`, `isinsIn`.
 
-**DOM-41.** `useWallet()` = `buildWallet(купівлі активного плану, byIsin з useBonds, today)` плюс `plan`, `bonds` (увесь каталог або `null`) і `refresh`. `useToday` оновлює дату опівночі та після повернення застосунку на передній план. `src/entities/portfolio/model/useWallet.hook.ts`.
+**DOM-41.** `useWallet()` = `buildWallet(купівлі активного плану, byIsin з useBonds, today)` плюс `plan`, `bonds` (увесь каталог або `null`) і `refresh`. `useToday` читає календарну дату зі спільного сховища налаштувань. Дата оновлюється під час запуску та повернення застосунку на передній план; окремого таймера опівночі немає. Сесії зазвичай тривають до 15 хвилин, тому для оновлення дати після опівночі достатньо знову відкрити застосунок. `src/entities/portfolio/model/useWallet.hook.ts`.
 
 **DOM-42.** Вибір ОВДП для купівлі (`bondChoices(bonds, query, today)`): запит очищається від пробілів і переводиться у великі літери. Без запиту — лише ОВДП, які можна купити сьогодні (DOM-9). Із запитом — усі ОВДП, чий ISIN містить запит, також погашені. Спершу ті, що можна купити, далі — за `maturityDate`. `portfolio.ts`, `bondChoices`.
 

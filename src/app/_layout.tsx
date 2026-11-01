@@ -10,7 +10,8 @@ import { useIsOnboardingCompleted } from '@/features/onboarding';
 import { isPlannedPurchase, useActivePurchases, useInvestmentPlans } from '@/entities/portfolio';
 
 import { QueryProvider } from '@/shared/api';
-import { goBackOr, useToday } from '@/shared/lib';
+import { useToday } from '@/shared/config/appSettings';
+import { goBackOr } from '@/shared/lib';
 import { HeaderButton, LaunchSplash, NativeStack, ToastHost } from '@/shared/ui';
 
 // Filters open over their list, which shows every change at once; closing is all that is left.
