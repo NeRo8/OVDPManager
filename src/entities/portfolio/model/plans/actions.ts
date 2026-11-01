@@ -18,6 +18,7 @@ export function createInvestmentPlan(name: string, goal?: CouponGoal): string {
   const plan: InvestmentPlan = {
     id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
     name,
+    isActive: usePlansStore.getState().plans.length === 0,
     ...(goal && { goal }),
   };
   updatePlans((plans) => [...plans, plan]);
@@ -49,11 +50,26 @@ export function duplicateInvestmentPlan(id: string): string | undefined {
 /** Removes the plan with all its purchases. */
 export function removeInvestmentPlan(id: string): void {
   removePlanPurchases(id);
-  updatePlans((plans) => plans.filter((plan) => plan.id !== id));
+  updatePlans((plans) => selectActivePlan(plans.filter((plan) => plan.id !== id)));
+}
+
+/** Select one plan, falling back to the existing selection or the first plan. */
+function selectActivePlan(plans: InvestmentPlan[], id?: string): InvestmentPlan[] {
+  const selected =
+    plans.find((plan) => plan.id === id) ?? plans.find((plan) => plan.isActive) ?? plans[0];
+  return plans.map((plan) => ({ ...plan, isActive: plan.id === selected?.id }));
+}
+
+export function setActivePlan(id: string): void {
+  updatePlans((plans) => selectActivePlan(plans, id));
 }
 
 /** Restores from a backup: its plans and their purchases replace everything. */
-export function restorePortfolio(purchases: PlanPurchase[], plans: InvestmentPlan[]): void {
+export function restorePortfolio(
+  purchases: PlanPurchase[],
+  plans: InvestmentPlan[],
+  activePlanId?: string,
+): void {
   replacePurchases(purchases);
-  usePlansStore.setState({ plans });
+  usePlansStore.setState({ plans: selectActivePlan(plans, activePlanId) });
 }

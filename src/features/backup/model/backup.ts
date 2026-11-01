@@ -24,7 +24,7 @@ export type Backup = {
 type BackupContents = {
   /** Every purchase of every plan, each with its `planId`. */
   holdings: PlanPurchase[];
-  plans: InvestmentPlan[];
+  plans: Omit<InvestmentPlan, 'isActive'>[];
   activePlanId?: string;
   theme?: ThemePreference;
 };
@@ -80,7 +80,8 @@ export async function serializeBackup(
   activePlanId?: string,
   theme?: ThemePreference,
 ): Promise<string> {
-  const contents: BackupContents = { holdings: purchases, plans, activePlanId, theme };
+  const backupPlans = plans.map(({ isActive: _isActive, ...plan }) => plan);
+  const contents: BackupContents = { holdings: purchases, plans: backupPlans, activePlanId, theme };
   const backup: Backup = {
     format: FORMAT,
     version: VERSION,
@@ -139,7 +140,10 @@ export async function parseBackup(text: string, key: string): Promise<BackupData
   });
   return {
     purchases: holdings,
-    plans,
+    plans: plans.map((plan, index) => ({
+      ...plan,
+      isActive: activePlanId ? plan.id === activePlanId : index === 0,
+    })),
     ...(activePlanId ? { activePlanId } : {}),
     ...(theme ? { theme } : {}),
   };

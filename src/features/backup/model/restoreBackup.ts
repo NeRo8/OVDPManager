@@ -4,7 +4,6 @@ import {
   planCount,
   purchaseCount,
   restorePortfolio,
-  setActivePlan,
 } from '@/entities/portfolio';
 
 import { confirmDestructive, showToast } from '@/shared/lib';
@@ -34,8 +33,7 @@ export function restoreBackup(
   const currentPurchases = getPurchases().length;
   const restoredSummary = `${planCount(restored.plans.length)} і ${purchaseCount(restored.purchases.length)} ${SOURCE_PHRASES[source]}`;
   const apply = () => {
-    restorePortfolio(restored.purchases, restored.plans);
-    if (restored.activePlanId) setActivePlan(restored.activePlanId);
+    restorePortfolio(restored.purchases, restored.plans, restored.activePlanId);
     if (restored.theme) setThemePreference(restored.theme);
     showToast({
       tone: 'success',

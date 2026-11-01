@@ -58,3 +58,14 @@ it('creates a goal copy and falls back after its deletion', () => {
   expect(getInvestmentPlans()).toHaveLength(1);
   expect(getPurchases()).toHaveLength(0);
 });
+
+it('keeps exactly one active plan when switching plans', () => {
+  const firstId = createInvestmentPlan('A');
+  const secondId = createInvestmentPlan('B');
+  expect(getInvestmentPlans().map((plan) => plan.isActive)).toEqual([true, false]);
+  setActivePlan(secondId);
+  expect(getActivePlan()?.id).toBe(secondId);
+  expect(getInvestmentPlans().map((plan) => plan.isActive)).toEqual([false, true]);
+  setActivePlan(firstId);
+  expect(getInvestmentPlans().map((plan) => plan.isActive)).toEqual([true, false]);
+});

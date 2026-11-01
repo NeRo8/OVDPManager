@@ -8,9 +8,9 @@
 - `src/pages/plan/model/upcomingPurchases.ts` — `upcomingPurchases(wallet)`.
 - `src/pages/plan/ui/PlanListScreen.tsx`, `PlanRow.tsx` — «Мої плани»; `PlanActionsScreen.tsx` — аркуш дій; `PlanNameScreen.tsx` — назва плану й `/welcome`.
 - `src/entities/portfolio/model/plans/` — сховище планів `investment-plan-v1`: `createInvestmentPlan`, `renameInvestmentPlan`, `duplicateInvestmentPlan`, `removeInvestmentPlan`, `restorePortfolio`; `useInvestmentPlans`, `getInvestmentPlans`.
-- `src/entities/portfolio/model/activePlan/` — сховище активного плану `active-plan-v1`: `setActivePlan`, `createActivePlan`, `addPurchaseToActivePlan`, `removePositionFromActivePlan`, `createGoalPlan`; `useActivePlan`, `getActivePlan`.
+- `src/entities/portfolio/model/activePlan/` — дії та селектори активного плану; його ознака зберігається в планах.
 - `src/entities/portfolio/model/purchases/actions.ts` — `copyPlanPurchases`, `removePlanPurchases`.
-- `src/entities/portfolio/model/plan.ts` — `InvestmentPlan { id, name, goal? }`, `CouponGoal`, `DEFAULT_PLAN_NAME = 'Мій план'`, `PLAN_NAME_MAX_LENGTH = 80`.
+- `src/entities/portfolio/model/plan.ts` — `InvestmentPlan { id, name, isActive, goal? }`, `CouponGoal`, `DEFAULT_PLAN_NAME = 'Мій план'`, `PLAN_NAME_MAX_LENGTH = 80`.
 - `useWallet()` (`model/useWallet.hook.ts`) — гаманець активного плану, `plan`, `bonds`, `refresh`; `resultsByCurrency` (`model/position.ts`); `goalProgress` (`src/features/coupon-goal`).
 
 ## Що на екрані
@@ -48,7 +48,7 @@
 
 ### Активний план
 
-**PLAN-01.** Активний план = план з `activePlanId` (сховище `active-plan-v1`), а якщо такого немає (`null` або план видалено) — перший план у списку. `undefined` лише коли планів немає. Ідентифікатор видаленого плану в сховищі лишається, але ні на що не впливає. Джерело: `activeOf` у `activePlan/selectors.ts`.
+**PLAN-01.** Активний план має `isActive: true` у сховищі планів. При видаленні активного плану обирається перший з решти; `undefined` лише коли планів немає. Джерело: `activeOf` у `activePlan/selectors.ts` та дії сховища планів.
 
 **PLAN-02.** Гаманець і виплати показують лише купівлі з `planId` активного плану (`useActivePurchases`). Перемикання плану змінює всі вкладки одразу.
 

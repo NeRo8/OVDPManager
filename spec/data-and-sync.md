@@ -28,7 +28,6 @@
 | ------------------------ | ------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------- |
 | `holdings-v1`            | `entities/portfolio/model/purchases`        | `{ purchases: PlanPurchase[] }`                                                     | `{ purchases: [] }`                               |
 | `investment-plan-v1`     | `entities/portfolio/model/plans`            | `{ plans: InvestmentPlan[] }`                                                       | `{ plans: [] }`                                   |
-| `active-plan-v1`         | `entities/portfolio/model/activePlan`       | `{ activePlanId: string \| null }`                                                  | `{ activePlanId: null }`                          |
 | `nbu-bonds-v1`           | `entities/portfolio/api/bonds`              | `{ bonds: Bond[] \| null; updatedAt: number \| null }` (мс)                         | `{ bonds: null, updatedAt: null }`                |
 | `nbu-key-rate-v1`        | `entities/portfolio/api/keyRate`            | `{ byYear: Record<рік, { rates: Record<дата, %>; throughDate; updatedAt }> }`       | `{ byYear: {} }`                                  |
 | `nbu-exchange-rates-v1`  | `entities/portfolio/api/exchangeRate`       | `{ byCurrencyYear: Record<'USD-2025' \| …, { rates; throughDate; updatedAt }> }`    | `{ byCurrencyYear: {} }`                          |
@@ -42,9 +41,9 @@
 
 **DATA-05.** Дії сховища планів (`src/entities/portfolio/model/plans/actions.ts`): `createInvestmentPlan(name, goal?)` (id як у DATA-04, план — у кінець, повертає id), `renameInvestmentPlan`, `duplicateInvestmentPlan(id)` (назва = `name.slice(0, 80 − 8).trimEnd() + ' (копія)'`, копіює купівлі й `goal`, активний план не змінює, повертає назву або `undefined`), `removeInvestmentPlan(id)` (спершу купівлі плану, потім план), `restorePortfolio(purchases, plans)` (замінює обидва сховища). Назва перевіряється формою, сховище її не обрізає (крім суфіксів).
 
-**DATA-06.** Активний план (`src/entities/portfolio/model/activePlan/`): `activePlanId` зберігається між запусками. Активний — план із цим id, а якщо його немає (не вибрано, видалено, замінено копією) — перший у списку; `undefined`, лише коли планів немає. `setActivePlan` не перевіряє id. `createActivePlan(name)` створює план і робить його активним. `addPurchaseToActivePlan` і `removePositionFromActivePlan` без активного плану нічого не роблять. `createGoalPlan(goal, purchases)`: назва = `name.slice(0, 80 − suffix.length).trimEnd() + ' · ціль <рік>'`, копіює купівлі активного плану, додає нові, робить копію активною, повертає назву.
+**DATA-06.** Активний план визначається полем `isActive` у сховищі планів. Серед наявних планів активний рівно один; якщо планів немає, активний план — `undefined`. `setActivePlan` змінює ознаку в планах; невідомий id залишає поточний вибір. `createActivePlan(name)` створює план і робить його активним. `addPurchaseToActivePlan` і `removePositionFromActivePlan` без активного плану нічого не роблять. `createGoalPlan(goal, purchases)` копіює купівлі активного плану, додає нові та робить копію активною.
 
-**DATA-07.** Видалення плану не скидає `activePlanId`: за потреби спрацьовує запасний варіант «перший план». Під час відновлення нової копії встановлюється збережений активний план; для старої копії без нього лишається попередній механізм.
+**DATA-07.** Після видалення активного плану активним стає перший із решти. Резервні копії зберігають `activePlanId` у форматі версії 6; при відновленні копії без нього активним стає перший план.
 
 **DATA-08.** Не зберігаються між запусками: сповіщення (`src/shared/lib/toast/store.ts`, звичайний `create` без `persist`), кеш TanStack Query (лише в пам'яті, без persister), копія в хмарі (`useCloudBackup`), чернетки форм, ціна продажу, сторінка онбордингу. Вхід у Google зберігає нативний Firebase SDK, а не застосунок.
 
@@ -139,6 +138,5 @@
 **GAP-DATA-03. Каталог замінюється цілком.** Якщо НБУ прибере ОВДП зі списку (наприклад, давно погашені) або поверне порожній масив, старі позиції втратять виплати й результати, а звіти за минулі роки зміняться. Чи прибирає `depo_securities` погашені ОВДП — невідомо, варто перевірити на справжній відповіді. Доказ: `useBonds.hook.ts` (`saveBonds(fetched, …)`), `bonds/actions.ts`. Серйозність: середня.
 
 **GAP-DATA-05. Сьогоднішня ставка «вгадується» і зберігається як справжня.** Див. крайній випадок 6–7: заповнений учорашньою ставкою сьогоднішній день зберігається з `throughDate` = сьогодні, а «новий день» перевіряється лише для нового запиту. У день зміни ставки підказки можуть до 12 годин порівнювати зі старою. Доказ: `nbuKeyRate.ts`, `keyRateQuery.ts`. Серйозність: низька.
-
 
 **GAP-DATA-12. Недостатнє покриття мережевого шару й сховищ.** Не покриті мапінг відповідей НБУ, `keyRateQuery`/`exchangeRateQuery` (повнота року, `staleTime`), `notFailedRecently` і `onError` зі сповіщенням. Дії планів і запасний активний план частково перевіряє `plans.test.ts`. Доказ: розділ «Покриття тестами». Серйозність: середня.

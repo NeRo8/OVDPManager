@@ -4,6 +4,7 @@ import {
   getInvestmentPlans,
   getPurchases,
   restorePortfolio,
+  getActivePlan,
 } from '@/entities/portfolio';
 
 import { confirmDestructive, showToast } from '@/shared/lib';
@@ -21,7 +22,7 @@ jest.mock('@/shared/lib', () => ({
 const confirm = jest.mocked(confirmDestructive);
 const toast = jest.mocked(showToast);
 
-const plan: InvestmentPlan = { id: 'restored', name: 'З копії' };
+const plan: InvestmentPlan = { id: 'restored', name: 'З копії', isActive: true };
 const purchase = (id: string, planId: string): PlanPurchase => ({
   id,
   planId,
@@ -55,7 +56,7 @@ describe('restoreBackup', () => {
   });
 
   it('asks before replacing what the app holds, and changes nothing until confirmed', () => {
-    const current: InvestmentPlan = { id: 'current', name: 'Мій план' };
+    const current: InvestmentPlan = { id: 'current', name: 'Мій план', isActive: true };
     restorePortfolio([purchase('c', current.id)], [current]);
     const onRestored = jest.fn();
 
@@ -85,5 +86,12 @@ describe('restoreBackup', () => {
     expect(toast).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'Відновлено 1 план і 2 купівлі з копії.' }),
     );
+  });
+
+  it('restores the selected plan from the backup', () => {
+    const second = { id: 'second', name: 'Другий', isActive: false };
+    restoreBackup({ ...backup, plans: [plan, second], activePlanId: second.id }, 'file', jest.fn());
+    expect(getActivePlan()?.id).toBe(second.id);
+    expect(getInvestmentPlans().map((item) => item.isActive)).toEqual([false, true]);
   });
 });

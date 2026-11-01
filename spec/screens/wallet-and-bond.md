@@ -9,7 +9,7 @@
 - Логіка сторінки: `src/pages/holdings/model/useBondDetails.hook.ts` (позиція, видалення), `useHoldOrSell.hook.ts` і `holdOrSell.ts` (оцінка «Тримати чи продати»).
 - Сутність: `useWallet()` (`src/entities/portfolio/model/useWallet.hook.ts`) → `buildWallet` (`model/wallet.ts`) → `groupPositions`, `positionPayments`, `isPlannedPurchase`, `canBuyOn`, `isRedeemed`, `pricePerBond`, `purchaseCurrency` (`model/portfolio.ts`), `walletPosition` (`model/position.ts`), `keyRateHint`, `newBondsHint` (`model/yieldHints.ts`), `newBondsRate`, `newBondsLabel`, `MAX_PLAUSIBLE_YIELD` (`model/market.ts`), `sortHints`, `worstTone` (`model/hints.ts`).
 - Компоненти сутності: `WalletGate`, `BondsGate`, `BondsUnavailable`, `EmptyWallet`, `StaleBondsNotice`, `NbuSourceNote`, `BondTerms`, `ScheduleEventRow` (`src/entities/portfolio/ui/`).
-- Сховища: покупки `holdings-v1` (`model/purchases/`), активний план `active-plan-v1`, каталог НБУ `nbu-bonds-v1` (через `useBonds`), облікова ставка `nbu-key-rate-v1` (через `useKeyRate(today)`).
+- Сховища: покупки `holdings-v1` (`model/purchases/`), плани з ознакою активного `investment-plan-v1`, каталог НБУ `nbu-bonds-v1` (через `useBonds`), облікова ставка `nbu-key-rate-v1` (через `useKeyRate(today)`).
 - Дії: `removePurchase` (`model/purchases/actions.ts`), `removePositionFromActivePlan` (`model/activePlan/actions.ts`), `confirmDestructive`, `goBackOrHome` (`src/shared/lib/`).
 
 ## Що на екрані

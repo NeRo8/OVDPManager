@@ -26,6 +26,8 @@ export function uniquePlanName(name: string, plans: { name: string }[]): string 
 export type InvestmentPlan = {
   id: string;
   name: string;
+  /** Whether this plan's wallet is currently shown. */
+  isActive: boolean;
   /** The coupon goal the plan was made for, kept with it as «План з ціллю» */
   goal?: CouponGoal;
 };

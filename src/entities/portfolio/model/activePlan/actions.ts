@@ -1,14 +1,9 @@
 import { type CouponGoal, PLAN_NAME_MAX_LENGTH, goalYearsLabel, uniquePlanName } from '../plan';
-import { createInvestmentPlan, getInvestmentPlans } from '../plans';
+import { createInvestmentPlan, getInvestmentPlans, setActivePlan } from '../plans';
 import type { PlanPurchase } from '../portfolio';
 import { addPurchase, addPurchases, copyPlanPurchases, removePosition } from '../purchases';
 
 import { getActivePlan } from './selectors';
-import { useActivePlanStore } from './store';
-
-export function setActivePlan(activePlanId: string): void {
-  useActivePlanStore.setState({ activePlanId });
-}
 
 /** A new plan becomes active, ready for its first purchases. */
 export function createActivePlan(name: string): void {

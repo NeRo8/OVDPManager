@@ -19,10 +19,11 @@ jest.mock('react-native-quick-crypto', () => {
 });
 
 const plans: InvestmentPlan[] = [
-  { id: 'plan-1', name: 'Мій план' },
+  { id: 'plan-1', name: 'Мій план', isActive: true },
   {
     id: 'plan-2',
     name: 'Мій план · ціль 2029',
+    isActive: false,
     goal: {
       currency: 'UAH',
       year: 2029,
@@ -75,7 +76,7 @@ describe('serializeBackup and parseBackup', () => {
     const saved = await serializeBackup(purchases, plans, KEY, 'plan-2', 'dark');
     await expect(parseBackup(saved, KEY)).resolves.toEqual({
       purchases,
-      plans,
+      plans: plans.map((plan) => ({ ...plan, isActive: plan.id === 'plan-2' })),
       activePlanId: 'plan-2',
       theme: 'dark',
     });
