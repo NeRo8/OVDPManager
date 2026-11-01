@@ -3,31 +3,33 @@ import {
   type Wallet,
   type WalletScopeOptions,
   compareScheduleEvents,
-  fitScope,
-  narrowWallet,
   isinsIn,
 } from '@/entities/portfolio';
 
 import type { PaymentFilters } from './paymentFilters';
 
 /**
- * The saved filters fitted to the wallet as any scope is (`fitScope`), except that the schedule
- * shows one currency: one the wallet no longer has gives way to the first one it has.
+ * The saved filters fitted to the wallet. The schedule shows one currency: a currency the wallet
+ * no longer has gives way to the first one it has. Of the bonds picked, only those of that currency
+ * the wallet still holds are kept; the store keeps the others for when their currency is picked
+ * again, so a saved filter never hides everything.
  */
 export function effectiveFilters(
   filters: PaymentFilters,
   options: WalletScopeOptions,
 ): PaymentFilters {
-  const fitted = fitScope(filters, options);
-  const currency = fitted.currency ?? options.currencies[0] ?? null;
+  const currency =
+    filters.currency && options.currencies.includes(filters.currency)
+      ? filters.currency
+      : (options.currencies[0] ?? null);
   const isins = isinsIn(options, currency);
-  return { ...fitted, currency, isins: fitted.isins.filter((isin) => isins.includes(isin)) };
+  return { ...filters, currency, isins: filters.isins.filter((isin) => isins.includes(isin)) };
 }
 
 /** What differs from fresh filters; another currency than the first one counts too. */
 export function countActiveFilters(filters: PaymentFilters, options: WalletScopeOptions): number {
   return [
-    filters.types.length > 0 || filters.excludeAllTypes === true,
+    filters.types.length > 0,
     filters.time !== 'all',
     filters.currency !== (options.currencies[0] ?? null),
     filters.isins.length > 0,
@@ -47,19 +49,23 @@ export type FilteredSchedule = {
 };
 
 /**
- * Every payment and purchase of the wallet that passes the filters: the wallet narrowed to their
- * currency and bonds, then its events of the types and the time picked.
+ * Every payment and purchase of the wallet that passes the filters: of their currency and bonds,
+ * of the types and the time picked. Each event belongs to one bond, whose payments and purchases
+ * do not depend on the other bonds, so filtering the events gives what the wallet of only those
+ * bonds would hold.
  */
 export function filterSchedule(wallet: Wallet, filters: PaymentFilters): FilteredSchedule {
-  const narrowed = narrowWallet(wallet, filters);
-  const events = [...narrowed.payments, ...narrowed.purchaseEvents]
+  const { currency, isins, types, time } = filters;
+  const inCurrency = [...wallet.payments, ...wallet.purchaseEvents].filter(
+    (event) => currency === null || event.currency === currency,
+  );
+  const events = inCurrency
     .filter(
       (event) =>
-        !filters.excludeAllTypes &&
-        (filters.types.length === 0 || filters.types.includes(event.type)) &&
-        (filters.time === 'all' || isPastEvent(event, wallet.today) === (filters.time === 'past')),
+        (isins.length === 0 || isins.includes(event.isin)) &&
+        (types.length === 0 || types.includes(event.type)) &&
+        (time === 'all' || isPastEvent(event, wallet.today) === (time === 'past')),
     )
     .sort(compareScheduleEvents);
-  const inCurrency = narrowWallet(wallet, { currency: filters.currency, isins: [] });
-  return { events, totalCount: inCurrency.payments.length + inCurrency.purchaseEvents.length };
+  return { events, totalCount: inCurrency.length };
 }

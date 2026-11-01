@@ -12,7 +12,7 @@
 - `src/features/payment-filters/model/filterSchedule.ts` — `effectiveFilters`, `countActiveFilters`, `filterSchedule`.
 - `src/features/payment-filters/model/paymentFilters/` — сховище фільтрів (ключ `payment-filters-v1`), дії `updatePaymentFilters`, `togglePaymentFilterType`, `togglePaymentFilterIsin`, `resetPaymentFilters`.
 - `src/features/payment-filters/model/scheduleEventTypes.ts` — `SCHEDULE_EVENT_TYPES = ['coupon', 'redemption', 'purchase']`.
-- З `src/entities/portfolio/`: `Wallet` (`payments`, `purchaseEvents`, `today`, `byIsin`), `narrowWallet`, `walletScopeOptions`, `isinsIn`, `fitScope` (`model/wallet.ts`), `compareScheduleEvents`, `sumTotals` (`model/portfolio.ts`), `ScheduleEventRow`, `WalletGate`, `StaleBondsNotice`, `NbuSourceNote`.
+- З `src/entities/portfolio/`: `Wallet` (`payments`, `purchaseEvents`, `today`, `byIsin`), `walletScopeOptions`, `isinsIn` (`model/wallet.ts`), `compareScheduleEvents`, `sumTotals` (`model/portfolio.ts`), `ScheduleEventRow`, `WalletGate`, `StaleBondsNotice`, `NbuSourceNote`.
 
 ## Що на екрані
 
@@ -36,7 +36,7 @@
 
 **PAY-01.** Вкладка показується лише всередині `WalletGate`: якщо в активному плані немає жодної купівлі — замість неї `EmptyWallet`; якщо купівлі є, але даних НБУ ще немає — `BondsUnavailable` (скелет або помилка з повтором). Джерело: `src/entities/portfolio/ui/WalletGate.tsx`, `BondsGate.tsx`.
 
-**PAY-02.** Події екрана — це `filterSchedule(wallet, filters)` з підігнаними фільтрами (PFLT-02): гаманець звужено `narrowWallet` до валюти й ОВДП фільтра, далі взято `payments` + `purchaseEvents` звуженого гаманця, лишено події позначених типів і часу (PFLT-06), відсортовано `compareScheduleEvents`. Джерело: `filterSchedule.ts`.
+**PAY-02.** Події екрана — це `filterSchedule(wallet, filters)` з підігнаними фільтрами (PFLT-02): з `payments` + `purchaseEvents` гаманця лишено події валюти фільтра, далі його ОВДП, позначених типів і часу (PFLT-06), відсортовано `compareScheduleEvents`. Гаманець не перебудовується: кожна подія належить одній ОВДП, а виплати й купівлі ОВДП не залежать від інших, тож відбір подій дає те саме, що гаманець лише з цих ОВДП. `totalCount` — кількість подій валюти фільтра до решти умов. Джерело: `filterSchedule.ts`.
 
 **PAY-03.** Порядок подій: за датою (рядкове порівняння `YYYY-MM-DD`); того самого дня виплата стоїть перед купівлею. Приклад з тесту: `2025-01-10 purchase`, `2025-07-01 coupon`, `2026-05-01 purchase`, `2026-07-01 redemption`. Джерело: `compareScheduleEvents` у `model/portfolio.ts`.
 
@@ -88,11 +88,11 @@
 
 **PFLT-01.** Сховище `payment-filters-v1` зберігає `{ types: [], time: 'all', currency: null, isins: [] }` за замовчуванням. Фільтри одні на весь застосунок, не на план: після перемикання плану вони лишаються, а невідповідне відсіюється підгонкою (PFLT-02), не стираючи збереженого. Джерело: `paymentFilters/store.ts`.
 
-**PFLT-02.** Підгонка (`effectiveFilters`): спершу `fitScope` — ОВДП, яких гаманець не має (або яких немає в даних НБУ), відкидаються; валюта, якої гаманець не має, стає `null`; потім `null` замінюється першою валютою гаманця в порядку `CURRENCIES` (UAH, USD, EUR); нарешті з ОВДП лишаються лише ті, що належать показаній валюті (`isinsIn(options, валюта)`, DOM-61). Отже екран завжди показує рівно одну валюту, а вибрані ОВДП завжди її, тож поєднання «долар + гривнева ОВДП» не ховає всього. Збережене в сховищі не змінюється: ОВДП іншої валюти знову діють, щойно ту валюту оберуть. Валюти гаманця — ті, що трапляються серед його виплат і купівель (`walletScopeOptions`). Приклади з тесту: гаманець UAH + USD; збережено `null` → UAH; збережено EUR → UAH; збережено USD → USD; збережено гривневу ОВДП і USD → USD без вибраних ОВДП (усі доларові), ту саму ОВДП і UAH → її й показано.
+**PFLT-02.** Підгонка (`effectiveFilters`): валюта, якої гаманець не має (або `null`), замінюється першою валютою гаманця в порядку `CURRENCIES` (UAH, USD, EUR); з ОВДП лишаються лише ті, що є в гаманці й належать показаній валюті (`isinsIn(options, валюта)`, DOM-61). Отже екран завжди показує рівно одну валюту, а вибрані ОВДП завжди її, тож поєднання «долар + гривнева ОВДП» не ховає всього. Збережене в сховищі не змінюється: ОВДП іншої валюти знову діють, щойно ту валюту оберуть. Валюти гаманця — ті, що трапляються серед його виплат і купівель (`walletScopeOptions`). Приклади з тесту: гаманець UAH + USD; збережено `null` → UAH; збережено EUR → UAH; збережено USD → USD; збережено гривневу ОВДП і USD → USD без вибраних ОВДП (усі доларові), ту саму ОВДП і UAH → її й показано.
 
-**PFLT-03.** Кількість увімкнених фільтрів (`countActiveFilters`, рахується з підігнаних фільтрів) — від 0 до 4, по одному за кожне: `types` не порожній або вибрано жодного типу; `time ≠ 'all'`; валюта ≠ перша валюта гаманця; `isins` не порожній. Перша валюта, вибрана явно, фільтром не рахується.
+**PFLT-03.** Кількість увімкнених фільтрів (`countActiveFilters`, рахується з підігнаних фільтрів) — від 0 до 4, по одному за кожне: `types` не порожній; `time ≠ 'all'`; валюта ≠ перша валюта гаманця; `isins` не порожній. Перша валюта, вибрана явно, фільтром не рахується.
 
-**PFLT-04.** «Події»: дотик до типу додає або прибирає його. Коли позначено всі три типи, список стає порожнім (= «Усі події»). Коли прибрано останній позначений тип, `excludeAllTypes` приховує всі події. «Усі події» очищує `types` і `excludeAllTypes`. Джерело: `togglePaymentFilterType`.
+**PFLT-04.** «Події»: дотик до типу додає або прибирає його. Порожній `types` означає «Усі події»: до нього список повертається, коли позначено всі три типи або прибрано останній позначений, як у розділі «ОВДП» (PFLT-10). Стану «жодної події» немає. «Усі події» очищує `types`. Приклад: позначено лише «Купони», дотик до «Купони» — знову показано всі події. Джерело: `togglePaymentFilterType`.
 
 **PFLT-05.** «ОВДП»: дотик додає або прибирає ISIN; «Усі ОВДП» ставить `isins: []`. Позначивши всі ISIN поодинці, отримуємо список з усіх ISIN, а не порожній (на відміну від PFLT-04). Джерело: `togglePaymentFilterIsin`.
 
@@ -139,9 +139,8 @@
 ## Покриття тестами
 
 - `src/features/payment-filters/model/__tests__/filterSchedule.test.ts`: PFLT-02 (перша валюта для `null` і відсутньої; ОВДП лише показаної валюти — «keeps only the bonds of the currency shown…»), PFLT-10 (`isinsIn` для USD), PAY-02/PAY-03 (порядок, виплата перед купівлею того самого дня, `totalCount`), PFLT-06 (майбутні = купівля попереду й погашення), відбір за типом (PAY-08 частково).
-- `src/entities/portfolio/model/__tests__/wallet.test.ts`: `narrowWallet` (валюта, ОВДП, без відбору) — основа PAY-02.
 - `src/entities/portfolio/model/__tests__/portfolio.test.ts`: `plannedQuantity` виплат (DOM-59), з якого PAY-13 пише «заплановано»; сам рядок не тестується.
-- **Без тестів:** PAY-04…PAY-07 (`useYearSchedule`, `yearSummary`: межі, рік за замовчуванням, `defaultMonth`, розділення зроблених і запланованих купівель, `averageMonthlyPurchase`), PAY-08 (`yearSeries`: правило прибирання нульової серії «Купівлі»), PAY-09…PAY-15 (екран), PAY-12 (`groupScheduleEventsByMonth`, `paymentTotal`), PFLT-03 (`countActiveFilters`), PFLT-04/05 (дії перемикання), PFLT-11 (`totalCount` з іншими валютами).
+- **Без тестів:** PAY-04…PAY-07 (`useYearSchedule`, `yearSummary`: межі, рік за замовчуванням, `defaultMonth`, розділення зроблених і запланованих купівель, `averageMonthlyPurchase`), PAY-08 (`yearSeries`: правило прибирання нульової серії «Купівлі»), PAY-09…PAY-15 (екран), PAY-12 (`groupScheduleEventsByMonth`, `paymentTotal`), PFLT-03 (`countActiveFilters`), PFLT-05 (`togglePaymentFilterIsin`), PFLT-11 (`totalCount` з іншими валютами).
 
 ## Прогалини й питання
 

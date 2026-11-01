@@ -56,7 +56,5 @@ export function useYearSchedule({ wallet, filters }: FilteredWallet) {
 }
 
 function eventTypes(filters: FilteredWallet['filters']) {
-  if (filters.excludeAllTypes) return [];
-  if (filters.types.length > 0) return filters.types;
-  return SCHEDULE_EVENT_TYPES;
+  return filters.types.length > 0 ? filters.types : SCHEDULE_EVENT_TYPES;
 }

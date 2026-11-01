@@ -9,7 +9,6 @@ const STORAGE_KEY = 'payment-filters-v1';
 
 export const initialState: PaymentFiltersState = {
   types: [],
-  excludeAllTypes: false,
   time: 'all',
   currency: null,
   isins: [],

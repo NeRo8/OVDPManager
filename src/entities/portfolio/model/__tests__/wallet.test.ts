@@ -1,5 +1,5 @@
 import type { Bond, Purchase } from '../portfolio';
-import { buildWallet, narrowWallet } from '../wallet';
+import { buildWallet } from '../wallet';
 
 function bondOf(isin: string, currency: Bond['currency'], maturityDate: string): Bond {
   return {
@@ -67,37 +67,5 @@ describe('buildWallet', () => {
       '2025-04-01',
       '2025-05-01',
     ]);
-  });
-});
-
-describe('narrowWallet', () => {
-  const wallet = buildWallet(purchases, byIsin, today);
-
-  it('keeps every field in step with the purchases it keeps', () => {
-    const uah = narrowWallet(wallet, { currency: 'UAH', isins: [] });
-    expect(uah.purchases.map(({ isin }) => isin)).toEqual([
-      hryvnia.isin,
-      hryvnia.isin,
-      'UA4000000099',
-    ]);
-    expect(uah.positions.map(({ position }) => position.isin)).toEqual([
-      hryvnia.isin,
-      'UA4000000099',
-    ]);
-    expect(uah.payments.every(({ currency }) => currency === 'UAH')).toBe(true);
-    expect(uah.purchaseEvents.every(({ currency }) => currency === 'UAH')).toBe(true);
-  });
-
-  it('narrows by bond, and by currency and bond together', () => {
-    expect(narrowWallet(wallet, { currency: null, isins: [dollar.isin] }).positions).toHaveLength(
-      1,
-    );
-    expect(narrowWallet(wallet, { currency: 'UAH', isins: [dollar.isin] }).purchases).toHaveLength(
-      0,
-    );
-  });
-
-  it('keeps everything with no currency and no bonds chosen', () => {
-    expect(narrowWallet(wallet, { currency: null, isins: [] })).toEqual(wallet);
   });
 });

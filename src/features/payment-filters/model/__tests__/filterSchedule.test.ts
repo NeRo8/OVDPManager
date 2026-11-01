@@ -69,12 +69,12 @@ describe('effectiveFilters', () => {
     expect(isinsIn(options, 'USD')).toEqual([dollar.isin]);
   });
 
-  it('counts each distinct active filter including an empty event selection', () => {
+  it('counts each distinct active filter', () => {
     const options = walletScopeOptions(wallet);
     expect(countActiveFilters({ ...fresh, currency: 'UAH' }, options)).toBe(0);
     expect(
       countActiveFilters(
-        { ...fresh, currency: 'USD', excludeAllTypes: true, time: 'past', isins: [dollar.isin] },
+        { ...fresh, currency: 'USD', types: ['coupon'], time: 'past', isins: [dollar.isin] },
         options,
       ),
     ).toBe(4);
@@ -113,17 +113,17 @@ describe('filterSchedule', () => {
   });
 });
 
-it('keeps no events selected after the last type is unchecked', () => {
+it('shows every type again once the last type picked is unchecked, or every type is picked', () => {
   resetPaymentFilters();
   togglePaymentFilterType('coupon');
+  expect(usePaymentFiltersStore.getState().types).toEqual(['coupon']);
   togglePaymentFilterType('coupon');
-  const none = usePaymentFiltersStore.getState();
-  expect(none.excludeAllTypes).toBe(true);
-  expect(filterSchedule(wallet, { ...none, currency: 'UAH' }).events).toEqual([]);
+  const unchecked = usePaymentFiltersStore.getState();
+  expect(unchecked.types).toEqual([]);
+  expect(filterSchedule(wallet, { ...unchecked, currency: 'UAH' }).events).toHaveLength(4);
+  togglePaymentFilterType('coupon');
+  togglePaymentFilterType('redemption');
   togglePaymentFilterType('purchase');
-  expect(usePaymentFiltersStore.getState()).toMatchObject({
-    types: ['purchase'],
-    excludeAllTypes: false,
-  });
+  expect(usePaymentFiltersStore.getState().types).toEqual([]);
   resetPaymentFilters();
 });

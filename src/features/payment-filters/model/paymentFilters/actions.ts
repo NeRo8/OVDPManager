@@ -7,14 +7,14 @@ export function updatePaymentFilters(patch: Partial<PaymentFilters>): void {
   usePaymentFiltersStore.setState(patch);
 }
 
-/** Adds the event type to the shown ones, or removes it; every type chosen is the same as none. */
+/**
+ * Adds the event type to the shown ones, or removes it. Every type picked, or none left, shows
+ * every type, as the bonds do.
+ */
 export function togglePaymentFilterType(type: ScheduleEventType): void {
   usePaymentFiltersStore.setState(({ types }) => {
     const next = types.includes(type) ? types.filter((t) => t !== type) : [...types, type];
-    return {
-      types: next.length === SCHEDULE_EVENT_TYPES.length ? [] : next,
-      excludeAllTypes: types.length === 1 && next.length === 0,
-    };
+    return { types: next.length === SCHEDULE_EVENT_TYPES.length ? [] : next };
   });
 }
 

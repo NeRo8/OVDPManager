@@ -11,7 +11,7 @@ import {
 
 import { currencyTitle, type Currency, isinsIn } from '@/entities/portfolio';
 
-import { formatDate } from '@/shared/lib';
+import { formatDate, formatPercent } from '@/shared/lib';
 import {
   CheckRow,
   ResetFiltersHeader,
@@ -35,11 +35,7 @@ export default function PaymentFiltersScreen() {
   const { wallet, filters, options, activeFilterCount, withCurrency } = useFilteredWallet();
   const { events: shown, totalCount } = filterSchedule(wallet, filters);
   // What each type would add, given the other filters.
-  const ofAnyType = filterSchedule(wallet, {
-    ...filters,
-    types: [],
-    excludeAllTypes: false,
-  }).events;
+  const ofAnyType = filterSchedule(wallet, { ...filters, types: [] }).events;
   const typeCount = (type: ScheduleEventType) =>
     ofAnyType.filter((event) => event.type === type).length;
 
@@ -47,7 +43,7 @@ export default function PaymentFiltersScreen() {
   const currencyCount = (currency: Currency) =>
     filterSchedule(wallet, withCurrency(currency)).events.length;
 
-  const showAllTypes = () => updatePaymentFilters({ types: [], excludeAllTypes: false });
+  const showAllTypes = () => updatePaymentFilters({ types: [] });
   const changeTime = (time: ScheduleTimeFilter) => updatePaymentFilters({ time });
   const showAllBonds = () => updatePaymentFilters({ isins: [] });
 
@@ -72,7 +68,7 @@ export default function PaymentFiltersScreen() {
         <CheckRow
           title="Усі події"
           subtitle={`Подій: ${ofAnyType.length}`}
-          checked={filters.types.length === 0 && !filters.excludeAllTypes}
+          checked={filters.types.length === 0}
           onPress={showAllTypes}
         />
         {SCHEDULE_EVENT_TYPES.map((type) => (
@@ -103,7 +99,7 @@ export default function PaymentFiltersScreen() {
               key={isin}
               title={isin}
               subtitle={
-                bond ? `${bond.rate}% · до ${formatDate(bond.maturityDate)}` : 'Немає даних НБУ'
+                bond ? `${formatPercent(bond.rate)} · до ${formatDate(bond.maturityDate)}` : 'Немає даних НБУ'
               }
               checked={filters.isins.includes(isin)}
               onPress={() => togglePaymentFilterIsin(isin)}
