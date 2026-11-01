@@ -19,7 +19,7 @@
 | [screens/purchase.md](screens/purchase.md)                     | Вибір ОВДП, форма купівлі й підказки, підтвердження купівлі                                                             | `PICK-`, `BUY-`         |
 | [screens/sale.md](screens/sale.md)                             | Екран продажу й ціни продажу                                                                                            | `SALE-`                 |
 | [screens/payments.md](screens/payments.md)                     | Вкладка «Виплати» і її фільтри                                                                                          | `PAY-`, `PFLT-`         |
-| [screens/plan.md](screens/plan.md)                             | Вкладка «План», найближчі купівлі, «Мої плани»                                                             | `PLAN-`, `UPC-`         |
+| [screens/plan.md](screens/plan.md)                             | Вкладка «План», найближчі купівлі, «Мої плани»                                                                          | `PLAN-`, `UPC-`         |
 | [gaps.md](gaps.md)                                             | Усі знайдені прогалини й питання в одному списку, за важливістю                                                         | `GAP-`                  |
 
 ## Як читати файл

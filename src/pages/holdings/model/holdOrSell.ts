@@ -80,10 +80,7 @@ const YIELD_VERDICTS = {
   warning: { tone: 'warning', title: 'Дохідність нижча за орієнтир' },
 } as const satisfies Record<'success' | 'warning', Verdict>;
 
-function benchmarkOf(
-  { bond, keyRate }: Input,
-  newBonds: NewBondsRate | null,
-): Benchmark | null {
+function benchmarkOf({ bond, keyRate }: Input, newBonds: NewBondsRate | null): Benchmark | null {
   if (newBonds) {
     return {
       rate: newBonds.rate,

@@ -154,9 +154,9 @@ describe('serializeBackup and parseBackup', () => {
   });
 
   it('refuses a copy without a plan, and a purchase whose plan is not in it', async () => {
-    await expect(parseBackup(await serializeBackup({ purchases: [], plans: [] }, KEY), KEY)).rejects.toThrow(
-      'У копії немає жодного плану',
-    );
+    await expect(
+      parseBackup(await serializeBackup({ purchases: [], plans: [] }, KEY), KEY),
+    ).rejects.toThrow('У копії немає жодного плану');
     const orphan = await serializeBackup({ purchases, plans: [plans[0]] }, KEY);
     await expect(parseBackup(orphan, KEY)).rejects.toThrow('Купівля №2: її плану немає в копії');
   });
@@ -170,12 +170,15 @@ describe('serializeBackup and parseBackup', () => {
       { currency: 'XXX' },
     ]) {
       const invalid = [{ ...purchases[0], ...change }] as PlanPurchase[];
-      await expect(parseBackup(await serializeBackup({ purchases: invalid, plans }, KEY), KEY)).rejects.toThrow(
-        'некоректні дані',
-      );
+      await expect(
+        parseBackup(await serializeBackup({ purchases: invalid, plans }, KEY), KEY),
+      ).rejects.toThrow('некоректні дані');
     }
     await expect(
-      parseBackup(await serializeBackup({ purchases: [purchases[0], purchases[0]], plans }, KEY), KEY),
+      parseBackup(
+        await serializeBackup({ purchases: [purchases[0], purchases[0]], plans }, KEY),
+        KEY,
+      ),
     ).rejects.toThrow('повторні ідентифікатори');
   });
 });

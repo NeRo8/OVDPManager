@@ -38,11 +38,7 @@ export function ColumnValueLabel({ text, column, count, top, bottom }: Props) {
   return (
     <View
       pointerEvents="none"
-      style={[
-        styles.box,
-        { top, bottom },
-        labelPosition(isFirst, isLast, left),
-      ]}
+      style={[styles.box, { top, bottom }, labelPosition(isFirst, isLast, left)]}
     >
       <Typography
         variant="caption2"

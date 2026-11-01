@@ -1,4 +1,4 @@
-import { columnStacks, describeColumn, formatChartValue } from '../columnStacks';
+import { columnStacks, describeColumn } from '../columnStacks';
 
 const columns = [
   { label: 'січ', name: 'Січень' },
@@ -29,13 +29,9 @@ describe('column chart', () => {
   });
 
   it('describes a column in words, money going out with a minus', () => {
-    expect(describeColumn(columns[1], 1, series, 'percent', 'UAH')).toBe('Лютий: Купівлі −300 %');
-    expect(describeColumn({ label: 'бер', name: 'Березень' }, 2, series, 'money', 'UAH')).toBe(
+    expect(describeColumn(columns[1], 1, series, 'UAH')).toBe('Лютий: Купівлі −300,00 ₴');
+    expect(describeColumn({ label: 'бер', name: 'Березень' }, 2, series, 'UAH')).toBe(
       'Березень: нічого немає',
     );
-  });
-
-  it('formats a percent with up to two decimals', () => {
-    expect(formatChartValue(12.345, 'percent', 'UAH')).toBe('12,35 %');
   });
 });

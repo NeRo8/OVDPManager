@@ -2,7 +2,7 @@ import { View } from 'react-native';
 
 import Constants from 'expo-constants';
 import * as Linking from 'expo-linking';
-import { type Href, router } from 'expo-router';
+import { router } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
@@ -80,7 +80,7 @@ export default function SettingsScreen() {
               : 'Ще не завантажено'
           }
         />
-        <LinkRow title="Переглянути вступ" onPress={() => router.push('/intro' as Href)} />
+        <LinkRow title="Переглянути вступ" onPress={() => router.push('/intro')} />
         <LinkRow
           title="Підтримка"
           onPress={() => openLink('https://nero8.github.io/OVDPManager/')}

@@ -21,7 +21,17 @@ describe('hint priority', () => {
 
   it('chooses the most severe tone, or info without hints', () => {
     expect(worstTone([])).toBe('info');
-    expect(worstTone([{ tone: 'success', text: 'ok' }, { tone: 'warning', text: 'check' }])).toBe('warning');
-    expect(worstTone([{ tone: 'error', text: 'loss' }, { tone: 'info', text: 'note' }])).toBe('error');
+    expect(
+      worstTone([
+        { tone: 'success', text: 'ok' },
+        { tone: 'warning', text: 'check' },
+      ]),
+    ).toBe('warning');
+    expect(
+      worstTone([
+        { tone: 'error', text: 'loss' },
+        { tone: 'info', text: 'note' },
+      ]),
+    ).toBe('error');
   });
 });

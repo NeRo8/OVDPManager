@@ -64,8 +64,8 @@ export function YearTotals({ summary, series }: Props) {
           {purchaseCount > 0 && (
             <Typography variant="caption1" tone="secondary">
               {purchaseCount} {plural(purchaseCount, 'купівля', 'купівлі', 'купівель')}, ≈{' '}
-              <Money value={averageMonthlyPurchase} currency={currency} /> на місяць у середньому за 12 місяців
-              року
+              <Money value={averageMonthlyPurchase} currency={currency} /> на місяць у середньому за
+              12 місяців року
             </Typography>
           )}
         </View>

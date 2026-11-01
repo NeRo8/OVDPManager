@@ -3,13 +3,7 @@ import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { useToday } from '@/shared/config';
-import {
-  currencySign,
-  daysBetween,
-  formatDate,
-  formatDaysLeft,
-  signPrefix,
-} from '@/shared/lib';
+import { currencySign, daysBetween, formatDate, formatDaysLeft, signPrefix } from '@/shared/lib';
 import { SERIES_COLORS, type SeriesColor } from '@/shared/theme';
 import { Avatar, ListRow, Money, SignedValue, Typography } from '@/shared/ui';
 

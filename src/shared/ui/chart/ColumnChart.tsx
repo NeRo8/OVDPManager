@@ -10,16 +10,10 @@ import { Typography } from '../typography/Typography';
 
 import { formatGridTick, gridBoundaries } from './chartGrid';
 import { chartPalette, type ChartPalette } from './chartTheme';
-import {
-  type ChartColumn,
-  type ChartSeries,
-  type ChartValueFormat,
-  columnStacks,
-  describeColumn,
-} from './columnStacks';
+import { type ChartColumn, type ChartSeries, columnStacks, describeColumn } from './columnStacks';
 import { ColumnValueLabel } from './ColumnValueLabel';
 
-export type { ChartColumn, ChartSeries } from './columnStacks';
+export type { ChartSeries } from './columnStacks';
 
 const PLOT_HEIGHT = 160;
 const SPLIT_PLOT_HEIGHT = 200;
@@ -34,7 +28,6 @@ type Props = {
   columns: ChartColumn[];
   series: ChartSeries[];
   currency: string;
-  valueFormat?: ChartValueFormat;
   selected?: number | null;
   onSelect?: (column: number) => void;
 };
@@ -46,7 +39,6 @@ function ColumnChartView({
   columns,
   series,
   currency,
-  valueFormat = 'money',
   selected = null,
   onSelect,
   palette,
@@ -70,10 +62,6 @@ function ColumnChartView({
   };
   const slotWidth = columns.length ? plotWidth / columns.length : 0;
   const barWidth = Math.min(slotWidth * 0.62, MAX_BAR_WIDTH);
-  const formatTick = (value: number) =>
-    `${formatGridTick(value, grid.step)}${valueFormat === 'percent' ? ' %' : ''}`;
-  const formatSelected = (value: number) =>
-    valueFormat === 'percent' ? formatTick(value) : formatCompact(value);
 
   return (
     <View style={[styles.chart, onSelect && styles.labelRoom]}>
@@ -87,7 +75,7 @@ function ColumnChartView({
             numberOfLines={1}
             style={[styles.tick, { top: yOf(tick) - 7 }]}
           >
-            {formatTick(tick)}
+            {formatGridTick(tick, grid.step)}
           </Typography>
         ))}
       </View>
@@ -167,7 +155,7 @@ function ColumnChartView({
                   onPress={select}
                   onHoverIn={select}
                   accessibilityRole={select ? 'button' : 'text'}
-                  accessibilityLabel={describeColumn(item, column, series, valueFormat, currency)}
+                  accessibilityLabel={describeColumn(item, column, series, currency)}
                   accessibilityState={select && { selected: selected === column }}
                   style={styles.slot}
                 />
@@ -176,7 +164,7 @@ function ColumnChartView({
           </View>
           {selected !== null && upTotals[selected] > 0 && (
             <ColumnValueLabel
-              text={formatSelected(upTotals[selected])}
+              text={formatCompact(upTotals[selected])}
               column={selected}
               count={columns.length}
               bottom={plotHeight - baseline + stackHeight(up, selected) + 4}
@@ -184,7 +172,7 @@ function ColumnChartView({
           )}
           {selected !== null && downTotals[selected] > 0 && (
             <ColumnValueLabel
-              text={`−${formatSelected(downTotals[selected])}`}
+              text={`−${formatCompact(downTotals[selected])}`}
               column={selected}
               count={columns.length}
               top={baseline + stackHeight(down, selected) + SEGMENT_GAP + 4}

@@ -34,6 +34,3 @@ export function useWallet() {
   };
   return { ...buildWallet(purchases, byIsin, today), plan, bonds, refresh };
 }
-
-/** The active plan's Wallet with the plan and the NBU catalog it came from. */
-export type ActiveWallet = ReturnType<typeof useWallet>;

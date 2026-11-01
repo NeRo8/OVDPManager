@@ -86,7 +86,7 @@ Feature-Sliced Design, imports only point down: `app` (routes in `src/app/`) →
   - Amounts of money are shown by `Money` (`«10 200,50 ₴»`, `null` → «—»), the same way: inside a `Typography` or as the value of `InfoRow`, `LegendRow` or `TotalRow`; an amount inside a string is `formatMoney`. A signed amount in an `InfoRow` takes `signedValue`, not a `SignedValue` of its own.
   - Percentages are shown by `Percent` (`«16,5%»`, `null` → «—»), which takes the style of the text around it; a percentage inside a string (a subtitle, an accessibility label, a hint) is `formatPercent`. Never write `${value}%`.
   - `SegmentedSection` is a filter section of one choice out of a few; `ResetFiltersHeader` is a filters screen's header with its reset button; `ShareBar` takes a `caption` for the share in words under it.
-  - Charts share their stacking and their words for screen readers through `chart/columnStacks.ts` (tested), whichever orientation draws them.
+  - The chart's stacking and its words for screen readers live in `chart/columnStacks.ts` (tested).
 - A component stays under 300 lines; past that, its pure calculations move to a `.ts` file next to it (with tests) and repeated parts to components of their own.
 
 ## Notes

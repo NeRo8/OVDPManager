@@ -3,15 +3,7 @@ import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { MONTHS, MONTHS_SHORT, round2 } from '@/shared/lib';
-import {
-  Card,
-  ColumnChart,
-  LegendRow,
-  Money,
-  Separator,
-  TotalRow,
-  Typography,
-} from '@/shared/ui';
+import { Card, ColumnChart, LegendRow, Money, Separator, TotalRow, Typography } from '@/shared/ui';
 
 import type { YearSeries } from './yearSeries';
 

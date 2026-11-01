@@ -1,4 +1,10 @@
-import { SectionList, View, type SectionListProps } from 'react-native';
+import {
+  SectionList,
+  type SectionListData,
+  type SectionListProps,
+  type SectionListRenderItemInfo,
+  View,
+} from 'react-native';
 
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -23,8 +29,36 @@ type Props = Pick<
   empty: Omit<EmptyStateProps, 'layout' | 'children'>;
 };
 
-/** Events grouped by month: the shared list of the payments and schedule screens. */
+const keyOf = (event: ScheduleEvent) =>
+  event.type === 'purchase' ? event.id : `${event.isin}-${event.date}-${event.type}`;
+
+/** Events grouped by month: the payments screen's list. */
 export function ScheduleSectionList({ empty, ...props }: Props) {
+  const renderSectionHeader = ({
+    section,
+  }: {
+    section: SectionListData<ScheduleEvent, ScheduleSection>;
+  }) => (
+    <View style={styles.sectionHeader}>
+      <Typography variant="overline" tone="secondary">
+        {section.title}
+      </Typography>
+      <Typography variant="caption1" tone="secondary">
+        {section.paymentTotal}
+      </Typography>
+    </View>
+  );
+
+  const renderEvent = ({
+    item,
+    index,
+    section,
+  }: SectionListRenderItemInfo<ScheduleEvent, ScheduleSection>) => (
+    <SectionCell index={index} count={section.data.length}>
+      <ScheduleEventRow event={item} showIsin />
+    </SectionCell>
+  );
+
   return (
     <SectionList
       {...props}
@@ -32,25 +66,10 @@ export function ScheduleSectionList({ empty, ...props }: Props) {
       contentContainerStyle={[screenContent, styles.content]}
       contentInsetAdjustmentBehavior="automatic"
       stickySectionHeadersEnabled={false}
-      keyExtractor={(event) =>
-        event.type === 'purchase' ? event.id : `${event.isin}-${event.date}-${event.type}`
-      }
-      renderSectionHeader={({ section }) => (
-        <View style={styles.sectionHeader}>
-          <Typography variant="overline" tone="secondary">
-            {section.title}
-          </Typography>
-          <Typography variant="caption1" tone="secondary">
-            {section.paymentTotal}
-          </Typography>
-        </View>
-      )}
+      keyExtractor={keyOf}
+      renderSectionHeader={renderSectionHeader}
       ListEmptyComponent={<EmptyState layout="inline" {...empty} />}
-      renderItem={({ item, index, section }) => (
-        <SectionCell index={index} count={section.data.length}>
-          <ScheduleEventRow event={item} showIsin />
-        </SectionCell>
-      )}
+      renderItem={renderEvent}
     />
   );
 }

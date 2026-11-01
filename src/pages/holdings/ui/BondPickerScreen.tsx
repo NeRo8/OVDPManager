@@ -1,11 +1,11 @@
-import { FlatList } from 'react-native';
+import { FlatList, type ListRenderItemInfo } from 'react-native';
 
 import { Stack, router } from 'expo-router';
 import { StyleSheet, withUnistyles } from 'react-native-unistyles';
 
 import { useBondPicker } from '@/features/add-purchase';
 
-import { BondsGate } from '@/entities/portfolio';
+import { type Bond, BondsGate } from '@/entities/portfolio';
 
 import { EmptyState, SectionCell, Typography, screenContent } from '@/shared/ui';
 
@@ -31,6 +31,18 @@ export default function BondPickerScreen() {
   const search = (event: { nativeEvent: { text: string } }) => setQuery(event.nativeEvent.text);
   const clearSearch = () => setQuery('');
   const chooseBond = (isin: string) => router.push({ pathname: '/add/[isin]', params: { isin } });
+  const keyOf = (bond: Bond) => bond.isin;
+
+  const renderBond = ({ item: bond, index }: ListRenderItemInfo<Bond>) => (
+    <SectionCell index={index} count={choices.length}>
+      <BondChoiceRow
+        bond={bond}
+        today={today}
+        owned={owned.get(bond.isin)}
+        onPress={() => chooseBond(bond.isin)}
+      />
+    </SectionCell>
+  );
 
   return (
     <BondsGate>
@@ -48,7 +60,7 @@ export default function BondPickerScreen() {
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         data={choices}
-        keyExtractor={(bond) => bond.isin}
+        keyExtractor={keyOf}
         ListHeaderComponent={
           isSearching ? (
             <Typography variant="footnote" tone="secondary" style={styles.summary}>
@@ -56,16 +68,7 @@ export default function BondPickerScreen() {
             </Typography>
           ) : undefined
         }
-        renderItem={({ item: bond, index }) => (
-          <SectionCell index={index} count={choices.length}>
-            <BondChoiceRow
-              bond={bond}
-              today={today}
-              owned={owned.get(bond.isin)}
-              onPress={() => chooseBond(bond.isin)}
-            />
-          </SectionCell>
-        )}
+        renderItem={renderBond}
         ListEmptyComponent={
           isSearching ? (
             <EmptyState
