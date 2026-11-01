@@ -157,7 +157,8 @@ export function walletPosition(
   };
 }
 
-function plannedPart(position: Position, today: string): WalletPosition['planned'] {
+/** A Position's purchases still planned (dated after today), together. */
+export function plannedPart(position: Position, today: string): WalletPosition['planned'] {
   const planned = position.purchases.filter((purchase) => isPlannedPurchase(purchase, today));
   return {
     quantity: planned.reduce((sum, purchase) => sum + purchase.quantity, 0),

@@ -6,7 +6,7 @@
 
 - Маршрути: `src/app/add/index.tsx` (`BondPickerScreen`, скелет `list`, заголовок «Оберіть ОВДП»), `src/app/bond-filters.tsx` (`BondFiltersScreen`, скелет `filters`, модальне вікно «Фільтри ОВДП»), `src/app/add/[isin]/index.tsx` (`AddBondDetailsScreen`, скелет `list`, заголовок за замовчуванням «ОВДП»), `src/app/add/[isin]/purchase.tsx` (`AddPurchaseScreen`, скелет `form`, заголовок за замовчуванням «Додати купівлю»). Опції заголовків — `src/app/_layout.tsx`.
 - Екрани: `src/pages/holdings/ui/BondPickerScreen.tsx`, `BondChoiceRow.tsx`, `ownedLabel.ts`, `BondFiltersScreen.tsx`, `BondFiltersButton.tsx`, `bondFilterLabels.ts`, `AddBondDetailsScreen.tsx`, `AddPurchaseScreen.tsx`, `AddPurchaseForm.tsx`, `HintsSection.tsx`.
-- Фіча: `src/features/add-purchase/model/useBondPicker.hook.ts`, сховище фільтрів `bondPickerFilters/` (ключ `bond-picker-filters-v1`, типи `BondTerm` і `BondSort`), `purchaseForm.schema.ts`, `useAddPurchaseForm.hook.ts`, `purchasePreview.ts` (`purchasePreview`: чернетка як позиція з однієї купівлі та її оцінка), `purchaseHints.ts` (`assessPurchase`, `annualYieldText`).
+- Фіча: `src/features/add-purchase/model/bondPicker.ts` (`bondPicker`: валюти, строки, сортування, пошук і лічильник фільтрів), `useBondPicker.hook.ts`, сховище фільтрів `bondPickerFilters/` (ключ `bond-picker-filters-v1`, типи `BondTerm` і `BondSort`), `purchaseForm.schema.ts`, `useAddPurchaseForm.hook.ts`, `purchasePreview.ts` (`purchasePreview`: чернетка як позиція з однієї купівлі та її оцінка), `purchaseHints.ts` (`assessPurchase`, `annualYieldText`).
 - Сутність: `useWallet()`, `useBonds()`, `useKeyRate(date)`; `bondChoices`, `canBuyOn`, `isRedeemed`, `isPlannedPurchase`, `pricePerBond`, `groupPositions` (`model/portfolio.ts`); `walletPosition` (`model/position.ts`); `maturityTerm`, `newBondsRate`, `MAX_PLAUSIBLE_YIELD` (`model/market.ts`); `ANNUAL_YIELD_RANGE` (`model/yield.ts`); `keyRateHint`, `newBondsHint` (`model/yieldHints.ts`); `sortHints`, `worstTone` (`model/hints.ts`); `BondParameters`, `BondsGate` (`ui/`); дії `addPurchaseToActivePlan` (`model/activePlan/actions.ts`), `updatePurchase` (`model/purchases/actions.ts`).
 - Спільне: `parseAmount`, `round2`, `formatMoney`, `formatDate`, `formatTimeLeft`, `formatPercent` (`src/shared/lib/`), `useToday` (`src/shared/config/`), `Input` (`src/shared/ui/form/Input.tsx`, очищення введеного), `DateField`, `FieldRow`.
 
@@ -48,11 +48,11 @@
 
 ### Вибір ОВДП
 
-**PICK-01.** Без пошуку список містить лише ОВДП каталогу НБУ, які можна купити сьогодні: дата погашення пізніше за сьогодні (`bondChoices(bonds, '', today)` → `canBuyOn`). ОВДП у день погашення сюди не потрапляє. Джерело: `useBondPicker`.
+**PICK-01.** Без пошуку список містить лише ОВДП каталогу НБУ, які можна купити сьогодні: дата погашення пізніше за сьогодні (`bondChoices(bonds, '', today)` → `canBuyOn`). ОВДП у день погашення сюди не потрапляє. Джерело: `bondPicker`.
 
 **PICK-02.** Варіанти валюти — валюти з `CURRENCIES` у порядку UAH, USD, EUR, у яких серед ОВДП з PICK-01 є хоч одна; лічильник — скільки таких ОВДП у валюті. Раніше обрана валюта лишається серед варіантів із лічильником 0, навіть якщо ОВДП у ній тимчасово немає.
 
-**PICK-03.** Обрана валюта — збережена у фільтрах, навіть якщо ОВДП у ній немає; за відсутності вибору — перша з доступних, а без жодної — 'UAH'. Джерело: `useBondPicker` (`defaultCurrency`, `currency`).
+**PICK-03.** Обрана валюта — збережена у фільтрах, навіть якщо ОВДП у ній немає; за відсутності вибору — перша з доступних, а без жодної — 'UAH'. Джерело: `bondPicker` (`defaultCurrency`, `currency`).
 
 **PICK-04.** Строк до погашення від сьогодні (`maturityTerm(bond, today)`): «До 1 року» — дата погашення не пізніше за сьогодні + 12 місяців (останній день включно); «1–3 роки» — не пізніше за сьогодні + 36 місяців; «Понад 3 роки» — решта. Лічильники строків рахуються в межах обраної валюти; «Усі строки» = усі ОВДП валюти. Приклад: сьогодні 2026-10-31, погашення 2027-10-31 → «До 1 року»; 2027-11-01 → «1–3 роки».
 
@@ -60,7 +60,7 @@
 
 **PICK-06.** Фільтри зберігаються в сховищі `bond-picker-filters-v1` між запусками; початкові значення `{ currency: null, term: 'all', sort: 'maturity' }`. Кожна зміна на екрані фільтрів застосовується одразу (`updateBondPickerFilters`), без кнопки «Готово»; «Скинути фільтри» повертає початкові значення (`resetBondPickerFilters`). Екран вибору й екран фільтрів читають одне сховище.
 
-**PICK-07.** Кількість змінених фільтрів: +1, якщо обрана валюта (після PICK-03) не перша доступна; +1, якщо строк не «Усі строки»; +1, якщо сортування не «За погашенням». Коли вона більша за нуль, кнопка фільтрів у шапці — заповнена іконка `options` кольором `accent` з підписом «Фільтри, змінено: N», інакше `options-outline` з підписом «Фільтри»; кнопка «Скинути фільтри» неактивна за нуля. Джерело: `useBondPicker.activeFilterCount`, `BondFiltersButton`, `ResetFiltersHeader`.
+**PICK-07.** Кількість змінених фільтрів: +1, якщо обрана валюта (після PICK-03) не перша доступна; +1, якщо строк не «Усі строки»; +1, якщо сортування не «За погашенням». Коли вона більша за нуль, кнопка фільтрів у шапці — заповнена іконка `options` кольором `accent` з підписом «Фільтри, змінено: N», інакше `options-outline` з підписом «Фільтри»; кнопка «Скинути фільтри» неактивна за нуля. Джерело: `bondPicker` (`activeFilterCount`), `BondFiltersButton`, `ResetFiltersHeader`.
 
 **PICK-08.** Секцію «Валюта» на екрані фільтрів показано, лише коли варіантів валюти більше одного. «Показано ОВДП: N» — кількість ОВДП за фільтрами, без урахування пошуку (`filteredCount`).
 
@@ -220,14 +220,13 @@
 
 - `src/features/add-purchase/model/__tests__/purchaseHints.test.ts` — BUY-18 (`annualYieldText` у всіх чотирьох випадках), BUY-21 («Перевірте суму» за `null` угору й униз і за 55 %), BUY-22, BUY-23 (текст збитку), BUY-24 (пороги success/warning/error за ставки 16 %), BUY-25 (текст, мінімум 2 нові ОВДП, валюта й строк), BUY-26 (ціна — `info`, не судить), BUY-27 (довгий строк `info`; неопубліковане погашення `warning`), BUY-28 (вердикти), а також що доларова ОВДП не порівнюється з обліковою ставкою.
 - `src/entities/portfolio/model/__tests__/portfolio.test.ts` — `canBuyOn`/`isRedeemed` (BUY-05 межа погашення, PICK-01, PICK-11) і `bondChoices` (PICK-01, PICK-10).
+- `src/features/add-purchase/model/__tests__/bondPicker.test.ts` — PICK-02, PICK-03 (обрана валюта без ОВДП), PICK-04 (лічильники строків, межа року), PICK-05 (сортування за ставкою з рівними ставками), PICK-07, пошук поза фільтрами (PICK-10).
 - `src/entities/portfolio/model/__tests__/market.test.ts` — `maturityTerm` (PICK-04, BUY-27 довгий строк) і `newBondsRate` (BUY-25).
 - `src/entities/portfolio/model/__tests__/position.test.ts` — `walletPosition`, на якому стоять BUY-13…BUY-17 (виплата в день купівлі — попередньому власнику).
 - `purchaseForm.schema.test.ts` і `format.test.ts` — окремі випадки кількості та розбору суми.
-- Без повного покриття: PICK-02, PICK-03 (заміна валюти), PICK-05 (сортування за ставкою з рівними ставками), PICK-07 (лічильник фільтрів), PICK-08, PICK-09, PICK-12…PICK-17; BUY-05 (повідомлення й межа дати розміщення), BUY-06…BUY-08 (решта випадків схеми та розбору суми), BUY-10, BUY-11, BUY-12, BUY-14, BUY-15, BUY-19, BUY-20 (вибір дати облікової ставки — є лише `keyRate.test.ts` для `keyRateOn`), BUY-21 межа рівно 40 %, BUY-26 точні тексти, BUY-27 текст про валюту, BUY-29…BUY-36 (зміна купівлі, заголовки, збереження).
+- Без повного покриття: PICK-08, PICK-09, PICK-12…PICK-17; BUY-05 (повідомлення й межа дати розміщення), BUY-06…BUY-08 (решта випадків схеми та розбору суми), BUY-10, BUY-11, BUY-12, BUY-14, BUY-15, BUY-19, BUY-20 (вибір дати облікової ставки — є лише `keyRate.test.ts` для `keyRateOn`), BUY-21 межа рівно 40 %, BUY-26 точні тексти, BUY-27 текст про валюту, BUY-29…BUY-36 (зміна купівлі, заголовки, збереження).
 
 ## Прогалини й питання
-
-**GAP-PICK-04.** Логіка вибору (заміна валюти, лічильники, сортування за ставкою, лічильник змінених фільтрів) не має тестів, бо живе в хуку з `useWallet`, а не в чистій функції. Доказ: `useBondPicker.hook.ts`, немає `__tests__`. Важливість: середня.
 
 **GAP-BUY-01.** «Перевірте суму» спрацьовує лише на дуже високу дохідність (> 40 % або > 1000 %), а не на дуже низьку. Помилка, що робить ціну вдвічі-втричі вищою за номінал (дохідність −30…−90 %), дає «Невигідна купівля» зі збитком замість «Перевірте суму», хоча такої ціни ринок теж не дає. `CLAUDE.md` каже «A yield no market gives… yields «Перевірте суму»». Доказ: `isImplausible` (`annualYield > MAX_PLAUSIBLE_YIELD`). Важливість: середня.
 
@@ -235,7 +234,7 @@
 
 **GAP-BUY-03.** Нова купівля стартує з дати сьогодні і для ОВДП, яку сьогодні купити вже не можна (погашена, знайдена пошуком, чи день погашення). Дата неправильна, «Зберегти» неактивна, а помилку не видно, поки користувач сам не змінить дату. Доказ: `useAddPurchaseForm` (`defaultValues`), `FieldRow` показує лише помилку зміненого поля. Важливість: середня.
 
-**GAP-BUY-06.** Підтвердження ніде не зберігається: запланована купівля, чия дата настала, рахується як зроблена з сумою-оцінкою; позначка «Заплановано — торкніться, щоб змінити» зникає того ж дня, а далі купівля вже «Змінити купівлю». Відрізнити непідтверджені оцінки від справжніх цифр неможливо.  Доказ: `isPlannedPurchase`, `updatePurchase`, `PurchaseRow`. Важливість: середня.
+**GAP-BUY-06.** Підтвердження ніде не зберігається: запланована купівля, чия дата настала, рахується як зроблена з сумою-оцінкою; позначка «Заплановано — торкніться, щоб змінити» зникає того ж дня, а далі купівля вже «Змінити купівлю». Відрізнити непідтверджені оцінки від справжніх цифр неможливо. Доказ: `isPlannedPurchase`, `updatePurchase`, `PurchaseRow`. Важливість: середня.
 
 **GAP-BUY-10.** Окремі приклади кількості й розбору суми перевіряються тестами, а показ чернетки (`couponsLeft`, `nextPayment`, чистий дохід) — тестом `purchasePreview.test.ts`; повідомлення, межі дат і заголовки не мають повного покриття. Доказ: `purchaseForm.schema.test.ts`, `format.test.ts`, `purchasePreview.test.ts`. Важливість: середня.
 
