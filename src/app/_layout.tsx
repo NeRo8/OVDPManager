@@ -10,7 +10,7 @@ import { useIsOnboardingCompleted } from '@/features/onboarding';
 import { isPlannedPurchase, useActivePurchases, useInvestmentPlans } from '@/entities/portfolio';
 
 import { QueryProvider } from '@/shared/api';
-import { useToday } from '@/shared/config/appSettings';
+import { useToday } from '@/shared/config';
 import { goBackOr } from '@/shared/lib';
 import { HeaderButton, LaunchSplash, NativeStack, ToastHost } from '@/shared/ui';
 
