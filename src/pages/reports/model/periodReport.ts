@@ -68,6 +68,7 @@ export type CurrencyReport = Flows & {
   averageMonthlyCoupons: number;
   /** «Річна дохідність» of the period's bonds, averaged by what they cost; null when none is known */
   annualYield: number | null;
+  withoutYieldCount: number;
   /** Every month of the period, the earliest first */
   months: MonthFlows[];
   /** Bonds with a purchase or a payment in the period, in wallet order */
@@ -99,6 +100,7 @@ function bondHighlights(bonds: BondReport[]): BondHighlights {
 export function periodReport(wallet: Wallet, from: string, to: string): CurrencyReport[] {
   const inPeriod = (event: { date: string }) => event.date >= from && event.date <= to;
   const events: ScheduleEvent[] = [...wallet.payments, ...wallet.purchaseEvents].filter(inPeriod);
+  if (!events.length) return [];
   const months = monthsBetween(from, to);
   const monthCount = round2(monthsInSpan(from, to));
 
@@ -109,6 +111,13 @@ export function periodReport(wallet: Wallet, from: string, to: string): Currency
       (event): event is PositionPayment => event.type !== 'purchase',
     );
     const total = flows(inCurrency, wallet.today);
+    const byMonth = new Map<string, ScheduleEvent[]>();
+    for (const event of inCurrency) {
+      const month = event.date.slice(0, 7);
+      const group = byMonth.get(month);
+      if (group) group.push(event);
+      else byMonth.set(month, [event]);
+    }
     const totalPayments = round2(total.coupons + total.redemptions);
     const positions = wallet.positions.filter(
       (item) =>
@@ -144,12 +153,10 @@ export function periodReport(wallet: Wallet, from: string, to: string): Currency
         monthCount,
         averageMonthlyCoupons: round2(total.coupons / monthCount),
         annualYield: resultsByCurrency(positions)[0]?.annualYield ?? null,
+        withoutYieldCount: positions.filter((position) => position.annualYield === null).length,
         months: months.map((month) => ({
           month,
-          ...flows(
-            inCurrency.filter((event) => event.date.startsWith(month)),
-            wallet.today,
-          ),
+          ...flows(byMonth.get(month) ?? [], wallet.today),
         })),
         bonds: withShares,
         highlights: bondHighlights(withShares),

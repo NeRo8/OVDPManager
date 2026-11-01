@@ -25,9 +25,15 @@ export function DeferredScreen({ skeleton, children }: Props) {
 
   useEffect(() => {
     if (ready) return;
-    return navigation.addListener('transitionEnd', (event) => {
+    // Some cold-start deep links have no transition event; do not leave the screen on a skeleton.
+    const fallback = setTimeout(() => setReady(true), 1500);
+    const unsubscribe = navigation.addListener('transitionEnd', (event) => {
       if (!event.data.closing) setReady(true);
     });
+    return () => {
+      clearTimeout(fallback);
+      unsubscribe();
+    };
   }, [navigation, ready]);
 
   if (!ready) return <ScreenSkeleton variant={skeleton} />;

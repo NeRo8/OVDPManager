@@ -40,19 +40,28 @@ export function goalProgress(wallet: Wallet, goal: CouponGoal): GoalProgress {
   const planned = inCurrency(wallet.purchaseEvents).filter((event) => inSpan(event.date));
   const plannedAmount = round2(planned.reduce((sum, event) => sum + event.total, 0));
   const planMoney = goal.reinvest
-    ? inCurrency(wallet.payments)
-        .filter((payment) => inSpan(payment.date))
-        .reduce((sum, payment) => sum + payment.total, 0)
-    : 0;
-  const topUpMonths = span.from <= span.to ? monthStarts(span).length : 0;
+    ? inCurrency(wallet.payments).filter((payment) => inSpan(payment.date))
+    : [];
+  const starts = span.from <= span.to ? monthStarts(span) : [];
+  const topUpMonths = starts.length;
+  let spent = 0;
+  let monthlyTopUp = 0;
+  for (const purchase of [...planned].sort((a, b) => a.date.localeCompare(b.date))) {
+    spent = round2(spent + purchase.total);
+    const received = planMoney
+      .filter((payment) => payment.date <= purchase.date)
+      .reduce((sum, payment) => sum + payment.total, 0);
+    const months = starts.filter((date) => date <= purchase.date).length;
+    if (months > 0)
+      monthlyTopUp = Math.max(monthlyTopUp, Math.ceil(round2(spent - received) / months));
+  }
   return {
     ...span,
     monthsOnGoal: coupons.filter((sum) => round2(sum) >= goal.monthly).length,
     goalMonths,
     plannedCount: planned.length,
     plannedAmount,
-    monthlyTopUp:
-      topUpMonths > 0 ? Math.ceil(Math.max(0, plannedAmount - planMoney) / topUpMonths) : 0,
+    monthlyTopUp,
     topUpMonths,
   };
 }

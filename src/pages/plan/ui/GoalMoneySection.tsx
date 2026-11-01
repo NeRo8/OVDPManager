@@ -56,7 +56,7 @@ export function GoalMoneySection({ plan, goal }: Props) {
         label="Власні кошти на місяць"
         hint={
           monthlyTopUp > 0
-            ? `На початку кожного з ${months}, разом ${formatMoney(ownTotal, currency)}`
+            ? `Орієнтовно на початку кожного з ${months}, разом ${formatMoney(ownTotal, currency)}. Інший графік купівель може змінити потрібну суму.`
             : 'Виплат у роки купівель вистачає на всі купівлі'
         }
         value={formatMoney(monthlyTopUp, currency)}

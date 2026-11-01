@@ -7,6 +7,8 @@ export type ScheduleTimeFilter = 'all' | 'upcoming' | 'past';
 export type PaymentFiltersState = {
   /** Event types to show; empty shows every type */
   types: ScheduleEventType[];
+  /** Empty selection distinct from the default of all types. Missing in older saved filters. */
+  excludeAllTypes?: boolean;
   time: ScheduleTimeFilter;
   /**
    * The chart has one money scale, so the schedule shows one currency. Null, or a currency the

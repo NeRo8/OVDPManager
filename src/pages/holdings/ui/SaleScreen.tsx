@@ -2,9 +2,9 @@ import { useLocalSearchParams } from 'expo-router';
 import { Controller } from 'react-hook-form';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { isPlannedPurchase } from '@/entities/portfolio';
+import { ANNUAL_YIELD_RANGE, isPlannedPurchase } from '@/entities/portfolio';
 
-import { formatDate, formatMoney } from '@/shared/lib';
+import { formatDate, formatMoney, formatRateNumber } from '@/shared/lib';
 import { EmptyState, FieldRow, FormScrollView, InfoRow, Input, Section } from '@/shared/ui';
 
 import { useSaleForm } from '../model/useSaleForm.hook';
@@ -94,7 +94,11 @@ export default function SaleScreen() {
           />
           <InfoRow
             label="Дохідність від сьогодні"
-            value={`${sale.holdYield}%`}
+            value={
+              sale.holdYield === null
+                ? `нижче ${formatRateNumber(ANNUAL_YIELD_RANGE.lowest)}%`
+                : `${formatRateNumber(sale.holdYield)}%`
+            }
             hint="Скільки річних заробляють у цій ОВДП до погашення гроші, які за неї дають сьогодні"
           />
         </Section>

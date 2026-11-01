@@ -15,6 +15,25 @@ describe('yearOverYearReport', () => {
     ]);
   });
 
+  it('does not express a change from positive income to a loss as a percentage', () => {
+    const lossBond = {
+      ...bond,
+      maturityDate: '2026-09-01',
+      payments: [
+        { type: 'coupon' as const, date: '2025-09-01', amount: 50 },
+        { type: 'redemption' as const, date: '2026-09-01', amount: 1000 },
+      ],
+    };
+    const purchase = { ...plannedWallet.purchases[0], quantity: 1, amount: 1200 };
+    const wallet = buildWallet([purchase], new Map([[bond.isin, lossBond]]), '2027-01-01');
+    const [report] = yearOverYearReport(wallet);
+    expect(report.years.find(({ year }) => year === 2025)?.income).toBe(50);
+    expect(report.years.find(({ year }) => year === 2026)).toMatchObject({
+      income: -200,
+      incomeChange: null,
+    });
+  });
+
   it('makes total income equal the sum of rounded annual rows', () => {
     const amortizing = {
       ...bond,

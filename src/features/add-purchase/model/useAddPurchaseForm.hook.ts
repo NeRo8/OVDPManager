@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useFormState, useWatch } from 'react-hook-form';
 
@@ -32,6 +34,7 @@ const amountText = (amount: number) => String(amount).replace('.', ',');
  * its figures. Validated on every change, so Save is enabled only for a purchase that can be stored.
  */
 export function useAddPurchaseForm(bond: Bond, onSaved: () => void, purchase?: Purchase) {
+  const saving = useRef(false);
   const { bonds } = useBonds();
   const today = todayISO();
   const schema = purchaseFormSchema(bond);
@@ -85,6 +88,7 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void, purchase?: P
       ...yieldInput,
       bond,
       purchaseDate: valid.purchaseDate,
+      today,
       pricePerBond: price,
       keyRate,
       bonds: bonds ?? [],
@@ -101,29 +105,35 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void, purchase?: P
     };
   })();
 
-  const submit = form.handleSubmit(({ purchaseDate, quantity, amount }) => {
-    if (purchase) {
-      updatePurchase(purchase.id, { purchaseDate, quantity, amount });
-      onSaved();
-      return;
-    }
-    const saved = addPurchaseToActivePlan({
-      isin: bond.isin,
-      purchaseDate,
-      amount,
-      quantity,
-      currency: bond.currency,
-    });
-    if (!saved) {
-      showToast({
-        tone: 'error',
-        title: 'Не вдалося зберегти купівлю',
-        message: 'Немає активного плану.',
+  const submit = () =>
+    form.handleSubmit(({ purchaseDate, quantity, amount }) => {
+      if (saving.current) return;
+      saving.current = true;
+      if (purchase) {
+        updatePurchase(purchase.id, { purchaseDate, quantity, amount });
+        showToast({ tone: 'success', title: 'Купівлю змінено', message: bond.isin });
+        onSaved();
+        return;
+      }
+      const saved = addPurchaseToActivePlan({
+        isin: bond.isin,
+        purchaseDate,
+        amount,
+        quantity,
+        currency: bond.currency,
       });
-      return;
-    }
-    onSaved();
-  });
+      if (!saved) {
+        saving.current = false;
+        showToast({
+          tone: 'error',
+          title: 'Не вдалося зберегти купівлю',
+          message: 'Немає активного плану.',
+        });
+        return;
+      }
+      showToast({ tone: 'success', title: 'Купівлю додано', message: bond.isin });
+      onSaved();
+    })();
 
   return {
     control: form.control,

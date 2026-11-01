@@ -24,11 +24,13 @@ const LAST_PAGE = ONBOARDING_SLIDES.length - 1;
 // Skia takes colors as props, so the theme reaches the backdrop through withUnistyles.
 const ThemedBackdrop = withUnistyles(OnboardingBackdrop);
 
+type Props = { onFinish?: () => void };
+
 /**
  * The introduction shown on the first launch: a slide per part of the app, swiped or stepped
  * through with «Далі». Finishing or skipping it lets the root layout's guard open the app.
  */
-export default function OnboardingScreen() {
+export default function OnboardingScreen({ onFinish = completeOnboarding }: Props) {
   const { width } = useWindowDimensions();
   const pager = useAnimatedRef<Animated.ScrollView>();
   const position = useSharedValue(0);
@@ -48,7 +50,7 @@ export default function OnboardingScreen() {
   });
 
   const showNext = () => {
-    if (isLast) completeOnboarding();
+    if (isLast) onFinish();
     else pager.current?.scrollTo({ x: (page + 1) * width, animated: true });
   };
 
@@ -68,12 +70,7 @@ export default function OnboardingScreen() {
         accessibilityElementsHidden={isLast}
         importantForAccessibility={isLast ? 'no-hide-descendants' : 'auto'}
       >
-        <Button
-          title="Пропустити"
-          variant="plain"
-          onPress={completeOnboarding}
-          style={styles.skip}
-        />
+        <Button title="Пропустити" variant="plain" onPress={onFinish} style={styles.skip} />
       </View>
       <Animated.ScrollView
         ref={pager}

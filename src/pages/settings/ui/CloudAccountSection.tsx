@@ -47,14 +47,14 @@ export function CloudAccountSection() {
       title="Хмарна копія"
       footer="Зберегти копію в хмарі можна в «Створити копію», відновити — у «Відновити з копії» на будь-якому пристрої з цим акаунтом."
     >
-      <InfoRow label="Google-акаунт" value={account.email} />
-      <InfoRow label="Копія в хмарі" value={backupDate} />
+      <InfoRow label="Google-акаунт" value={account.email ?? 'Адреса email недоступна'} />
+      {account.email && <InfoRow label="Копія в хмарі" value={backupDate} />}
       <ActionRow title="Вийти з акаунта" onPress={signOut} disabled={isBusy} />
       <ActionRow
         title="Видалити дані з хмари"
         tone="danger"
         onPress={deleteCloudData}
-        disabled={isBusy}
+        disabled={isBusy || !account.email}
       />
     </Section>
   );

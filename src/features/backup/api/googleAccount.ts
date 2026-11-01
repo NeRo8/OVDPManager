@@ -11,7 +11,7 @@ import {
 } from '@react-native-firebase/auth';
 
 /** The Google account the cloud backup belongs to, as Firebase knows it. */
-export type GoogleAccount = { uid: string; email: string };
+export type GoogleAccount = { uid: string; email: string | null };
 
 /** Closing the sign-in sheet is not a failure: the user changed their mind. */
 const CANCELLED = 'auth/popup-closed-by-user';
@@ -35,7 +35,7 @@ function isCancelled(error: unknown): boolean {
 }
 
 export function toGoogleAccount(user: User | null): GoogleAccount | null {
-  return user?.email ? { uid: user.uid, email: user.email } : null;
+  return user ? { uid: user.uid, email: user.email } : null;
 }
 
 /** The signed-in Firebase user, kept by the native SDK across launches. */
@@ -60,7 +60,11 @@ export async function signInWithGoogle(): Promise<GoogleAccount | null> {
 
 /** The signed-in account, or a fresh sign-in when there is none. */
 export async function ensureGoogleAccount(): Promise<GoogleAccount | null> {
-  return toGoogleAccount(getSignedInUser()) ?? signInWithGoogle();
+  const account = toGoogleAccount(getSignedInUser()) ?? (await signInWithGoogle());
+  if (account && !account.email) {
+    throw new Error('У цьому акаунті немає адреси email. Вийдіть і увійдіть через Google знову.');
+  }
+  return account;
 }
 
 export async function signOutOfGoogle(): Promise<void> {

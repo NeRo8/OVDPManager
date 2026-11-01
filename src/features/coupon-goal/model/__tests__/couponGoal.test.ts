@@ -280,13 +280,37 @@ describe('goalProgress', () => {
     expect(progress).toMatchObject({ from: '2027-01-01', to: '2027-12-31', topUpMonths: 12 });
     expect(progress.plannedCount).toBe(plan.purchases.length);
     expect(progress.plannedAmount).toBeCloseTo(plan.cost, 2);
-    // Rounded up to whole units, as the goal's own top-up; the order of payments is not followed.
+    // Rounded up to whole units, while respecting the dates of purchases and payments.
     expect(progress.monthlyTopUp).toBeLessThanOrEqual(plan.monthlyTopUp);
     expect(progress.monthlyTopUp).toBeGreaterThan(0);
   });
 
   it('spreads the purchases over own money alone when payments are taken out', () => {
     const progress = goalProgress(goalWallet, { ...goal, reinvest: false });
-    expect(progress.monthlyTopUp).toBe(Math.ceil(progress.plannedAmount / 12));
+    expect(progress.monthlyTopUp).toBeGreaterThanOrEqual(Math.ceil(progress.plannedAmount / 12));
+  });
+
+  it('does not use a late payment to fund an earlier purchase', () => {
+    const lateBond = bondOf('UA4000000099', '2025-01-01', '2027-12-01', 0);
+    const items: Purchase[] = [
+      {
+        id: 'old',
+        isin: lateBond.isin,
+        purchaseDate: '2026-01-01',
+        amount: 1000,
+        quantity: 1,
+        currency: 'UAH',
+      },
+      {
+        id: 'new',
+        isin: lateBond.isin,
+        purchaseDate: '2027-02-01',
+        amount: 1000,
+        quantity: 1,
+        currency: 'UAH',
+      },
+    ];
+    const lateWallet = buildWallet(items, new Map([[lateBond.isin, lateBond]]), today);
+    expect(goalProgress(lateWallet, goal).monthlyTopUp).toBe(500);
   });
 });

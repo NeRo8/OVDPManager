@@ -57,6 +57,8 @@ export type CurrencyResults = PositionResults & {
   published: { invested: number; totalPayments: number };
   /** «Річна дохідність» of the Positions that have one, weighted by what they cost */
   annualYield: number | null;
+  /** Positions in this currency omitted from the annual-yield average. */
+  withoutYieldCount: number;
 };
 
 /** A Position of the Wallet joined with the NBU data, and what it comes to. */
@@ -113,7 +115,7 @@ function positionResults(position: Position, bond: Bond, payments: PositionPayme
  * NBU has not published the redemption, as the payments fall short.
  */
 function positionYield(position: Position, bond: Bond, today: string): number | null {
-  if (!hasRedemption(bond)) return null;
+  if (!hasRedemption(bond) || position.investedAmount <= 0) return null;
   let weighted = 0;
   for (const purchase of position.purchases) {
     const payments = positionPayments([purchase], bond, today);
@@ -254,6 +256,9 @@ export function resultsByCurrency(positions: WalletPosition[]): CurrencyResults[
                 yieldWeight,
             )
           : null,
+        withoutYieldCount: positions.filter(
+          (item) => item.currency === currency && item.annualYield === null,
+        ).length,
       },
     ];
   });

@@ -196,7 +196,7 @@ type Funded = {
 };
 
 /**
- * Buys the bonds as money comes in, one bond after another, as many whole bonds as the cash allows
+ * Buys the bonds as money comes in, in choice order, as many whole bonds as the cash allows
  * at each day's price. The purchases the plan already has planned (`spending`) are paid first, on
  * their own days. A bond bought pays its coupons and redemption from the next payment on (the one on
  * the day of purchase is the seller's); with `reinvest` those that come by `to` are cash for the
@@ -229,12 +229,19 @@ function buyAsFunded(
     cash = round2(cash + (incoming.get(date) ?? 0) - (outgoing.get(date) ?? 0));
     incoming.delete(date);
     if (cash < 0) short = true;
-    while (queue.length) {
-      const next = queue[0];
+    for (let index = 0; index < queue.length;) {
+      const next = queue[index];
       const { bond } = next.candidate;
       const price = priceOn(next.candidate, date);
-      const quantity = Math.min(next.quantity, Math.floor(cash / price));
-      if (quantity === 0) break;
+      if (price <= 0 || !Number.isFinite(price)) {
+        index += 1;
+        continue;
+      }
+      const quantity = Math.min(next.quantity, Math.max(0, Math.floor(cash / price)));
+      if (quantity === 0) {
+        index += 1;
+        continue;
+      }
       const cost = round2(price * quantity);
       purchases.push({
         isin: bond.isin,
@@ -251,7 +258,8 @@ function buyAsFunded(
       }
       cash = round2(cash - cost);
       next.quantity -= quantity;
-      if (next.quantity === 0) queue.shift();
+      if (next.quantity === 0) queue.splice(index, 1);
+      else index += 1;
     }
   }
   return { purchases, done: queue.length === 0 && !short, goalMoney: round2(goalMoney) };
@@ -261,9 +269,9 @@ function buyAsFunded(
  * What to buy in «Роки купівель» so that the plan's coupons reach `goal.monthly` in every month of
  * «Роки купонів»: the bonds and their purchases, dated as money comes in. With `goal.reinvest` the
  * plan's coupons and redemptions in that span pay first, and so do those of the bonds just bought;
- * without it they are taken out and only money of one's own pays. That is the smallest equal top-up,
- * in whole units of the currency, at the start of each month. Prices are estimates at today's market
- * yield.
+ * without it they are taken out and only money of one's own pays. The equal monthly top-up is a
+ * feasible estimate in whole units; changing purchase dates can change prices and the minimum.
+ * Prices are estimates at today's market yield.
  */
 export function planCouponGoal(
   wallet: Wallet,
@@ -304,7 +312,7 @@ export function planCouponGoal(
       goal.reinvest,
     );
 
-  // All of it paid on the first day is always enough; search down for the smallest top-up.
+  // All of it paid on the first day is enough; search down for a feasible top-up.
   let low = 0;
   let high = Math.ceil(
     plannedCost +

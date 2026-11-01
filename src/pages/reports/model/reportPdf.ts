@@ -270,7 +270,7 @@ export function periodPdf(
                     value: percent(highlights.lowestYield.annualYield),
                   },
                 ],
-                `Річна дохідність — за ціною купівлі й усіма виплатами до погашення, як у формі купівлі. Середня — за ОВДП ${terms.span}, зважена на суму купівель; ОВДП без опублікованого погашення в неї не входять.`,
+                `Річна дохідність — за ціною купівлі й усіма виплатами до погашення, як у формі купівлі. Середня — за ОВДП ${terms.span}, зважена на суму купівель.${report.withoutYieldCount ? ` Не враховано ОВДП без розрахованої дохідності: ${report.withoutYieldCount}.` : ''}`,
               ),
             ]),
         monthsTable(report),
@@ -435,7 +435,10 @@ export function yearsPdf(wallet: ActiveWallet, reports: CurrencyYears[]): Report
           ]),
           total: ['Разом', formatAmount(total.balance), formatAmount(total.income), ''],
           totalSigned: [null, total.balance, total.income, null],
-          note: notes('Зміна доходу — дохід року проти попереднього.', forecast && FORECAST_NOTE),
+          note: notes(
+            'Зміна доходу — дохід року проти попереднього. За малого попереднього доходу відсоток може бути великим. Не розраховується за від’ємного доходу або якщо попередній дохід дорівнює нулю.',
+            forecast && FORECAST_NOTE,
+          ),
         },
       ];
     }),
@@ -527,7 +530,7 @@ export function redemptionsPdf(
           rows,
           groupRows,
           total: ['Разом', amountCell(total), '100%'],
-          note: 'Частка — від усіх погашень у звіті.',
+          note: 'Частка — від усіх погашень у звіті. Через округлення сума часток може відрізнятися від 100%.',
         },
         {
           title: titled('Погашення', currency),
@@ -588,6 +591,9 @@ export function portfolioPdf(
                   },
                   total.netIncome !== null && {
                     label: 'Дохідність за весь строк',
+                    hint: total.incompleteCount
+                      ? `Розраховано від вкладень ${money(total.published.invested)} в ОВДП з опублікованим погашенням`
+                      : undefined,
                     value: `${total.returnPercent ?? 0}%`,
                   },
                 ]
@@ -864,7 +870,7 @@ export function yieldPdf(wallet: ActiveWallet, scope: string, reports: CurrencyY
 export function bondPdf(wallet: ActiveWallet, report: SingleBondReport): ReportPdf {
   const { item, keyRateAtPurchase, money: byYear } = report;
   const { position, bond, results, currency, annualYield } = item;
-  const money = (value: number) => formatMoney(value, currency);
+  const money = (value: number | null) => (value === null ? '—' : formatMoney(value, currency));
   const coupon = bond?.payments.find((payment) => payment.type === 'coupon');
   return {
     title: 'Звіт по ОВДП',

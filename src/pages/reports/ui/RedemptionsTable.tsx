@@ -29,7 +29,7 @@ export function RedemptionsTable({ report }: Props) {
       columns={['Сума', 'Частка']}
       rows={rows}
       total={{ label: 'Разом', cells: [amountCell(report.total), '100%'] }}
-      footer="Частка — від усіх погашень у звіті."
+      footer="Частка — від усіх погашень у звіті. Через округлення сума часток може відрізнятися від 100%."
     />
   );
 }

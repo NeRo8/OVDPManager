@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getCachedBonds, saveBonds, useCachedBonds } from './bonds';
+import { getCachedBonds, saveBonds, useBondsUpdatedAt, useCachedBonds } from './bonds';
 import { fetchBonds } from './nbuBonds';
 
 /** The NBU list changes only when new bonds are issued, so a few hours of staleness is fine. */
@@ -11,6 +11,7 @@ const STALE_AFTER_MS = 6 * 60 * 60 * 1000;
  */
 export function useBonds() {
   const bonds = useCachedBonds();
+  const updatedAt = useBondsUpdatedAt();
   const { error, refetch } = useQuery({
     queryKey: ['nbu', 'bonds'],
     queryFn: async ({ signal }) => {
@@ -29,7 +30,8 @@ export function useBonds() {
 
   return {
     bonds,
-    // NbuError from the client, or a malformed response from fetchBonds: both carry a ready message.
+    updatedAt,
+    // The client supplies the message for network errors.
     error: error?.message ?? null,
     byIsin,
     refresh: async () => {

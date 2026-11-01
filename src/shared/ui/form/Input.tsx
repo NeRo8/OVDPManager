@@ -13,7 +13,7 @@ const types = {
     keyboardType: 'decimal-pad',
     sanitize: (text: string) => text.replace(/[^\d\s ,.]/g, ''),
   },
-  integer: { keyboardType: 'number-pad', sanitize: (text: string) => text.replace(/\D/g, '') },
+  integer: { keyboardType: 'number-pad', sanitize: (text: string) => text.replace(/[^\d.,]/g, '') },
 } as const;
 
 /**

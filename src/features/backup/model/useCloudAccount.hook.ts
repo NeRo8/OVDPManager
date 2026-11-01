@@ -23,7 +23,7 @@ import { useGoogleAccount } from './useGoogleAccount.hook';
  */
 export function useCloudAccount() {
   const account = useGoogleAccount();
-  const cloudBackup = useCloudBackup(account?.uid);
+  const cloudBackup = useCloudBackup(account?.email ? account.uid : undefined);
   const queryClient = useQueryClient();
   const [isBusy, setBusy] = useState(false);
 
@@ -57,9 +57,19 @@ export function useCloudAccount() {
       if (!(await reauthenticateWithGoogle(user))) return;
       // The copy goes while the user still exists: the security rules check its owner.
       await deleteCloudBackup(account.uid);
-      await deleteSignedInUser(user);
       queryClient.removeQueries({ queryKey: cloudBackupQueryKey(account.uid) });
-      showToast({ tone: 'success', title: 'Дані видалено з хмари', message: account.email });
+      try {
+        await deleteSignedInUser(user);
+      } catch {
+        throw new Error(
+          'Копію з хмари видалено, але акаунт залишився підключеним. Спробуйте видалити дані ще раз або вийдіть з акаунта.',
+        );
+      }
+      showToast({
+        tone: 'success',
+        title: 'Дані видалено з хмари',
+        message: account.email ?? undefined,
+      });
     });
 
   const deleteCloudData = () =>

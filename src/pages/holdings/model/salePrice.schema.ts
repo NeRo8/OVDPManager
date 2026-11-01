@@ -1,12 +1,15 @@
 import { z } from 'zod';
 
-import { parseAmount, round2 } from '@/shared/lib';
+import { isAmbiguousAmount, parseAmount, round2 } from '@/shared/lib';
 
 /** The sale price per bond as typed: empty while none is typed, else a positive amount. */
 export const salePriceSchema = z.object({
   price: z
     .string()
     .trim()
+    .refine((text) => !isAmbiguousAmount(text), {
+      error: 'Використайте пробіл для тисяч або вкажіть до двох десяткових знаків',
+    })
     .transform((text) => (text === '' ? null : round2(parseAmount(text))))
     .pipe(
       z

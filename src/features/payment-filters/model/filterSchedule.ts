@@ -27,7 +27,7 @@ export function effectiveFilters(
 /** What differs from fresh filters; another currency than the first one counts too. */
 export function countActiveFilters(filters: PaymentFilters, options: WalletScopeOptions): number {
   return [
-    filters.types.length > 0,
+    filters.types.length > 0 || filters.excludeAllTypes === true,
     filters.time !== 'all',
     filters.currency !== (options.currencies[0] ?? null),
     filters.isins.length > 0,
@@ -55,6 +55,7 @@ export function filterSchedule(wallet: Wallet, filters: PaymentFilters): Filtere
   const events = [...narrowed.payments, ...narrowed.purchaseEvents]
     .filter(
       (event) =>
+        !filters.excludeAllTypes &&
         (filters.types.length === 0 || filters.types.includes(event.type)) &&
         (filters.time === 'all' || isPastEvent(event, wallet.today) === (filters.time === 'past')),
     )

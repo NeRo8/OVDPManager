@@ -5,6 +5,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import {
   NbuSourceNote,
+  BondsUnavailableCard,
   StaleBondsNotice,
   WalletGate,
   type WalletPosition,
@@ -36,7 +37,7 @@ export default function PortfolioScreen() {
   );
 
   return (
-    <WalletGate>
+    <WalletGate allowMissingBonds>
       <View style={styles.screen}>
         <FlatList
           style={styles.list}
@@ -48,6 +49,7 @@ export default function PortfolioScreen() {
           ListHeaderComponent={
             <View style={styles.listHeader}>
               <StaleBondsNotice />
+              <BondsUnavailableCard />
               <SectionTitle title="Мої ОВДП" />
             </View>
           }

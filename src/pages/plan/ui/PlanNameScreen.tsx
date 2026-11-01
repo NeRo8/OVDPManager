@@ -11,6 +11,8 @@ import {
   PLAN_NAME_MAX_LENGTH,
   createActivePlan,
   renameInvestmentPlan,
+  samePlanName,
+  uniquePlanName,
   useInvestmentPlans,
 } from '@/entities/portfolio';
 
@@ -24,13 +26,23 @@ import {
   Typography,
 } from '@/shared/ui';
 
-const PlanNameFormSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, { error: 'Вкажіть назву плану' })
-    .max(PLAN_NAME_MAX_LENGTH, { error: `Назва — до ${PLAN_NAME_MAX_LENGTH} символів` }),
-});
+const planNameFormSchema = (plans: { id: string; name: string }[], planId?: string) =>
+  z
+    .object({
+      name: z
+        .string()
+        .trim()
+        .min(1, { error: 'Вкажіть назву плану' })
+        .max(PLAN_NAME_MAX_LENGTH, { error: `Назва — до ${PLAN_NAME_MAX_LENGTH} символів` }),
+    })
+    .refine(
+      ({ name }) => !plans.some((plan) => plan.id !== planId && samePlanName(plan.name, name)),
+      {
+        path: ['name'],
+        error: 'План із такою назвою вже існує',
+      },
+    );
+type PlanNameFormSchema = ReturnType<typeof planNameFormSchema>;
 
 /**
  * Names a new plan, or renames the one in `planId`. Without any plans it is the first screen of
@@ -41,15 +53,14 @@ export default function PlanNameScreen() {
   const plans = useInvestmentPlans();
   const isFirst = plans.length === 0;
   const existing = plans.find((plan) => plan.id === planId);
-  const form = useForm<
-    z.input<typeof PlanNameFormSchema>,
-    unknown,
-    z.output<typeof PlanNameFormSchema>
-  >({
-    resolver: zodResolver(PlanNameFormSchema),
+  const schema = planNameFormSchema(plans, planId);
+  const form = useForm<z.input<PlanNameFormSchema>, unknown, z.output<PlanNameFormSchema>>({
+    resolver: zodResolver(schema),
     mode: 'onChange',
     defaultValues: {
-      name: existing?.name ?? (isFirst ? DEFAULT_PLAN_NAME : `План ${plans.length + 1}`),
+      name:
+        existing?.name ??
+        (isFirst ? DEFAULT_PLAN_NAME : uniquePlanName(`План ${plans.length + 1}`, plans)),
     },
   });
   // Read through the hook, not `form.formState`, which the React Compiler would cache.

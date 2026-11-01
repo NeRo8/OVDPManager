@@ -6,8 +6,10 @@ import {
   walletScopeOptions,
 } from '@/entities/portfolio';
 
-import { effectiveFilters, filterSchedule } from '../filterSchedule';
+import { countActiveFilters, effectiveFilters, filterSchedule } from '../filterSchedule';
 import type { PaymentFilters } from '../paymentFilters';
+import { resetPaymentFilters, togglePaymentFilterType } from '../paymentFilters/actions';
+import { usePaymentFiltersStore } from '../paymentFilters/store';
 
 function bondOf(isin: string, currency: Bond['currency']): Bond {
   return {
@@ -66,6 +68,17 @@ describe('effectiveFilters', () => {
     expect(effectiveFilters({ ...picked, currency: 'UAH' }, options).isins).toEqual([hryvnia.isin]);
     expect(isinsIn(options, 'USD')).toEqual([dollar.isin]);
   });
+
+  it('counts each distinct active filter including an empty event selection', () => {
+    const options = walletScopeOptions(wallet);
+    expect(countActiveFilters({ ...fresh, currency: 'UAH' }, options)).toBe(0);
+    expect(
+      countActiveFilters(
+        { ...fresh, currency: 'USD', excludeAllTypes: true, time: 'past', isins: [dollar.isin] },
+        options,
+      ),
+    ).toBe(4);
+  });
 });
 
 describe('filterSchedule', () => {
@@ -98,4 +111,19 @@ describe('filterSchedule', () => {
       unknown.isin,
     ]);
   });
+});
+
+it('keeps no events selected after the last type is unchecked', () => {
+  resetPaymentFilters();
+  togglePaymentFilterType('coupon');
+  togglePaymentFilterType('coupon');
+  const none = usePaymentFiltersStore.getState();
+  expect(none.excludeAllTypes).toBe(true);
+  expect(filterSchedule(wallet, { ...none, currency: 'UAH' }).events).toEqual([]);
+  togglePaymentFilterType('purchase');
+  expect(usePaymentFiltersStore.getState()).toMatchObject({
+    types: ['purchase'],
+    excludeAllTypes: false,
+  });
+  resetPaymentFilters();
 });

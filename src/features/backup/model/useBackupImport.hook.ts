@@ -100,7 +100,11 @@ export function useBackupImport({ onRestored }: Options) {
         const cloudBackup = signedIn && (await fetchCloudBackup(signedIn.uid));
         if (!cloudBackup) {
           if (signedIn) {
-            showToast({ tone: 'info', title: 'У хмарі немає копії', message: signedIn.email });
+            showToast({
+              tone: 'info',
+              title: 'У хмарі немає копії',
+              message: signedIn.email ?? undefined,
+            });
           }
           return;
         }

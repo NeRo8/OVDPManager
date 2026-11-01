@@ -19,7 +19,7 @@ export function PeriodYield({ report, terms }: Props) {
   return (
     <Section
       title={`Дохідність · ${CURRENCY_NAMES[currency]}`}
-      footer={`Річна дохідність — за ціною купівлі й усіма виплатами до погашення, як у формі купівлі. Середня — за ОВДП ${terms.span}, зважена на суму купівель; ОВДП без опублікованого погашення в неї не входять.`}
+      footer={`Річна дохідність — за ціною купівлі й усіма виплатами до погашення, як у формі купівлі. Середня — за ОВДП ${terms.span}, зважена на суму купівель.${report.withoutYieldCount ? ` Не враховано ОВДП без розрахованої дохідності: ${report.withoutYieldCount}.` : ''}`}
     >
       <InfoRow label="Річна дохідність" hint="Середня за ОВДП" value={`${annualYield}%`} />
       {highestYield && (

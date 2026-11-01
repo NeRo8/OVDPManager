@@ -29,7 +29,10 @@ export function BondReportSummary({ report }: Props) {
       ? [
           {
             label: 'Середня ціна 1 шт',
-            value: money(pricePerBond(position.investedAmount, position.quantity)),
+            value: (() => {
+              const price = pricePerBond(position.investedAmount, position.quantity);
+              return price === null ? '—' : money(price);
+            })(),
           },
         ]
       : []),

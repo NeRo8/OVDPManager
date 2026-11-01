@@ -24,6 +24,7 @@ type Props = {
 
 /** What a bond in the wallet has cost, brought and will bring. */
 export function PositionSummary({ position, currency, hasTopUps, results, planned }: Props) {
+  const price = pricePerBond(position.investedAmount, position.quantity);
   return (
     <Section title="Підсумок">
       <InfoRow label="Кількість" value={ownedLabel(position.quantity, planned.quantity)} />
@@ -38,7 +39,7 @@ export function PositionSummary({ position, currency, hasTopUps, results, planne
       {hasTopUps && (
         <InfoRow
           label="Середня ціна 1 шт"
-          value={formatMoney(pricePerBond(position.investedAmount, position.quantity), currency)}
+          value={price === null ? '—' : formatMoney(price, currency)}
         />
       )}
       {results && (

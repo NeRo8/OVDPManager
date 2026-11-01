@@ -1,9 +1,9 @@
 export * from './model/portfolio';
 export * from './model/purchases';
-export { useWallet, type ActiveWallet } from './model/useWallet.hook';
+export { useActivePurchases, useWallet, type ActiveWallet } from './model/useWallet.hook';
 export * from './model/wallet';
 export { useBonds } from './api/useBonds.hook';
-export { useKeyRate } from './api/useKeyRate.hook';
+export { useKeyRate, useKeyRateUpdatedAt } from './api/useKeyRate.hook';
 export { useKeyRates } from './api/useKeyRates.hook';
 export { useExchangeRates } from './api/useExchangeRates.hook';
 export type { ExchangeCurrency } from './api/nbuExchangeRates';

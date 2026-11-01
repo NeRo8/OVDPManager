@@ -31,11 +31,10 @@ export function useBondPicker() {
   const currencies: FilterOption<Currency>[] = CURRENCIES.map((value) => ({
     value,
     count: inCirculation.filter((bond) => bond.currency === value).length,
-  })).filter((option) => option.count > 0);
-  // The chosen currency while some bond still has it, otherwise the first one that does.
-  const defaultCurrency = currencies[0]?.value ?? 'UAH';
-  const currency =
-    currencies.find((option) => option.value === filters.currency)?.value ?? defaultCurrency;
+  })).filter((option) => option.count > 0 || option.value === filters.currency);
+  // Keep an explicit choice visible even when no bond in that currency is in circulation.
+  const defaultCurrency = currencies.find((option) => option.count > 0)?.value ?? 'UAH';
+  const currency = filters.currency ?? defaultCurrency;
   const ofCurrency = inCirculation.filter((bond) => bond.currency === currency);
   const terms: FilterOption<BondTerm>[] = (['all', 'short', 'medium', 'long'] as const).map(
     (value) => ({

@@ -1,5 +1,5 @@
-import { type CouponGoal, PLAN_NAME_MAX_LENGTH, goalYearsLabel } from '../plan';
-import { createInvestmentPlan } from '../plans';
+import { type CouponGoal, PLAN_NAME_MAX_LENGTH, goalYearsLabel, uniquePlanName } from '../plan';
+import { createInvestmentPlan, getInvestmentPlans } from '../plans';
 import type { PlanPurchase } from '../portfolio';
 import { addPurchase, addPurchases, copyPlanPurchases, removePosition } from '../purchases';
 
@@ -44,7 +44,10 @@ export function createGoalPlan(
   const plan = getActivePlan();
   if (!plan) return undefined;
   const suffix = ` · ціль ${goalYearsLabel(goal)}`;
-  const name = plan.name.slice(0, PLAN_NAME_MAX_LENGTH - suffix.length).trimEnd() + suffix;
+  const name = uniquePlanName(
+    plan.name.slice(0, PLAN_NAME_MAX_LENGTH - suffix.length).trimEnd() + suffix,
+    getInvestmentPlans(),
+  );
   const id = createInvestmentPlan(name, goal);
   copyPlanPurchases(plan.id, id);
   addPurchases(purchases.map((purchase) => ({ ...purchase, planId: id })));

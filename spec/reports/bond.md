@@ -100,4 +100,4 @@
 
 ## Прогалини й питання
 
-**GAP-RBOND-05.** Немає тестів `bondReport` і `bondPdf`. Серйозність: низька.
+- `src/pages/reports/model/__tests__/bondReport.test.ts`: звіт і PDF для відомої та невідомої ОВДП.

@@ -52,7 +52,13 @@ export function PortfolioSummary({ report }: Props) {
                     </SignedValue>
                   ),
                 },
-                { label: 'Дохідність за весь строк', value: `${total.returnPercent ?? 0}%` },
+                {
+                  label: 'Дохідність за весь строк',
+                  hint: total.incompleteCount
+                    ? `Розраховано від вкладень ${money(total.published.invested)} в ОВДП з опублікованим погашенням`
+                    : undefined,
+                  value: `${total.returnPercent ?? 0}%`,
+                },
               ]
             : []),
         ]

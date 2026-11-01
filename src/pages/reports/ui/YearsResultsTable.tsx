@@ -37,7 +37,7 @@ export function YearsResultsTable({ report }: Props) {
         signedCells: [total.balance, total.income, null],
       }}
       footer={[
-        'Зміна доходу — дохід року проти попереднього.',
+        'Зміна доходу — дохід року проти попереднього. За малого попереднього доходу відсоток може бути великим. Не розраховується за від’ємного доходу або якщо попередній дохід дорівнює нулю.',
         years.some(({ forecast }) => forecast) && FORECAST_NOTE,
       ]
         .filter(Boolean)

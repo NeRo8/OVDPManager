@@ -71,6 +71,18 @@ describe('serializeBackup and parseBackup', () => {
     await expect(parseBackup(file, KEY)).resolves.toEqual({ purchases, plans });
   });
 
+  it('preserves the active plan and rejects an id absent from the backup', async () => {
+    const saved = await serializeBackup(purchases, plans, KEY, 'plan-2', 'dark');
+    await expect(parseBackup(saved, KEY)).resolves.toEqual({
+      purchases,
+      plans,
+      activePlanId: 'plan-2',
+      theme: 'dark',
+    });
+    const invalid = await serializeBackup(purchases, plans, KEY, 'missing');
+    await expect(parseBackup(invalid, KEY)).rejects.toThrow('Активного плану немає в копії');
+  });
+
   it('keeps only the framing readable and the plans and purchases encrypted', () => {
     const backup = JSON.parse(file) as Backup;
     expect(backup).toMatchObject({
@@ -139,5 +151,23 @@ describe('serializeBackup and parseBackup', () => {
     );
     const orphan = await serializeBackup(purchases, [plans[0]], KEY);
     await expect(parseBackup(orphan, KEY)).rejects.toThrow('Купівля №2: її плану немає в копії');
+  });
+
+  it('rejects malformed purchase fields and duplicate ids before replacing any data', async () => {
+    for (const change of [
+      { quantity: 0 },
+      { amount: 0 },
+      { purchaseDate: 'bad' },
+      { isin: '' },
+      { currency: 'XXX' },
+    ]) {
+      const invalid = [{ ...purchases[0], ...change }] as PlanPurchase[];
+      await expect(parseBackup(await serializeBackup(invalid, plans, KEY), KEY)).rejects.toThrow(
+        'некоректні дані',
+      );
+    }
+    await expect(
+      parseBackup(await serializeBackup([purchases[0], purchases[0]], plans, KEY), KEY),
+    ).rejects.toThrow('повторні ідентифікатори');
   });
 });

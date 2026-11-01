@@ -19,6 +19,7 @@ type Props = {
 
 /** One purchase of the bond: when, how many and for how much. */
 export function BondReportPurchaseRow({ purchase, currency, today }: Props) {
+  const price = pricePerBond(purchase.amount, purchase.quantity);
   return (
     <ListRow
       // Badged as the payments' rows after it, in the purchases' color.
@@ -30,7 +31,7 @@ export function BondReportPurchaseRow({ purchase, currency, today }: Props) {
       }
       subtitle={
         <Typography variant="caption1" tone="secondary" tabular>
-          по {formatMoney(pricePerBond(purchase.amount, purchase.quantity), currency)} за 1 шт
+          по {price === null ? '—' : formatMoney(price, currency)} за 1 шт
           {isPlannedPurchase(purchase, today) && ' · заплановано'}
         </Typography>
       }

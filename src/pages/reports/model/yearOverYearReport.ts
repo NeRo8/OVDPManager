@@ -16,7 +16,7 @@ export type YearRow = Flows & {
   balance: number;
   /** «Дохід за рік» */
   income: number;
-  /** The income against the year before, %; null for the first year or after one without income */
+  /** The income against the year before, %; null when either year's income is negative or the previous income is zero */
   incomeChange: number | null;
   /** It holds payments still ahead or planned purchases, so its sums are partly a forecast */
   forecast: boolean;
@@ -89,7 +89,7 @@ export function yearOverYearReport(wallet: Wallet): CurrencyYears[] {
         balance,
         income,
         incomeChange:
-          previous && previous.income > 0
+          previous && previous.income > 0 && income >= 0
             ? round2(((income - previous.income) / previous.income) * 100)
             : null,
         forecast,

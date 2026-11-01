@@ -28,12 +28,8 @@ export async function fetchExchangeRates(
     params: { start, end, valcode: currency, sort: 'exchangedate', order: 'asc', json: '' },
     signal,
   });
-  if (!Array.isArray(data)) throw new Error('НБУ не повернув курси валют');
-
   const rows = data
-    .filter(
-      (row) => row.cc === currency && Number.isFinite(row.rate_per_unit) && row.rate_per_unit > 0,
-    )
+    .filter((row) => row.cc === currency)
     .map((row) => {
       const [day, month, rowYear] = row.exchangedate.split('.');
       return { date: `${rowYear}-${month}-${day}`, rate: row.rate_per_unit };

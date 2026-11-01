@@ -5,7 +5,7 @@ import type { BondTerm } from '../bondTerm';
 export type BondSort = 'maturity' | 'rate';
 
 export type BondPickerFiltersState = {
-  /** Null, or a currency no bond in circulation has: the first currency that has some */
+  /** Null chooses the first currency that has bonds in circulation. */
   currency: Currency | null;
   term: BondTerm;
   sort: BondSort;

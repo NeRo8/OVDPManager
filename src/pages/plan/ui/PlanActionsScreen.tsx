@@ -20,7 +20,8 @@ import { ActionRow, Section, Typography } from '@/shared/ui';
  */
 export default function PlanActionsScreen() {
   const { planId } = useLocalSearchParams<{ planId: string }>();
-  const plan = useInvestmentPlans().find((item) => item.id === planId);
+  const plans = useInvestmentPlans();
+  const plan = plans.find((item) => item.id === planId);
   const numberOfPurchases = usePurchases().filter((item) => item.planId === planId).length;
 
   // The plan is gone only while the sheet closes after deleting it.
@@ -53,9 +54,12 @@ export default function PlanActionsScreen() {
   const confirmRemovePlan = () =>
     confirmDestructive(
       'Видалити план?',
-      numberOfPurchases
+      (numberOfPurchases
         ? `План «${plan.name}» і ${numberOfPurchases} ${plural(numberOfPurchases, 'купівлю', 'купівлі', 'купівель')} в ньому буде видалено.`
-        : `План «${plan.name}» буде видалено.`,
+        : `План «${plan.name}» буде видалено.`) +
+        (plans.length === 1
+          ? ' Це останній план: після видалення можна створити новий або відновити копію.'
+          : ''),
       'Видалити',
       removePlan,
     );

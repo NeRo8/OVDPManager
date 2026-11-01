@@ -1,4 +1,4 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, type Href, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -7,19 +7,20 @@ import { useUnistyles } from 'react-native-unistyles';
 
 import { useIsOnboardingCompleted } from '@/features/onboarding';
 
-import { useInvestmentPlans } from '@/entities/portfolio';
+import { isPlannedPurchase, useActivePurchases, useInvestmentPlans } from '@/entities/portfolio';
 
 import { QueryProvider } from '@/shared/api';
-import { goBackOrHome } from '@/shared/lib';
+import { goBackOr, useToday } from '@/shared/lib';
 import { HeaderButton, LaunchSplash, NativeStack, ToastHost } from '@/shared/ui';
 
 // Filters open over their list, which shows every change at once; closing is all that is left.
-const FILTERS_MODAL = {
-  presentation: 'modal',
-  headerLeft: () => (
-    <HeaderButton icon="close" accessibilityLabel="Закрити" onPress={goBackOrHome} />
-  ),
-} as const;
+const filtersModal = (fallback: Href) =>
+  ({
+    presentation: 'modal',
+    headerLeft: () => (
+      <HeaderButton icon="close" accessibilityLabel="Закрити" onPress={() => goBackOr(fallback)} />
+    ),
+  }) as const;
 
 // LaunchSplash hides the native splash once it covers the screen; until then nothing shows through.
 SplashScreen.preventAutoHideAsync();
@@ -28,6 +29,8 @@ export default function RootLayout() {
   const { theme, rt } = useUnistyles();
   const isOnboarded = useIsOnboardingCompleted();
   const hasPlans = useInvestmentPlans().length > 0;
+  const { purchases } = useActivePurchases();
+  const today = useToday();
   const base = rt.themeName === 'dark' ? DarkTheme : DefaultTheme;
   // Navigator surfaces use the app palette; NativeStack sets the header colors itself.
   const navigationTheme = {
@@ -62,13 +65,40 @@ export default function RootLayout() {
                 <NativeStack.Screen name="(tabs)" options={{ headerShown: false }} />
                 {/* Adding a purchase to the active plan: choose a bond, review it, then enter the purchase. */}
                 <NativeStack.Screen name="add/index" options={{ title: 'Оберіть ОВДП' }} />
-                <NativeStack.Screen name="add/[isin]/index" options={{ title: 'ОВДП' }} />
+                <NativeStack.Screen
+                  name="add/[isin]/index"
+                  options={({ route }) => ({
+                    title: (route.params as { isin?: string })?.isin ?? 'ОВДП',
+                  })}
+                />
                 <NativeStack.Screen
                   name="add/[isin]/purchase"
-                  options={{ title: 'Додати купівлю' }}
+                  options={({ route }) => {
+                    const { isin, purchaseId } = (route.params ?? {}) as {
+                      isin?: string;
+                      purchaseId?: string;
+                    };
+                    const position = purchases.filter((purchase) => purchase.isin === isin);
+                    const title = purchaseId
+                      ? position.some((purchase) => purchase.id === purchaseId)
+                        ? 'Змінити купівлю'
+                        : 'Купівлі немає'
+                      : position.some((purchase) => !isPlannedPurchase(purchase, today))
+                        ? 'Докупити ОВДП'
+                        : 'Додати купівлю';
+                    return { title };
+                  }}
                 />
-                <NativeStack.Screen name="plan/name" options={{ title: 'Новий план' }} />
+                <NativeStack.Screen
+                  name="plan/name"
+                  options={({ route }) => ({
+                    title: (route.params as { planId?: string })?.planId
+                      ? 'Назва плану'
+                      : 'Новий план',
+                  })}
+                />
                 <NativeStack.Screen name="plan/list" options={{ title: 'Мої плани' }} />
+                <NativeStack.Screen name="intro" options={{ headerShown: false }} />
                 <NativeStack.Screen
                   name="plan/goal"
                   options={{ title: 'Ціль: купони на місяць' }}
@@ -85,20 +115,25 @@ export default function RootLayout() {
                 />
                 <NativeStack.Screen
                   name="payment-filters"
-                  options={{ title: 'Фільтри виплат', ...FILTERS_MODAL }}
+                  options={{ title: 'Фільтри виплат', ...filtersModal('/') }}
                 />
                 <NativeStack.Screen
                   name="bond-filters"
-                  options={{ title: 'Фільтри ОВДП', ...FILTERS_MODAL }}
+                  options={{ title: 'Фільтри ОВДП', ...filtersModal('/add') }}
                 />
-                <NativeStack.Screen name="bond/[isin]/index" options={{ title: 'ОВДП' }} />
+                <NativeStack.Screen
+                  name="bond/[isin]/index"
+                  options={({ route }) => ({
+                    title: (route.params as { isin?: string })?.isin ?? 'ОВДП',
+                  })}
+                />
                 <NativeStack.Screen name="bond/[isin]/sale" options={{ title: 'Продаж' }} />
                 <NativeStack.Screen name="reports/year" options={{ title: 'Звіт за рік' }} />
                 <NativeStack.Screen name="reports/fx" options={{ title: 'Валютний еквівалент' }} />
                 <NativeStack.Screen name="reports/period" options={{ title: 'Звіт за період' }} />
                 <NativeStack.Screen
                   name="report-filters/[report]"
-                  options={{ title: 'Фільтри звіту', ...FILTERS_MODAL }}
+                  options={{ title: 'Фільтри звіту', ...filtersModal('/reports') }}
                 />
                 <NativeStack.Screen
                   name="reports/year-over-year"
@@ -122,7 +157,7 @@ export default function RootLayout() {
               </NativeStack.Protected>
               <NativeStack.Protected
                 guard={isOnboarded && !hasPlans}
-                redirectTo={isOnboarded ? '/' : '/onboarding'}
+                redirectTo={isOnboarded ? '/holdings' : '/onboarding'}
               >
                 <NativeStack.Screen name="welcome" options={{ title: 'Перший план' }} />
               </NativeStack.Protected>

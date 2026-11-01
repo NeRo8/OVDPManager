@@ -5,9 +5,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useForm, useFormState } from 'react-hook-form';
 import { z } from 'zod';
 
-import { getInvestmentPlans, getPurchases } from '@/entities/portfolio';
+import { getActivePlan, getInvestmentPlans, getPurchases } from '@/entities/portfolio';
 
 import { askDestructive, formatDateTime, showToast } from '@/shared/lib';
+import { getThemePreference } from '@/shared/theme';
 
 import { exportBackupFile } from '../api/backupFile';
 import { fetchCloudBackup, saveCloudBackup } from '../api/cloudBackup';
@@ -62,7 +63,13 @@ export function useBackupExport(onExported: () => void) {
 
   const exportToFile = form.handleSubmit(({ key }) =>
     run('file', 'Не вдалося створити копію', async () => {
-      const json = await serializeBackup(getPurchases(), getInvestmentPlans(), key);
+      const json = await serializeBackup(
+        getPurchases(),
+        getInvestmentPlans(),
+        key,
+        getActivePlan()?.id,
+        getThemePreference(),
+      );
       // The share sheet is the outcome: the user saves or sends the file from there. Closed without
       // either, the screen stays, so the copy can be made again.
       const fileName = backupFileName();
@@ -90,10 +97,20 @@ export function useBackupExport(onExported: () => void) {
           'Замінити',
         ));
       if (!replace) return;
-      const json = await serializeBackup(getPurchases(), getInvestmentPlans(), key);
+      const json = await serializeBackup(
+        getPurchases(),
+        getInvestmentPlans(),
+        key,
+        getActivePlan()?.id,
+        getThemePreference(),
+      );
       const saved = await saveCloudBackup(signedIn, json);
       queryClient.setQueryData(cloudBackupQueryKey(signedIn.uid), saved);
-      showToast({ tone: 'success', title: 'Копію збережено в хмарі', message: signedIn.email });
+      showToast({
+        tone: 'success',
+        title: 'Копію збережено в хмарі',
+        message: signedIn.email ?? undefined,
+      });
       onExported();
     }),
   );

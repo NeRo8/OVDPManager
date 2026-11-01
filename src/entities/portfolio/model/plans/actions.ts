@@ -1,4 +1,9 @@
-import { type CouponGoal, type InvestmentPlan, PLAN_NAME_MAX_LENGTH } from '../plan';
+import {
+  type CouponGoal,
+  type InvestmentPlan,
+  PLAN_NAME_MAX_LENGTH,
+  uniquePlanName,
+} from '../plan';
 import type { PlanPurchase } from '../portfolio';
 import { copyPlanPurchases, removePlanPurchases, replacePurchases } from '../purchases';
 
@@ -33,8 +38,10 @@ const COPY_SUFFIX = ' (копія)';
 export function duplicateInvestmentPlan(id: string): string | undefined {
   const plan = usePlansStore.getState().plans.find((item) => item.id === id);
   if (!plan) return undefined;
-  const name =
-    plan.name.slice(0, PLAN_NAME_MAX_LENGTH - COPY_SUFFIX.length).trimEnd() + COPY_SUFFIX;
+  const name = uniquePlanName(
+    plan.name.slice(0, PLAN_NAME_MAX_LENGTH - COPY_SUFFIX.length).trimEnd() + COPY_SUFFIX,
+    usePlansStore.getState().plans,
+  );
   copyPlanPurchases(id, createInvestmentPlan(name, plan.goal));
   return name;
 }

@@ -12,12 +12,14 @@ import {
   worstTone,
 } from '@/entities/portfolio';
 
-import { formatDate, formatMoney, formatTimeLeft, round2 } from '@/shared/lib';
+import { formatDate, formatMoney, formatRateNumber, formatTimeLeft, round2 } from '@/shared/lib';
 
 export type PurchaseAssessment = { verdict: Verdict | null; hints: Hint[] };
 
 /** Percentage points below the key rate past which the purchase is a poor one. */
 const ERROR_GAP = 3;
+/** An extreme premium can reveal a mistyped amount even without the redemption schedule. */
+const MAX_INCOMPLETE_PRICE_MULTIPLE = 5;
 
 const VERDICT_TITLES = {
   success: 'Вигідна купівля',
@@ -30,6 +32,8 @@ const CHECK_AMOUNT: Verdict = { tone: 'warning', title: 'Перевірте су
 type Input = {
   bond: Bond;
   purchaseDate: string;
+  /** Today, to avoid projecting currently known market rates into the future. */
+  today: string;
   pricePerBond: number;
   /** All payments minus the amount paid; null while the payments are incomplete */
   netIncome: number | null;
@@ -51,11 +55,11 @@ type YieldInput = Pick<Input, 'annualYield' | 'netIncome' | 'isComplete'>;
  * loses. «—» while the payments are incomplete.
  */
 export function annualYieldText({ annualYield, netIncome, isComplete }: YieldInput): string {
-  if (annualYield !== null) return `${annualYield}%`;
+  if (annualYield !== null) return `${formatRateNumber(annualYield)}%`;
   if (!isComplete || netIncome === null) return '—';
   return netIncome >= 0
-    ? `понад ${ANNUAL_YIELD_RANGE.highest}%`
-    : `нижче ${ANNUAL_YIELD_RANGE.lowest}%`;
+    ? `понад ${formatRateNumber(ANNUAL_YIELD_RANGE.highest)}%`
+    : `нижче ${formatRateNumber(ANNUAL_YIELD_RANGE.lowest)}%`;
 }
 
 /** A yield no market price gives: most likely a typo in the amount or the quantity. */
@@ -99,7 +103,9 @@ function priceHint({ bond, pricePerBond, annualYield }: Input): Hint | null {
   if (gap === 0) return null;
   const difference = formatMoney(gap, bond.currency);
   const counted =
-    annualYield === null ? '' : ` Різницю вже враховано в річній дохідності (${annualYield}%).`;
+    annualYield === null
+      ? ''
+      : ` Різницю вже враховано в річній дохідності (${formatRateNumber(annualYield)}%).`;
   return {
     tone: 'info',
     text:
@@ -146,14 +152,44 @@ function verdictOf(hints: Hint[]): Verdict | null {
  */
 export function assessPurchase(input: Input): PurchaseAssessment {
   if (isImplausible(input)) return { verdict: CHECK_AMOUNT, hints: [implausibleHint(input)] };
-  const { bond, purchaseDate, annualYield, keyRate, bonds } = input;
+  if (
+    !input.isComplete &&
+    input.bond.nominal > 0 &&
+    input.pricePerBond > input.bond.nominal * MAX_INCOMPLETE_PRICE_MULTIPLE
+  ) {
+    return {
+      verdict: CHECK_AMOUNT,
+      hints: [
+        {
+          tone: 'warning',
+          text: 'Ціна однієї ОВДП більш ніж уп’ятеро перевищує номінал. Перевірте суму й кількість; без повного графіка виплат визначити дохідність неможливо.',
+        },
+      ],
+    };
+  }
+  const { bond, purchaseDate, today, annualYield, keyRate, bonds } = input;
+  const comparisonDate = purchaseDate > today ? today : purchaseDate;
+  const market = newBondsRate(bond, comparisonDate, bonds);
   const hints = sortHints([
     lossHint(input),
     annualYield === null ? null : keyRateHint(annualYield, keyRate, bond.currency, ERROR_GAP),
-    annualYield === null
-      ? null
-      : newBondsHint(annualYield, newBondsRate(bond, purchaseDate, bonds), bond.currency),
+    annualYield === null ? null : newBondsHint(annualYield, market, bond.currency),
     priceHint(input),
+    annualYield !== null && !market && (bond.currency !== 'UAH' || keyRate === null)
+      ? {
+          tone: 'info',
+          text:
+            bond.currency === 'UAH'
+              ? 'Облікова ставка НБУ недоступна, а нових ОВДП для порівняння недостатньо.'
+              : 'Немає доступних ринкових орієнтирів для порівняння дохідності.',
+        }
+      : null,
+    purchaseDate > today && annualYield !== null
+      ? {
+          tone: 'info',
+          text: 'Для запланованої купівлі порівняння використовує сьогоднішні ставки; до дати купівлі вони можуть змінитися.',
+        }
+      : null,
     ...otherHints(input),
   ]);
   return { verdict: verdictOf(hints), hints };

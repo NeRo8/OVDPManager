@@ -10,7 +10,6 @@ import { BondsGate } from '@/entities/portfolio';
 import { EmptyState, SectionCell, Typography, screenContent } from '@/shared/ui';
 
 import { BondChoiceRow } from './BondChoiceRow';
-import { SORT_LABELS, TERM_LABELS } from './bondFilterLabels';
 import { BondFiltersButton } from './BondFiltersButton';
 
 // The search field follows the app's theme, which may differ from the system one.
@@ -27,8 +26,7 @@ const HeaderSearchBar = withUnistyles(Stack.SearchBar, (theme) => ({
  * finds any bond by ISIN.
  */
 export default function BondPickerScreen() {
-  const { today, query, setQuery, isSearching, currency, term, sort, choices, owned } =
-    useBondPicker();
+  const { today, query, setQuery, isSearching, choices, owned } = useBondPicker();
 
   const search = (event: { nativeEvent: { text: string } }) => setQuery(event.nativeEvent.text);
   const clearSearch = () => setQuery('');
@@ -38,7 +36,7 @@ export default function BondPickerScreen() {
     <BondsGate>
       <Stack.Screen options={{ headerRight: () => <BondFiltersButton /> }} />
       <HeaderSearchBar
-        placeholder="Пошук за ISIN"
+        placeholder="ISIN, дата або ставка з %"
         autoCapitalize="characters"
         onChangeText={search}
         onCancelButtonPress={clearSearch}
@@ -52,12 +50,11 @@ export default function BondPickerScreen() {
         data={choices}
         keyExtractor={(bond) => bond.isin}
         ListHeaderComponent={
-          // The filters in use, as the list shows only what they let through.
-          <Typography variant="footnote" tone="secondary" style={styles.summary}>
-            {isSearching
-              ? `Знайдено: ${choices.length}`
-              : `${currency} · ${TERM_LABELS[term].toLowerCase()} · ${SORT_LABELS[sort].toLowerCase()} · ОВДП: ${choices.length}`}
-          </Typography>
+          isSearching ? (
+            <Typography variant="footnote" tone="secondary" style={styles.summary}>
+              {`Знайдено: ${choices.length}`}
+            </Typography>
+          ) : undefined
         }
         renderItem={({ item: bond, index }) => (
           <SectionCell index={index} count={choices.length}>
@@ -75,7 +72,7 @@ export default function BondPickerScreen() {
               layout="inline"
               icon="search-outline"
               title="ОВДП не знайдено"
-              message={`Немає ОВДП, номер якої містить «${query.trim()}». Пошук іде серед усіх ОВДП, без фільтрів, — перевірте ISIN.`}
+              message={`Немає ОВДП за запитом «${query.replace(/\s+/g, '')}». Пошук іде серед усіх ОВДП, без фільтрів. Для ставки додайте знак %.`}
             />
           ) : (
             <EmptyState

@@ -106,6 +106,14 @@ describe('holdOrSell', () => {
     expect(result?.sale?.saleResult).toBeCloseTo(200 + above * 2 - 1980, 2);
   });
 
+  it('uses the displayed price threshold for the verdict at the nearest kopeck', () => {
+    const threshold = assess()?.sellAbovePrice ?? 0;
+    expect(assess({ salePrice: threshold })?.verdict?.title).toBe('Вигідніше тримати');
+    expect(assess({ salePrice: Math.round((threshold + 0.01) * 100) / 100 })?.verdict?.title).toBe(
+      'Вигідніше продати',
+    );
+  });
+
   it('keeps below that price, and warns when selling there loses money', () => {
     const result = assess({ salePrice: 880 });
     expect(result?.verdict).toEqual({ tone: 'success', title: 'Вигідніше тримати' });
@@ -115,8 +123,20 @@ describe('holdOrSell', () => {
 
   it('asks to check a price no buyer would pay', () => {
     expect(assess({ salePrice: 10 })?.verdict?.title).toBe('Перевірте ціну');
-    expect(assess({ salePrice: 5000 })?.verdict?.title).toBe('Перевірте ціну');
     expect(assess({ salePrice: 10 })?.sale).toBeNull();
+  });
+
+  it('accepts a sale price that makes the buyer’s remaining yield negative', () => {
+    const result = assess({ salePrice: 1200 });
+    expect(result?.sale?.holdYield).toBeLessThan(0);
+    expect(result?.verdict?.title).toBe('Вигідніше продати');
+  });
+
+  it('accepts a high sale price even when the remaining yield is below the model range', () => {
+    const result = assess({ salePrice: 100000 });
+    expect(result?.sale?.holdYield).toBeNull();
+    expect(result?.verdict?.title).toBe('Вигідніше продати');
+    expect(result?.hints[0].text).toContain('нижче');
   });
 
   it('falls back to the key rate without new bonds, and to no verdict in another currency', () => {

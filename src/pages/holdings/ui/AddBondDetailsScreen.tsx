@@ -21,7 +21,7 @@ import {
 /** The chosen issue's terms and NBU payments before a purchase is entered. */
 export default function AddBondDetailsScreen() {
   const { isin } = useLocalSearchParams<{ isin: string }>();
-  const { byIsin, positions } = useWallet();
+  const { byIsin, positions, today } = useWallet();
   const bond = byIsin.get(isin);
   const owned = positions.find(({ position }) => position.isin === isin);
   const ownedQuantity = owned?.position.quantity ?? 0;
@@ -38,6 +38,19 @@ export default function AddBondDetailsScreen() {
         </BondsGate>
       </>
     );
+
+  const notes = [
+    ownedQuantity > 0 &&
+      `У гаманці вже є ${ownedQuantity} шт цієї ОВДП${plannedQuantity > 0 ? `, з них ${plannedQuantity} — заплановані купівлі` : ''}.`,
+    bond.maturityDate === today &&
+      'ОВДП погашається сьогодні; можна додати купівлю з минулою датою.',
+    bond.maturityDate < today && 'ОВДП уже погашена; можна додати купівлю з минулою датою.',
+    !bond.payments.some((payment) => payment.type === 'redemption') &&
+      'НБУ ще не опублікував погашення: розрахунки виплат неповні.',
+    'Дохідність залежить від ціни купівлі: її буде розраховано після введення суми й кількості.',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   const renderPayment = ({ item, index }: { item: BondPayment; index: number }) => (
     <SectionCell index={index} count={bond.payments.length}>
@@ -62,14 +75,7 @@ export default function AddBondDetailsScreen() {
             contentInsetAdjustmentBehavior="automatic"
             ListHeaderComponent={
               <View style={styles.header}>
-                <Section
-                  title="ОВДП"
-                  footer={
-                    ownedQuantity > 0
-                      ? `У гаманці вже є ${ownedQuantity} шт цієї ОВДП${plannedQuantity > 0 ? `, з них ${plannedQuantity} — заплановані купівлі` : ''}.`
-                      : undefined
-                  }
-                >
+                <Section title="ОВДП" footer={notes || undefined}>
                   <InfoRow label="ISIN" value={bond.isin} />
                 </Section>
                 <BondParameters bond={bond} />

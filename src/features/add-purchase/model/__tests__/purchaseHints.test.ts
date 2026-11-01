@@ -27,6 +27,7 @@ function assess(fields: Partial<Parameters<typeof assessPurchase>[0]> = {}) {
   return assessPurchase({
     bond: bondOf(),
     purchaseDate,
+    today: purchaseDate,
     pricePerBond: 1000,
     netIncome: 300,
     isComplete: true,
@@ -116,6 +117,21 @@ describe('assessPurchase', () => {
     expect(hints[0].text).toContain('НБУ ще не опублікував погашення');
   });
 
+  it('asks to check an extreme price even when redemption data is missing', () => {
+    const result = assess({
+      pricePerBond: 10000,
+      netIncome: null,
+      isComplete: false,
+      annualYield: null,
+    });
+    expect(result.verdict?.title).toBe('Перевірте суму');
+    expect(result.hints[0].text).toContain('без повного графіка виплат');
+    expect(
+      assess({ pricePerBond: 1000, netIncome: null, isComplete: false, annualYield: null }).verdict
+        ?.title,
+    ).toBe('Є на що звернути увагу');
+  });
+
   it('compares the yield with the bonds of its currency and term placed in the last 12 months', () => {
     const bonds = [
       bondOf({ rate: 15, issueDate: '2026-03-01' }),
@@ -130,14 +146,19 @@ describe('assessPurchase', () => {
     const below = assess({ annualYield: 14.5, keyRate: null, bonds });
     expect(below.verdict?.tone).toBe('warning');
     expect(below.hints[0].text).toBe(
-      'Річна дохідність 14.5% на 1.5 п.п. нижча за медіанну ставку купону (16%) 3 ОВДП у UAH зі строком 1–3 роки, розміщених за останні 12 місяців: нова ОВДП може дати більше.',
+      'Річна дохідність 14,5% на 1,5 п.п. нижча за медіанну ставку купону (16%) 3 ОВДП у UAH зі строком 1–3 роки, розміщених за останні 12 місяців: нова ОВДП може дати більше.',
     );
     expect(assess({ annualYield: 16.5, keyRate: null, bonds }).verdict?.tone).toBe('success');
   });
 
   it('leaves the bonds placed lately out when there are too few of them', () => {
     const bonds = [bondOf({ rate: 20, issueDate: '2026-06-01' })];
-    expect(assess({ annualYield: 16, keyRate: null, bonds }).hints).toEqual([]);
+    expect(assess({ annualYield: 16, keyRate: null, bonds }).hints).toEqual([
+      {
+        tone: 'info',
+        text: 'Облікова ставка НБУ недоступна, а нових ОВДП для порівняння недостатньо.',
+      },
+    ]);
   });
 
   it('compares a bond in another currency with new bonds only, not with the key rate', () => {
@@ -153,14 +174,29 @@ describe('assessPurchase', () => {
   });
 });
 
+it('explains unavailable comparisons and today’s rates for a future purchase', () => {
+  const result = assess({
+    purchaseDate: '2027-01-01',
+    today: '2026-10-29',
+    keyRate: null,
+    bonds: [],
+  });
+  expect(result.hints.map((hint) => hint.text)).toEqual(
+    expect.arrayContaining([
+      expect.stringContaining('Облікова ставка НБУ недоступна'),
+      expect.stringContaining('сьогоднішні ставки'),
+    ]),
+  );
+});
+
 describe('annualYieldText', () => {
   it('spells out the yield, and where it lies beyond what can be computed', () => {
-    expect(annualYieldText({ annualYield: 16.5, netIncome: 300, isComplete: true })).toBe('16.5%');
+    expect(annualYieldText({ annualYield: 16.5, netIncome: 300, isComplete: true })).toBe('16,5%');
     expect(annualYieldText({ annualYield: null, netIncome: 1300, isComplete: true })).toBe(
       'понад 1000%',
     );
     expect(annualYieldText({ annualYield: null, netIncome: -500, isComplete: true })).toBe(
-      'нижче -99%',
+      'нижче −99%',
     );
     expect(annualYieldText({ annualYield: null, netIncome: null, isComplete: false })).toBe('—');
   });

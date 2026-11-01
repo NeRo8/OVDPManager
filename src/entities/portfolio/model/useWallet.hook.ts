@@ -1,5 +1,8 @@
-import { todayISO } from '@/shared/lib';
+import { useQueryClient } from '@tanstack/react-query';
 
+import { showToast, useToday } from '@/shared/lib';
+
+import { keyRateQuery, keyRateYear } from '../api/keyRateQuery';
 import { useBonds } from '../api/useBonds.hook';
 
 import { useActivePlan } from './activePlan';
@@ -20,8 +23,23 @@ export function useActivePurchases() {
  */
 export function useWallet() {
   const { plan, purchases } = useActivePurchases();
-  const { bonds, byIsin, refresh } = useBonds();
-  return { ...buildWallet(purchases, byIsin, todayISO()), plan, bonds, refresh };
+  const { bonds, byIsin, refresh: refreshBonds } = useBonds();
+  const today = useToday();
+  const queryClient = useQueryClient();
+  const refresh = async () => {
+    const [, rate] = await Promise.allSettled([
+      refreshBonds(),
+      queryClient.fetchQuery({ ...keyRateQuery(keyRateYear(today)), staleTime: 0 }),
+    ]);
+    if (rate.status === 'rejected') {
+      showToast({
+        tone: 'error',
+        title: 'Не вдалося оновити облікову ставку',
+        message: 'Спробуйте ще раз.',
+      });
+    }
+  };
+  return { ...buildWallet(purchases, byIsin, today), plan, bonds, refresh };
 }
 
 /** The active plan's Wallet with the plan and the NBU catalog it came from. */

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { useCachedKeyRate } from './keyRate';
+import { useCachedKeyRate, useCachedKeyRateYears } from './keyRate';
 import { keyRateDate, keyRateQuery, keyRateYear } from './keyRateQuery';
 
 /**
@@ -12,4 +12,10 @@ export function useKeyRate(date: string): number | null {
   const rate = useCachedKeyRate(keyRateDate(date));
   useQuery(keyRateQuery(keyRateYear(date)));
   return rate;
+}
+
+/** When the rate for this date was last fetched, if a cache exists. */
+export function useKeyRateUpdatedAt(date: string): number | null {
+  const years = useCachedKeyRateYears();
+  return years[keyRateYear(date)]?.updatedAt ?? null;
 }

@@ -5,6 +5,7 @@ import {
   isRedeemed,
   maturesWithin,
   positionPayments,
+  pricePerBond,
   purchaseEvents,
 } from '../portfolio';
 
@@ -23,6 +24,11 @@ function bondOf(isin: string, maturityDate: string): Bond {
 
 const maturingToday = bondOf('UA4000000001', '2026-03-15');
 const today = '2026-03-15';
+
+it('does not divide by a zero quantity when displaying a price', () => {
+  expect(pricePerBond(1000, 0)).toBeNull();
+  expect(pricePerBond(1000, 2)).toBe(500);
+});
 
 it('identifies same-day top-ups consistently regardless of storage order', () => {
   const purchase = {
@@ -83,6 +89,13 @@ describe('bondChoices', () => {
       redeemed.isin,
       maturingToday.isin,
     ]);
+  });
+
+  it('finds bonds by maturity date and by a coupon rate with a percent sign', () => {
+    expect(bondChoices(bonds, '01.06.2026', today).map(({ isin }) => isin)).toEqual([sooner.isin]);
+    expect(
+      bondChoices([{ ...sooner, rate: 16.5 }, later], '16,5%', today).map(({ isin }) => isin),
+    ).toEqual([sooner.isin]);
   });
 });
 

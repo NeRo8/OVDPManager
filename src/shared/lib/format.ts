@@ -12,6 +12,11 @@ export function currencySign(currency: string): string {
   return CURRENCY_SIGNS[currency] ?? currency;
 }
 
+/** A rate or percentage-point value with Ukrainian punctuation. */
+export function formatRateNumber(value: number): string {
+  return String(value).replace('-', '−').replace('.', ',');
+}
+
 /** An amount without its currency, for tables whose heading names it: 10 200,50 */
 export function formatAmount(value: number): string {
   return numberFormat.format(value);
@@ -76,6 +81,11 @@ export function plural(n: number, one: string, few: string, many: string): strin
   if (mod10 === 1 && mod100 !== 11) return one;
   if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
   return many;
+}
+
+/** A single separator followed by three digits could mean decimals or thousands. */
+export function isAmbiguousAmount(text: string): boolean {
+  return /^[1-9]\d{0,2}[.,]\d{3}$/.test(text.replace(/\s/g, ''));
 }
 
 /** Parses a decimal comma or point, and grouped input such as "1,000.50". */

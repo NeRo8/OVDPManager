@@ -12,13 +12,14 @@ type Props = {
   upcoming: UpcomingPurchases;
   /** Names the currency in the title when the plan has several */
   showCurrency: boolean;
+  paymentsKnown: boolean;
 };
 
 /**
  * «Найближчі купівлі»: what to buy until the end of next month and the money for it. A tap on a
  * purchase opens it to confirm with what was really paid.
  */
-export function UpcomingPurchasesSection({ upcoming, showCurrency }: Props) {
+export function UpcomingPurchasesSection({ upcoming, showCurrency, paymentsKnown }: Props) {
   const { currency, through, purchases, amount, planMoney, ownMoney } = upcoming;
   const confirm = ({ isin, id }: PurchaseEvent) =>
     router.push({ pathname: '/add/[isin]/purchase', params: { isin, purchaseId: id } });
@@ -50,17 +51,23 @@ export function UpcomingPurchasesSection({ upcoming, showCurrency }: Props) {
       <InfoRow label="Разом" value={formatMoney(amount, currency)} />
       <InfoRow
         label="Виплати плану"
-        hint="Купони й погашення, що надійдуть за цей час"
-        value={formatMoney(planMoney, currency)}
+        hint={
+          paymentsKnown
+            ? 'Купони й погашення, що надійдуть за цей час'
+            : 'Немає повних даних НБУ для розрахунку'
+        }
+        value={paymentsKnown ? formatMoney(planMoney, currency) : '—'}
       />
       <InfoRow
         label="Власні кошти"
         hint={
-          ownMoney > 0
-            ? 'Скільки додати понад виплати плану'
-            : 'Виплат плану вистачає на ці купівлі'
+          !paymentsKnown
+            ? 'Буде розраховано, коли з’являться дані НБУ'
+            : ownMoney > 0
+              ? 'Скільки додати понад виплати плану'
+              : 'Виплат плану вистачає на ці купівлі'
         }
-        value={formatMoney(ownMoney, currency)}
+        value={paymentsKnown ? formatMoney(ownMoney, currency) : '—'}
       />
     </Section>
   );

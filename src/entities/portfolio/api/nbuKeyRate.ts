@@ -3,13 +3,9 @@ import { addDaysISO } from '@/shared/lib';
 
 import { fillDailyRates } from './dailyRates';
 
-/** A row of `/NBUStatService/v1/statdirectory/key?start=YYYYMMDD&end=YYYYMMDD&id_api=…&json`. */
 type NbuKeyRow = {
-  /** `YYYYMMDD` */
   dt: string;
-  /** `KEY_PolicyRate` for the key policy rate; overnight rates share the endpoint */
   id_api: string;
-  /** % a year */
   value: number;
 };
 
@@ -39,9 +35,9 @@ export async function fetchKeyRates(
 
   const rows = data
     .filter((row) => row.id_api === 'KEY_PolicyRate')
-    .map((row) => ({
-      date: `${row.dt.slice(0, 4)}-${row.dt.slice(4, 6)}-${row.dt.slice(6, 8)}`,
-      rate: row.value,
+    .map(({ dt, value }) => ({
+      date: `${dt.slice(0, 4)}-${dt.slice(4, 6)}-${dt.slice(6, 8)}`,
+      rate: value,
     }));
 
   return fillDailyRates(

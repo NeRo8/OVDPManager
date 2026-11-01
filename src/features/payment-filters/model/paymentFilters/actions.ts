@@ -11,7 +11,10 @@ export function updatePaymentFilters(patch: Partial<PaymentFilters>): void {
 export function togglePaymentFilterType(type: ScheduleEventType): void {
   usePaymentFiltersStore.setState(({ types }) => {
     const next = types.includes(type) ? types.filter((t) => t !== type) : [...types, type];
-    return { types: next.length === SCHEDULE_EVENT_TYPES.length ? [] : next };
+    return {
+      types: next.length === SCHEDULE_EVENT_TYPES.length ? [] : next,
+      excludeAllTypes: types.length === 1 && next.length === 0,
+    };
   });
 }
 

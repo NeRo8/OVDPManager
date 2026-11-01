@@ -1,6 +1,6 @@
 /** Government bonds (ОВДП) and portfolio calculations. */
 
-import { addMonthsISO, currencySign, round2 } from '@/shared/lib';
+import { addMonthsISO, currencySign, formatDate, round2 } from '@/shared/lib';
 
 /** Currencies of the NBU bonds, in the order the schedule lists them. */
 export const CURRENCIES = ['UAH', 'USD', 'EUR'] as const;
@@ -95,14 +95,20 @@ export type ScheduleEvent = PositionPayment | PurchaseEvent;
 
 /**
  * Bonds to pick a purchase from. Without a query: those that can still be bought today. With one:
- * every bond whose ISIN contains it, so a past purchase of a redeemed bond can be added too. Those
- * that can still be bought first, then by maturity.
+ * bonds matching its ISIN, maturity date or coupon rate with a percent sign, including redeemed
+ * bonds so a past purchase can be added. Those that can still be bought first, then by maturity.
  */
 export function bondChoices(bonds: Bond[], query: string, today: string): Bond[] {
   const normalizedQuery = query.replace(/\s+/g, '').toUpperCase();
+  const rateQuery = /^(\d+(?:[.,]\d+)?)%$/.exec(normalizedQuery);
   return bonds
     .filter((bond) =>
-      normalizedQuery ? bond.isin.includes(normalizedQuery) : canBuyOn(bond, today),
+      normalizedQuery
+        ? bond.isin.includes(normalizedQuery) ||
+          formatDate(bond.maturityDate).includes(normalizedQuery) ||
+          bond.maturityDate.includes(normalizedQuery) ||
+          (rateQuery !== null && bond.rate === Number(rateQuery[1].replace(',', '.')))
+        : canBuyOn(bond, today),
     )
     .sort((first, second) => {
       const firstActive = canBuyOn(first, today);
@@ -163,8 +169,10 @@ export function maturesWithin(
 }
 
 /** What one bond cost: the amount paid for the purchase (or the position) ÷ quantity. */
-export function pricePerBond(amount: number, quantity: number): number {
-  return round2(amount / quantity);
+export function pricePerBond(amount: number, quantity: number): number | null {
+  return quantity > 0 && Number.isFinite(quantity) && Number.isFinite(amount)
+    ? round2(amount / quantity)
+    : null;
 }
 
 /** The bond's currency from the NBU data; the purchase keeps its own for a bond missing there. */

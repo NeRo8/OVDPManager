@@ -1,4 +1,4 @@
-import { round2 } from '@/shared/lib';
+import { formatRateNumber, round2 } from '@/shared/lib';
 
 import type { Hint } from './hints';
 import { type NewBondsRate, newBondsLabel } from './market';
@@ -22,15 +22,15 @@ export function keyRateHint(
   if (gap > WARNING_GAP) {
     return {
       tone: errorGap !== undefined && gap > errorGap ? 'error' : 'warning',
-      text: `Річна дохідність ${annualYield}% на ${gap} п.п. нижча за облікову ставку НБУ (${keyRate}%): депозит чи нова ОВДП можуть дати більше.`,
+      text: `Річна дохідність ${formatRateNumber(annualYield)}% на ${formatRateNumber(gap)} п.п. нижча за облікову ставку НБУ (${formatRateNumber(keyRate)}%): депозит чи нова ОВДП можуть дати більше.`,
     };
   }
   return {
     tone: 'success',
     text:
       gap < 0
-        ? `Річна дохідність ${annualYield}% вища за облікову ставку НБУ (${keyRate}%).`
-        : `Річна дохідність ${annualYield}% близька до облікової ставки НБУ (${keyRate}%).`,
+        ? `Річна дохідність ${formatRateNumber(annualYield)}% вища за облікову ставку НБУ (${formatRateNumber(keyRate)}%).`
+        : `Річна дохідність ${formatRateNumber(annualYield)}% близька до облікової ставки НБУ (${formatRateNumber(keyRate)}%).`,
   };
 }
 
@@ -41,19 +41,19 @@ export function newBondsHint(
   currency: Currency,
 ): Hint | null {
   if (!newBonds) return null;
-  const rate = `(${newBonds.rate}%) ${newBondsLabel(newBonds, currency)}`;
+  const rate = `(${formatRateNumber(newBonds.rate)}%) ${newBondsLabel(newBonds, currency)}`;
   const gap = round2(newBonds.rate - annualYield);
   if (gap > WARNING_GAP) {
     return {
       tone: 'warning',
-      text: `Річна дохідність ${annualYield}% на ${gap} п.п. нижча за медіанну ставку купону ${rate}: нова ОВДП може дати більше.`,
+      text: `Річна дохідність ${formatRateNumber(annualYield)}% на ${formatRateNumber(gap)} п.п. нижча за медіанну ставку купону ${rate}: нова ОВДП може дати більше.`,
     };
   }
   return {
     tone: 'success',
     text:
       gap < 0
-        ? `Річна дохідність ${annualYield}% вища за медіанну ставку купону ${rate}.`
-        : `Річна дохідність ${annualYield}% близька до медіанної ставки купону ${rate}.`,
+        ? `Річна дохідність ${formatRateNumber(annualYield)}% вища за медіанну ставку купону ${rate}.`
+        : `Річна дохідність ${formatRateNumber(annualYield)}% близька до медіанної ставки купону ${rate}.`,
   };
 }

@@ -74,6 +74,12 @@ export default function PlanScreen() {
             key={item.currency}
             upcoming={item}
             showCurrency={upcoming.length > 1}
+            paymentsKnown={
+              !!bonds &&
+              wallet.positions.every(
+                (position) => position.currency !== item.currency || !!position.results?.complete,
+              )
+            }
           />
         ))}
         {plan.goal && <GoalCard wallet={wallet} goal={plan.goal} />}
@@ -138,13 +144,17 @@ export default function PlanScreen() {
                 />
                 <InfoRow
                   label="Дохідність за весь строк"
-                  hint="Чистий дохід у відсотках від вкладень за весь строк, без перерахунку на рік, податків і комісій"
+                  hint={
+                    total.incompleteCount > 0
+                      ? `Чистий дохід поділено на вкладення лише в ОВДП з опублікованим погашенням: ${formatMoney(total.published.invested, total.currency)}.`
+                      : 'Чистий дохід у відсотках від вкладень за весь строк, без перерахунку на рік, податків і комісій'
+                  }
                   value={total.returnPercent === null ? '—' : `${total.returnPercent}%`}
                 />
                 {total.annualYield !== null && (
                   <InfoRow
                     label="Річна дохідність"
-                    hint="Ціна купівлі й кожна виплата до погашення, перераховані на рік, — середня за ОВДП плану, зважена на суму купівель. Її можна порівнювати з депозитом і обліковою ставкою"
+                    hint={`Ціна купівлі й виплати до погашення, перераховані на рік; середня зважена на суму купівель.${total.withoutYieldCount ? ` Не враховано ОВДП без розрахованої дохідності: ${total.withoutYieldCount}.` : ''}`}
                     value={`${total.annualYield}%`}
                   />
                 )}

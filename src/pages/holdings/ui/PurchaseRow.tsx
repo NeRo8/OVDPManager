@@ -30,6 +30,7 @@ type Props = {
 export function PurchaseRow({ purchase, bond, today, onEdit, onDelete }: Props) {
   const currency = purchaseCurrency(purchase, bond);
   const isPlanned = isPlannedPurchase(purchase, today);
+  const price = pricePerBond(purchase.amount, purchase.quantity);
   const edit = () => onEdit(purchase);
   const remove = () => onDelete(purchase);
 
@@ -73,7 +74,7 @@ export function PurchaseRow({ purchase, bond, today, onEdit, onDelete }: Props) 
       )}
       <Typography variant="caption1" tone="secondary">
         {formatMoney(purchase.amount, currency)} · по{' '}
-        {formatMoney(pricePerBond(purchase.amount, purchase.quantity), currency)}
+        {price === null ? '—' : formatMoney(price, currency)}
       </Typography>
     </ListRow>
   );
