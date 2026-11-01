@@ -11,7 +11,7 @@ declare module '@tanstack/react-query' {
   }
 }
 
-/** After a failed request, screens opening soon after do not try again on their own. */
+/** Automatic refetches wait after a failed request; a manual retry remains available. */
 const RETRY_AFTER_MS = 5 * 60 * 1000;
 
 const notFailedRecently = (query: { state: { errorUpdatedAt: number } }) =>
@@ -38,6 +38,12 @@ export const queryClient = new QueryClient({
     },
   }),
   defaultOptions: {
-    queries: { retry: 1, refetchOnMount: notFailedRecently, retryOnMount: notFailedRecently },
+    queries: {
+      retry: 1,
+      refetchOnMount: notFailedRecently,
+      retryOnMount: notFailedRecently,
+      refetchOnWindowFocus: notFailedRecently,
+      refetchOnReconnect: notFailedRecently,
+    },
   },
 });

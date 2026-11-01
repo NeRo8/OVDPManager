@@ -14,14 +14,9 @@ type Props = {
 /** Gives the app the query client; stale queries refetch when the app comes back to the front. */
 export function QueryProvider({ children }: Props) {
   useEffect(() => {
-    const openApp = () => {
-      if (recordAppOpening()) {
-        void queryClient.invalidateQueries({ queryKey: ['nbu'] }, { cancelRefetch: false });
-      }
-    };
-    openApp();
+    recordAppOpening();
     const subscription = AppState.addEventListener('change', (status) => {
-      if (status === 'active') openApp();
+      if (status === 'active') recordAppOpening();
       focusManager.setFocused(status === 'active');
     });
     return () => subscription.remove();
