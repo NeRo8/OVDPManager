@@ -40,7 +40,6 @@ export default function PlanScreen() {
   const numberOfPurchases = purchases.length;
   const pullToRefresh = usePullToRefresh(refresh);
   const totals = resultsByCurrency(positions);
-  const unknownBonds = positions.filter((item) => !item.bond).length;
   // Totals come in CURRENCIES order.
   const currencies = totals.map((total) => total.currency);
   const [currency, setCurrency] = useOptionChoice(currencies);
@@ -96,7 +95,14 @@ export default function PlanScreen() {
                 onChange={setCurrency}
               />
             )}
-            <Section title={`Вкладення · ${total.currency}`}>
+            <Section
+              title={`Вкладення · ${total.currency}`}
+              footer={
+                total.withoutDataCount > 0
+                  ? `${total.withoutDataCount} ОВДП немає в даних НБУ: що вони коштували, тут враховано, а їхні виплати й дохід — ні.`
+                  : undefined
+              }
+            >
               <InfoRow
                 label="Вкладено"
                 hint="Скільки коштують усі купівлі плану"
@@ -161,11 +167,6 @@ export default function PlanScreen() {
               </Section>
             )}
           </>
-        )}
-        {unknownBonds > 0 && (
-          <Typography variant="caption1" tone="secondary" style={styles.intro}>
-            {unknownBonds} ОВДП немає в даних НБУ, тому їх не враховано в підсумку.
-          </Typography>
         )}
         <NbuSourceNote />
       </ScreenScrollView>

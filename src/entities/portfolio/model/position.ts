@@ -41,14 +41,17 @@ export type PositionResults = {
 };
 
 /**
- * The results of a currency's Positions summed up. The net income and the return over the term
- * cover only the Positions whose redemption NBU has published, so one still waiting for it does
- * not hide the rest; `complete` says whether that is all of them.
+ * The results of a currency's Positions summed up. `invested` is what all of them cost; the
+ * payments come from those in the NBU data, and the net income and the return over the term only
+ * from those whose redemption NBU has published, so one still waiting for it does not hide the
+ * rest. `complete` says whether every payment of every Position is known.
  */
 export type CurrencyResults = PositionResults & {
   currency: Currency;
   /** Positions whose redemption NBU has not published yet, left out of the net income */
   incompleteCount: number;
+  /** Positions missing from the NBU data: in `invested`, but with no payments */
+  withoutDataCount: number;
   /**
    * What the net income is worked out from: the cost and the payments of the Positions whose
    * redemption is published. They match `invested` and `totalPayments` when `complete`.
@@ -197,14 +200,16 @@ export function plannedPart(position: Position, today: string): WalletPosition['
 }
 
 /**
- * The results of the Positions summed up per currency, in `CURRENCIES` order. Positions missing
- * from the NBU data have none and are left out; a currency with none of the others is too.
+ * The results of the Positions summed up per currency, in `CURRENCIES` order, for every currency
+ * the Positions have. A Position missing from the NBU data adds what it cost and is counted in
+ * `withoutDataCount`; its payments are not known.
  */
 export function resultsByCurrency(positions: WalletPosition[]): CurrencyResults[] {
   return CURRENCIES.flatMap((currency): CurrencyResults[] => {
-    const known = positions.filter((item) => item.currency === currency && item.results);
+    const ofCurrency = positions.filter((item) => item.currency === currency);
+    if (!ofCurrency.length) return [];
+    const known = ofCurrency.filter((item) => item.results);
     const results = known.flatMap(({ results }) => (results ? [results] : []));
-    if (!results.length) return [];
     const sum = (items: PositionResults[], value: (item: PositionResults) => number) =>
       round2(items.reduce((total, item) => total + value(item), 0));
     const withRedemption = results.filter((item) => item.complete);
@@ -221,16 +226,19 @@ export function resultsByCurrency(positions: WalletPosition[]): CurrencyResults[
     return [
       {
         currency,
-        invested: sum(results, (item) => item.invested),
+        invested: round2(
+          ofCurrency.reduce((total, { position }) => total + position.investedAmount, 0),
+        ),
         coupons: sum(results, (item) => item.coupons),
         redemption: sum(results, (item) => item.redemption),
         received: sum(results, (item) => item.received),
         expected: sum(results, (item) => item.expected),
         totalPayments: sum(results, (item) => item.totalPayments),
-        complete: withRedemption.length === results.length,
+        complete: withRedemption.length === ofCurrency.length,
         netIncome,
         returnPercent,
         incompleteCount: results.length - withRedemption.length,
+        withoutDataCount: ofCurrency.length - known.length,
         published,
         annualYield: yieldWeight
           ? round2(
@@ -238,9 +246,7 @@ export function resultsByCurrency(positions: WalletPosition[]): CurrencyResults[
                 yieldWeight,
             )
           : null,
-        withoutYieldCount: positions.filter(
-          (item) => item.currency === currency && item.annualYield === null,
-        ).length,
+        withoutYieldCount: ofCurrency.filter((item) => item.annualYield === null).length,
       },
     ];
   });

@@ -140,16 +140,32 @@ describe('resultsByCurrency', () => {
     null,
   );
 
-  it('sums the Positions of each currency and leaves out those without the NBU data', () => {
+  it('sums the Positions of each currency, counting the cost of those without the NBU data', () => {
     const totals = resultsByCurrency([uah, unknown, usd, uah]);
     expect(totals.map(({ currency }) => currency)).toEqual(['UAH', 'USD']);
     expect(totals[0]).toMatchObject({
-      invested: 2000,
+      // 1 000 + 1 000 + 500 of the bond missing from the NBU data, whose payments are not known.
+      invested: 2500,
       totalPayments: 2400,
       netIncome: 400,
       returnPercent: 20,
+      complete: false,
+      withoutDataCount: 1,
     });
-    expect(totals[1]).toMatchObject({ invested: 950, netIncome: 250 });
+    expect(totals[1]).toMatchObject({ invested: 950, netIncome: 250, withoutDataCount: 0 });
+  });
+
+  it('keeps a currency whose every Position is missing from the NBU data', () => {
+    expect(resultsByCurrency([unknown])).toEqual([
+      expect.objectContaining({
+        currency: 'UAH',
+        invested: 500,
+        totalPayments: 0,
+        netIncome: null,
+        complete: false,
+        withoutDataCount: 1,
+      }),
+    ]);
   });
 
   it('counts the net income of the Positions whose redemption is published, and how many are not', () => {
