@@ -3,6 +3,8 @@ import { View } from 'react-native';
 
 import { StyleSheet } from 'react-native-unistyles';
 
+import { SkeletonBlock } from '../skeleton/SkeletonBlock';
+import { SkeletonGroup } from '../skeleton/SkeletonGroup';
 import { SignedValue } from '../typography/SignedValue';
 import { Typography } from '../typography/Typography';
 
@@ -10,13 +12,25 @@ export type InfoRowProps = {
   label: string;
   /** A short explanation of what the value means, on its own line under the row */
   hint?: string;
-  value: ReactNode;
+  /**
+   * Text: a string, or text components such as `Percent`, which take the row's value style.
+   * Ignored while `loadingLabel` is set.
+   */
+  value?: ReactNode;
   /** When present, the numeric result determines the value color. */
   signedValue?: number;
+  /** While set, a skeleton bar stands in for the value; screen readers read this instead. */
+  loadingLabel?: string;
 };
 
-function renderValue(value: ReactNode, signedValue?: number) {
-  if (typeof value !== 'string') return value;
+function renderValue({ value, signedValue, loadingLabel }: InfoRowProps) {
+  if (loadingLabel) {
+    return (
+      <SkeletonGroup label={loadingLabel}>
+        <SkeletonBlock width={120} height={14} />
+      </SkeletonGroup>
+    );
+  }
   if (signedValue !== undefined) {
     return (
       <SignedValue
@@ -37,14 +51,15 @@ function renderValue(value: ReactNode, signedValue?: number) {
   );
 }
 
-export function InfoRow({ label, hint, value, signedValue }: InfoRowProps) {
+export function InfoRow(props: InfoRowProps) {
+  const { label, hint } = props;
   return (
     <View style={styles.container}>
       <View style={styles.row}>
         <Typography variant="subhead" tone="secondary">
           {label}
         </Typography>
-        {renderValue(value, signedValue)}
+        {renderValue(props)}
       </View>
       {hint && (
         <Typography variant="caption1" tone="secondary">

@@ -1,22 +1,9 @@
 import { useCloudAccount } from '@/features/backup';
 
 import { formatDateTime } from '@/shared/lib';
-import { ActionRow, InfoRow, Section, SkeletonBlock, SkeletonGroup } from '@/shared/ui';
+import { ActionRow, InfoRow, Section } from '@/shared/ui';
 
-type BackupDateValueProps = {
-  isChecking: boolean;
-  failed: boolean;
-  exportedAt?: string;
-};
-
-function BackupDateValue({ isChecking, failed, exportedAt }: BackupDateValueProps) {
-  if (isChecking) {
-    return (
-      <SkeletonGroup label="Перевіряємо копію в хмарі…">
-        <SkeletonBlock width={120} height={14} />
-      </SkeletonGroup>
-    );
-  }
+function backupDateText(failed: boolean, exportedAt?: string): string {
   if (failed) return 'Не вдалося перевірити';
   if (exportedAt) return formatDateTime(exportedAt);
   return 'Ще немає';
@@ -58,13 +45,8 @@ export function CloudAccountSection() {
       {account.email && (
         <InfoRow
           label="Копія в хмарі"
-          value={
-            <BackupDateValue
-              isChecking={isCheckingBackup}
-              failed={backupCheckFailed}
-              exportedAt={cloudBackup?.exportedAt}
-            />
-          }
+          value={backupDateText(backupCheckFailed, cloudBackup?.exportedAt)}
+          loadingLabel={isCheckingBackup ? 'Перевіряємо копію в хмарі…' : undefined}
         />
       )}
       <ActionRow title="Вийти з акаунта" onPress={signOut} disabled={isBusy} />
