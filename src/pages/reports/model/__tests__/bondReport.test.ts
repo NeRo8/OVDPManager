@@ -1,7 +1,8 @@
 import { buildWallet } from '@/entities/portfolio';
 
 import { bondReport } from '../bondReport';
-import { bondPdf } from '../reportPdf';
+import { portfolioReport } from '../portfolioReport';
+import { bondPdf, portfolioPdf } from '../reportPdf';
 
 import { bond, plannedActiveWallet, plannedWallet } from './plannedWallet';
 
@@ -26,4 +27,19 @@ it('preserves an unknown bond without inventing NBU data', () => {
   expect(report.item.bond).toBeUndefined();
   const pdf = bondPdf({ ...plannedActiveWallet, ...wallet }, report);
   expect(pdf.sections[0].note).toContain('немає в даних НБУ');
+});
+
+it('shows an unavailable return as a dash in both PDFs', () => {
+  const purchase = { ...plannedWallet.purchases[0], amount: 0.001, quantity: 1 };
+  const wallet = buildWallet([purchase], new Map([[bond.isin, bond]]), plannedWallet.today);
+  const activeWallet = { ...plannedActiveWallet, ...wallet };
+  const bondDocument = bondPdf(activeWallet, bondReport(wallet, wallet.positions[0], () => null));
+  const portfolioDocument = portfolioPdf(activeWallet, 'Усі ОВДП', portfolioReport(wallet, 'all'));
+
+  for (const document of [bondDocument, portfolioDocument]) {
+    const summary = document.sections.find(({ title }) => title.startsWith('Підсумок'));
+    expect(summary?.summary?.find(({ label }) => label === 'Дохідність за весь строк')?.value).toBe(
+      '—',
+    );
+  }
 });

@@ -54,7 +54,10 @@ export function BondReportSummary({ report }: Props) {
                   label: 'Чистий дохід',
                   value: toned(results.netIncome, money(results.netIncome)),
                 },
-                { label: 'Дохідність за весь строк', value: `${results.returnPercent ?? 0}%` },
+                {
+                  label: 'Дохідність за весь строк',
+                  value: results.returnPercent === null ? '—' : `${results.returnPercent}%`,
+                },
               ]
             : []),
         ]

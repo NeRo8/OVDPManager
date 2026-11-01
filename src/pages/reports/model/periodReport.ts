@@ -88,8 +88,8 @@ function flows(events: ScheduleEvent[], today: string): Flows {
 
 function bondHighlights(bonds: BondReport[]): BondHighlights {
   const byYield = bonds
-    .filter((bond) => bond.annualYield !== null)
-    .sort((first, second) => (second.annualYield ?? 0) - (first.annualYield ?? 0));
+    .filter((bond): bond is BondReport & { annualYield: number } => bond.annualYield !== null)
+    .sort((first, second) => second.annualYield - first.annualYield);
   return {
     highestYield: byYield.length > 1 ? byYield[0] : undefined,
     lowestYield: byYield.length > 1 ? byYield.at(-1) : undefined,

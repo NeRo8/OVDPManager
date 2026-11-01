@@ -594,7 +594,7 @@ export function portfolioPdf(
                     hint: total.incompleteCount
                       ? `Розраховано від вкладень ${money(total.published.invested)} в ОВДП з опублікованим погашенням`
                       : undefined,
-                    value: `${total.returnPercent ?? 0}%`,
+                    value: total.returnPercent === null ? '—' : `${total.returnPercent}%`,
                   },
                 ]
               : []),
@@ -770,7 +770,9 @@ export function yieldPdf(wallet: ActiveWallet, scope: string, reports: CurrencyY
     sections: reports.flatMap((report): PdfSection[] => {
       const { currency, averageYield, averageRate, keyRate, bonds, withoutYield } = report;
       const gap = averageYield !== null && keyRate !== null ? averageYield - keyRate : null;
-      const withYield = bonds.filter((bond) => bond.annualYield !== null);
+      const withYield = bonds.filter(
+        (bond): bond is typeof bond & { annualYield: number } => bond.annualYield !== null,
+      );
       return [
         summary(
           titled('Річна дохідність', currency),
@@ -832,9 +834,9 @@ export function yieldPdf(wallet: ActiveWallet, scope: string, reports: CurrencyY
                   kind: 'bars' as const,
                   bars: yieldChartBonds(withYield).map((bond) => ({
                     label: bond.isin,
-                    value: bond.annualYield ?? 0,
+                    value: bond.annualYield,
                     detail: percent(bond.annualYield),
-                    color: ((bond.annualYield ?? 0) < 0 ? 'purchase' : 'coupon') as ChartColor,
+                    color: (bond.annualYield < 0 ? 'purchase' : 'coupon') as ChartColor,
                   })),
                 },
               },
@@ -931,7 +933,7 @@ export function bondPdf(wallet: ActiveWallet, report: SingleBondReport): ReportP
                 },
                 results.netIncome !== null && {
                   label: 'Дохідність за весь строк',
-                  value: `${results.returnPercent ?? 0}%`,
+                  value: results.returnPercent === null ? '—' : `${results.returnPercent}%`,
                 },
               ]
             : []),

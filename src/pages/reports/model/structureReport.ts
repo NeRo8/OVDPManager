@@ -89,10 +89,11 @@ export function structureReport(wallet: Wallet, purchases: StructurePurchases): 
   const currencies = CURRENCIES.flatMap((currency): CurrencyStructure[] => {
     const bonds = held.filter((item) => item.currency === currency);
     if (!bonds.length) return [];
-    const total = round2(bonds.reduce((sum, { amount }) => sum + amount, 0));
-    const shareOf = (amount: number) => round2((amount / total) * 100);
+    const totalAmount = bonds.reduce((sum, { amount }) => sum + amount, 0);
+    const total = round2(totalAmount);
+    const shareOf = (amount: number) => round2((amount / totalAmount) * 100);
     const weighted = (value: (bond: Bond) => number) =>
-      bonds.reduce((sum, { bond, amount }) => sum + value(bond) * amount, 0) / total;
+      bonds.reduce((sum, { bond, amount }) => sum + value(bond) * amount, 0) / totalAmount;
 
     return [
       {
@@ -106,8 +107,8 @@ export function structureReport(wallet: Wallet, purchases: StructurePurchases): 
         averageRate: round2(weighted((bond) => bond.rate)),
         terms: TERM_BUCKETS.map((term) => {
           const inTerm = bonds.filter(({ bond }) => termOf(bond, today) === term);
-          const amount = round2(inTerm.reduce((sum, item) => sum + item.amount, 0));
-          return { term, amount, share: shareOf(amount), count: inTerm.length };
+          const amount = inTerm.reduce((sum, item) => sum + item.amount, 0);
+          return { term, amount: round2(amount), share: shareOf(amount), count: inTerm.length };
         }),
         bonds: bonds
           .map(({ isin, bond, amount }) => ({ isin, bond, amount, share: shareOf(amount) }))

@@ -57,7 +57,7 @@ export function PortfolioSummary({ report }: Props) {
                   hint: total.incompleteCount
                     ? `Розраховано від вкладень ${money(total.published.invested)} в ОВДП з опублікованим погашенням`
                     : undefined,
-                  value: `${total.returnPercent ?? 0}%`,
+                  value: total.returnPercent === null ? '—' : `${total.returnPercent}%`,
                 },
               ]
             : []),
