@@ -10,7 +10,7 @@
 - `src/entities/portfolio/model/yield.ts` — `annualYield`, `amountForYield`, `ANNUAL_YIELD_RANGE`.
 - `src/entities/portfolio/model/market.ts` — `maturityTerm`, `NEW_BOND_MONTHS`, `MIN_NEW_BONDS`, `MAX_PLAUSIBLE_YIELD`, `newBondsRate`, `median`, `newBondsLabel`.
 - `src/entities/portfolio/model/hints.ts`, `src/entities/portfolio/model/yieldHints.ts` — `Hint`, `Verdict`, `sortHints`, `worstTone`, `keyRateHint`, `newBondsHint`.
-- `src/entities/portfolio/model/plan.ts` — `InvestmentPlan`, `CouponGoal`, `DEFAULT_PLAN_NAME`, `PLAN_NAME_MAX_LENGTH`; `src/entities/portfolio/model/counts.ts` — `purchaseCount`, `planCount`.
+- `src/entities/portfolio/model/plan.ts` — `InvestmentPlan`, `DEFAULT_PLAN_NAME`, `PLAN_NAME_MAX_LENGTH`; `src/entities/portfolio/model/counts.ts` — `purchaseCount`, `planCount`.
 - `src/entities/portfolio/model/useWallet.hook.ts` — `useActivePurchases`, `useWallet`.
 - `src/entities/portfolio/api/nbuBonds.ts` — як рядок НБУ стає `Bond` (детально — у `spec/data-and-sync.md`).
 - `src/shared/lib/number.ts` (`round2`), `src/shared/lib/date.ts` (дати), `src/shared/lib/format.ts` (гроші, множина, розбір сум).
@@ -55,11 +55,10 @@
 
 **DOM-16.** «Ціна 1 шт» = `round2(amount / quantity)` (`pricePerBond`). За недодатної кількості повертається `null`. `portfolio.ts`, `pricePerBond`.
 
-**DOM-17.** План — `InvestmentPlan { id, name, goal? }`. `goal` — `CouponGoal { currency, year, incomeYears, purchaseYears, monthly, reinvest }` («Ціль: купони на місяць»: валюта, перший з «Років купонів», скільки їх, скільки «Років купівель» перед ними, купони на кожен місяць, чи реінвестуються виплати років купівель; див. [features/coupon-goal.md](features/coupon-goal.md)). Назва плану — до `PLAN_NAME_MAX_LENGTH = 80` символів; запропонована назва першого плану — «Мій план» (`DEFAULT_PLAN_NAME`). `src/entities/portfolio/model/plan.ts`.
+**DOM-17.** План — `InvestmentPlan { id, name, isActive }`. Назва плану — до `PLAN_NAME_MAX_LENGTH = 80` символів; запропонована назва першого плану — «Мій план» (`DEFAULT_PLAN_NAME`). `src/entities/portfolio/model/plan.ts`.
 
 **DOM-18.** Купівлі плану — це всі `PlanPurchase` з його `planId`; окремого списку запланованих купівель немає. Гаманець будується з купівель активного плану (`useActivePurchases`: `purchase.planId === plan?.id`). Без жодного плану гаманець порожній. `src/entities/portfolio/model/useWallet.hook.ts`.
 
-**DOM-19.** `goal` задається лише під час створення плану (`createInvestmentPlan(name, goal)`), переходить у копію (`duplicateInvestmentPlan`, `createGoalPlan`), зберігається під час перейменування. Окремої дії змінити чи прибрати `goal` у плану немає. `src/entities/portfolio/model/plans/actions.ts`, `src/entities/portfolio/model/activePlan/actions.ts`.
 
 ### Позиція і право на виплати
 
@@ -224,7 +223,6 @@
 
 **GAP-DOM-05. Одна «погана» купівля обнуляє дохідність усієї позиції.** Якщо будь-яка купівля позиції дає `null` (наприклад, купівля без виплат після неї), `positionYield` повертає `null` для всієї позиції, хоча інші купівлі мають дохідність (DOM-30). Доказ: `position.ts`, `positionYield`. Серйозність: низька.
 
-**GAP-DOM-10. Ціль не можна змінити на місці.** Немає дії, що змінює чи прибирає `goal` плану (DOM-19); перерахунок цілі з «Плану з ціллю» робить копію копії (`createGoalPlan` копіює всі купівлі активного плану, разом із попередніми купівлями під ціль, і додає суфікс ще раз: «Мій план · ціль 2027 · ціль 2027»). Перевірити разом зі специфікацією цілі. Доказ: `src/entities/portfolio/model/activePlan/actions.ts`, `createGoalPlan`; `src/features/coupon-goal/model/useCouponGoal.hook.ts`. Серйозність: середня.
 
 **GAP-DOM-13. Мапінг відповіді НБУ без тестів.** Окремі тести вже перевіряють `round2`, межі `annualYield`, підказки, `isTopUp` і `nextPayment`. Сортування виплат і відкидання валют у мапінгу відповіді НБУ залишаються неперевіреними. Доказ: розділ «Покриття тестами». Серйозність: середня.
 

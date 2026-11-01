@@ -1,9 +1,4 @@
-import {
-  type CouponGoal,
-  type InvestmentPlan,
-  PLAN_NAME_MAX_LENGTH,
-  uniquePlanName,
-} from '../plan';
+import { type InvestmentPlan, PLAN_NAME_MAX_LENGTH, uniquePlanName } from '../plan';
 import type { PlanPurchase } from '../portfolio';
 import { copyPlanPurchases, removePlanPurchases, replacePurchases } from '../purchases';
 
@@ -13,13 +8,12 @@ function updatePlans(update: (current: InvestmentPlan[]) => InvestmentPlan[]): v
   usePlansStore.setState((state) => ({ plans: update(state.plans) }));
 }
 
-/** `name` comes from the plan-name form, already trimmed and checked; a goal plan brings its goal. */
-export function createInvestmentPlan(name: string, goal?: CouponGoal): string {
+/** `name` comes from the plan-name form, already trimmed and checked. */
+export function createInvestmentPlan(name: string): string {
   const plan: InvestmentPlan = {
     id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
     name,
     isActive: usePlansStore.getState().plans.length === 0,
-    ...(goal && { goal }),
   };
   updatePlans((plans) => [...plans, plan]);
   return plan.id;
@@ -32,7 +26,7 @@ export function renameInvestmentPlan(id: string, name: string): void {
 const COPY_SUFFIX = ' (копія)';
 
 /**
- * Copies the plan with all its purchases and its goal under the name «… (копія)», cut to fit the
+ * Copies the plan with all its purchases under the name «… (копія)», cut to fit the
  * name's limit.
  * The active plan stays as it was. Returns the copy's name.
  */
@@ -43,7 +37,7 @@ export function duplicateInvestmentPlan(id: string): string | undefined {
     plan.name.slice(0, PLAN_NAME_MAX_LENGTH - COPY_SUFFIX.length).trimEnd() + COPY_SUFFIX,
     usePlansStore.getState().plans,
   );
-  copyPlanPurchases(id, createInvestmentPlan(name, plan.goal));
+  copyPlanPurchases(id, createInvestmentPlan(name));
   return name;
 }
 

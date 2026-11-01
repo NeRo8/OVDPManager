@@ -14,12 +14,6 @@ export function addPurchase(purchase: Omit<PlanPurchase, 'id'>): PlanPurchase {
   return created;
 }
 
-export function addPurchases(purchases: Omit<PlanPurchase, 'id'>[]): void {
-  if (!purchases.length) return;
-  const created = purchases.map((purchase) => ({ ...purchase, id: newId() }));
-  updatePurchases((current) => [...current, ...created]);
-}
-
 export function removePurchase(id: string): void {
   updatePurchases((current) => {
     const index = current.findIndex((purchase) => purchase.id === id);

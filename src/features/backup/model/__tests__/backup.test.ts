@@ -22,16 +22,8 @@ const plans: InvestmentPlan[] = [
   { id: 'plan-1', name: 'Мій план', isActive: true },
   {
     id: 'plan-2',
-    name: 'Мій план · ціль 2029',
+    name: 'Другий план',
     isActive: false,
-    goal: {
-      currency: 'UAH',
-      year: 2029,
-      incomeYears: 2,
-      purchaseYears: 2,
-      monthly: 5000,
-      reinvest: true,
-    },
   },
 ];
 
@@ -68,7 +60,7 @@ describe('serializeBackup and parseBackup', () => {
     file = await serializeBackup(purchases, plans, KEY);
   });
 
-  it('gives back every plan, its goal and every purchase with the key', async () => {
+  it('gives back every plan and every purchase with the key', async () => {
     await expect(parseBackup(file, KEY)).resolves.toEqual({ purchases, plans });
   });
 

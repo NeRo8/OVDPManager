@@ -38,16 +38,6 @@ const contentsSchema = z.object({
     z.object({
       id: idSchema,
       name: z.string().trim().min(1),
-      goal: z
-        .object({
-          currency: currencySchema,
-          year: z.number().int().positive(),
-          incomeYears: z.number().int().positive(),
-          purchaseYears: z.number().int().positive(),
-          monthly: z.number().positive(),
-          reinvest: z.boolean(),
-        })
-        .optional(),
     }),
   ),
   holdings: z.array(

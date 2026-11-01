@@ -24,13 +24,12 @@ import {
 
 import { upcomingPurchases } from '../model/upcomingPurchases';
 
-import { GoalCard } from './GoalCard';
 import { UpcomingPurchasesSection } from './UpcomingPurchasesSection';
 
 /**
  * The plans tab: the active plan as a whole. First what to do next — the purchases until the end of
- * next month and the plan's goal — then its purchases (bought or planned) added up to what the plan
- * costs and earns over its whole term.
+ * next month, then its purchases (bought or planned) added up to what the plan costs and earns
+ * over its whole term.
  */
 export default function PlanScreen() {
   const wallet = useWallet();
@@ -82,7 +81,6 @@ export default function PlanScreen() {
             }
           />
         ))}
-        {plan.goal && <GoalCard wallet={wallet} goal={plan.goal} />}
 
         {/* The totals need the NBU data; without it this stands in their place. */}
         {numberOfPurchases > 0 && <BondsUnavailableCard />}

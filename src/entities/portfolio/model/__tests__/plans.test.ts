@@ -1,4 +1,4 @@
-import { createGoalPlan, getActivePlan, setActivePlan } from '../activePlan';
+import { getActivePlan, setActivePlan } from '../activePlan';
 import { uniquePlanName } from '../plan';
 import {
   createInvestmentPlan,
@@ -34,29 +34,13 @@ it('duplicates purchases without changing the active plan and uses distinct name
   expect(new Set(getPurchases().map((purchase) => purchase.id)).size).toBe(3);
 });
 
-it('creates a goal copy and falls back after its deletion', () => {
-  const id = createInvestmentPlan('План');
-  setActivePlan(id);
-  const goal = {
-    currency: 'UAH' as const,
-    year: 2028,
-    incomeYears: 1,
-    purchaseYears: 1,
-    monthly: 1000,
-    reinvest: false,
-  };
-  expect(
-    createGoalPlan(goal, [
-      { isin: 'UA1', currency: 'UAH', purchaseDate: '2027-01-01', amount: 1000, quantity: 1 },
-    ]),
-  ).toBe('План · ціль 2028');
-  const copy = getActivePlan();
-  expect(copy?.goal).toEqual(goal);
-  expect(getPurchases().filter((purchase) => purchase.planId === copy?.id)).toHaveLength(1);
-  removeInvestmentPlan(copy!.id);
-  expect(getActivePlan()?.id).toBe(id);
+it('falls back to the first plan after deleting the active plan', () => {
+  const first = createInvestmentPlan('Перший');
+  const second = createInvestmentPlan('Другий');
+  setActivePlan(second);
+  removeInvestmentPlan(second);
+  expect(getActivePlan()?.id).toBe(first);
   expect(getInvestmentPlans()).toHaveLength(1);
-  expect(getPurchases()).toHaveLength(0);
 });
 
 it('keeps exactly one active plan when switching plans', () => {

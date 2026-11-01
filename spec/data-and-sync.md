@@ -37,9 +37,9 @@
 
 **DATA-04.** Дії сховища купівель (`src/entities/portfolio/model/purchases/actions.ts`): `addPurchase` (новий `id` = `Date.now()` у base36 + `-` + 6 випадкових символів, додається в кінець), `removePurchase(id)` (прибирає першу з таким `id`), `updatePurchase(id, { purchaseDate, quantity, amount })` (змінює лише ці три поля; `currency`, `isin`, `planId` лишаються), `replacePurchases` (замінює все), `removePosition(planId, isin)`, `removePlanPurchases(planId)`, `copyPlanPurchases(from, to)` (копії з новими `id` додаються в кінець). Селектори: `usePurchases`, `getPurchases` — купівлі всіх планів.
 
-**DATA-05.** Дії сховища планів (`src/entities/portfolio/model/plans/actions.ts`): `createInvestmentPlan(name, goal?)` (id як у DATA-04, план — у кінець, повертає id), `renameInvestmentPlan`, `duplicateInvestmentPlan(id)` (назва = `name.slice(0, 80 − 8).trimEnd() + ' (копія)'`, копіює купівлі й `goal`, активний план не змінює, повертає назву або `undefined`), `removeInvestmentPlan(id)` (спершу купівлі плану, потім план), `restorePortfolio(purchases, plans)` (замінює обидва сховища). Назва перевіряється формою, сховище її не обрізає (крім суфіксів).
+**DATA-05.** Дії сховища планів (`src/entities/portfolio/model/plans/actions.ts`): `createInvestmentPlan(name)` (id як у DATA-04, план — у кінець, повертає id), `renameInvestmentPlan`, `duplicateInvestmentPlan(id)` (назва = `name.slice(0, 80 − 8).trimEnd() + ' (копія)'`, копіює купівлі, активний план не змінює, повертає назву або `undefined`), `removeInvestmentPlan(id)` (спершу купівлі плану, потім план), `restorePortfolio(purchases, plans)` (замінює обидва сховища). Назва перевіряється формою, сховище її не обрізає (крім суфіксів).
 
-**DATA-06.** Активний план визначається полем `isActive` у сховищі планів. Серед наявних планів активний рівно один; якщо планів немає, активний план — `undefined`. `setActivePlan` змінює ознаку в планах; невідомий id залишає поточний вибір. `createActivePlan(name)` створює план і робить його активним. `addPurchaseToActivePlan` і `removePositionFromActivePlan` без активного плану нічого не роблять. `createGoalPlan(goal, purchases)` копіює купівлі активного плану, додає нові та робить копію активною.
+**DATA-06.** Активний план визначається полем `isActive` у сховищі планів. Серед наявних планів активний рівно один; якщо планів немає, активний план — `undefined`. `setActivePlan` змінює ознаку в планах; невідомий id залишає поточний вибір. `createActivePlan(name)` створює план і робить його активним. `addPurchaseToActivePlan` і `removePositionFromActivePlan` без активного плану нічого не роблять.
 
 **DATA-07.** Після видалення активного плану активним стає перший із решти. Резервні копії зберігають `activePlanId` у форматі версії 6; при відновленні копії без нього активним стає перший план.
 
@@ -89,7 +89,7 @@
 
 ## Стани
 
-**DATA-26.** `BondsGate` (вибір ОВДП, деталі ОВДП, форма купівлі, екран цілі): показує вміст, щойно `bonds` не `null`. Інакше: без помилки — `LoadingState` (скелет) з підписом «Завантажуємо дані НБУ…»; з помилкою — `EmptyState` з іконкою `cloud-offline-outline`, заголовком «Немає зв’язку з НБУ», текстом помилки й кнопкою «Спробувати ще раз» (ручний `refresh`). `src/entities/portfolio/ui/BondsGate.tsx`, `BondsUnavailable.tsx`.
+**DATA-26.** `BondsGate` (вибір ОВДП, деталі ОВДП, форма купівлі): показує вміст, щойно `bonds` не `null`. Інакше: без помилки — `LoadingState` (скелет) з підписом «Завантажуємо дані НБУ…»; з помилкою — `EmptyState` з іконкою `cloud-offline-outline`, заголовком «Немає зв’язку з НБУ», текстом помилки й кнопкою «Спробувати ще раз» (ручний `refresh`). `src/entities/portfolio/ui/BondsGate.tsx`, `BondsUnavailable.tsx`.
 
 **DATA-27.** `WalletGate` (гаманець, «Виплати»): якщо в активному плані немає купівель — `EmptyWallet` («Гаманець порожній», «Додайте ОВДП за її номером (ISIN), датою купівлі та сумою — і побачите виплати купонів.», кнопки «Додати ОВДП» → `/add` і «Відновити з копії» → `/backup/import`); інакше — `BondsGate` (DATA-26). Порожній план перевіряється раніше, ніж наявність даних НБУ. `WalletGate.tsx`, `EmptyWallet.tsx`.
 
@@ -119,7 +119,7 @@
 - `src/entities/portfolio/api/__tests__/dailyRates.test.ts`: DATA-13 (заповнення пропусків, помилка без рядка до першого дня).
 - `src/entities/portfolio/api/__tests__/keyRate.test.ts`: DATA-16 (день року, день після `throughDate`, незавантажений рік).
 
-**Без тестів:** DATA-01…DATA-12, DATA-14, DATA-15, DATA-17…DATA-31: мапінг відповідей НБУ, ключі сховищ, дії сховищ (`duplicateInvestmentPlan` з обрізанням назви, `createGoalPlan`, запасний активний план), параметри запитів, правило 5 хвилин, сповіщення про помилку, стани охоронців.
+**Без тестів:** DATA-01…DATA-12, DATA-14, DATA-15, DATA-17…DATA-31: мапінг відповідей НБУ, ключі сховищ, дії сховищ (`duplicateInvestmentPlan` з обрізанням назви, запасний активний план), параметри запитів, правило 5 хвилин, сповіщення про помилку, стани охоронців.
 
 ## Прогалини й питання
 
