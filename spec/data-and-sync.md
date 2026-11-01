@@ -24,19 +24,19 @@
 
 **DATA-03.** Збережені сховища, їхні ключі й вигляд:
 
-| Ключ MMKV                | Сховище                                     | Вигляд стану                                                                        | Початковий стан                    |
-| ------------------------ | ------------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------- |
-| `holdings-v1`            | `entities/portfolio/model/purchases`        | `{ purchases: PlanPurchase[] }`                                                     | `{ purchases: [] }`                |
-| `investment-plan-v1`     | `entities/portfolio/model/plans`            | `{ plans: InvestmentPlan[] }`                                                       | `{ plans: [] }`                    |
-| `active-plan-v1`         | `entities/portfolio/model/activePlan`       | `{ activePlanId: string \| null }`                                                  | `{ activePlanId: null }`           |
-| `nbu-bonds-v1`           | `entities/portfolio/api/bonds`              | `{ bonds: Bond[] \| null; updatedAt: number \| null }` (мс)                         | `{ bonds: null, updatedAt: null }` |
-| `nbu-key-rate-v1`        | `entities/portfolio/api/keyRate`            | `{ byYear: Record<рік, { rates: Record<дата, %>; throughDate; updatedAt }> }`       | `{ byYear: {} }`                   |
-| `nbu-exchange-rates-v1`  | `entities/portfolio/api/exchangeRate`       | `{ byCurrencyYear: Record<'USD-2025' \| …, { rates; throughDate; updatedAt }> }`    | `{ byCurrencyYear: {} }`           |
-| `payment-filters-v1`     | `features/payment-filters/…/paymentFilters` | `{ types; time: 'all' \| 'upcoming' \| 'past'; currency; isins }`                   | див. сховище                       |
-| `bond-picker-filters-v1` | `features/add-purchase/…/bondPickerFilters` | `{ currency; term; sort: 'maturity' \| 'rate' }`                                    | див. сховище                       |
-| `report-filters-v1`      | `features/report-filters/…/reportFilters`   | фільтри кожного звіту за назвою (`year`, `fx`, `period`, `yearOverYear`, …, `bond`) | див. сховище                       |
-| `onboarding-v1`          | `features/onboarding/model/onboarding`      | `{ isCompleted: boolean }`                                                          | `{ isCompleted: false }`           |
-| `theme-preference-v1`    | `shared/config/appSettings`                 | `{ preference, lastOpenedAt }`; дата `today` лише в пам’яті                     | тема `system`, дата запуску, `lastOpenedAt: null`         |
+| Ключ MMKV                | Сховище                                     | Вигляд стану                                                                        | Початковий стан                                   |
+| ------------------------ | ------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `holdings-v1`            | `entities/portfolio/model/purchases`        | `{ purchases: PlanPurchase[] }`                                                     | `{ purchases: [] }`                               |
+| `investment-plan-v1`     | `entities/portfolio/model/plans`            | `{ plans: InvestmentPlan[] }`                                                       | `{ plans: [] }`                                   |
+| `active-plan-v1`         | `entities/portfolio/model/activePlan`       | `{ activePlanId: string \| null }`                                                  | `{ activePlanId: null }`                          |
+| `nbu-bonds-v1`           | `entities/portfolio/api/bonds`              | `{ bonds: Bond[] \| null; updatedAt: number \| null }` (мс)                         | `{ bonds: null, updatedAt: null }`                |
+| `nbu-key-rate-v1`        | `entities/portfolio/api/keyRate`            | `{ byYear: Record<рік, { rates: Record<дата, %>; throughDate; updatedAt }> }`       | `{ byYear: {} }`                                  |
+| `nbu-exchange-rates-v1`  | `entities/portfolio/api/exchangeRate`       | `{ byCurrencyYear: Record<'USD-2025' \| …, { rates; throughDate; updatedAt }> }`    | `{ byCurrencyYear: {} }`                          |
+| `payment-filters-v1`     | `features/payment-filters/…/paymentFilters` | `{ types; time: 'all' \| 'upcoming' \| 'past'; currency; isins }`                   | див. сховище                                      |
+| `bond-picker-filters-v1` | `features/add-purchase/…/bondPickerFilters` | `{ currency; term; sort: 'maturity' \| 'rate' }`                                    | див. сховище                                      |
+| `report-filters-v1`      | `features/report-filters/…/reportFilters`   | фільтри кожного звіту за назвою (`year`, `fx`, `period`, `yearOverYear`, …, `bond`) | див. сховище                                      |
+| `onboarding-v1`          | `features/onboarding/model/onboarding`      | `{ isCompleted: boolean }`                                                          | `{ isCompleted: false }`                          |
+| `theme-preference-v1`    | `shared/config/appSettings`                 | `{ preference, lastOpenedAt }`; дата `today` лише в пам’яті                         | тема `system`, дата запуску, `lastOpenedAt: null` |
 
 **DATA-04.** Дії сховища купівель (`src/entities/portfolio/model/purchases/actions.ts`): `addPurchase` (новий `id` = `Date.now()` у base36 + `-` + 6 випадкових символів, додається в кінець), `removePurchase(id)` (прибирає першу з таким `id`), `updatePurchase(id, { purchaseDate, quantity, amount })` (змінює лише ці три поля; `currency`, `isin`, `planId` лишаються), `replacePurchases` (замінює все), `removePosition(planId, isin)`, `removePlanPurchases(planId)`, `copyPlanPurchases(from, to)` (копії з новими `id` додаються в кінець). Селектори: `usePurchases`, `getPurchases` — купівлі всіх планів.
 

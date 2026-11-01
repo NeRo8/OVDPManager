@@ -33,7 +33,10 @@ it('shows an unavailable return as a dash in both PDFs', () => {
   const purchase = { ...plannedWallet.purchases[0], amount: 0.001, quantity: 1 };
   const wallet = buildWallet([purchase], new Map([[bond.isin, bond]]), plannedWallet.today);
   const activeWallet = { ...plannedActiveWallet, ...wallet };
-  const bondDocument = bondPdf(activeWallet, bondReport(wallet, wallet.positions[0], () => null));
+  const bondDocument = bondPdf(
+    activeWallet,
+    bondReport(wallet, wallet.positions[0], () => null),
+  );
   const portfolioDocument = portfolioPdf(activeWallet, 'Усі ОВДП', portfolioReport(wallet, 'all'));
 
   for (const document of [bondDocument, portfolioDocument]) {
