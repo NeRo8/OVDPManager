@@ -15,6 +15,28 @@ export type InfoRowProps = {
   signedValue?: number;
 };
 
+function renderValue(value: ReactNode, signedValue?: number) {
+  if (typeof value !== 'string') return value;
+  if (signedValue !== undefined) {
+    return (
+      <SignedValue
+        value={signedValue}
+        variant="subhead"
+        weight="medium"
+        style={styles.value}
+        selectable
+      >
+        {value}
+      </SignedValue>
+    );
+  }
+  return (
+    <Typography variant="subhead" weight="medium" style={styles.value} selectable>
+      {value}
+    </Typography>
+  );
+}
+
 export function InfoRow({ label, hint, value, signedValue }: InfoRowProps) {
   return (
     <View style={styles.container}>
@@ -22,25 +44,7 @@ export function InfoRow({ label, hint, value, signedValue }: InfoRowProps) {
         <Typography variant="subhead" tone="secondary">
           {label}
         </Typography>
-        {typeof value === 'string' ? (
-          signedValue === undefined ? (
-            <Typography variant="subhead" weight="medium" style={styles.value} selectable>
-              {value}
-            </Typography>
-          ) : (
-            <SignedValue
-              value={signedValue}
-              variant="subhead"
-              weight="medium"
-              style={styles.value}
-              selectable
-            >
-              {value}
-            </SignedValue>
-          )
-        ) : (
-          value
-        )}
+        {renderValue(value, signedValue)}
       </View>
       {hint && (
         <Typography variant="caption1" tone="secondary">

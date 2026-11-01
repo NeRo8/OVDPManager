@@ -51,14 +51,12 @@ export function ToastView({ toast }: Props) {
         <ThemedIcon
           name={TONE_ICONS[toast.tone]}
           size={24}
-          uniProps={(theme) => ({
-            color:
-              toast.tone === 'error'
-                ? theme.danger
-                : toast.tone === 'success'
-                  ? theme.positive
-                  : theme.accent,
-          })}
+          uniProps={(theme) => {
+            let color = theme.accent;
+            if (toast.tone === 'error') color = theme.danger;
+            if (toast.tone === 'success') color = theme.positive;
+            return { color };
+          }}
         />
         <View style={styles.text}>
           <Typography variant="subhead" weight="semibold">

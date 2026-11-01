@@ -14,6 +14,12 @@ type Props = {
   currency: Currency;
 };
 
+function stateTone(state: PortfolioBond['state']) {
+  if (state === 'unknown') return 'warning';
+  if (state === 'planned') return 'accent';
+  return 'secondary';
+}
+
 /**
  * One bond of the wallet: where it stands, its rate and yield, what it cost and pays, its net
  * income over the term and its share of what the currency's bonds cost.
@@ -36,7 +42,7 @@ export function PortfolioBondRow({ bond: row, currency }: Props) {
       aside={
         <Typography
           variant="caption1"
-          tone={state === 'unknown' ? 'warning' : state === 'planned' ? 'accent' : 'secondary'}
+          tone={stateTone(state)}
           tabular
         >
           {bondStateLabel(state, bond?.maturityDate)}

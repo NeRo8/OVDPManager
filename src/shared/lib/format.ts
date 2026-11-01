@@ -17,6 +17,13 @@ export function formatRateNumber(value: number): string {
   return String(value).replace('-', '−').replace('.', ',');
 }
 
+/** A plus or minus prefix for signed values; zero has no prefix. */
+export function signPrefix(value: number): string {
+  if (value > 0) return '+';
+  if (value < 0) return '−';
+  return '';
+}
+
 /** An amount without its currency, for tables whose heading names it: 10 200,50 */
 export function formatAmount(value: number): string {
   return numberFormat.format(value);

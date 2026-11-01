@@ -25,6 +25,17 @@ const SEGMENT_GAP = 2;
 const MIN_SEGMENT = 3;
 const TICK_WIDTH = 52;
 
+function formatShortValue(value: number, valueFormat: ChartValueFormat, step: number) {
+  if (valueFormat === 'percent') return `${formatGridTick(value, step)} %`;
+  if (value < 0) return `−${formatCompact(-value)}`;
+  return formatCompact(value);
+}
+
+function columnValueLabel(positive: number, negative: number, format: (value: number) => string) {
+  if (positive > 0 && negative > 0) return '';
+  return format(positive > 0 ? positive : -negative);
+}
+
 type Props = {
   columns: ChartColumn[];
   series: ChartSeries[];
@@ -51,12 +62,7 @@ export function HorizontalColumnChart({
   const unit = Math.max(0, plotWidth - PLOT_INSET * 2) / (grid.max - grid.min);
   const xOf = (value: number) => PLOT_INSET + (value - grid.min) * unit;
   const baseline = xOf(0);
-  const formatShort = (value: number) =>
-    valueFormat === 'percent'
-      ? `${formatGridTick(value, grid.step)} %`
-      : value < 0
-        ? `−${formatCompact(-value)}`
-        : formatCompact(value);
+  const formatShort = (value: number) => formatShortValue(value, valueFormat, grid.step);
 
   return (
     <View style={styles.chart}>
@@ -201,7 +207,7 @@ export function HorizontalColumnChart({
               numberOfLines={1}
               style={styles.value}
             >
-              {positive > 0 && negative > 0 ? '' : formatShort(positive > 0 ? positive : -negative)}
+              {columnValueLabel(positive, negative, formatShort)}
             </Typography>
           );
         })}

@@ -8,6 +8,7 @@ import {
   formatDate,
   formatDaysLeft,
   formatMoney,
+  signPrefix,
   todayISO,
 } from '@/shared/lib';
 import { SERIES_COLORS, type SeriesColor } from '@/shared/theme';
@@ -19,6 +20,8 @@ const KINDS = {
   coupon: 'Купон',
   redemption: 'Погашення',
 } as const;
+
+const purchaseKind = (isTopUp: boolean) => (isTopUp ? 'Докупівля' : 'Купівля');
 
 /** Same colors as the schedule chart. */
 const SERIES = {
@@ -45,7 +48,7 @@ export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
   const isPaid = !isPurchase && event.isPaid;
   const isUpcoming = !isPurchase && !event.isPaid;
   const signedTotal = isPurchase ? -event.total : event.total;
-  const sign = signedTotal > 0 ? '+' : signedTotal < 0 ? '−' : '';
+  const sign = signPrefix(signedTotal);
   const tone = isPaid ? 'secondary' : 'primary';
   const planned = isPurchase
     ? event.date > todayISO() && 'заплановано'
@@ -54,7 +57,7 @@ export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
         ? 'заплановано'
         : `${event.plannedQuantity} з ${event.quantity} шт заплановано`);
   const kind = [
-    isPurchase ? (event.isTopUp ? 'Докупівля' : 'Купівля') : KINDS[event.type],
+    isPurchase ? purchaseKind(event.isTopUp) : KINDS[event.type],
     // A no-break space keeps "10 шт" on one line.
     (showQuantity || isPurchase) && `${event.quantity} шт`,
     isPaid && 'отримано',

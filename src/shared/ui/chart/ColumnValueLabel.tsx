@@ -17,6 +17,18 @@ type Props = {
   bottom?: number;
 };
 
+function labelPosition(isFirst: boolean, isLast: boolean, left: DimensionValue) {
+  if (isFirst) return styles.start;
+  if (isLast) return styles.end;
+  return { left, marginLeft: -VALUE_WIDTH / 2 };
+}
+
+function labelAlign(isFirst: boolean, isLast: boolean) {
+  if (isFirst) return 'left' as const;
+  if (isLast) return 'right' as const;
+  return 'center' as const;
+}
+
 /** The selected column's sum, just past the end of its stack. */
 export function ColumnValueLabel({ text, column, count, top, bottom }: Props) {
   const isFirst = column === 0;
@@ -29,7 +41,7 @@ export function ColumnValueLabel({ text, column, count, top, bottom }: Props) {
       style={[
         styles.box,
         { top, bottom },
-        isFirst ? styles.start : isLast ? styles.end : { left, marginLeft: -VALUE_WIDTH / 2 },
+        labelPosition(isFirst, isLast, left),
       ]}
     >
       <Typography
@@ -37,7 +49,7 @@ export function ColumnValueLabel({ text, column, count, top, bottom }: Props) {
         weight="semibold"
         tabular
         numberOfLines={1}
-        align={isFirst ? 'left' : isLast ? 'right' : 'center'}
+        align={labelAlign(isFirst, isLast)}
       >
         {text}
       </Typography>

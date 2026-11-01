@@ -7,7 +7,12 @@ import { useUnistyles } from 'react-native-unistyles';
 
 import { useIsOnboardingCompleted } from '@/features/onboarding';
 
-import { isPlannedPurchase, useActivePurchases, useInvestmentPlans } from '@/entities/portfolio';
+import {
+  isPlannedPurchase,
+  type Purchase,
+  useActivePurchases,
+  useInvestmentPlans,
+} from '@/entities/portfolio';
 
 import { QueryProvider } from '@/shared/api';
 import { useToday } from '@/shared/config';
@@ -25,6 +30,24 @@ const filtersModal = (fallback: Href) =>
 
 // LaunchSplash hides the native splash once it covers the screen; until then nothing shows through.
 SplashScreen.preventAutoHideAsync();
+
+type PurchaseScreenTitleParams = {
+  purchases: Purchase[];
+  isin?: string;
+  purchaseId?: string;
+  today: string;
+};
+
+function purchaseScreenTitle({ purchases, isin, purchaseId, today }: PurchaseScreenTitleParams) {
+  const position = purchases.filter((purchase) => purchase.isin === isin);
+  if (purchaseId) {
+    return position.some((purchase) => purchase.id === purchaseId)
+      ? 'Змінити купівлю'
+      : 'Купівлі немає';
+  }
+  if (position.some((purchase) => !isPlannedPurchase(purchase, today))) return 'Докупити ОВДП';
+  return 'Додати купівлю';
+}
 
 export default function RootLayout() {
   const { theme, rt } = useUnistyles();
@@ -79,15 +102,7 @@ export default function RootLayout() {
                       isin?: string;
                       purchaseId?: string;
                     };
-                    const position = purchases.filter((purchase) => purchase.isin === isin);
-                    const title = purchaseId
-                      ? position.some((purchase) => purchase.id === purchaseId)
-                        ? 'Змінити купівлю'
-                        : 'Купівлі немає'
-                      : position.some((purchase) => !isPlannedPurchase(purchase, today))
-                        ? 'Докупити ОВДП'
-                        : 'Додати купівлю';
-                    return { title };
+                    return { title: purchaseScreenTitle({ purchases, isin, purchaseId, today }) };
                   }}
                 />
                 <NativeStack.Screen

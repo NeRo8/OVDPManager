@@ -37,6 +37,21 @@ type BondTab = 'purchases' | 'payments';
 const isPurchase = (row: BondRow): row is Purchase => 'purchaseDate' in row;
 const keyOf = (row: BondRow) => (isPurchase(row) ? row.id : `${row.date}-${row.type}`);
 
+function assessmentMessage(hasBond: boolean, onlyPlannedPurchases: boolean, matured: boolean) {
+  if (!hasBond) return 'Оцінка недоступна без даних НБУ.';
+  if (onlyPlannedPurchases) return 'Оцінка з’явиться для зроблених купівель.';
+  if (matured) return 'Оцінка недоступна від дня погашення ОВДП.';
+  return 'Оцінка недоступна без опублікованого погашення.';
+}
+
+function emptyPaymentsMessage(hasBond: boolean, paymentCount: number) {
+  if (!hasBond)
+    return 'Цієї ОВДП немає в даних НБУ, тож графіка виплат немає. Він з’явиться, щойно дані оновляться.';
+  if (paymentCount > 0)
+    return 'Усі виплати за графіком НБУ припадають на дати до купівлі, тож цій купівлі вони не належать.';
+  return 'НБУ ще не опублікував графік виплат цієї ОВДП.';
+}
+
 /**
  * A bond in the wallet: its terms, result and whether to keep or sell it, with purchases and
  * payments on separate tabs.
@@ -136,13 +151,11 @@ export default function BondScreen() {
                 <Typography variant="footnote" tone="secondary">
                   {assessment
                     ? 'Немає достатньо даних для порівняння дохідності з ринковими орієнтирами.'
-                    : !bond
-                      ? 'Оцінка недоступна без даних НБУ.'
-                      : position.purchases.every((purchase) => purchase.purchaseDate > today)
-                        ? 'Оцінка з’явиться для зроблених купівель.'
-                        : bond.maturityDate <= today
-                          ? 'Оцінка недоступна від дня погашення ОВДП.'
-                          : 'Оцінка недоступна без опублікованого погашення.'}
+                    : assessmentMessage(
+                        !!bond,
+                        position.purchases.every((purchase) => purchase.purchaseDate > today),
+                        bond ? bond.maturityDate <= today : false,
+                      )}
                 </Typography>
               </Card>
             )}
@@ -155,13 +168,7 @@ export default function BondScreen() {
             layout="inline"
             icon={bond ? 'calendar-outline' : 'cloud-offline-outline'}
             title={bond ? 'Виплат немає' : 'Немає даних НБУ'}
-            message={
-              bond
-                ? bond.payments.length
-                  ? 'Усі виплати за графіком НБУ припадають на дати до купівлі, тож цій купівлі вони не належать.'
-                  : 'НБУ ще не опублікував графік виплат цієї ОВДП.'
-                : 'Цієї ОВДП немає в даних НБУ, тож графіка виплат немає. Він з’явиться, щойно дані оновляться.'
-            }
+            message={emptyPaymentsMessage(!!bond, bond?.payments.length ?? 0)}
           />
         }
         ListFooterComponent={

@@ -7,6 +7,12 @@ type Props = Omit<TypographyProps, 'tone'> & {
 
 /** Signed values are green above zero, red below zero, and neutral at zero. */
 export function SignedValue({ value, ...props }: Props) {
-  const tone = value > 0 ? 'success' : value < 0 ? 'danger' : 'primary';
+  const tone = toneOf(value);
   return <Typography {...props} tone={tone} />;
+}
+
+function toneOf(value: number) {
+  if (value > 0) return 'success';
+  if (value < 0) return 'danger';
+  return 'primary';
 }

@@ -14,18 +14,20 @@ type BondChoiceRowProps = {
   onPress: () => void;
 };
 
+function maturityLabel(bond: Bond, today: string) {
+  if (canBuyOn(bond, today))
+    return `до ${formatDate(bond.maturityDate)} · ${formatTimeLeft(today, bond.maturityDate)}`;
+  if (isRedeemed(bond, today)) return `погашена ${formatDate(bond.maturityDate)}`;
+  return 'погашається сьогодні';
+}
+
 /**
  * A bond to choose: its currency's badge, as in the wallet, when it matures and what is owned on
  * the left, what it pays on the right.
  */
 export function BondChoiceRow({ bond, today, owned, onPress }: BondChoiceRowProps) {
-  const isActive = canBuyOn(bond, today);
   const details = [
-    isActive
-      ? `до ${formatDate(bond.maturityDate)} · ${formatTimeLeft(today, bond.maturityDate)}`
-      : isRedeemed(bond, today)
-        ? `погашена ${formatDate(bond.maturityDate)}`
-        : 'погашається сьогодні',
+    maturityLabel(bond, today),
     owned && `у гаманці ${ownedLabel(owned.quantity, owned.planned)}`,
   ]
     .filter(Boolean)

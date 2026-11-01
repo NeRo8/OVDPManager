@@ -1,6 +1,6 @@
 import type { ExchangeCurrency } from '@/entities/portfolio';
 
-import { currencySign, formatDate, formatMoney } from '@/shared/lib';
+import { currencySign, formatDate, formatMoney, signPrefix } from '@/shared/lib';
 import { SERIES_COLORS } from '@/shared/theme';
 import { Avatar, ListRow, SignedValue, Typography } from '@/shared/ui';
 
@@ -18,7 +18,7 @@ const rateFormat = new Intl.NumberFormat('uk-UA', {
 export function FxEventRow({ event, currency }: Props) {
   const isPurchase = event.type === 'purchase';
   const signedEquivalent = isPurchase ? -event.equivalent : event.equivalent;
-  const sign = signedEquivalent > 0 ? '+' : signedEquivalent < 0 ? '−' : '';
+  const sign = signPrefix(signedEquivalent);
   return (
     <ListRow
       // The flow is in hryvnia; the badge takes its type's color, as in the payments' rows.

@@ -75,12 +75,11 @@ function columnChart(chart: Extract<PdfChart, { kind: 'columns' }>): string {
 }
 
 /** The class that colors a value by its sign, as `SignedValue`: none at zero. */
-const toneOf = (signed: number | null | undefined) =>
-  signed === undefined || signed === null || signed === 0
-    ? ''
-    : signed > 0
-      ? 'positive'
-      : 'negative';
+const toneOf = (signed: number | null | undefined) => {
+  if (signed === undefined || signed === null || signed === 0) return '';
+  if (signed > 0) return 'positive';
+  return 'negative';
+};
 
 function barChart(chart: Extract<PdfChart, { kind: 'bars' }>): string {
   const max = Math.max(1, ...chart.bars.map(({ value }) => Math.abs(value)));
@@ -175,16 +174,16 @@ function renderItems(section: PdfSection): string {
 }
 
 function renderSection(section: PdfSection): string {
-  const content =
-    section.layout === 'chart' && section.chart
-      ? renderChart(section.chart)
-      : section.layout === 'summary'
-        ? renderSummary(section)
-        : section.layout === 'items'
-          ? renderItems(section)
-          : renderTable(section);
+  const content = renderSectionContent(section);
   return `<section><h2>${escapeHtml(section.title)}</h2><div class="card ${section.layout ?? 'table'}">${content}</div>
     ${section.note ? `<p class="note">${escapeHtml(section.note)}</p>` : ''}</section>`;
+}
+
+function renderSectionContent(section: PdfSection) {
+  if (section.layout === 'chart' && section.chart) return renderChart(section.chart);
+  if (section.layout === 'summary') return renderSummary(section);
+  if (section.layout === 'items') return renderItems(section);
+  return renderTable(section);
 }
 
 /** Escapes plan names and report data before passing HTML to the native PDF renderer. */

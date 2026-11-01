@@ -28,6 +28,7 @@ const base = defineConfig([
       'import/namespace': 'off',
       'import/default': 'off',
       'import/no-named-as-default-member': 'off',
+      'no-nested-ternary': 'error',
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
@@ -69,7 +70,7 @@ function importOrder(aliases) {
         {
           groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
           pathGroups: [
-            { pattern: '{react,react-native}', group: 'builtin', position: 'before' },
+            { pattern: '{react,react-native}', group: 'external', position: 'before' },
             ...aliases,
           ],
           pathGroupsExcludedImportTypes: [],

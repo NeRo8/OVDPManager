@@ -146,8 +146,13 @@ function saleHints(
       text: `За ${price} продаж дасть збиток ${formatMoney(-sale.saleResult, currency)}: виплати й ціна не повернуть вкладене.${shouldSell ? ' Водночас за цим орієнтиром нове вкладення може заробити більше до погашення.' : ''}`,
     });
   }
-  const verdict = benchmark ? (shouldSell ? SELL : HOLD) : null;
+  const verdict = benchmark ? saleVerdict(shouldSell) : null;
   return { verdict, hints: [...hints, ...yieldHints] };
+}
+
+function saleVerdict(shouldSell: boolean): Verdict {
+  if (shouldSell) return SELL;
+  return HOLD;
 }
 
 /**

@@ -304,6 +304,42 @@ export function periodPdf(
 const highlightHint = (row: { year: number; forecast: boolean }) =>
   `${row.year} рік${row.forecast ? ', прогноз' : ''}`;
 
+function yearsScope(years: number[], firstYear: number, lastYear: number) {
+  if (years.length === 0) return 'Роки плану';
+  if (firstYear === lastYear) return String(firstYear);
+  return `${firstYear} – ${lastYear}`;
+}
+
+function plannedMark(payment: { quantity: number; plannedQuantity: number }) {
+  if (payment.plannedQuantity === 0) return '';
+  if (payment.plannedQuantity === payment.quantity) return ' · заплановано';
+  return ` · ${payment.plannedQuantity} з ${payment.quantity} шт заплановано`;
+}
+
+function fxEventName(type: 'purchase' | 'coupon' | 'redemption') {
+  if (type === 'purchase') return 'Купівля';
+  if (type === 'coupon') return 'Купон';
+  return 'Погашення';
+}
+
+function redemptionCell(
+  results: { complete: boolean; redemption: number } | null | undefined,
+  money: (value: number) => string,
+) {
+  if (!results) return '—';
+  if (results.complete) return money(results.redemption);
+  return 'Немає повних даних НБУ';
+}
+
+function fxBondNote(bond: FxReport['bonds'][number], fxMoney: (value: number) => string) {
+  const opening = `Вкладено від першої купівлі: ${fxMoney(bond.invested)} · Отримано виплатами: ${fxMoney(bond.received)}`;
+  if (!bond.hasBondData)
+    return `${opening} · ОВДП немає в даних НБУ: її залишок умовно дорівнює сумі купівлі, виплати невідомі.`;
+  if (bond.result === null)
+    return `${opening} · ОВДП ще не погашена або дані про погашення неповні. Остаточний валютний результат не визначено.`;
+  return `${opening} · Результат: ${fxMoney(bond.result)}`;
+}
+
 /** Every year side by side, as the year-over-year screen shows them. */
 export function yearsPdf(wallet: ActiveWallet, reports: CurrencyYears[]): ReportPdf {
   const years = reports.flatMap((report) => report.years.map(({ year }) => year));
@@ -311,12 +347,7 @@ export function yearsPdf(wallet: ActiveWallet, reports: CurrencyYears[]): Report
   const lastYear = Math.max(...years);
   return {
     title: 'Звіт від року до року',
-    scope:
-      years.length === 0
-        ? 'Роки плану'
-        : firstYear === lastYear
-          ? String(firstYear)
-          : `${firstYear} – ${lastYear}`,
+    scope: yearsScope(years, firstYear, lastYear),
     fileStem: 'year-over-year',
     wallet,
     sections: reports.flatMap((report): PdfSection[] => {
@@ -447,13 +478,6 @@ export function yearsPdf(wallet: ActiveWallet, reports: CurrencyYears[]): Report
 
 const describePayment = (payment: { isin: string; date: string }) =>
   `${payment.isin} · ${formatDate(payment.date)}`;
-
-const plannedMark = (payment: { quantity: number; plannedQuantity: number }) =>
-  payment.plannedQuantity === 0
-    ? ''
-    : payment.plannedQuantity === payment.quantity
-      ? ' · заплановано'
-      : ` · ${payment.plannedQuantity} з ${payment.quantity} шт заплановано`;
 
 export function redemptionsPdf(
   wallet: ActiveWallet,
@@ -650,11 +674,7 @@ export function portfolioPdf(
             money(bond.invested),
             bond.planned > 0 && bond.planned < bond.invested ? money(bond.planned) : '—',
             bond.results ? money(bond.results.coupons) : '—',
-            bond.results
-              ? bond.results.complete
-                ? money(bond.results.redemption)
-                : 'Немає повних даних НБУ'
-              : '—',
+            redemptionCell(bond.results, money),
             bond.results?.netIncome == null ? '—' : money(bond.results.netIncome),
             bond.investedShare === null ? '—' : shareCell(bond.investedShare),
           ]),
@@ -1130,17 +1150,13 @@ export function fxPdf(
               columns: ['Дата', 'Подія', 'Сума, ₴', 'Курс НБУ', `Еквівалент, ${currency}`],
               rows: bond.events.map((event) => [
                 formatDate(event.date),
-                event.type === 'purchase'
-                  ? 'Купівля'
-                  : event.type === 'coupon'
-                    ? 'Купон'
-                    : 'Погашення',
+                fxEventName(event.type),
                 amountCell(event.amount),
                 `${rateFormat.format(event.rate)} ₴/${currency}`,
                 amountCell(event.equivalent),
               ]),
               layout: 'items',
-              note: `Вкладено від першої купівлі: ${fxMoney(bond.invested)} · Отримано виплатами: ${fxMoney(bond.received)}${!bond.hasBondData ? ' · ОВДП немає в даних НБУ: її залишок умовно дорівнює сумі купівлі, виплати невідомі.' : bond.result === null ? ' · ОВДП ще не погашена або дані про погашення неповні. Остаточний валютний результат не визначено.' : ` · Результат: ${fxMoney(bond.result)}`}`,
+              note: fxBondNote(bond, fxMoney),
             })),
           ],
   };

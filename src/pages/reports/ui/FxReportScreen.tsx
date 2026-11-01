@@ -30,6 +30,29 @@ import { ReportSectionHeader } from './ReportSectionHeader';
 
 type FxSection = FxBond & { data: FxEvent[] };
 
+type FxEmptyStateProps = { loading: boolean; error: string | null; retry: () => void };
+
+function FxEmptyState({ loading, error, retry }: FxEmptyStateProps) {
+  if (loading) return <LoadingState message="Завантажуємо курси НБУ…" />;
+  return (
+    <EmptyState
+      icon="cloud-offline-outline"
+      title="Немає курсів НБУ"
+      message={error ?? 'НБУ не повернув курс на всі дати купівель і виплат.'}
+    >
+      <Button title="Спробувати ще раз" onPress={() => void retry()} />
+    </EmptyState>
+  );
+}
+
+function bondFooter(section: FxSection) {
+  if (!section.hasBondData)
+    return 'ОВДП немає в даних НБУ: її залишок умовно дорівнює сумі купівлі, виплати невідомі.';
+  if (section.result === null)
+    return 'ОВДП ще не погашена або дані про погашення неповні. Остаточний валютний результат не визначено.';
+  return undefined;
+}
+
 /** Past UAH bond cash flows for all time or one year, converted at each event's NBU rate. */
 export default function FxReportScreen() {
   const { wallet, narrowed, filters, activeFilterCount } = useReport('fx');
@@ -48,13 +71,7 @@ export default function FxReportScreen() {
     >
       <Section
         title={section.isin}
-        footer={
-          !section.hasBondData
-            ? 'ОВДП немає в даних НБУ: її залишок умовно дорівнює сумі купівлі, виплати невідомі.'
-            : section.result === null
-              ? 'ОВДП ще не погашена або дані про погашення неповні. Остаточний валютний результат не визначено.'
-              : undefined
-        }
+        footer={bondFooter(section)}
       >
         <InfoRow
           label="Вкладено від першої купівлі"
@@ -93,17 +110,7 @@ export default function FxReportScreen() {
         }}
       />
       {report === null ? (
-        loading ? (
-          <LoadingState message="Завантажуємо курси НБУ…" />
-        ) : (
-          <EmptyState
-            icon="cloud-offline-outline"
-            title="Немає курсів НБУ"
-            message={error ?? 'НБУ не повернув курс на всі дати купівель і виплат.'}
-          >
-            <Button title="Спробувати ще раз" onPress={() => void retry()} />
-          </EmptyState>
-        )
+        <FxEmptyState loading={loading} error={error} retry={retry} />
       ) : (
         <ReportList
           wallet={{ ...wallet, refresh }}

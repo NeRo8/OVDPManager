@@ -1,6 +1,6 @@
 import { CURRENCY_NAMES, type Currency } from '@/entities/portfolio';
 
-import { MONTHS_SHORT, currencySign, formatAmount } from '@/shared/lib';
+import { MONTHS_SHORT, currencySign, formatAmount, signPrefix } from '@/shared/lib';
 
 import type { Flows } from '../model/periodReport';
 
@@ -11,7 +11,7 @@ export const amountCell = (value: number) => (value ? formatAmount(value) : '—
 export const changeCell = (change: number | null) => {
   if (change === null) return '—';
   const rounded = Math.round(change);
-  return `${rounded > 0 ? '+' : rounded < 0 ? '−' : ''}${Math.abs(rounded)}%`;
+  return `${signPrefix(rounded)}${Math.abs(rounded)}%`;
 };
 
 /** A share in whole percent; one that rounds to zero still shows it is there. */
@@ -20,7 +20,7 @@ export const shareCell = (share: number) => (share < 0.5 ? '<1%' : `${Math.round
 /** A difference of rates in percentage points with its sign: +1.3 п.п., −0.4 п.п. */
 export const pointsCell = (difference: number) => {
   const rounded = Math.round(difference * 10) / 10;
-  return `${rounded > 0 ? '+' : rounded < 0 ? '−' : ''}${Math.abs(rounded)} п.п.`;
+  return `${signPrefix(rounded)}${Math.abs(rounded)} п.п.`;
 };
 
 export const FLOW_COLUMNS = ['Купівлі', 'Купони', 'Погашення'];

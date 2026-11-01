@@ -79,12 +79,8 @@ const FITTERS: { [R in ReportName]: Fitter<R> } = {
       ? Math.min(...pastPurchases.map((purchase) => Number(purchase.purchaseDate.slice(0, 4))))
       : currentYear;
     const years: ReportYears = { firstYear, lastYear: currentYear, defaultYear: currentYear };
-    const year =
-      saved.year === null
-        ? null
-        : saved.year >= firstYear && saved.year <= currentYear
-          ? saved.year
-          : years.defaultYear;
+    let year = saved.year;
+    if (year !== null && (year < firstYear || year > currentYear)) year = years.defaultYear;
     return {
       filters: {
         currency: 'UAH',

@@ -81,7 +81,7 @@ export default function PlanNameScreen() {
   const openBackupImport = () => router.push('/backup/import');
   const header = (
     <Stack.Screen
-      options={{ title: planId ? 'Назва плану' : isFirst ? 'Перший план' : 'Новий план' }}
+      options={{ title: planTitle(planId, isFirst) }}
     />
   );
 
@@ -152,6 +152,12 @@ export default function PlanNameScreen() {
       )}
     </FormScrollView>
   );
+}
+
+function planTitle(planId: string | undefined, isFirst: boolean) {
+  if (planId) return 'Назва плану';
+  if (isFirst) return 'Перший план';
+  return 'Новий план';
 }
 
 const styles = StyleSheet.create((theme) => ({

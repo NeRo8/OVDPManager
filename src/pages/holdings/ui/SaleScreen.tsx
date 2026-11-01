@@ -12,6 +12,18 @@ import { useSaleForm } from '../model/useSaleForm.hook';
 import { HintsSection } from './HintsSection';
 import { SalePricesSection } from './SalePricesSection';
 
+function unavailableReason(
+  hasBond: boolean,
+  hasPosition: boolean,
+  onlyPlannedPurchases: boolean,
+  matured: boolean,
+) {
+  if (!hasBond) return 'Цієї ОВДП немає в даних НБУ.';
+  if (!hasPosition || onlyPlannedPurchases) return 'У плані немає зроблених купівель цієї ОВДП.';
+  if (matured) return 'День погашення ОВДП уже настав, тому продаж не розраховується.';
+  return 'НБУ ще не опублікував погашення цієї ОВДП.';
+}
+
 /**
  * Selling a bond of the wallet today at the price a bank or a broker quotes, against keeping it
  * to maturity. Opened from the bond card's header; the price is not saved.
@@ -25,16 +37,12 @@ export default function SaleScreen() {
       <EmptyState
         icon="cash-outline"
         title="Продаж не порахувати"
-        message={
-          !bond
-            ? 'Цієї ОВДП немає в даних НБУ.'
-            : !position ||
-                position.purchases.every((purchase) => isPlannedPurchase(purchase, today))
-              ? 'У плані немає зроблених купівель цієї ОВДП.'
-              : bond.maturityDate <= today
-                ? 'День погашення ОВДП уже настав, тому продаж не розраховується.'
-                : 'НБУ ще не опублікував погашення цієї ОВДП.'
-        }
+        message={unavailableReason(
+          !!bond,
+          !!position,
+          position?.purchases.every((purchase) => isPlannedPurchase(purchase, today)) ?? false,
+          bond ? bond.maturityDate <= today : false,
+        )}
       />
     );
   }

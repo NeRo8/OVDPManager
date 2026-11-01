@@ -2,6 +2,18 @@ const NICE_STEPS = [1, 2, 2.5, 5, 10];
 const MAX_ROWS = 8;
 const MAX_COLUMNS = 6;
 
+function tickDivisor(absolute: number, step: number) {
+  if (absolute >= 1_000_000 && step >= 50_000) return 1_000_000;
+  if (absolute >= 1_000 && step >= 50) return 1_000;
+  return 1;
+}
+
+function tickUnit(divisor: number) {
+  if (divisor === 1_000_000) return ' млн';
+  if (divisor === 1_000) return ' тис';
+  return '';
+}
+
 function niceStep(atLeast: number): number {
   const magnitude = 10 ** Math.floor(Math.log10(atLeast));
   return NICE_STEPS.find((multiple) => multiple * magnitude >= atLeast)! * magnitude;
@@ -46,12 +58,7 @@ export function gridBoundaries(count: number): number[] {
 /** Keep adjacent tick labels distinct even when the step is fractional. */
 export function formatGridTick(value: number, step: number): string {
   const absolute = Math.abs(value);
-  const divisor =
-    absolute >= 1_000_000 && step >= 50_000
-      ? 1_000_000
-      : absolute >= 1_000 && step >= 50
-        ? 1_000
-        : 1;
+  const divisor = tickDivisor(absolute, step);
   const scaledStep = step / divisor;
   let fractionDigits = 0;
   while (
@@ -64,6 +71,6 @@ export function formatGridTick(value: number, step: number): string {
   const number = new Intl.NumberFormat('uk-UA', {
     maximumFractionDigits: fractionDigits,
   }).format(absolute / divisor);
-  const unit = divisor === 1_000_000 ? ' млн' : divisor === 1_000 ? ' тис' : '';
+  const unit = tickUnit(divisor);
   return `${value < 0 ? '−' : ''}${number}${unit}`;
 }

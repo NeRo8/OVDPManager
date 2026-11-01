@@ -15,6 +15,12 @@ type Props = {
   paymentsKnown: boolean;
 };
 
+function ownMoneyHint(paymentsKnown: boolean, ownMoney: number) {
+  if (!paymentsKnown) return 'Буде розраховано, коли з’являться дані НБУ';
+  if (ownMoney > 0) return 'Скільки додати понад виплати плану';
+  return 'Виплат плану вистачає на ці купівлі';
+}
+
 /**
  * «Найближчі купівлі»: what to buy until the end of next month and the money for it. A tap on a
  * purchase opens it to confirm with what was really paid.
@@ -60,13 +66,7 @@ export function UpcomingPurchasesSection({ upcoming, showCurrency, paymentsKnown
       />
       <InfoRow
         label="Власні кошти"
-        hint={
-          !paymentsKnown
-            ? 'Буде розраховано, коли з’являться дані НБУ'
-            : ownMoney > 0
-              ? 'Скільки додати понад виплати плану'
-              : 'Виплат плану вистачає на ці купівлі'
-        }
+        hint={ownMoneyHint(paymentsKnown, ownMoney)}
         value={paymentsKnown ? formatMoney(ownMoney, currency) : '—'}
       />
     </Section>

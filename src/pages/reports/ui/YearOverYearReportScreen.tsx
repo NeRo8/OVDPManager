@@ -26,6 +26,27 @@ import { YearsIncomeBars } from './YearsIncomeBars';
 import { YearsMoneyChart } from './YearsMoneyChart';
 import { YearsResultsTable } from './YearsResultsTable';
 
+function EmptyYears({ filtered }: { filtered: boolean }) {
+  if (filtered) {
+    return (
+      <EmptyState
+        layout="inline"
+        icon="funnel-outline"
+        title="Купівель і виплат немає"
+        message="Обрані у фільтрах валюта чи ОВДП не мають жодної купівлі чи виплати. Змініть фільтри."
+      />
+    );
+  }
+  return (
+    <EmptyState
+      layout="inline"
+      icon="calendar-outline"
+      title="Купівель і виплат немає"
+      message="У плані ще немає купівель, тож і років для порівняння немає. Додайте ОВДП у гаманці."
+    />
+  );
+}
+
 /**
  * Every year of the active plan side by side, with the currency and bonds picked in its filters,
  * every currency apart: all the years summed up, the years that stand out, charts of the money
@@ -76,20 +97,8 @@ export default function YearOverYearReportScreen() {
               </Fragment>
             ))}
           </>
-        ) : isScopeOn(filters) ? (
-          <EmptyState
-            layout="inline"
-            icon="funnel-outline"
-            title="Купівель і виплат немає"
-            message="Обрані у фільтрах валюта чи ОВДП не мають жодної купівлі чи виплати. Змініть фільтри."
-          />
         ) : (
-          <EmptyState
-            layout="inline"
-            icon="calendar-outline"
-            title="Купівель і виплат немає"
-            message="У плані ще немає купівель, тож і років для порівняння немає. Додайте ОВДП у гаманці."
-          />
+          <EmptyYears filtered={isScopeOn(filters)} />
         )}
         <View style={styles.footer}>
           <NbuSourceNote />

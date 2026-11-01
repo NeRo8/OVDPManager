@@ -311,8 +311,11 @@ describe('fxReport', () => {
       ]),
       '2026-10-01',
     );
-    const rateOn = (date: string) =>
-      date.startsWith('2024') ? 40 : date.startsWith('2025') ? 45 : 50;
+    const rateOn = (date: string) => {
+      if (date.startsWith('2024')) return 40;
+      if (date.startsWith('2025')) return 45;
+      return 50;
+    };
     const report = fxReport(wallet, null, rateOn);
 
     expect(fxEventDates(wallet, null)).toEqual(
