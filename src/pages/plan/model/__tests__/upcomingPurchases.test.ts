@@ -71,6 +71,26 @@ describe('upcomingPurchases', () => {
     expect(upcomingPurchases(cheap)[0].ownMoney).toBe(0);
   });
 
+  it('does not pay for a purchase with a payment that comes after it', () => {
+    const early = buildWallet(
+      [...wallet.purchases.slice(0, 2), purchase('5', '2026-12-10', 100)],
+      wallet.byIsin,
+      '2026-11-30',
+    );
+    const [next] = upcomingPurchases(early);
+    // The coupon of 15.12 (three bonds by then) comes after the purchase of 10.12.
+    expect(next.planMoney).toBe(240);
+    expect(next.ownMoney).toBe(100);
+  });
+
+  it('counts a payment due today, as it is still to come', () => {
+    const couponDay = buildWallet(wallet.purchases.slice(0, 3), wallet.byIsin, '2026-12-15');
+    const [next] = upcomingPurchases(couponDay);
+    expect(next.purchases.map(({ id }) => id)).toEqual(['3']);
+    expect(next.planMoney).toBe(160);
+    expect(next.ownMoney).toBe(860);
+  });
+
   it('gives nothing without planned purchases', () => {
     expect(upcomingPurchases(buildWallet([], wallet.byIsin, '2026-10-31'))).toEqual([]);
   });

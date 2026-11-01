@@ -1,8 +1,10 @@
 import {
   CURRENCIES,
   type Currency,
+  type PositionPayment,
   type PurchaseEvent,
   type Wallet,
+  compareScheduleEvents,
   sumTotals,
 } from '@/entities/portfolio';
 
@@ -16,35 +18,53 @@ export type UpcomingPurchases = {
   /** Planned purchases by date */
   purchases: PurchaseEvent[];
   amount: number;
-  /** The plan's coupons and redemptions still ahead until `through` */
+  /** The plan's coupons and redemptions still to come until `through`, today's included */
   planMoney: number;
-  /** What the purchases need beyond the plan's money */
+  /**
+   * The own money to have so that every purchase is paid for on its date: the plan's payments
+   * count only for the purchases on or after their date
+   */
   ownMoney: number;
 };
+
+/**
+ * The deepest the plan's money falls going through the period by date, a payment before a
+ * purchase on the same day (as the schedule orders them): what own money has to cover.
+ */
+function shortfall(payments: PositionPayment[], purchases: PurchaseEvent[]): number {
+  let balance = 0;
+  let lowest = 0;
+  for (const event of [...payments, ...purchases].sort(compareScheduleEvents)) {
+    balance += event.type === 'purchase' ? -event.total : event.total;
+    lowest = Math.min(lowest, balance);
+  }
+  return round2(-lowest);
+}
 
 /** The active plan's planned purchases until the end of next month, per currency that has any. */
 export function upcomingPurchases(wallet: Wallet): UpcomingPurchases[] {
   const { today } = wallet;
   const through = monthRange(today, 1).to;
-  const ahead = (event: { date: string }) => event.date > today && event.date <= through;
+  // A purchase dated today counts as made; a payment dated today is still to come.
+  const plannedUntilThrough = (event: { date: string }) =>
+    event.date > today && event.date <= through;
 
   return CURRENCIES.flatMap((currency): UpcomingPurchases[] => {
     const purchases = wallet.purchaseEvents.filter(
-      (event) => event.currency === currency && ahead(event),
+      (event) => event.currency === currency && plannedUntilThrough(event),
     );
     if (!purchases.length) return [];
-    const amount = sumTotals(purchases);
-    const planMoney = sumTotals(
-      wallet.payments.filter((payment) => payment.currency === currency && ahead(payment)),
+    const payments = wallet.payments.filter(
+      (payment) => payment.currency === currency && !payment.isPaid && payment.date <= through,
     );
     return [
       {
         currency,
         through,
         purchases,
-        amount,
-        planMoney,
-        ownMoney: Math.max(0, round2(amount - planMoney)),
+        amount: sumTotals(purchases),
+        planMoney: sumTotals(payments),
+        ownMoney: shortfall(payments, purchases),
       },
     ];
   });

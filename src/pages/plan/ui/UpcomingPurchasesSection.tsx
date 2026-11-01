@@ -17,8 +17,9 @@ type Props = {
 
 function ownMoneyHint(paymentsKnown: boolean, ownMoney: number) {
   if (!paymentsKnown) return 'Буде розраховано, коли з’являться дані НБУ';
-  if (ownMoney > 0) return 'Скільки додати понад виплати плану';
-  return 'Виплат плану вистачає на ці купівлі';
+  if (ownMoney > 0)
+    return 'Скільки мати своїх грошей: виплата плану йде лише на купівлі в день виплати чи пізніше';
+  return 'Виплат плану, що надійдуть до дат купівель, вистачає на ці купівлі';
 }
 
 /**
