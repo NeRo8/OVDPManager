@@ -21,7 +21,7 @@ npx expo-doctor             # diagnose dependency and config issues
 npx expo install --fix      # fix incompatible package versions
 ```
 
-Run lint and typecheck before declaring any task done.
+Run checks, including lint and typecheck, only when the user explicitly requests them. Report when changes have not been checked.
 
 ## Navigation & Routing
 
