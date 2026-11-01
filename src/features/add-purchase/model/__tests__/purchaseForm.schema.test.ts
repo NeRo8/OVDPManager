@@ -25,11 +25,11 @@ it('rejects fractional and punctuation-separated quantities without changing the
   ).toBe(15);
 });
 
-it('asks for an unambiguous purchase amount instead of interpreting a thousands separator as decimals', () => {
+it('reads a single comma or point as a decimal separator', () => {
   const schema = purchaseFormSchema(bond);
   const input = { purchaseDate: '2026-01-01', quantity: '1' };
-  expect(schema.safeParse({ ...input, amount: '1.000' }).success).toBe(false);
-  expect(schema.safeParse({ ...input, amount: '1,000' }).success).toBe(false);
+  expect(schema.parse({ ...input, amount: '1.000' }).amount).toBe(1);
+  expect(schema.parse({ ...input, amount: '1,000' }).amount).toBe(1);
   expect(schema.parse({ ...input, amount: '1 000' }).amount).toBe(1000);
   expect(schema.parse({ ...input, amount: '1,50' }).amount).toBe(1.5);
 });

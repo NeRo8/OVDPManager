@@ -170,9 +170,7 @@ export function maturesWithin(
 
 /** What one bond cost: the amount paid for the purchase (or the position) ÷ quantity. */
 export function pricePerBond(amount: number, quantity: number): number | null {
-  return quantity > 0 && Number.isFinite(quantity) && Number.isFinite(amount)
-    ? round2(amount / quantity)
-    : null;
+  return quantity > 0 ? round2(amount / quantity) : null;
 }
 
 /** The bond's currency from the NBU data; the purchase keeps its own for a bond missing there. */

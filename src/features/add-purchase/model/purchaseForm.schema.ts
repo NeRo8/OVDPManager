@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { type Bond, canBuyOn } from '@/entities/portfolio';
 
-import { formatDate, isAmbiguousAmount, parseAmount, round2 } from '@/shared/lib';
+import { formatDate, parseAmount, round2 } from '@/shared/lib';
 
 /**
  * The purchase form as typed: the inputs give text, the schema turns it into numbers. The date
@@ -35,9 +35,6 @@ export function purchaseFormSchema(bond: Bond) {
       .string()
       .trim()
       .min(1, { error: 'Вкажіть суму купівлі' })
-      .refine((text) => !isAmbiguousAmount(text), {
-        error: 'Використайте пробіл для тисяч або вкажіть до двох десяткових знаків',
-      })
       .transform((text) => round2(parseAmount(text)))
       .pipe(
         z

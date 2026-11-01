@@ -53,7 +53,7 @@
 
 **DOM-15.** Валюта купівлі — валюта ОВДП з даних НБУ, якщо ОВДП там є; лише без неї береться збережене `purchase.currency` (`purchaseCurrency`). Валюта позиції — валюта її першої купівлі за тим самим правилом (`positionCurrency`). `portfolio.ts`.
 
-**DOM-16.** «Ціна 1 шт» = `round2(amount / quantity)` (`pricePerBond`). За недодатної чи нескінченної кількості або нескінченної суми повертається `null`. `portfolio.ts`, `pricePerBond`.
+**DOM-16.** «Ціна 1 шт» = `round2(amount / quantity)` (`pricePerBond`). За недодатної кількості повертається `null`. `portfolio.ts`, `pricePerBond`.
 
 **DOM-17.** План — `InvestmentPlan { id, name, goal? }`. `goal` — `CouponGoal { currency, year, incomeYears, purchaseYears, monthly, reinvest }` («Ціль: купони на місяць»: валюта, перший з «Років купонів», скільки їх, скільки «Років купівель» перед ними, купони на кожен місяць, чи реінвестуються виплати років купівель; див. [features/coupon-goal.md](features/coupon-goal.md)). Назва плану — до `PLAN_NAME_MAX_LENGTH = 80` символів; запропонована назва першого плану — «Мій план» (`DEFAULT_PLAN_NAME`). `src/entities/portfolio/model/plan.ts`.
 

@@ -83,11 +83,6 @@ export function plural(n: number, one: string, few: string, many: string): strin
   return many;
 }
 
-/** A single separator followed by three digits could mean decimals or thousands. */
-export function isAmbiguousAmount(text: string): boolean {
-  return /^[1-9]\d{0,2}[.,]\d{3}$/.test(text.replace(/\s/g, ''));
-}
-
 /** Parses a decimal comma or point, and grouped input such as "1,000.50". */
 export function parseAmount(text: string): number {
   const input = text.replace(/\s/g, '');

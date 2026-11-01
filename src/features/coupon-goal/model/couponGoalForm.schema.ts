@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { CURRENCIES } from '@/entities/portfolio';
 
-import { isAmbiguousAmount, parseAmount, round2 } from '@/shared/lib';
+import { parseAmount, round2 } from '@/shared/lib';
 
 /** What the plan's payments in «Роки купівель» do: pay for the purchases or go to the investor. */
 const PAYOUT_CHOICES = ['reinvest', 'withdraw'] as const;
@@ -22,9 +22,6 @@ export const couponGoalFormSchema = z
       .string()
       .trim()
       .min(1, { error: 'Вкажіть, скільки купонів хочете щомісяця' })
-      .refine((text) => !isAmbiguousAmount(text), {
-        error: 'Використайте пробіл для тисяч або вкажіть до двох десяткових знаків',
-      })
       .transform((text) => round2(parseAmount(text)))
       .pipe(
         z

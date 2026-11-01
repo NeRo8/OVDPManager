@@ -169,7 +169,6 @@ export function holdOrSell(input: Input): HoldOrSell | null {
   if (!results?.complete || results.netIncome === null) return null;
 
   const quantity = held.reduce((total, purchase) => total + purchase.quantity, 0);
-  if (!Number.isFinite(quantity) || quantity <= 0) return null;
   // A payment on the day of the sale still goes to the seller.
   const received = sumTotals(payments.filter((payment) => payment.date <= today));
   const remaining = payments.filter((payment) => payment.date > today);

@@ -117,19 +117,15 @@ describe('assessPurchase', () => {
     expect(hints[0].text).toContain('НБУ ще не опублікував погашення');
   });
 
-  it('asks to check an extreme price even when redemption data is missing', () => {
+  it('reports missing redemption data even for a high purchase price', () => {
     const result = assess({
       pricePerBond: 10000,
       netIncome: null,
       isComplete: false,
       annualYield: null,
     });
-    expect(result.verdict?.title).toBe('Перевірте суму');
-    expect(result.hints[0].text).toContain('без повного графіка виплат');
-    expect(
-      assess({ pricePerBond: 1000, netIncome: null, isComplete: false, annualYield: null }).verdict
-        ?.title,
-    ).toBe('Є на що звернути увагу');
+    expect(result.verdict?.title).toBe('Є на що звернути увагу');
+    expect(result.hints[0].text).toContain('НБУ ще не опублікував погашення');
   });
 
   it('compares the yield with the bonds of its currency and term placed in the last 12 months', () => {

@@ -18,9 +18,6 @@ export type PurchaseAssessment = { verdict: Verdict | null; hints: Hint[] };
 
 /** Percentage points below the key rate past which the purchase is a poor one. */
 const ERROR_GAP = 3;
-/** An extreme premium can reveal a mistyped amount even without the redemption schedule. */
-const MAX_INCOMPLETE_PRICE_MULTIPLE = 5;
-
 const VERDICT_TITLES = {
   success: 'Вигідна купівля',
   warning: 'Є на що звернути увагу',
@@ -152,21 +149,6 @@ function verdictOf(hints: Hint[]): Verdict | null {
  */
 export function assessPurchase(input: Input): PurchaseAssessment {
   if (isImplausible(input)) return { verdict: CHECK_AMOUNT, hints: [implausibleHint(input)] };
-  if (
-    !input.isComplete &&
-    input.bond.nominal > 0 &&
-    input.pricePerBond > input.bond.nominal * MAX_INCOMPLETE_PRICE_MULTIPLE
-  ) {
-    return {
-      verdict: CHECK_AMOUNT,
-      hints: [
-        {
-          tone: 'warning',
-          text: 'Ціна однієї ОВДП більш ніж уп’ятеро перевищує номінал. Перевірте суму й кількість; без повного графіка виплат визначити дохідність неможливо.',
-        },
-      ],
-    };
-  }
   const { bond, purchaseDate, today, annualYield, keyRate, bonds } = input;
   const comparisonDate = purchaseDate > today ? today : purchaseDate;
   const market = newBondsRate(bond, comparisonDate, bonds);

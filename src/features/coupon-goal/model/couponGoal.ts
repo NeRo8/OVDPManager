@@ -233,7 +233,7 @@ function buyAsFunded(
       const next = queue[index];
       const { bond } = next.candidate;
       const price = priceOn(next.candidate, date);
-      if (price <= 0 || !Number.isFinite(price)) {
+      if (price <= 0) {
         index += 1;
         continue;
       }
