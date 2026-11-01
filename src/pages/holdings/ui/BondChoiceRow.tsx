@@ -26,6 +26,7 @@ function maturityLabel(bond: Bond, today: string) {
  * the left, what it pays on the right.
  */
 export function BondChoiceRow({ bond, today, owned, onPress }: BondChoiceRowProps) {
+  const isActive = canBuyOn(bond, today);
   const details = [
     maturityLabel(bond, today),
     owned && `у гаманці ${ownedLabel(owned.quantity, owned.planned)}`,
