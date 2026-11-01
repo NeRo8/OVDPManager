@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { View } from 'react-native';
 
 import { StyleSheet } from 'react-native-unistyles';
@@ -7,7 +8,8 @@ import { Typography } from '../typography/Typography';
 
 export type TotalRowProps = {
   label: string;
-  value: string;
+  /** Text, such as `Money` */
+  value: ReactNode;
   /** When present, the numeric result determines the value color. */
   signedValue?: number;
 };

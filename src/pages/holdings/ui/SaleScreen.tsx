@@ -2,10 +2,19 @@ import { useLocalSearchParams } from 'expo-router';
 import { Controller } from 'react-hook-form';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { ANNUAL_YIELD_RANGE, isPlannedPurchase } from '@/entities/portfolio';
+import { ANNUAL_YIELD_RANGE, canBuyOn, isPlannedPurchase } from '@/entities/portfolio';
 
-import { formatDate, formatMoney, formatRateNumber } from '@/shared/lib';
-import { EmptyState, FieldRow, FormScrollView, InfoRow, Input, Section } from '@/shared/ui';
+import { formatDate } from '@/shared/lib';
+import {
+  EmptyState,
+  FieldRow,
+  FormScrollView,
+  InfoRow,
+  Input,
+  Money,
+  Percent,
+  Section,
+} from '@/shared/ui';
 
 import { useSaleForm } from '../model/useSaleForm.hook';
 
@@ -41,7 +50,7 @@ export default function SaleScreen() {
           !!bond,
           !!position,
           position?.purchases.every((purchase) => isPlannedPurchase(purchase, today)) ?? false,
-          bond ? bond.maturityDate <= today : false,
+          bond ? !canBuyOn(bond, today) : false,
         )}
       />
     );
@@ -89,23 +98,30 @@ export default function SaleScreen() {
           title="Що дасть продаж"
           footer="Результат тримання більший, бо гроші працюють довше: вирішує дохідність від сьогодні."
         >
-          <InfoRow label="Отримаєте за продаж" value={formatMoney(sale.proceeds, currency)} />
+          <InfoRow
+            label="Отримаєте за продаж"
+            value={<Money value={sale.proceeds} currency={currency} />}
+          />
           <InfoRow
             label="Якщо продати сьогодні"
-            value={formatMoney(sale.saleResult, currency)}
+            value={<Money value={sale.saleResult} currency={currency} />}
             signedValue={sale.saleResult}
           />
           <InfoRow
             label={`Якщо тримати до ${formatDate(bond.maturityDate)}`}
-            value={formatMoney(holdResult, currency)}
+            value={<Money value={holdResult} currency={currency} />}
             signedValue={holdResult}
           />
           <InfoRow
             label="Дохідність від сьогодні"
             value={
-              sale.holdYield === null
-                ? `нижче ${formatRateNumber(ANNUAL_YIELD_RANGE.lowest)}%`
-                : `${formatRateNumber(sale.holdYield)}%`
+              sale.holdYield === null ? (
+                <>
+                  нижче <Percent value={ANNUAL_YIELD_RANGE.lowest} />
+                </>
+              ) : (
+                <Percent value={sale.holdYield} />
+              )
             }
             hint="Скільки річних заробляють у цій ОВДП до погашення гроші, які за неї дають сьогодні"
           />

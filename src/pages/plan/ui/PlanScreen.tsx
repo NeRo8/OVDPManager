@@ -16,6 +16,8 @@ import { formatMoney, useOptionChoice, usePullToRefresh } from '@/shared/lib';
 import {
   EmptyState,
   InfoRow,
+  Money,
+  Percent,
   ScreenScrollView,
   Section,
   SegmentedSelect,
@@ -98,7 +100,7 @@ export default function PlanScreen() {
               <InfoRow
                 label="Вкладено"
                 hint="Скільки коштують усі купівлі плану"
-                value={formatMoney(total.invested, total.currency)}
+                value={<Money value={total.invested} currency={total.currency} />}
               />
             </Section>
             <Section
@@ -112,17 +114,17 @@ export default function PlanScreen() {
               <InfoRow
                 label="Погашення"
                 hint="У дату погашення держава повертає номінал, а не ціну купівлі. Якщо ви заплатили більше за номінал, погашення буде менше за вкладене — цю різницю покривають купони"
-                value={formatMoney(total.redemption, total.currency)}
+                value={<Money value={total.redemption} currency={total.currency} />}
               />
               <InfoRow
                 label="Купони"
                 hint="Відсотки, отримані й ще очікувані до погашення"
-                value={formatMoney(total.coupons, total.currency)}
+                value={<Money value={total.coupons} currency={total.currency} />}
               />
               <InfoRow
                 label="Усього виплат"
                 hint="Погашення разом із купонами"
-                value={formatMoney(total.totalPayments, total.currency)}
+                value={<Money value={total.totalPayments} currency={total.currency} />}
               />
             </Section>
             {total.netIncome !== null && (
@@ -137,7 +139,7 @@ export default function PlanScreen() {
                 <InfoRow
                   label="Чистий дохід"
                   hint={netIncomeBasis(total) ?? 'Виплати мінус вкладення — ваш заробіток'}
-                  value={formatMoney(total.netIncome, total.currency)}
+                  value={<Money value={total.netIncome} currency={total.currency} />}
                   signedValue={total.netIncome}
                 />
                 <InfoRow
@@ -147,13 +149,13 @@ export default function PlanScreen() {
                       ? `Чистий дохід поділено на вкладення лише в ОВДП з опублікованим погашенням: ${formatMoney(total.published.invested, total.currency)}.`
                       : 'Чистий дохід у відсотках від вкладень за весь строк, без перерахунку на рік, податків і комісій'
                   }
-                  value={total.returnPercent === null ? '—' : `${total.returnPercent}%`}
+                  value={<Percent value={total.returnPercent} />}
                 />
                 {total.annualYield !== null && (
                   <InfoRow
                     label="Річна дохідність"
                     hint={`Ціна купівлі й виплати до погашення, перераховані на рік; середня зважена на суму купівель.${total.withoutYieldCount ? ` Не враховано ОВДП без розрахованої дохідності: ${total.withoutYieldCount}.` : ''}`}
-                    value={`${total.annualYield}%`}
+                    value={<Percent value={total.annualYield} />}
                   />
                 )}
               </Section>

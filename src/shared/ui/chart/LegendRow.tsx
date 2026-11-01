@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { View } from 'react-native';
 
 import { StyleSheet } from 'react-native-unistyles';
@@ -11,8 +12,8 @@ import { Swatch } from './Swatch';
 export type LegendRowProps = {
   color: SeriesColor;
   label: string;
-  /** Without it the row only names its series */
-  value?: string;
+  /** Text, such as `Money`; without it the row only names its series */
+  value?: ReactNode;
 };
 
 /** Swatch + name + amount: the chart legend doubles as the breakdown of the total. */

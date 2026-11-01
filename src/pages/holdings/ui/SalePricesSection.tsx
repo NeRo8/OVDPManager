@@ -1,7 +1,6 @@
 import type { Currency } from '@/entities/portfolio';
 
-import { formatMoney } from '@/shared/lib';
-import { InfoRow, Section } from '@/shared/ui';
+import { InfoRow, Money, Section } from '@/shared/ui';
 
 import type { HoldOrSell } from '../model/holdOrSell';
 
@@ -32,7 +31,11 @@ export function SalePricesSection({ assessment, currency }: Props) {
       {sellAbovePrice !== null && (
         <InfoRow
           label="Вигідніше продати"
-          value={`понад ${formatMoney(sellAbovePrice, currency)}`}
+          value={
+            <>
+              понад <Money value={sellAbovePrice} currency={currency} />
+            </>
+          }
           hint="Вище цієї ціни гроші за ставкою орієнтира заробили б більше, ніж у цій ОВДП до погашення"
         />
       )}

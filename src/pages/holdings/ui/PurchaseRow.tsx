@@ -10,9 +10,9 @@ import {
   purchaseCurrency,
 } from '@/entities/portfolio';
 
-import { currencySign, formatDate, formatMoney } from '@/shared/lib';
+import { currencySign, formatDate } from '@/shared/lib';
 import { SERIES_COLORS } from '@/shared/theme';
-import { Avatar, ListRow, Typography } from '@/shared/ui';
+import { Avatar, ListRow, Money, Typography } from '@/shared/ui';
 
 type Props = {
   purchase: Purchase;
@@ -73,8 +73,8 @@ export function PurchaseRow({ purchase, bond, today, onEdit, onDelete }: Props) 
         </Typography>
       )}
       <Typography variant="caption1" tone="secondary">
-        {formatMoney(purchase.amount, currency)} · по{' '}
-        {price === null ? '—' : formatMoney(price, currency)}
+        <Money value={purchase.amount} currency={currency} /> · по{' '}
+        <Money value={price} currency={currency} />
       </Typography>
     </ListRow>
   );

@@ -5,7 +5,7 @@ import { useAddPurchaseForm } from '@/features/add-purchase';
 
 import { type Bond, type Purchase } from '@/entities/portfolio';
 
-import { formatDate, formatMoney } from '@/shared/lib';
+import { formatDate } from '@/shared/lib';
 import {
   Button,
   DateField,
@@ -13,8 +13,9 @@ import {
   InfoRow,
   Input,
   FormScrollView,
+  Money,
+  Percent,
   Section,
-  SignedValue,
 } from '@/shared/ui';
 
 import { HintsSection } from './HintsSection';
@@ -102,10 +103,7 @@ export function AddPurchaseForm({ bond, ownedQuantity, purchase, onSaved }: Prop
             </FieldRow>
           )}
         />
-        <InfoRow
-          label="Ціна 1 шт"
-          value={pricePerBond === null ? '—' : formatMoney(pricePerBond, currency)}
-        />
+        <InfoRow label="Ціна 1 шт" value={<Money value={pricePerBond} currency={currency} />} />
       </Section>
 
       {preview && (
@@ -122,27 +120,32 @@ export function AddPurchaseForm({ bond, ownedQuantity, purchase, onSaved }: Prop
           <InfoRow
             label="Наступна виплата"
             value={
-              preview.nextPayment
-                ? `${formatDate(preview.nextPayment.date)} · ${formatMoney(preview.nextPayment.total, currency)}`
-                : '—'
+              preview.nextPayment ? (
+                <>
+                  {formatDate(preview.nextPayment.date)} ·{' '}
+                  <Money value={preview.nextPayment.total} currency={currency} />
+                </>
+              ) : (
+                '—'
+              )
             }
           />
           <InfoRow label="Купонів попереду" value={String(preview.couponsLeft)} />
-          <InfoRow label="Усього виплат" value={formatMoney(preview.totalPayments, currency)} />
+          <InfoRow
+            label="Усього виплат"
+            value={<Money value={preview.totalPayments} currency={currency} />}
+          />
           {preview.netIncome !== null ? (
             <>
               <InfoRow
                 label="Чистий дохід"
-                value={
-                  <SignedValue value={preview.netIncome} variant="subhead" weight="medium">
-                    {formatMoney(preview.netIncome, currency)}
-                  </SignedValue>
-                }
+                value={<Money value={preview.netIncome} currency={currency} />}
+                signedValue={preview.netIncome}
               />
               <InfoRow
                 label="Дохідність за весь строк"
                 hint="Чистий дохід у відсотках від суми купівлі"
-                value={preview.returnPercent === null ? '—' : `${preview.returnPercent}%`}
+                value={<Percent value={preview.returnPercent} />}
               />
               <InfoRow
                 label="Річна дохідність"

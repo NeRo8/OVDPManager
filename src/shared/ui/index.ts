@@ -5,6 +5,8 @@ export * from './icon/IconBadge';
 export * from './button/FloatingActionButton';
 export * from './typography/Typography';
 export * from './typography/SignedValue';
+export * from './typography/Percent';
+export * from './typography/Money';
 export * from './avatar/Avatar';
 export * from './layout/Card';
 export * from './layout/EmptyState';

@@ -2,8 +2,8 @@ import { View } from 'react-native';
 
 import { StyleSheet } from 'react-native-unistyles';
 
-import { formatDate, formatMoney } from '@/shared/lib';
-import { Typography } from '@/shared/ui';
+import { formatDate } from '@/shared/lib';
+import { Money, Percent, Typography } from '@/shared/ui';
 
 import type { Bond } from '../model/portfolio';
 
@@ -15,14 +15,18 @@ type Props = {
 export function BondTerms({ bond }: Props) {
   const coupon = bond.payments.find((payment) => payment.type === 'coupon');
   const terms = [
-    { label: 'Ставка купону', value: `${bond.rate}%` },
+    { label: 'Ставка купону', value: <Percent value={bond.rate} /> },
     {
       label: 'Перший купон на 1 шт',
-      value: coupon
-        ? `${formatMoney(coupon.amount, bond.currency)} · ${formatDate(coupon.date)}`
-        : 'немає даних',
+      value: coupon ? (
+        <>
+          <Money value={coupon.amount} currency={bond.currency} /> · {formatDate(coupon.date)}
+        </>
+      ) : (
+        'немає даних'
+      ),
     },
-    { label: 'Номінал', value: formatMoney(bond.nominal, bond.currency) },
+    { label: 'Номінал', value: <Money value={bond.nominal} currency={bond.currency} /> },
     { label: 'Тип', value: bond.description },
     { label: 'Дата розміщення', value: formatDate(bond.issueDate) },
     { label: 'Дата погашення', value: formatDate(bond.maturityDate) },

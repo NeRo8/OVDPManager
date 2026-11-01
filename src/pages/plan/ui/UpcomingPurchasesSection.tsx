@@ -2,9 +2,9 @@ import { router } from 'expo-router';
 
 import { type PurchaseEvent } from '@/entities/portfolio';
 
-import { currencySign, formatDate, formatMoney } from '@/shared/lib';
+import { currencySign, formatDate } from '@/shared/lib';
 import { SERIES_COLORS } from '@/shared/theme';
-import { Avatar, InfoRow, ListRow, Section, Typography } from '@/shared/ui';
+import { Avatar, InfoRow, ListRow, Money, Section, Typography } from '@/shared/ui';
 
 import type { UpcomingPurchases } from '../model/upcomingPurchases';
 
@@ -45,7 +45,7 @@ export function UpcomingPurchasesSection({ upcoming, showCurrency, paymentsKnown
             subtitle={purchase.isin}
             trailing={
               <Typography variant="subhead" weight="medium" tabular>
-                {formatMoney(purchase.total, currency)}
+                <Money value={purchase.total} currency={currency} />
               </Typography>
             }
             onPress={open}
@@ -54,7 +54,7 @@ export function UpcomingPurchasesSection({ upcoming, showCurrency, paymentsKnown
           />
         );
       })}
-      <InfoRow label="Разом" value={formatMoney(amount, currency)} />
+      <InfoRow label="Разом" value={<Money value={amount} currency={currency} />} />
       <InfoRow
         label="Виплати плану"
         hint={
@@ -62,12 +62,12 @@ export function UpcomingPurchasesSection({ upcoming, showCurrency, paymentsKnown
             ? 'Купони й погашення, що надійдуть за цей час'
             : 'Немає повних даних НБУ для розрахунку'
         }
-        value={paymentsKnown ? formatMoney(planMoney, currency) : '—'}
+        value={<Money value={paymentsKnown ? planMoney : null} currency={currency} />}
       />
       <InfoRow
         label="Власні кошти"
         hint={ownMoneyHint(paymentsKnown, ownMoney)}
-        value={paymentsKnown ? formatMoney(ownMoney, currency) : '—'}
+        value={<Money value={paymentsKnown ? ownMoney : null} currency={currency} />}
       />
     </Section>
   );

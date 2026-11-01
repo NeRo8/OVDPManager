@@ -1,4 +1,4 @@
-import { parseAmount } from '../format';
+import { formatPercent, parseAmount } from '../format';
 
 describe('parseAmount', () => {
   it('reads decimal commas and points, and explicit grouped formats', () => {
@@ -13,5 +13,13 @@ describe('parseAmount', () => {
     expect(parseAmount('1,000,50')).toBeNaN();
     expect(parseAmount('1.2.3')).toBeNaN();
     expect(parseAmount('')).toBeNaN();
+  });
+});
+
+describe('formatPercent', () => {
+  it('writes the decimal comma and a true minus sign', () => {
+    expect(formatPercent(16.5)).toBe('16,5%');
+    expect(formatPercent(-3.25)).toBe('−3,25%');
+    expect(formatPercent(40)).toBe('40%');
   });
 });

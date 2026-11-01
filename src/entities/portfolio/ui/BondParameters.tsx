@@ -1,5 +1,5 @@
-import { formatDate, formatMoney } from '@/shared/lib';
-import { InfoRow, Section } from '@/shared/ui';
+import { formatDate } from '@/shared/lib';
+import { InfoRow, Money, Percent, Section } from '@/shared/ui';
 
 import type { Bond } from '../model/portfolio';
 
@@ -12,14 +12,25 @@ export function BondParameters({ bond }: Props) {
   const coupon = bond.payments.find((payment) => payment.type === 'coupon');
   return (
     <Section title="Параметри випуску">
-      <InfoRow label="Ставка купону" value={`${bond.rate}% річних`} />
-      <InfoRow label="Номінал" value={formatMoney(bond.nominal, bond.currency)} />
+      <InfoRow
+        label="Ставка купону"
+        value={
+          <>
+            <Percent value={bond.rate} /> річних
+          </>
+        }
+      />
+      <InfoRow label="Номінал" value={<Money value={bond.nominal} currency={bond.currency} />} />
       <InfoRow
         label="Перший купон на 1 шт"
         value={
-          coupon
-            ? `${formatMoney(coupon.amount, bond.currency)} · ${formatDate(coupon.date)}`
-            : 'немає даних'
+          coupon ? (
+            <>
+              <Money value={coupon.amount} currency={bond.currency} /> · {formatDate(coupon.date)}
+            </>
+          ) : (
+            'немає даних'
+          )
         }
       />
       <InfoRow label="Дата розміщення" value={formatDate(bond.issueDate)} />

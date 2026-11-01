@@ -2,8 +2,16 @@ import { View } from 'react-native';
 
 import { StyleSheet } from 'react-native-unistyles';
 
-import { MONTHS, MONTHS_SHORT, formatMoney } from '@/shared/lib';
-import { Card, ColumnChart, LegendRow, Separator, TotalRow, Typography } from '@/shared/ui';
+import { MONTHS, MONTHS_SHORT, round2 } from '@/shared/lib';
+import {
+  Card,
+  ColumnChart,
+  LegendRow,
+  Money,
+  Separator,
+  TotalRow,
+  Typography,
+} from '@/shared/ui';
 
 import type { YearSeries } from './yearSeries';
 
@@ -29,6 +37,10 @@ export function MonthBreakdown({
   const monthRows = selectedMonth === null ? [] : series.filter((s) => s.values[selectedMonth] > 0);
   const monthPayments = monthRows.filter((s) => s.type !== 'purchase');
   const monthPurchases = monthRows.filter((s) => s.type === 'purchase');
+  const monthPaymentTotal =
+    selectedMonth === null
+      ? 0
+      : round2(monthPayments.reduce((sum, s) => sum + s.values[selectedMonth], 0));
 
   return (
     <Card title="По місяцях">
@@ -57,16 +69,13 @@ export function MonthBreakdown({
                 key={s.color}
                 color={s.color}
                 label={s.label}
-                value={formatMoney(s.values[selectedMonth], currency)}
+                value={<Money value={s.values[selectedMonth]} currency={currency} />}
               />
             ))}
             {monthPayments.length > 1 && (
               <TotalRow
                 label="Усього виплат"
-                value={formatMoney(
-                  monthPayments.reduce((sum, s) => sum + s.values[selectedMonth], 0),
-                  currency,
-                )}
+                value={<Money value={monthPaymentTotal} currency={currency} />}
               />
             )}
             {monthPurchases.map((s) => (
@@ -74,7 +83,7 @@ export function MonthBreakdown({
                 key={s.color}
                 color={s.color}
                 label={s.label}
-                value={formatMoney(s.values[selectedMonth], currency)}
+                value={<Money value={s.values[selectedMonth]} currency={currency} />}
               />
             ))}
           </View>
@@ -85,6 +94,5 @@ export function MonthBreakdown({
 }
 
 const styles = StyleSheet.create((theme) => ({
-  // Cancels the separator's own inset, so the line runs the card's full width.
   monthRows: { gap: theme.space.sm, marginTop: theme.space.sm },
 }));

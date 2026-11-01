@@ -17,6 +17,11 @@ export function formatRateNumber(value: number): string {
   return String(value).replace('-', '−').replace('.', ',');
 }
 
+/** A percentage with Ukrainian punctuation: 16,5%, −3,2%. */
+export function formatPercent(value: number): string {
+  return `${formatRateNumber(value)}%`;
+}
+
 /** A plus or minus prefix for signed values; zero has no prefix. */
 export function signPrefix(value: number): string {
   if (value > 0) return '+';

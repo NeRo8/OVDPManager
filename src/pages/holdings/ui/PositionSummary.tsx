@@ -6,8 +6,7 @@ import {
   pricePerBond,
 } from '@/entities/portfolio';
 
-import { formatMoney } from '@/shared/lib';
-import { InfoRow, Section, SignedValue } from '@/shared/ui';
+import { InfoRow, Money, Section } from '@/shared/ui';
 
 import { ownedLabel } from './ownedLabel';
 
@@ -28,35 +27,40 @@ export function PositionSummary({ position, currency, hasTopUps, results, planne
   return (
     <Section title="Підсумок">
       <InfoRow label="Кількість" value={ownedLabel(position.quantity, planned.quantity)} />
-      <InfoRow label="Вкладено" value={formatMoney(position.investedAmount, currency)} />
+      <InfoRow
+        label="Вкладено"
+        value={<Money value={position.investedAmount} currency={currency} />}
+      />
       {planned.amount > 0 && planned.amount < position.investedAmount && (
         <InfoRow
           label="З них заплановано"
           hint="Купівлі, яких ще не зроблено"
-          value={formatMoney(planned.amount, currency)}
+          value={<Money value={planned.amount} currency={currency} />}
         />
       )}
       {hasTopUps && (
-        <InfoRow
-          label="Середня ціна 1 шт"
-          value={price === null ? '—' : formatMoney(price, currency)}
-        />
+        <InfoRow label="Середня ціна 1 шт" value={<Money value={price} currency={currency} />} />
       )}
       {results && (
         <>
-          <InfoRow label="Отримано" value={formatMoney(results.received, currency)} />
-          <InfoRow label="Очікується" value={formatMoney(results.expected, currency)} />
+          <InfoRow
+            label="Отримано"
+            value={<Money value={results.received} currency={currency} />}
+          />
+          <InfoRow
+            label="Очікується"
+            value={<Money value={results.expected} currency={currency} />}
+          />
           <InfoRow
             label="Чистий дохід"
             value={
               results.netIncome === null ? (
                 'Немає повних даних НБУ'
               ) : (
-                <SignedValue value={results.netIncome} variant="subhead" weight="semibold">
-                  {formatMoney(results.netIncome, currency)}
-                </SignedValue>
+                <Money value={results.netIncome} currency={currency} />
               )
             }
+            signedValue={results.netIncome ?? undefined}
           />
         </>
       )}

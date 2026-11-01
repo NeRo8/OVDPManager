@@ -2,8 +2,8 @@ import { View } from 'react-native';
 
 import { StyleSheet } from 'react-native-unistyles';
 
-import { formatMoney, plural } from '@/shared/lib';
-import { Card, LegendRow, Separator, ShareBar, TotalRow, Typography } from '@/shared/ui';
+import { plural } from '@/shared/lib';
+import { Card, LegendRow, Money, Separator, ShareBar, TotalRow, Typography } from '@/shared/ui';
 
 import type { YearSummary } from '../model/yearSummary';
 
@@ -30,11 +30,14 @@ export function YearTotals({ summary, series }: Props) {
               key={s.color}
               color={s.color}
               label={s.label}
-              value={formatMoney(s.total, currency)}
+              value={<Money value={s.total} currency={currency} />}
             />
           ))}
           {payments.length > 1 && (
-            <TotalRow label="Усього виплат" value={formatMoney(totalPayments, currency)} />
+            <TotalRow
+              label="Усього виплат"
+              value={<Money value={totalPayments} currency={currency} />}
+            />
           )}
           {receivedPercent > 0 && receivedPercent < 100 && (
             <ShareBar
@@ -55,13 +58,13 @@ export function YearTotals({ summary, series }: Props) {
               key={s.color}
               color={s.color}
               label={s.label}
-              value={formatMoney(s.total, currency)}
+              value={<Money value={s.total} currency={currency} />}
             />
           ))}
           {purchaseCount > 0 && (
             <Typography variant="caption1" tone="secondary">
               {purchaseCount} {plural(purchaseCount, 'купівля', 'купівлі', 'купівель')}, ≈{' '}
-              {formatMoney(averageMonthlyPurchase, currency)} на місяць у середньому за 12 місяців
+              <Money value={averageMonthlyPurchase} currency={currency} /> на місяць у середньому за 12 місяців
               року
             </Typography>
           )}
@@ -73,5 +76,4 @@ export function YearTotals({ summary, series }: Props) {
 
 const styles = StyleSheet.create((theme) => ({
   rows: { gap: theme.space.sm },
-  // Cancels the separator's own inset, so the line runs the card's full width.
 }));

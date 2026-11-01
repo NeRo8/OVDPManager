@@ -1,8 +1,8 @@
 import { type Bond, CURRENCY_NAMES, canBuyOn, isRedeemed } from '@/entities/portfolio';
 
-import { currencySign, formatDate, formatTimeLeft } from '@/shared/lib';
+import { currencySign, formatDate, formatPercent, formatTimeLeft } from '@/shared/lib';
 import { currencyColor } from '@/shared/theme';
-import { Avatar, ListRow, ThemedIcon, Typography } from '@/shared/ui';
+import { Avatar, ListRow, Percent, ThemedIcon, Typography } from '@/shared/ui';
 
 import { ownedLabel } from './ownedLabel';
 
@@ -38,14 +38,14 @@ export function BondChoiceRow({ bond, today, owned, onPress }: BondChoiceRowProp
     <ListRow
       onPress={onPress}
       accessibilityRole="link"
-      accessibilityLabel={`${bond.isin}, ${CURRENCY_NAMES[bond.currency]}, ${bond.rate}% річних, ${details}`}
+      accessibilityLabel={`${bond.isin}, ${CURRENCY_NAMES[bond.currency]}, ${formatPercent(bond.rate)} річних, ${details}`}
       leading={<Avatar label={currencySign(bond.currency)} color={currencyColor(bond.currency)} />}
       title={bond.isin}
       subtitle={details}
       trailing={
         <>
           <Typography variant="headline" tabular tone={isActive ? 'primary' : 'secondary'}>
-            {bond.rate}%
+            <Percent value={bond.rate} />
           </Typography>
           <ThemedIcon
             name="chevron-forward"
