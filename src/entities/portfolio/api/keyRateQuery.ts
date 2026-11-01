@@ -1,7 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
 
-import { todayISO } from '@/shared/lib';
-
 import { getCachedKeyRateYear, saveKeyRateYear } from './keyRate';
 import { fetchKeyRates } from './nbuKeyRate';
 
@@ -9,22 +7,20 @@ import { fetchKeyRates } from './nbuKeyRate';
 const STALE_AFTER_MS = 12 * 60 * 60 * 1000;
 
 /** The date whose rate stands for `date`: itself, or today for a date ahead. */
-export function keyRateDate(date: string): string {
-  const today = todayISO();
+export function keyRateDate(date: string, today: string): string {
   return date < today ? date : today;
 }
 
 /** The year whose rates hold a date's rate. */
-export function keyRateYear(date: string): number {
-  return Number(keyRateDate(date).slice(0, 4));
+export function keyRateYear(date: string, today: string): number {
+  return Number(keyRateDate(date, today).slice(0, 4));
 }
 
 /**
  * Fetches a year's rates and saves them in the store the screens read. A past year is asked once;
  * the current one again when its rates are older than half a day or a new day has begun.
  */
-export function keyRateQuery(year: number) {
-  const today = todayISO();
+export function keyRateQuery(year: number, today: string) {
   const isPast = year < Number(today.slice(0, 4));
   const throughDate = isPast ? `${year}-12-31` : today;
   const cached = getCachedKeyRateYear(year);

@@ -3,7 +3,7 @@ import { AppState } from 'react-native';
 
 import { QueryClientProvider, focusManager } from '@tanstack/react-query';
 
-import { recordAppOpening } from '@/shared/config/appSettings';
+import { refreshToday } from '@/shared/config/appSettings';
 
 import { queryClient } from './queryClient';
 
@@ -14,9 +14,9 @@ type Props = {
 /** Gives the app the query client; stale queries refetch when the app comes back to the front. */
 export function QueryProvider({ children }: Props) {
   useEffect(() => {
-    recordAppOpening();
+    refreshToday();
     const subscription = AppState.addEventListener('change', (status) => {
-      if (status === 'active') recordAppOpening();
+      if (status === 'active') refreshToday();
       focusManager.setFocused(status === 'active');
     });
     return () => subscription.remove();

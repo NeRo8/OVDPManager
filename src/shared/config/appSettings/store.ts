@@ -12,13 +12,12 @@ const STORAGE_KEY = 'theme-preference-v1';
 export const initialState: AppSettingsState = {
   preference: 'system',
   today: todayISO(),
-  lastOpenedAt: null,
 };
 
 export const useAppSettingsStore = create<AppSettingsState>()(
   persist(() => initialState, {
     name: STORAGE_KEY,
     storage: createJSONStorage(() => mmkvStorage),
-    partialize: ({ preference, lastOpenedAt }) => ({ preference, lastOpenedAt }),
+    partialize: ({ preference }) => ({ preference }),
   }),
 );

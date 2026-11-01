@@ -30,7 +30,7 @@ export function useWallet() {
   const refresh = async () => {
     const [, rate] = await Promise.allSettled([
       refreshBonds(),
-      queryClient.fetchQuery({ ...keyRateQuery(keyRateYear(today)), staleTime: 0 }),
+      queryClient.fetchQuery({ ...keyRateQuery(keyRateYear(today, today), today), staleTime: 0 }),
     ]);
     if (rate.status === 'rejected') {
       showToast({

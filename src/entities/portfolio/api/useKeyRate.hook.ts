@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { useToday } from '@/shared/config';
+
 import { useCachedKeyRate, useCachedKeyRateYears } from './keyRate';
 import { keyRateDate, keyRateQuery, keyRateYear } from './keyRateQuery';
 
@@ -9,13 +11,15 @@ import { keyRateDate, keyRateQuery, keyRateYear } from './keyRateQuery';
  * comparisons depend on it, and without the rate they are left out.
  */
 export function useKeyRate(date: string): number | null {
-  const rate = useCachedKeyRate(keyRateDate(date));
-  useQuery(keyRateQuery(keyRateYear(date)));
+  const today = useToday();
+  const rate = useCachedKeyRate(keyRateDate(date, today));
+  useQuery(keyRateQuery(keyRateYear(date, today), today));
   return rate;
 }
 
 /** When the rate for this date was last fetched, if a cache exists. */
 export function useKeyRateUpdatedAt(date: string): number | null {
+  const today = useToday();
   const years = useCachedKeyRateYears();
-  return years[keyRateYear(date)]?.updatedAt ?? null;
+  return years[keyRateYear(date, today)]?.updatedAt ?? null;
 }

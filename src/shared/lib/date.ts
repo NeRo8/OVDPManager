@@ -2,17 +2,11 @@ import {
   addDays,
   addMonths,
   differenceInCalendarDays,
-  differenceInMilliseconds,
   differenceInMonths,
-  addQuarters,
-  eachMonthOfInterval,
   endOfMonth,
-  endOfQuarter,
   format,
-  getDaysInMonth,
   parseISO,
   startOfMonth,
-  startOfQuarter,
 } from 'date-fns';
 
 import { plural } from './format';
@@ -43,11 +37,6 @@ export function todayISO(): string {
   return toISODate(new Date());
 }
 
-/** Whether more than 24 elapsed hours separate two moments. */
-export function isMoreThanADayLater(now: Date, previous: number): boolean {
-  return differenceInMilliseconds(now, previous) > 24 * 60 * 60 * 1000;
-}
-
 /** Local midnight of the calendar date. */
 export function fromISODate(isoDate: string): Date {
   return parseISO(isoDate);
@@ -67,32 +56,6 @@ export function addDaysISO(isoDate: string, days: number): string {
 export function monthRange(isoDate: string, offset = 0): { from: string; to: string } {
   const month = addMonths(parseISO(isoDate), offset);
   return { from: toISODate(startOfMonth(month)), to: toISODate(endOfMonth(month)) };
-}
-
-/** The first and the last day of the date's quarter, or of the one `offset` quarters away. */
-export function quarterRange(isoDate: string, offset = 0): { from: string; to: string } {
-  const quarter = addQuarters(parseISO(isoDate), offset);
-  return { from: toISODate(startOfQuarter(quarter)), to: toISODate(endOfQuarter(quarter)) };
-}
-
-/** Every month from the first date's to the last's, as YYYY-MM. */
-export function monthsBetween(fromISO: string, toISO: string): string[] {
-  return eachMonthOfInterval({ start: parseISO(fromISO), end: parseISO(toISO) }).map((month) =>
-    format(month, 'yyyy-MM'),
-  );
-}
-
-/**
- * How many months a span lasts, both days included: each whole month counts as 1, a month it
- * covers in part as its share of days. 15.01–14.02 → 17/31 + 14/28 ≈ 1.05; a whole year → 12.
- */
-export function monthsInSpan(fromISO: string, toISO: string): number {
-  return monthsBetween(fromISO, toISO).reduce((total, month) => {
-    const days = getDaysInMonth(parseISO(`${month}-01`));
-    const first = fromISO.startsWith(month) ? Number(fromISO.slice(8, 10)) : 1;
-    const last = toISO.startsWith(month) ? Number(toISO.slice(8, 10)) : days;
-    return total + (last - first + 1) / days;
-  }, 0);
 }
 
 export function daysBetween(fromISO: string, toISO: string): number {

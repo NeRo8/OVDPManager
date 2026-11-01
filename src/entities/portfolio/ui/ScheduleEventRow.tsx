@@ -2,17 +2,16 @@ import { View } from 'react-native';
 
 import { StyleSheet } from 'react-native-unistyles';
 
+import { useToday } from '@/shared/config';
 import {
   currencySign,
   daysBetween,
   formatDate,
   formatDaysLeft,
-  formatMoney,
   signPrefix,
-  todayISO,
 } from '@/shared/lib';
 import { SERIES_COLORS, type SeriesColor } from '@/shared/theme';
-import { Avatar, ListRow, SignedValue, Typography } from '@/shared/ui';
+import { Avatar, ListRow, Money, SignedValue, Typography } from '@/shared/ui';
 
 import type { ScheduleEvent } from '../model/portfolio';
 
@@ -43,6 +42,7 @@ type Props = {
  * say so.
  */
 export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
+  const today = useToday();
   const series = SERIES[event.type];
   const isPurchase = event.type === 'purchase';
   const isPaid = !isPurchase && event.isPaid;
@@ -51,7 +51,7 @@ export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
   const sign = signPrefix(signedTotal);
   const tone = isPaid ? 'secondary' : 'primary';
   const planned = isPurchase
-    ? event.date > todayISO() && 'заплановано'
+    ? event.date > today && 'заплановано'
     : event.plannedQuantity > 0 &&
       (event.plannedQuantity === event.quantity
         ? 'заплановано'
@@ -61,7 +61,7 @@ export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
     // A no-break space keeps "10 шт" on one line.
     (showQuantity || isPurchase) && `${event.quantity} шт`,
     isPaid && 'отримано',
-    isUpcoming && formatDaysLeft(daysBetween(todayISO(), event.date)),
+    isUpcoming && formatDaysLeft(daysBetween(today, event.date)),
     planned,
   ]
     .filter(Boolean)
@@ -93,7 +93,7 @@ export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
             align="right"
           >
             {sign}
-            {formatMoney(event.total, event.currency)}
+            <Money value={event.total} currency={event.currency} />
           </SignedValue>
         </View>
       }

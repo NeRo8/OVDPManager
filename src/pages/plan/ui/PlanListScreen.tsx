@@ -14,7 +14,8 @@ import {
   type PlanPurchase,
 } from '@/entities/portfolio';
 
-import { plural, todayISO } from '@/shared/lib';
+import { useToday } from '@/shared/config';
+import { plural } from '@/shared/lib';
 import { HeaderButton, SectionCell, Typography, screenContent } from '@/shared/ui';
 
 import { PlanRow } from './PlanRow';
@@ -29,7 +30,7 @@ export default function PlanListScreen() {
   const plans = useInvestmentPlans();
   const purchases = usePurchases();
   const activePlan = useActivePlan();
-  const today = todayISO();
+  const today = useToday();
   const createPlan = () => router.push('/plan/name');
 
   function subtitle(planPurchases: PlanPurchase[]) {

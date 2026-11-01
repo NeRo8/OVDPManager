@@ -5,6 +5,4 @@ export type AppSettingsState = {
   preference: ThemePreference;
   /** Current local calendar date, refreshed when the app opens. */
   today: string;
-  /** Most recent app opening, in milliseconds since the Unix epoch. */
-  lastOpenedAt: number | null;
 };

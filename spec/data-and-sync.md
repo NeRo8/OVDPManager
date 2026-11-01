@@ -33,7 +33,7 @@
 | `payment-filters-v1`     | `features/payment-filters/…/paymentFilters` | `{ types; time: 'all' \| 'upcoming' \| 'past'; currency; isins }`                   | див. сховище                                      |
 | `bond-picker-filters-v1` | `features/add-purchase/…/bondPickerFilters` | `{ currency; term; sort: 'maturity' \| 'rate' }`                                    | див. сховище                                      |
 | `onboarding-v1`          | `features/onboarding/model/onboarding`      | `{ isCompleted: boolean }`                                                          | `{ isCompleted: false }`                          |
-| `theme-preference-v1`    | `shared/config/appSettings`                 | `{ preference, lastOpenedAt }`; дата `today` лише в пам’яті                         | тема `system`, дата запуску, `lastOpenedAt: null` |
+| `theme-preference-v1`    | `shared/config/appSettings`                 | `{ preference }`; дата `today` лише в пам’яті                                       | тема `system`, дата запуску                       |
 
 **DATA-04.** Дії сховища купівель (`src/entities/portfolio/model/purchases/actions.ts`): `addPurchase` (новий `id` = `Date.now()` у base36 + `-` + 6 випадкових символів, додається в кінець), `removePurchase(id)` (прибирає першу з таким `id`), `updatePurchase(id, { purchaseDate, quantity, amount })` (змінює лише ці три поля; `currency`, `isin`, `planId` лишаються), `replacePurchases` (замінює все), `removePosition(planId, isin)`, `removePlanPurchases(planId)`, `copyPlanPurchases(from, to)` (копії з новими `id` додаються в кінець). Селектори: `usePurchases`, `getPurchases` — купівлі всіх планів.
 
@@ -75,7 +75,7 @@
 
 **DATA-21.** Типові налаштування запитів: `retry: 1` (одна повторна спроба з типовою затримкою бібліотеки). Після остаточної помилки автоматичні повтори під час відкриття екрана, повернення на передній план і відновлення з’єднання чекають понад 5 хвилин (`notFailedRecently`). Ручні `refetch` (кнопки «Спробувати ще раз», «Повторити», жест оновлення) це правило обходять. `src/shared/api/queryClient.ts`.
 
-**DATA-22.** Під час запуску й повернення на передній план `recordAppOpening` оновлює календарну дату та час відкриття. Повернення на передній план передається у `focusManager`: активні запити оновлюються лише тоді, коли їхній кеш застарів і минуло понад 5 хвилин після останньої помилки. Минулі роки ставки із `staleTime: Infinity` примусово не оновлюються. `onlineManager` не налаштовано для мережі пристрою. `src/shared/api/QueryProvider.tsx`.
+**DATA-22.** Під час запуску й повернення на передній план `refreshToday` оновлює календарну дату. Повернення на передній план передається у `focusManager`: активні запити оновлюються лише тоді, коли їхній кеш застарів і минуло понад 5 хвилин після останньої помилки. Минулі роки ставки із `staleTime: Infinity` примусово не оновлюються. `onlineManager` не налаштовано для мережі пристрою. `src/shared/api/QueryProvider.tsx`.
 
 **DATA-23.** Коли запит із `meta.errorTitle` остаточно не вдався (після повторної спроби) і в нього вже є дані (`query.state.data !== undefined`), показується сповіщення: `tone: 'error'`, заголовок — `errorTitle`, текст — «<повідомлення помилки>. Показано збережені дані.», дія «Повторити» (`refetchQueries` за ключем запиту). Без даних сповіщення немає: помилку показує екран. `queryClient.ts`, `QueryCache.onError`.
 
