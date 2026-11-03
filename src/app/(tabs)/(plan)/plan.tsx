@@ -1,3 +1,3 @@
-import { PlanScreen } from '@/pages/plan';
+import PlanScreen from '@/screens/plan/PlanScreen';
 
 export default PlanScreen;

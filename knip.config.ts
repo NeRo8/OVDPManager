@@ -2,9 +2,9 @@ import type { KnipConfig } from 'knip';
 
 /** Dead-code and dependency audit, run by `yarn validate`. */
 const config: KnipConfig = {
-  // Read by tools rather than imported: the config plugin listed in app.json, Steiger and EAS
-  // Metadata (`submit.production.ios.metadataPath`).
-  entry: ['plugins/*.js', 'steiger.config.ts', 'store.config.js'],
+  // Read by tools rather than imported: the config plugin listed in app.json and EAS Metadata
+  // (`submit.production.ios.metadataPath`).
+  entry: ['plugins/*.js', 'store.config.js'],
   ignoreDependencies: [
     // Knip's Expo plugin expects it unless app.json turns updates off; the app has no OTA updates
     // and doesn't install it.

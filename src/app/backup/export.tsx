@@ -1,6 +1,5 @@
-import { BackupExportScreen } from '@/pages/backup';
-
-import { DeferredScreen } from '@/shared/ui';
+import { DeferredScreen } from '@/components/navigation/DeferredScreen';
+import BackupExportScreen from '@/screens/backup/BackupExportScreen';
 
 export default function BackupExportRoute() {
   return (

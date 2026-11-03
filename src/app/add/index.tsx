@@ -1,6 +1,5 @@
-import { BondPickerScreen } from '@/pages/holdings';
-
-import { DeferredScreen } from '@/shared/ui';
+import { DeferredScreen } from '@/components/navigation/DeferredScreen';
+import BondPickerScreen from '@/screens/holdings/BondPickerScreen';
 
 export default function BondPickerRoute() {
   return (

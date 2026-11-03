@@ -1,6 +1,5 @@
-import { PlanListButton } from '@/pages/plan';
-
-import { NativeStack } from '@/shared/ui';
+import { NativeStack } from '@/components/navigation/NativeStack';
+import { PlanListButton } from '@/screens/plan/PlanListButton';
 
 export default function PlanStackLayout() {
   return (

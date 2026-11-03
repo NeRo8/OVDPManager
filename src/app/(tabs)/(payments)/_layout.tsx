@@ -1,6 +1,5 @@
-import { PaymentFiltersButton } from '@/pages/payments';
-
-import { NativeStack } from '@/shared/ui';
+import { NativeStack } from '@/components/navigation/NativeStack';
+import { PaymentFiltersButton } from '@/screens/payments/PaymentFiltersButton';
 
 // Each tab has its own native stack, so its header is the platform's (glass on iOS 26).
 export default function PaymentsStackLayout() {

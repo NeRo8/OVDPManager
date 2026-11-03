@@ -1,4 +1,4 @@
-import { NativeStack } from '@/shared/ui';
+import { NativeStack } from '@/components/navigation/NativeStack';
 
 export default function SettingsStackLayout() {
   return (

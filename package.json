@@ -53,20 +53,18 @@
   "jest": {
     "preset": "jest-expo",
     "testMatch": [
-      "**/__tests__/**/*.test.ts"
+      "<rootDir>/src/**/*.test.ts"
     ],
     "setupFiles": [
       "<rootDir>/jest.setup.ts"
     ],
     "moduleNameMapper": {
-      "^@/shared/ui$": "<rootDir>/jest.sharedUiStub.ts",
       "^@/(.*)$": "<rootDir>/src/$1"
     }
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.3",
-    "@feature-sliced/steiger-plugin": "^0.8.0",
     "@react-native/jest-preset": "^0.88.0",
     "@types/jest": "30.0.0",
     "@types/react": "~19.3.0",
@@ -80,7 +78,6 @@
     "knip": "~6.41.0",
     "lint-staged": "^16.4.0",
     "prettier": "^3.9.10",
-    "steiger": "^0.8.0",
     "typescript": "~6.0.3",
     "validate-branch-name": "^1.3.2"
   },
@@ -89,13 +86,12 @@
     "android": "expo run:android",
     "ios": "bundle exec expo run:ios",
     "lint": "eslint .",
-    "lint:fsd": "steiger ./src",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "test": "jest",
-    "validate": "yarn format:check && yarn lint && yarn lint:fsd && yarn typecheck && yarn knip && yarn test",
+    "validate": "yarn format:check && yarn lint && yarn typecheck && yarn knip && yarn test",
     "prepare": "husky",
     "publish:ios": "npx eas-cli build --platform ios --profile production --auto-submit --no-wait"
   },

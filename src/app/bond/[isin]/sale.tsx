@@ -1,6 +1,5 @@
-import { SaleScreen } from '@/pages/holdings';
-
-import { DeferredScreen } from '@/shared/ui';
+import { DeferredScreen } from '@/components/navigation/DeferredScreen';
+import SaleScreen from '@/screens/holdings/SaleScreen';
 
 export default function SaleRoute() {
   return (

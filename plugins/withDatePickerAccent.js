@@ -14,7 +14,7 @@ const PICKER_STYLE = 'DatePickerStyle';
  * is always light, this one follows day/night, so the dialog matches the theme chosen in the app
  * (`Appearance.setColorScheme`).
  *
- * Options mirror `src/shared/theme/palette.ts`:
+ * Options mirror `src/theme/palette.ts`:
  * - `accent: { light, dark }` — `accent`: selected day, year list, buttons;
  * - `header: { background, text, mutedText }` — the brand header colors, the same in both themes,
  *   as in the navigation header. Colors are `#RRGGBB` or `#AARRGGBB`.

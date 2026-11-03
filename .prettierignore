@@ -22,5 +22,5 @@ coverage/
 
 # This app
 AGENTS.md
-src/shared/config/app-icon/expo.icon/
+assets/app-icon/expo.icon/
 src/ovdp-backup-*.json

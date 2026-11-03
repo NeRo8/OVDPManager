@@ -1,4 +1,4 @@
-import { PaymentsScreen } from '@/pages/payments';
+import PaymentsScreen from '@/screens/payments/PaymentsScreen';
 
 export default function PaymentsRoute() {
   return <PaymentsScreen />;

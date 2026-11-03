@@ -1,6 +1,5 @@
-import { PaymentFiltersScreen } from '@/pages/payments';
-
-import { DeferredScreen } from '@/shared/ui';
+import { DeferredScreen } from '@/components/navigation/DeferredScreen';
+import PaymentFiltersScreen from '@/screens/payments/PaymentFiltersScreen';
 
 export default function PaymentFiltersRoute() {
   return (

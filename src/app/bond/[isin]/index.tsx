@@ -1,6 +1,5 @@
-import { BondScreen } from '@/pages/holdings';
-
-import { DeferredScreen } from '@/shared/ui';
+import { DeferredScreen } from '@/components/navigation/DeferredScreen';
+import BondScreen from '@/screens/holdings/BondScreen';
 
 export default function BondRoute() {
   return (

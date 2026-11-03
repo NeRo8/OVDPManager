@@ -4,13 +4,6 @@ const { base, importOrder } = require('./eslint.base');
 
 module.exports = defineConfig([
   ...base,
-  // The FSD layers, highest first — the order they may import each other in (Steiger checks the
-  // direction, this only sorts).
-  importOrder([
-    { pattern: '@/app{,/**}', group: 'internal', position: 'before' },
-    { pattern: '@/pages/**', group: 'internal', position: 'before' },
-    { pattern: '@/features/**', group: 'internal', position: 'before' },
-    { pattern: '@/entities/**', group: 'internal', position: 'before' },
-    { pattern: '@/shared/**', group: 'internal' },
-  ]),
+  // The app's own modules (`@/components`, `@/stores`…) as one group, after the packages.
+  importOrder([{ pattern: '@/**', group: 'internal' }]),
 ]);

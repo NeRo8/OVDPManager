@@ -5,12 +5,12 @@
     "version": "1.0.0",
     "platforms": ["ios", "android"],
     "orientation": "portrait",
-    "icon": "./src/shared/config/app-icon/icon.png",
+    "icon": "./assets/app-icon/icon.png",
     "scheme": "ovdpmanager",
     "userInterfaceStyle": "automatic",
     "backgroundColor": "#046865",
     "ios": {
-      "icon": "./src/shared/config/app-icon/icon.png",
+      "icon": "./assets/app-icon/icon.png",
       "bundleIdentifier": "com.nero.mobile.dev.ovdpmanager",
       "infoPlist": {
         "CFBundleDevelopmentRegion": "uk",
@@ -22,7 +22,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#046865",
-        "foregroundImage": "./src/shared/config/app-icon/android-icon-foreground.png"
+        "foregroundImage": "./assets/app-icon/android-icon-foreground.png"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.nero.mobile.dev.ovdpmanager",
@@ -34,7 +34,7 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#046865",
-          "image": "./src/shared/config/app-icon/splash-blank.png",
+          "image": "./assets/app-icon/splash-blank.png",
           "imageWidth": 240,
           "resizeMode": "contain"
         }
@@ -44,10 +44,10 @@
         {
           "ios": {
             "fonts": [
-              "./src/shared/config/fonts/Manrope-Regular.ttf",
-              "./src/shared/config/fonts/Manrope-Medium.ttf",
-              "./src/shared/config/fonts/Manrope-SemiBold.ttf",
-              "./src/shared/config/fonts/Manrope-Bold.ttf"
+              "./assets/fonts/Manrope-Regular.ttf",
+              "./assets/fonts/Manrope-Medium.ttf",
+              "./assets/fonts/Manrope-SemiBold.ttf",
+              "./assets/fonts/Manrope-Bold.ttf"
             ]
           },
           "android": {
@@ -55,10 +55,10 @@
               {
                 "fontFamily": "Manrope",
                 "fontDefinitions": [
-                  { "path": "./src/shared/config/fonts/Manrope-Regular.ttf", "weight": 400 },
-                  { "path": "./src/shared/config/fonts/Manrope-Medium.ttf", "weight": 500 },
-                  { "path": "./src/shared/config/fonts/Manrope-SemiBold.ttf", "weight": 600 },
-                  { "path": "./src/shared/config/fonts/Manrope-Bold.ttf", "weight": 700 }
+                  { "path": "./assets/fonts/Manrope-Regular.ttf", "weight": 400 },
+                  { "path": "./assets/fonts/Manrope-Medium.ttf", "weight": 500 },
+                  { "path": "./assets/fonts/Manrope-SemiBold.ttf", "weight": 600 },
+                  { "path": "./assets/fonts/Manrope-Bold.ttf", "weight": 700 }
                 ]
               }
             ]

@@ -1,7 +1,7 @@
 import { NativeTabs } from 'expo-router/native-tabs';
 import { useUnistyles } from 'react-native-unistyles';
 
-import { fontFamily, fontWeights } from '@/shared/theme';
+import { fontFamily, fontWeights } from '@/theme/typography';
 
 /**
  * The platform's own tab bar: Liquid Glass on iOS 26, Material on Android. Native tabs draw no

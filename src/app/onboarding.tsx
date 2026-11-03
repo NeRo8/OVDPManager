@@ -1,3 +1,3 @@
-import { OnboardingScreen } from '@/pages/onboarding';
+import OnboardingScreen from '@/screens/onboarding/OnboardingScreen';
 
 export default OnboardingScreen;

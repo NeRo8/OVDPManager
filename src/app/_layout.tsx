@@ -5,17 +5,18 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useUnistyles } from 'react-native-unistyles';
 
-import { purchaseScreenTitle } from '@/pages/holdings';
-import { planNameTitle } from '@/pages/plan';
-
-import { useIsOnboardingCompleted } from '@/features/onboarding';
-
-import { getActivePurchases, useInvestmentPlans } from '@/entities/portfolio';
-
-import { QueryProvider } from '@/shared/api';
-import { useToday } from '@/shared/config';
-import { goBackOr } from '@/shared/lib';
-import { HeaderButton, LaunchSplash, NativeStack, ToastHost } from '@/shared/ui';
+import { QueryProvider } from '@/api/QueryProvider';
+import { HeaderButton } from '@/components/button/HeaderButton';
+import { NativeStack } from '@/components/navigation/NativeStack';
+import { LaunchSplash } from '@/components/splash/LaunchSplash';
+import { ToastHost } from '@/components/toast/ToastHost';
+import { purchaseScreenTitle } from '@/screens/holdings/purchaseScreenTitle';
+import { planNameTitle } from '@/screens/plan/planNameTitle';
+import { getActivePurchases } from '@/stores/activePlan';
+import { useToday } from '@/stores/appSettings';
+import { useIsOnboardingCompleted } from '@/stores/onboarding';
+import { useInvestmentPlans } from '@/stores/plans';
+import { goBackOr } from '@/utils/navigation';
 
 // Filters open over their list, which shows every change at once; closing is all that is left.
 const filtersModal = (fallback: Href) =>

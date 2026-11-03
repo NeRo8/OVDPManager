@@ -1,4 +1,4 @@
-import { PlanNameScreen } from '@/pages/plan';
+import PlanNameScreen from '@/screens/plan/PlanNameScreen';
 
 export default function WelcomeRoute() {
   return <PlanNameScreen />;

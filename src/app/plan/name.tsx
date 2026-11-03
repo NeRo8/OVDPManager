@@ -1,6 +1,5 @@
-import { PlanNameScreen } from '@/pages/plan';
-
-import { DeferredScreen } from '@/shared/ui';
+import { DeferredScreen } from '@/components/navigation/DeferredScreen';
+import PlanNameScreen from '@/screens/plan/PlanNameScreen';
 
 export default function PlanNameRoute() {
   return (
