@@ -10,7 +10,7 @@
 - `src/app/+native-intent.ts` — `redirectSystemPath`.
 - `src/components/navigation/NativeStack.tsx` — стек з параметрами заголовка застосунку; `DeferredScreen.tsx` — відкладене монтування; `ResetFiltersHeader.tsx` — кнопка скидання фільтрів.
 - `src/components/skeleton/ScreenSkeleton.tsx` — форми скелетів `list`, `form`, `filters`.
-- `src/utils/navigation.ts` — `goBackOrHome`.
+- `src/utils/navigation.ts` — `goBackOr`, `goBackOrHome`.
 - Стан охорони: `useIsOnboardingCompleted()` (`src/stores/appSettings`, сховище `theme-preference-v1`) і `useInvestmentPlans().length > 0` (сховище `investment-plan-v1`).
 
 ## Карта маршрутів
@@ -62,7 +62,7 @@
 
 **NAV-06.** Параметри заголовка всіх стеків (`NativeStack`): кнопка «назад» лише стрілкою (`headerBackButtonDisplayMode: 'minimal'`); з Liquid Glass (`hasLiquidGlass`, iOS 26+) заголовок прозорий і вміст прокручується під ним, інакше суцільний фон `background`; без тіні; колір кнопок `accent`; заголовок шрифтом застосунку `semibold` у кольорі `text`; фон вмісту `background`. Екрани кольорів заголовка не задають.
 
-**NAV-07.** Модальні фільтри («Фільтри виплат», «Фільтри ОВДП») — `presentation: 'modal'` з кнопкою «Закрити» (✕, `close`) ліворуч, що викликає `goBackOr` із запасним маршрутом відповідного списку; праворуч екран фільтрів ставить «Скинути фільтри» (`refresh`), вимкнену, коли фільтрів немає (`ResetFiltersHeader`). Зміни фільтрів застосовуються одразу, тож модальне вікно лише закривають. Джерело: `FILTERS_MODAL` у `_layout.tsx`.
+**NAV-07.** Модальні фільтри («Фільтри виплат», «Фільтри ОВДП») — `presentation: 'modal'` з кнопкою «Закрити» (✕, `close`) ліворуч, що викликає `goBackOr` із запасним маршрутом відповідного списку; праворуч екран фільтрів ставить «Скинути фільтри» (`refresh`), вимкнену, коли фільтрів немає (`ResetFiltersHeader`). Зміни фільтрів застосовуються одразу, тож модальне вікно лише закривають. Джерело: `filtersModal(fallback)` у `_layout.tsx` (запасний маршрут `/` для фільтрів виплат, `/add` для фільтрів ОВДП).
 
 **NAV-08.** `/plan/actions` — `formSheet` з висотою за вмістом (`sheetAllowedDetents: 'fitToContents'`), видимим «язичком» і без заголовка; закривається свайпом униз або дотиком поза аркушем. Маршрут не відкладено: скелет дав би аркушу хибну висоту.
 

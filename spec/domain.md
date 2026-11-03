@@ -4,7 +4,7 @@
 
 ## Звідки дані
 
-- `src/lib/portfolio/portfolio.ts` — типи `Bond`, `BondPayment`, `Purchase`, `PlanOperation`, `Position`, `PositionPayment`, `OperationEvent`, `ScheduleEvent`; `CURRENCIES`, `bondChoices`, `groupPositions`, `isPlannedPurchase`, `isRedeemed`, `canBuyOn`, `maturesWithin`, `pricePerBond`, `purchaseCurrency`, `positionCurrency`, `positionPayments`, `operationEvents`, `compareScheduleEvents`, `sumTotals`, `nextPayment`.
+- `src/lib/portfolio/portfolio.ts` — типи `Bond`, `BondPayment`, `Operation`, `PlanOperation`, `Position`, `PositionPayment`, `OperationEvent`, `ScheduleEvent`; `CURRENCIES`, `bondChoices`, `groupPositions`, `isPlannedPurchase`, `isRedeemed`, `canBuyOn`, `maturesWithin`, `pricePerBond`, `purchaseCurrency`, `positionCurrency`, `positionPayments`, `operationEvents`, `compareScheduleEvents`, `sumTotals`, `nextPayment`.
 - `src/lib/portfolio/position.ts` — `PositionState`, `PositionResults`, `CurrencyResults`, `WalletPosition`, `hasRedemption`, `walletPosition`, `resultsByCurrency` (усередині: `netIncomeOf`, `positionResults`, `positionYield`, `positionState`, `plannedPart`).
 - `src/lib/portfolio/wallet.ts` — `Wallet`, `buildWallet`, `WalletScopeOptions`, `walletScopeOptions`, `isinsIn`.
 - `src/lib/portfolio/yield.ts` — `annualYield`, `amountForYield`, `ANNUAL_YIELD_RANGE`.
@@ -96,7 +96,7 @@
 
 `position.ts`, `positionResults`, `sumTotals`.
 
-**DOM-27.** `netIncome` = `round2(totalPayments − invested)`, якщо `complete`, інакше `null`. `returnPercent` = `round2(netIncome / invested × 100)`, якщо `netIncome` не `null` і `invested` не нуль, інакше `null`. `position.ts`, `withNetIncome`.
+**DOM-27.** `netIncome` = `round2(totalPayments − invested)`, якщо `complete`, інакше `null`. `returnPercent` = `round2(netIncome / invested × 100)`, якщо `netIncome` не `null` і `invested` не нуль, інакше `null`. `position.ts`, `netIncomeOf`.
 
 Приклад (`position.test.ts`): ОВДП 10 %, номінал 1000, купони по 50 щопівроку з 2025-07-01 до 2027-01-01, погашення 1000 у 2027-01-01. Дві ОВДП куплено 2025-01-01 за 1980, сьогодні 2026-03-15: `invested` 1980, `coupons` 400, `redemption` 2000, `received` 200, `expected` 2200, `totalPayments` 2400, `netIncome` 420, `returnPercent` 21,21.
 
