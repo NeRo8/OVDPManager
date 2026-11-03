@@ -23,16 +23,13 @@ export function ToastHost() {
     AccessibilityInfo.announceForAccessibility(
       [toast.title, toast.message].filter(Boolean).join('. '),
     );
-    const timer = setTimeout(
-      () => hideToast(toast.id),
-      toast.action ? VISIBLE_WITH_ACTION_MS : VISIBLE_MS,
-    );
+    const timer = setTimeout(hideToast, toast.action ? VISIBLE_WITH_ACTION_MS : VISIBLE_MS);
     return () => clearTimeout(timer);
   }, [toast]);
 
   return (
     <View style={styles.host} pointerEvents="box-none">
-      {toast && <ToastView key={toast.id} toast={toast} />}
+      {toast && <ToastView toast={toast} />}
     </View>
   );
 }

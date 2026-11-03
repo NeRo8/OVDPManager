@@ -4,7 +4,6 @@ export type ThemePreference = 'system' | 'light' | 'dark';
 export type ToastTone = 'error' | 'success' | 'info';
 
 export type Toast = {
-  /** New for every toast, so a repeated message still restarts its timer and animation. */
   tone: ToastTone;
   title: string;
   message?: string;

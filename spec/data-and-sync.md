@@ -6,11 +6,11 @@
 
 - Сховище: `src/utils/storage.ts` (`mmkvStorage`).
 - Сховища стану (папка на кожне, `types.ts` / `store.ts` / `selectors.ts` / `actions.ts` / `index.ts`):
-  `src/stores/operations/`, `src/stores/plans/`, `src/stores/bonds/`, `src/stores/keyRate/`, `src/stores/onboarding/`, `src/stores/appSettings/`, `src/stores/toast/`.
+  `src/stores/operations/`, `src/stores/plans/`, `src/stores/bonds/`, `src/stores/keyRate/`, `src/stores/appSettings/`.
 - Клієнт НБУ: `src/api/nbu/client.ts` (`nbuClient`, `NbuError`).
 - Запити: `src/api/nbu/nbuBonds.ts`, `nbuKeyRate.ts`, `dailyRates.ts`, `useBonds.hook.ts`, `keyRateQuery.ts`, `useKeyRate.hook.ts`.
 - TanStack Query: `src/api/queryClient.ts`, `src/api/QueryProvider.tsx`.
-- Сповіщення: `src/stores/toast/`, `src/components/toast/ToastHost.tsx`, `src/components/toast/ToastView.tsx`.
+- Сповіщення: поле `toast` у `src/stores/appSettings/`, `src/components/toast/ToastHost.tsx`, `src/components/toast/ToastView.tsx`.
 - Оновлення жестом: `src/hooks/usePullToRefresh.hook.ts`.
 - Стани екранів: `src/components/portfolio/BondsGate.tsx`, `BondsUnavailable.tsx`, `BondsUnavailableCard.tsx`, `WalletGate.tsx`, `EmptyWallet.tsx`, `StaleBondsNotice.tsx`, `NbuSourceNote.tsx`.
 
@@ -30,8 +30,7 @@
 | `investment-plan-v1`  | `stores/plans`       | `{ plans: InvestmentPlan[] }`                                                                      | `{ plans: [] }`                                       |
 | `nbu-bonds-v1`        | `stores/bonds`       | `{ bonds: Bond[] \| null; updatedAt: number \| null; filters }` (мс; фільтри вибору ОВДП, PICK-06) | `{ bonds: null, updatedAt: null }`, фільтри — PICK-06 |
 | `nbu-key-rate-v1`     | `stores/keyRate`     | `{ byYear: Record<рік, { rates: Record<дата, %>; throughDate; updatedAt }> }`                      | `{ byYear: {} }`                                      |
-| `onboarding-v1`       | `stores/onboarding`  | `{ isCompleted: boolean }`                                                                         | `{ isCompleted: false }`                              |
-| `theme-preference-v1` | `stores/appSettings` | `{ preference }`; дата `today` лише в пам’яті                                                      | тема `system`, дата запуску                           |
+| `theme-preference-v1` | `stores/appSettings` | `{ preference; isOnboardingCompleted }`; `today` і `toast` лише в пам’яті                          | тема `system`, вступ не переглянуто                   |
 
 **DATA-04.** `stores/operations` містить усі `PlanOperation`. Дії: `addOperation`, `updateOperation`, `removeOperation`, `removePosition`, `removePlanOperations`, `copyPlanOperations`, `replaceOperations`. Перед зміною історії перевіряється, що продажі не перевищують залишок на жодну дату в кожному плані та ISIN. Копіювання й видалення плану охоплюють обидва типи операцій.
 
@@ -41,7 +40,7 @@
 
 **DATA-07.** Селектори `useActivePlan`, `getActivePlan`, `useActiveOperations`, `getActiveOperations` і дії активного плану знаходяться в `stores/plans`. Окремого `stores/activePlan` немає. Вибір зберігається через `InvestmentPlan.isActive`, рівно один план активний, якщо плани існують.
 
-**DATA-08.** Не зберігаються між запусками: сповіщення (`src/stores/toast/store.ts`, звичайний `create` без `persist`), кеш TanStack Query (лише в пам'яті, без persister), копія в хмарі (`useCloudBackup`), чернетки форм, ціна продажу, сторінка онбордингу. Вхід у Google зберігає нативний Firebase SDK, а не застосунок.
+**DATA-08.** Не зберігаються між запусками: сповіщення (поле `toast` в `appSettings`, яке `partialize` не зберігає), кеш TanStack Query (лише в пам'яті, без persister), копія в хмарі (`useCloudBackup`), чернетки форм, ціна продажу, сторінка онбордингу. Вхід у Google зберігає нативний Firebase SDK, а не застосунок.
 
 ### Клієнт НБУ
 
@@ -79,7 +78,7 @@
 
 ### Сповіщення
 
-**DATA-24.** Одночасно є лише одне сповіщення: нове замінює попереднє (`showToast` дає новий `id`). `tone` ∈ `error | success | info`. Воно зникає через 4 с, а з дією — через 6 с; дотик до сповіщення закриває його; дотик до дії закриває й виконує дію. Під час появи текст «<заголовок>. <текст>» зачитується для screen reader. `hideToast(id)` закриває лише сповіщення з цим `id`. `src/stores/toast/actions.ts`, `src/components/toast/ToastHost.tsx`, `ToastView.tsx`.
+**DATA-24.** Одночасно є лише одне сповіщення: нове просто замінює попереднє (`showToast` перезаписує поле `toast`), а таймер починається заново. `tone` ∈ `error | success | info`. Воно зникає через 4 с, а з дією — через 6 с; дотик до сповіщення закриває його; дотик до дії закриває й виконує дію. Під час появи текст «<заголовок>. <текст>» зачитується для screen reader. `hideToast()` закриває те, що на екрані; таймер замінене сповіщення не закриває, бо його скасовано разом зі зміною `toast`. `src/stores/appSettings/actions.ts`, `src/components/toast/ToastHost.tsx`, `ToastView.tsx`.
 
 ### Оновлення жестом
 
@@ -124,7 +123,7 @@
 - `src/api/queryClient.test.ts`: DATA-21 (5 хвилин після помилки для всіх автоматичних оновлень), DATA-23 (сповіщення з «Повторити» лише над показаними даними й з `errorTitle`).
 - `src/stores/operations/purchases.test.ts`: DATA-04 (додавання з власним id, зміна, видалення купівлі, позиції в плані й усього плану, копіювання плану).
 - `src/stores/plans/plans.test.ts` і `activePlan.test.ts`: DATA-05…DATA-07 (дублювання з унікальною назвою, запасний активний план, новий план активний, купівлі й видалення лише в активному плані).
-- `src/stores/toast/toast.test.ts`: DATA-24 (одне сповіщення, новий `id`, ховається лише те, що на екрані).
+- `src/stores/appSettings/actions.test.ts`: DATA-24 (одне сповіщення, нове замінює попереднє, `hideToast` прибирає його).
 
 **Без тестів:** DATA-01…DATA-03, DATA-08, DATA-11, DATA-17, DATA-22, DATA-25…DATA-32: сховища й ключі, хуки запитів, оновлення дати, стани охоронців (компоненти не тестуються).
 

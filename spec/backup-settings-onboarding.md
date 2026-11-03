@@ -10,7 +10,7 @@
 - Хмара: `src/api/backup/googleAccount.ts`, `cloudBackup.ts`, `useCloudBackup.hook.ts`, `src/hooks/useCloudAccount.hook.ts`, `useGoogleAccount.hook.ts`, `firestore.rules`, `src/app/+native-intent.ts`.
 - Екрани: `src/screens/backup/BackupExportScreen.tsx`, `BackupImportScreen.tsx`, `src/screens/settings/SettingsScreen.tsx`, `CloudAccountSection.tsx`.
 - Тема: `src/theme/`, `src/theme/unistyles.ts`.
-- Онбординг: `src/stores/onboarding/`, `src/screens/onboarding/slides.ts`, `src/screens/onboarding/OnboardingScreen.tsx` (+ `OnboardingSlide`, `PagerDot`, `OnboardingBackdrop`, `AuroraBlob`).
+- Онбординг: прапорець `isOnboardingCompleted` у `src/stores/appSettings/`, `src/screens/onboarding/slides.ts`, `src/screens/onboarding/OnboardingScreen.tsx` (+ `OnboardingSlide`, `PagerDot`, `OnboardingBackdrop`, `AuroraBlob`).
 - Охоронці маршрутів: `src/app/_layout.tsx`; перший план: `src/app/welcome.tsx` → `PlanNameScreen`.
 
 ## Правила
@@ -123,7 +123,7 @@
 
 **ONB-02.** Слайди гортаються жестом (сторінками) або кнопкою «Далі», що прокручує до наступного; на останньому слайді кнопка — «Почати». «Пропустити» стоїть угорі праворуч на всіх слайдах, крім останнього (там вона прозора, недоступна для дотику й прихована від screen reader, але місце зберігає). Крапки показують сторінку; для screen reader — «Сторінка N з 4». Фон декоративний; під «зменшенням руху» він не рухається. `src/screens/onboarding/OnboardingScreen.tsx`, `AuroraBlob.tsx`.
 
-**ONB-03.** «Почати» і «Пропустити» однаково викликають `completeOnboarding()`: `isCompleted = true` назавжди (`onboarding-v1`). Вступ можна переглянути повторно з налаштувань без зміни прапорця; копія і відновлення його не змінюють. `src/stores/onboarding/actions.ts`.
+**ONB-03.** «Почати» і «Пропустити» однаково викликають `completeOnboarding()`: `isOnboardingCompleted = true` назавжди (зберігається разом із темою під `theme-preference-v1`). Вступ можна переглянути повторно з налаштувань без зміни прапорця; копія і відновлення його не змінюють. `src/stores/appSettings/actions.ts`.
 
 ### Охоронці маршрутів
 

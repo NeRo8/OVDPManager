@@ -5,8 +5,8 @@ import { showToast } from '@/stores/appSettings';
 import { queryClient } from './queryClient';
 
 // The toast is a screen's: what it is asked to show is what matters here.
-jest.mock('@/stores/toast', () => ({
-  ...jest.requireActual('@/stores/toast'),
+jest.mock('@/stores/appSettings', () => ({
+  ...jest.requireActual('@/stores/appSettings'),
   showToast: jest.fn(),
 }));
 

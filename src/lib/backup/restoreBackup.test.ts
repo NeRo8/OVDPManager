@@ -13,8 +13,8 @@ jest.mock('@/utils/confirm', () => ({
   ...jest.requireActual('@/utils/confirm'),
   confirmDestructive: jest.fn(),
 }));
-jest.mock('@/stores/toast', () => ({
-  ...jest.requireActual('@/stores/toast'),
+jest.mock('@/stores/appSettings', () => ({
+  ...jest.requireActual('@/stores/appSettings'),
   showToast: jest.fn(),
 }));
 

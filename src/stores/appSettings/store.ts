@@ -20,6 +20,7 @@ export const useAppSettingsStore = create<AppSettingsState>()(
   persist(() => initialState, {
     name: STORAGE_KEY,
     storage: createJSONStorage(() => mmkvStorage),
-    partialize: ({ preference }) => ({ preference }),
+    // Today is taken again on every launch, and a toast does not outlive the session.
+    partialize: ({ preference, isOnboardingCompleted }) => ({ preference, isOnboardingCompleted }),
   }),
 );

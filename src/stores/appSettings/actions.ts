@@ -17,7 +17,11 @@ export function completeOnboarding(): void {
   useAppSettingsStore.setState({ isOnboardingCompleted: true });
 }
 
-export function showToast(toast: Toast | null): void {
+/**
+ * Tells the user about something that just happened (a failed request, a form that cannot be
+ * saved, a finished action). One toast at a time: a new one replaces the one on screen.
+ */
+export function showToast(toast: Toast): void {
   useAppSettingsStore.setState({ toast });
 }
 

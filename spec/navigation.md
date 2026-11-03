@@ -11,7 +11,7 @@
 - `src/components/navigation/NativeStack.tsx` — стек з параметрами заголовка застосунку; `DeferredScreen.tsx` — відкладене монтування; `ResetFiltersHeader.tsx` — кнопка скидання фільтрів.
 - `src/components/skeleton/ScreenSkeleton.tsx` — форми скелетів `list`, `form`, `filters`.
 - `src/utils/navigation.ts` — `goBackOrHome`.
-- Стан охорони: `useIsOnboardingCompleted()` (`src/stores/onboarding`, сховище `onboarding-v1`) і `useInvestmentPlans().length > 0` (сховище `investment-plan-v1`).
+- Стан охорони: `useIsOnboardingCompleted()` (`src/stores/appSettings`, сховище `theme-preference-v1`) і `useInvestmentPlans().length > 0` (сховище `investment-plan-v1`).
 
 ## Карта маршрутів
 
