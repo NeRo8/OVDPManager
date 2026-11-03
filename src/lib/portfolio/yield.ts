@@ -37,9 +37,10 @@ function presentValue(flows: TimedFlow[], rate: number): number {
  * purchase at the nominal on a coupon date yields the coupon rate. Null when there is nothing to compute or the
  * yield is outside −99…1000 %.
  */
-export function annualYield(amount: number, purchaseDate: string, payments: Flow[]): number | null {
+export function annualYield(amount: number, date: string, payments: Flow[]): number | null {
   if (amount <= 0 || payments.length === 0) return null;
-  const flows = timeFlows(purchaseDate, payments);
+  const flows = timeFlows(date, payments);
+  if (flows.every((flow) => flow.halfYears === 0)) return null;
   const valueAt = (rate: number) => presentValue(flows, rate);
   if (valueAt(LOWEST_RATE) < amount || valueAt(HIGHEST_RATE) > amount) return null;
 

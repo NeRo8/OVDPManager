@@ -21,7 +21,7 @@ const bond: Bond = {
 const preview = (fields: Partial<Bond> = {}) =>
   purchasePreview({
     bond: { ...bond, ...fields },
-    values: { purchaseDate: '2026-03-01', quantity: 2, amount: 2000 },
+    values: { date: '2026-03-01', quantity: 2, amount: 2000 },
     today: '2026-10-01',
     keyRate: 16,
     keyRateFailed: false,

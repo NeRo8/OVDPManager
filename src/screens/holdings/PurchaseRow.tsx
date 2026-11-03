@@ -8,7 +8,7 @@ import { Money } from '@/components/typography/Money';
 import { Typography } from '@/components/typography/Typography';
 import {
   type Bond,
-  type Purchase,
+  type Operation,
   isPlannedPurchase,
   pricePerBond,
   purchaseCurrency,
@@ -18,12 +18,12 @@ import { formatDate } from '@/utils/date';
 import { currencySign } from '@/utils/format';
 
 type Props = {
-  purchase: Purchase;
+  purchase: Operation;
   /** Missing when the NBU data has no such bond */
   bond?: Bond;
   today: string;
-  onEdit: (purchase: Purchase) => void;
-  onDelete: (purchase: Purchase) => void;
+  onEdit: (purchase: Operation) => void;
+  onDelete: (purchase: Operation) => void;
 };
 
 /**
@@ -31,6 +31,7 @@ type Props = {
  * correct; the button deletes it.
  */
 export function PurchaseRow({ purchase, bond, today, onEdit, onDelete }: Props) {
+  const kind = purchase.type === 'sale' ? 'Продаж' : 'Купівля';
   const currency = purchaseCurrency(purchase, bond);
   const isPlanned = isPlannedPurchase(purchase, today);
   const price = pricePerBond(purchase.amount, purchase.quantity);
@@ -41,14 +42,12 @@ export function PurchaseRow({ purchase, bond, today, onEdit, onDelete }: Props) 
     <ListRow
       onPress={bond ? edit : undefined}
       accessibilityRole={bond ? 'button' : undefined}
-      accessibilityLabel={
-        bond ? `Змінити купівлю від ${formatDate(purchase.purchaseDate)}` : undefined
-      }
-      // Badged as the payments' rows below it, in the purchases' color.
+      accessibilityLabel={bond ? `Змінити операцію від ${formatDate(purchase.date)}` : undefined}
+      // Badged as the payments' rows below it, in the operations' color.
       leading={<Avatar label={currencySign(currency)} color={SERIES_COLORS.purchase.badge} />}
       title={
         <Typography variant="callout" tabular>
-          {formatDate(purchase.purchaseDate)} · {purchase.quantity} шт
+          {kind} · {formatDate(purchase.date)} · {purchase.quantity} шт
         </Typography>
       }
       trailing={
@@ -56,7 +55,7 @@ export function PurchaseRow({ purchase, bond, today, onEdit, onDelete }: Props) 
           onPress={remove}
           hitSlop={8}
           accessibilityRole="button"
-          accessibilityLabel={`Видалити купівлю від ${formatDate(purchase.purchaseDate)}`}
+          accessibilityLabel={`Видалити операцію від ${formatDate(purchase.date)}`}
           style={({ pressed }) => pressed && styles.pressed}
         >
           <Typography variant="subhead" tone="danger">
@@ -72,7 +71,7 @@ export function PurchaseRow({ purchase, bond, today, onEdit, onDelete }: Props) 
       )}
       {!bond && (
         <Typography variant="caption1" tone="secondary">
-          Редагування недоступне без даних НБУ
+          Редагування недоступне без збережених умов ОВДП
         </Typography>
       )}
       <Typography variant="caption1" tone="secondary">

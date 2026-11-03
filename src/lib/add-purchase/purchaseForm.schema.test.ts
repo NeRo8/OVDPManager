@@ -16,18 +16,14 @@ const bond: Bond = {
 it('rejects fractional and punctuation-separated quantities without changing their value', () => {
   const schema = purchaseFormSchema(bond);
   for (const quantity of ['1,5', '1.5', '1.000']) {
-    expect(schema.safeParse({ purchaseDate: '2026-01-01', quantity, amount: '1000' }).success).toBe(
-      false,
-    );
+    expect(schema.safeParse({ date: '2026-01-01', quantity, amount: '1000' }).success).toBe(false);
   }
-  expect(
-    schema.parse({ purchaseDate: '2026-01-01', quantity: '15', amount: '1000' }).quantity,
-  ).toBe(15);
+  expect(schema.parse({ date: '2026-01-01', quantity: '15', amount: '1000' }).quantity).toBe(15);
 });
 
 it('reads a single comma or point as a decimal separator', () => {
   const schema = purchaseFormSchema(bond);
-  const input = { purchaseDate: '2026-01-01', quantity: '1' };
+  const input = { date: '2026-01-01', quantity: '1' };
   expect(schema.parse({ ...input, amount: '1.000' }).amount).toBe(1);
   expect(schema.parse({ ...input, amount: '1,000' }).amount).toBe(1);
   expect(schema.parse({ ...input, amount: '1 000' }).amount).toBe(1000);
@@ -35,9 +31,9 @@ it('reads a single comma or point as a decimal separator', () => {
 });
 
 /** The message of the first problem with the form as typed, or null when it is valid. */
-const problem = (fields: Partial<{ purchaseDate: string; quantity: string; amount: string }>) => {
+const problem = (fields: Partial<{ date: string; quantity: string; amount: string }>) => {
   const result = purchaseFormSchema(bond).safeParse({
-    purchaseDate: '2026-03-15',
+    date: '2026-03-15',
     quantity: '10',
     amount: '10 000',
     ...fields,
@@ -46,15 +42,15 @@ const problem = (fields: Partial<{ purchaseDate: string; quantity: string; amoun
 };
 
 it('takes a date from the placement day up to the day before maturity', () => {
-  expect(problem({ purchaseDate: '2025-01-01' })).toBeNull();
-  expect(problem({ purchaseDate: '2027-12-31' })).toBeNull();
-  expect(problem({ purchaseDate: '2024-12-31' })).toBe(
+  expect(problem({ date: '2025-01-01' })).toBeNull();
+  expect(problem({ date: '2027-12-31' })).toBeNull();
+  expect(problem({ date: '2024-12-31' })).toBe(
     'ОВДП розміщена 01.01.2025 — дата купівлі не може бути раніше',
   );
-  expect(problem({ purchaseDate: '2028-01-01' })).toBe(
+  expect(problem({ date: '2028-01-01' })).toBe(
     'ОВДП погашається 01.01.2028 — купівля має бути раніше',
   );
-  expect(problem({ purchaseDate: '' })).toBe('Вкажіть дату купівлі');
+  expect(problem({ date: '' })).toBe('Вкажіть дату купівлі');
 });
 
 it('asks for a quantity and an amount, both above zero', () => {
@@ -68,9 +64,9 @@ it('asks for a quantity and an amount, both above zero', () => {
 it('gives the values as numbers, the amount rounded to kopecks', () => {
   expect(
     purchaseFormSchema(bond).parse({
-      purchaseDate: '2026-03-15',
+      date: '2026-03-15',
       quantity: '10',
       amount: '10 200,505',
     }),
-  ).toEqual({ purchaseDate: '2026-03-15', quantity: 10, amount: 10200.51 });
+  ).toEqual({ date: '2026-03-15', quantity: 10, amount: 10200.51 });
 });

@@ -1,21 +1,22 @@
+import { operationBonds } from './operations';
 import {
   type Bond,
   CURRENCIES,
   type Currency,
   type PositionPayment,
-  type Purchase,
-  type PurchaseEvent,
+  type Operation,
+  type OperationEvent,
   groupPositions,
-  purchaseEvents,
+  operationEvents,
 } from './portfolio';
 import { type WalletPosition, walletPosition } from './position';
 
 /**
  * The Positions of a set of Purchases joined with the NBU data, as of a day. Every field follows
- * from the purchases, so a Wallet is only ever built whole, never edited field by field.
+ * from the operations, so a Wallet is only ever built whole, never edited field by field.
  */
 export type Wallet = {
-  purchases: Purchase[];
+  operations: Operation[];
   /** The NBU data by ISIN */
   byIsin: Map<string, Bond>;
   today: string;
@@ -23,27 +24,28 @@ export type Wallet = {
   /** Every Position's payments, by date */
   payments: PositionPayment[];
   /** Every purchase as an event, by date */
-  purchaseEvents: PurchaseEvent[];
+  operationEvents: OperationEvent[];
 };
 
-/** The Wallet of the purchases as of today. Payments of bonds missing from the NBU data are left out. */
+/** The Wallet of the operations as of today. Payments of bonds missing from the NBU data are left out. */
 export function buildWallet(
-  purchases: Purchase[],
+  operations: Operation[],
   byIsin: Map<string, Bond>,
   today: string,
 ): Wallet {
-  const positions = groupPositions(purchases).map((position) =>
+  byIsin = operationBonds(operations, byIsin, today);
+  const positions = groupPositions(operations).map((position) =>
     walletPosition(position, byIsin.get(position.isin), today),
   );
   return {
-    purchases,
+    operations,
     byIsin,
     today,
     positions,
     payments: positions
       .flatMap(({ payments }) => payments)
       .sort((first, second) => first.date.localeCompare(second.date)),
-    purchaseEvents: purchaseEvents(purchases, byIsin),
+    operationEvents: operationEvents(operations, byIsin),
   };
 }
 
@@ -65,7 +67,7 @@ export function walletScopeOptions(wallet: Wallet): WalletScopeOptions {
       positions.map(({ position, currency }) => [position.isin, currency]),
     ),
     currencies: CURRENCIES.filter((currency) =>
-      [...wallet.payments, ...wallet.purchaseEvents].some((event) => event.currency === currency),
+      [...wallet.payments, ...wallet.operationEvents].some((event) => event.currency === currency),
     ),
   };
 }

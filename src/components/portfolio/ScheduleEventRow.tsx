@@ -25,12 +25,13 @@ const SERIES = {
   coupon: 'coupon',
   redemption: 'redemption',
   purchase: 'purchase',
+  sale: 'sale',
 } as const satisfies Record<ScheduleEvent['type'], SeriesColor>;
 
 type Props = {
   event: ScheduleEvent;
   showIsin?: boolean;
-  /** For positions bought in several purchases, where the quantity differs between payments */
+  /** For positions bought in several operations, where the quantity differs between payments */
   showQuantity?: boolean;
 };
 
@@ -43,21 +44,23 @@ export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
   const today = useToday();
   const series = SERIES[event.type];
   const isPurchase = event.type === 'purchase';
-  const isPaid = !isPurchase && event.isPaid;
-  const isUpcoming = !isPurchase && !event.isPaid;
+  const isOperation = 'id' in event;
+  const isPaid = isOperation ? event.type === 'sale' && event.date <= today : event.isPaid;
+  const isUpcoming = isOperation ? event.date > today : !event.isPaid;
   const signedTotal = isPurchase ? -event.total : event.total;
   const sign = signPrefix(signedTotal);
   const tone = isPaid ? 'secondary' : 'primary';
-  const planned = isPurchase
+  const planned = isOperation
     ? event.date > today && 'заплановано'
     : event.plannedQuantity > 0 &&
       (event.plannedQuantity === event.quantity
         ? 'заплановано'
         : `${event.plannedQuantity} з ${event.quantity} шт заплановано`);
+  const purchaseKindLabel = isPurchase ? purchaseKind(event.isTopUp) : undefined;
   const kind = [
-    isPurchase ? purchaseKind(event.isTopUp) : KINDS[event.type],
+    isOperation ? purchaseKindLabel : KINDS[event.type],
     // A no-break space keeps "10 шт" on one line.
-    (showQuantity || isPurchase) && `${event.quantity} шт`,
+    (showQuantity || isOperation) && `${event.quantity} шт`,
     isPaid && 'отримано',
     isUpcoming && formatDaysLeft(daysBetween(today, event.date)),
     planned,

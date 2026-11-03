@@ -2,8 +2,8 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { keyRateQuery, keyRateYear } from '@/api/nbu/keyRateQuery';
 import { buildWallet } from '@/lib/portfolio/wallet';
-import { useActivePurchases } from '@/stores/activePlan';
 import { useToday, showToast } from '@/stores/appSettings';
+import { useActiveOperations } from '@/stores/plans';
 
 import { useBonds } from './useBonds.hook';
 
@@ -13,7 +13,7 @@ import { useBonds } from './useBonds.hook';
  * catalog and a way to refresh it.
  */
 export function useWallet() {
-  const { plan, purchases } = useActivePurchases();
+  const { plan, operations } = useActiveOperations();
   const { bonds, byIsin, refresh: refreshBonds } = useBonds();
   const today = useToday();
   const queryClient = useQueryClient();
@@ -30,5 +30,5 @@ export function useWallet() {
       });
     }
   };
-  return { ...buildWallet(purchases, byIsin, today), plan, bonds, refresh };
+  return { ...buildWallet(operations, byIsin, today), plan, bonds, refresh };
 }

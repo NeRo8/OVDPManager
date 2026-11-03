@@ -1,12 +1,14 @@
-import type { Purchase } from '@/lib/portfolio/portfolio';
+import type { Operation } from '@/lib/portfolio/portfolio';
 
 import { hasMadePurchase, purchaseScreenTitle } from './purchaseScreenTitle';
 
 const today = '2026-10-31';
-const purchaseOf = (id: string, isin: string, purchaseDate: string): Purchase => ({
+const purchaseOf = (id: string, isin: string, date: string): Operation => ({
+  type: 'purchase',
+  ovdp: null,
   id,
   isin,
-  purchaseDate,
+  date,
   amount: 1000,
   quantity: 1,
   currency: 'UAH',

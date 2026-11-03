@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { bondPicker } from '@/lib/add-purchase/bondPicker';
 import { groupPositions } from '@/lib/portfolio/portfolio';
 import { plannedPart } from '@/lib/portfolio/position';
-import { useActivePurchases } from '@/stores/activePlan';
 import { useToday } from '@/stores/appSettings';
 import { useBondPickerFilters } from '@/stores/bondPickerFilters';
+import { useActiveOperations } from '@/stores/plans';
 
 import { useBonds } from './useBonds.hook';
 
@@ -16,13 +16,13 @@ import { useBonds } from './useBonds.hook';
  */
 export function useBondPicker() {
   const { bonds } = useBonds();
-  const { purchases } = useActivePurchases();
+  const { operations } = useActiveOperations();
   const filters = useBondPickerFilters();
   const today = useToday();
   const [query, setQuery] = useState('');
 
   const owned = new Map(
-    groupPositions(purchases).map((position) => [
+    groupPositions(operations).map((position) => [
       position.isin,
       { quantity: position.quantity, planned: plannedPart(position, today).quantity },
     ]),

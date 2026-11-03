@@ -1,4 +1,4 @@
-import type { PurchaseEvent, PositionPayment } from '@/lib/portfolio/portfolio';
+import type { OperationEvent, PositionPayment } from '@/lib/portfolio/portfolio';
 
 import { groupScheduleEventsByMonth } from './scheduleSections';
 
@@ -14,7 +14,7 @@ it('groups events by month and totals only payments', () => {
     plannedQuantity: 0,
     isPaid: true,
   };
-  const purchase: PurchaseEvent = {
+  const purchase: OperationEvent = {
     type: 'purchase',
     date: '2026-02-02',
     isin: 'UA1',

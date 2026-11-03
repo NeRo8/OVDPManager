@@ -19,8 +19,7 @@ import {
   samePlanName,
   uniquePlanName,
 } from '@/lib/portfolio/plan';
-import { createActivePlan } from '@/stores/activePlan';
-import { renameInvestmentPlan, useInvestmentPlans } from '@/stores/plans';
+import { createActivePlan, renameInvestmentPlan, useInvestmentPlans } from '@/stores/plans';
 
 import { planNameTitle } from './planNameTitle';
 

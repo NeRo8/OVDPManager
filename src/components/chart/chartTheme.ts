@@ -1,6 +1,5 @@
 import type { AppTheme } from '@/theme/palette';
-import type { SeriesColor } from '@/theme/series';
-import { SERIES_COLORS } from '@/theme/series';
+import { type SeriesColor, SERIES_COLORS } from '@/theme/series';
 import { withAlpha } from '@/utils/color';
 
 export type ChartPalette = {
@@ -17,6 +16,7 @@ export function chartPalette(theme: AppTheme): ChartPalette {
       coupon: theme[SERIES_COLORS.coupon.mark],
       redemption: theme[SERIES_COLORS.redemption.mark],
       purchase: theme[SERIES_COLORS.purchase.mark],
+      sale: theme[SERIES_COLORS.sale.mark],
       plannedPurchase: theme[SERIES_COLORS.plannedPurchase.mark],
     },
   };

@@ -4,6 +4,8 @@ import { addMonthsISO, formatDate } from '@/utils/date';
 import { currencySign } from '@/utils/format';
 import { round2 } from '@/utils/number';
 
+import { compareOperations, purchaseLots, signedQuantity } from './operations';
+
 /** Currencies of the NBU bonds, in the order the schedule lists them. */
 export const CURRENCIES = ['UAH', 'USD', 'EUR'] as const;
 export type Currency = (typeof CURRENCIES)[number];
@@ -41,12 +43,15 @@ export type Bond = {
   payments: BondPayment[];
 };
 
-/** One purchase. Several purchases of the same ISIN form a position. */
-export type Purchase = {
+/** A purchase or sale with the terms needed to retain its history without NBU. */
+export type Operation = {
+  type: 'purchase' | 'sale';
+  /** Null only for legacy purchases whose bond data could not be recovered. */
+  ovdp: Bond | null;
   id: string;
   isin: string;
-  purchaseDate: string;
-  /** Total amount paid for the bonds, in the bond currency */
+  date: string;
+  /** Full debit including fees, or net sale proceeds, in the bond currency */
   amount: number;
   quantity: number;
   /** The bond's currency, taken when the purchase is added */
@@ -54,13 +59,13 @@ export type Purchase = {
 };
 
 /** A purchase in one investment plan; the wallet shows those of the active plan. */
-export type PlanPurchase = Purchase & { planId: string };
+export type PlanOperation = Operation & { planId: string };
 
-/** All purchases of one ISIN. */
+/** All operations of one ISIN. */
 export type Position = {
   isin: string;
   /** Sorted by purchase date */
-  purchases: Purchase[];
+  operations: Operation[];
   quantity: number;
   investedAmount: number;
 };
@@ -70,7 +75,7 @@ export type PositionPayment = BondPayment & {
   currency: Currency;
   /** Bonds held on the payment date */
   quantity: number;
-  /** Of `quantity`, the bonds of purchases still planned (dated after today) */
+  /** Of `quantity`, the bonds of operations still planned (dated after today) */
   plannedQuantity: number;
   /** Per-bond amount × quantity */
   total: number;
@@ -78,8 +83,8 @@ export type PositionPayment = BondPayment & {
 };
 
 /** A purchase on the payment schedule: money paid for bonds, on the purchase date. */
-export type PurchaseEvent = {
-  type: 'purchase';
+export type OperationEvent = {
+  type: 'purchase' | 'sale';
   /** Id of the purchase */
   id: string;
   date: string;
@@ -92,8 +97,8 @@ export type PurchaseEvent = {
   isTopUp: boolean;
 };
 
-/** What the schedule lists: payments received and purchases made. */
-export type ScheduleEvent = PositionPayment | PurchaseEvent;
+/** What the schedule lists: payments received and operations made. */
+export type ScheduleEvent = PositionPayment | OperationEvent;
 
 /**
  * Bonds to pick a purchase from. Without a query: those that can still be bought today. With one:
@@ -120,29 +125,30 @@ export function bondChoices(bonds: Bond[], query: string, today: string): Bond[]
     });
 }
 
-/** Groups purchases by ISIN, keeping the order in which each ISIN was first added. */
-export function groupPositions(purchases: Purchase[]): Position[] {
-  const byIsin = new Map<string, Purchase[]>();
-  for (const purchase of purchases) {
+/** Groups operations by ISIN, keeping the order in which each ISIN was first added. */
+export function groupPositions(operations: Operation[]): Position[] {
+  const byIsin = new Map<string, Operation[]>();
+  for (const purchase of operations) {
     byIsin.set(purchase.isin, [...(byIsin.get(purchase.isin) ?? []), purchase]);
   }
   return [...byIsin].map(([isin, isinPurchases]) => ({
     isin,
-    purchases: isinPurchases.sort(
-      (first, second) =>
-        first.purchaseDate.localeCompare(second.purchaseDate) || first.id.localeCompare(second.id),
+    operations: isinPurchases.sort(compareOperations),
+    quantity: isinPurchases.reduce((total, purchase) => total + signedQuantity(purchase), 0),
+    investedAmount: round2(
+      isinPurchases
+        .filter((operation) => operation.type === 'purchase')
+        .reduce((total, purchase) => total + purchase.amount, 0),
     ),
-    quantity: isinPurchases.reduce((total, purchase) => total + purchase.quantity, 0),
-    investedAmount: round2(isinPurchases.reduce((total, purchase) => total + purchase.amount, 0)),
   }));
 }
 
 /** A purchase dated after today. It counts as made once its date arrives, with no confirmation. */
 export function isPlannedPurchase(
-  purchase: Pick<Purchase, 'purchaseDate'>,
+  purchase: Pick<Operation, 'date'> & Partial<Pick<Operation, 'type'>>,
   today: string,
 ): boolean {
-  return purchase.purchaseDate > today;
+  return purchase.type !== 'sale' && purchase.date > today;
 }
 
 /**
@@ -175,14 +181,14 @@ export function pricePerBond(amount: number, quantity: number): number | null {
   return quantity > 0 ? round2(amount / quantity) : null;
 }
 
-/** The bond's currency from the NBU data; the purchase keeps its own for a bond missing there. */
-export function purchaseCurrency(purchase: Purchase, bond?: Bond): Currency {
-  return bond?.currency ?? purchase.currency;
+/** Operation currency is part of its history and does not depend on the live catalog. */
+export function purchaseCurrency(purchase: Operation, _bond?: Bond): Currency {
+  return purchase.currency;
 }
 
 /** Every purchase of a position is of one bond, so of one currency. */
 export function positionCurrency(position: Position, bond?: Bond): Currency {
-  return purchaseCurrency(position.purchases[0], bond);
+  return purchaseCurrency(position.operations[0], bond);
 }
 
 /**
@@ -191,13 +197,13 @@ export function positionCurrency(position: Position, bond?: Bond): Currency {
  * so a top-up starts earning from the next payment.
  */
 export function positionPayments(
-  purchases: Purchase[],
+  operations: Operation[],
   bond: Bond,
   today: string,
 ): PositionPayment[] {
   return bond.payments.flatMap((payment) => {
-    const entitled = purchases.filter((purchase) => purchase.purchaseDate < payment.date);
-    const quantity = entitled.reduce((total, purchase) => total + purchase.quantity, 0);
+    const entitled = purchaseLots(operations.filter((operation) => operation.date < payment.date));
+    const quantity = entitled.reduce((total, lot) => total + lot.remaining, 0);
     if (quantity === 0) return [];
     return [
       {
@@ -206,8 +212,8 @@ export function positionPayments(
         currency: bond.currency,
         quantity,
         plannedQuantity: entitled
-          .filter((purchase) => isPlannedPurchase(purchase, today))
-          .reduce((total, purchase) => total + purchase.quantity, 0),
+          .filter((lot) => isPlannedPurchase(lot.purchase, today))
+          .reduce((total, lot) => total + lot.remaining, 0),
         total: round2(payment.amount * quantity),
         isPaid: payment.date < today,
       },
@@ -215,19 +221,24 @@ export function positionPayments(
   });
 }
 
-/** Every purchase in the wallet, by date, including purchases with an unknown currency. */
-export function purchaseEvents(purchases: Purchase[], byIsin: Map<string, Bond>): PurchaseEvent[] {
-  return groupPositions(purchases)
+/** Every purchase in the wallet, by date, including operations with an unknown currency. */
+export function operationEvents(
+  operations: Operation[],
+  byIsin: Map<string, Bond>,
+): OperationEvent[] {
+  return groupPositions(operations)
     .flatMap((position) =>
-      position.purchases.map((purchase, index): PurchaseEvent => ({
-        type: 'purchase',
+      position.operations.map((purchase, index): OperationEvent => ({
+        type: purchase.type,
         id: purchase.id,
-        date: purchase.purchaseDate,
+        date: purchase.date,
         isin: purchase.isin,
         currency: purchaseCurrency(purchase, byIsin.get(purchase.isin)),
         quantity: purchase.quantity,
         total: purchase.amount,
-        isTopUp: index > 0,
+        isTopUp:
+          purchase.type === 'purchase' &&
+          position.operations.slice(0, index).some((operation) => operation.type === 'purchase'),
       })),
     )
     .sort((a, b) => a.date.localeCompare(b.date));
@@ -239,7 +250,9 @@ export function purchaseEvents(purchases: Purchase[], byIsin: Map<string, Bond>)
  */
 export function compareScheduleEvents(a: ScheduleEvent, b: ScheduleEvent): number {
   return (
-    a.date.localeCompare(b.date) || Number(a.type === 'purchase') - Number(b.type === 'purchase')
+    a.date.localeCompare(b.date) ||
+    Number(a.type === 'purchase' || a.type === 'sale') -
+      Number(b.type === 'purchase' || b.type === 'sale')
   );
 }
 

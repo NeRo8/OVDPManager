@@ -9,3 +9,8 @@ export function purchaseCount(count: number): string {
 export function planCount(count: number): string {
   return `${count} ${plural(count, 'план', 'плани', 'планів')}`;
 }
+
+/** Purchases and sales together. */
+export function operationCount(count: number): string {
+  return `${count} ${plural(count, 'операція', 'операції', 'операцій')}`;
+}

@@ -1,4 +1,4 @@
-import { type Bond, type Purchase, groupPositions } from '@/lib/portfolio/portfolio';
+import { type Bond, type Operation, groupPositions } from '@/lib/portfolio/portfolio';
 import { amountForYield } from '@/lib/portfolio/yield';
 import { formatMoney } from '@/utils/format';
 
@@ -33,19 +33,27 @@ const newBonds: Bond[] = [14, 16].map((rate, index) => ({
 }));
 
 let nextId = 0;
-function purchase(fields: Partial<Purchase> & Pick<Purchase, 'purchaseDate' | 'amount'>): Purchase {
+function purchase(fields: Partial<Operation> & Pick<Operation, 'date' | 'amount'>): Operation {
   nextId += 1;
-  return { id: String(nextId), isin: bond.isin, quantity: 2, currency: 'UAH', ...fields };
+  return {
+    type: 'purchase',
+    ovdp: null,
+    id: String(nextId),
+    isin: bond.isin,
+    quantity: 2,
+    currency: 'UAH',
+    ...fields,
+  };
 }
 
-const bought = purchase({ purchaseDate: '2025-01-01', amount: 1980 });
+const bought = purchase({ date: '2025-01-01', amount: 1980 });
 
 function assess(
-  fields: Partial<Parameters<typeof holdOrSell>[0]> & { purchases?: Purchase[] } = {},
+  fields: Partial<Parameters<typeof holdOrSell>[0]> & { operations?: Operation[] } = {},
 ) {
-  const { purchases = [bought], ...rest } = fields;
+  const { operations = [bought], ...rest } = fields;
   return holdOrSell({
-    position: groupPositions(purchases)[0],
+    position: groupPositions(operations)[0],
     bond,
     today,
     keyRate: 16,
@@ -87,10 +95,10 @@ describe('holdOrSell', () => {
   });
 
   it('rounds the break-even price up to a whole kopeck', () => {
-    const result = assess({ purchases: [{ ...bought, amount: 1980.01 }] });
+    const result = assess({ operations: [{ ...bought, amount: 1980.01 }] });
     expect(result?.breakEvenPrice).toBe(890.01);
     expect(
-      assess({ purchases: [{ ...bought, amount: 1980.01 }], salePrice: 890.01 })?.sale?.saleResult,
+      assess({ operations: [{ ...bought, amount: 1980.01 }], salePrice: 890.01 })?.sale?.saleResult,
     ).toBeGreaterThanOrEqual(0);
   });
 
@@ -145,7 +153,7 @@ describe('holdOrSell', () => {
     const usd = assess({
       bond: { ...bond, currency: 'USD' },
       bonds: [bond],
-      purchases: [{ ...bought, currency: 'USD' }],
+      operations: [{ ...bought, currency: 'USD' }],
       salePrice: 1000,
     });
     expect(usd?.sellAbovePrice).toBeNull();
@@ -153,9 +161,9 @@ describe('holdOrSell', () => {
   });
 
   it('counts only the bonds held today', () => {
-    const planned = purchase({ purchaseDate: '2026-05-01', amount: 2000 });
-    expect(assess({ purchases: [bought, planned] })?.quantity).toBe(2);
-    expect(assess({ purchases: [planned] })).toBeNull();
+    const planned = purchase({ date: '2026-05-01', amount: 2000 });
+    expect(assess({ operations: [bought, planned] })?.quantity).toBe(2);
+    expect(assess({ operations: [planned] })).toBeNull();
   });
 
   it('is null once the bond cannot be sold or while its redemption is unpublished', () => {

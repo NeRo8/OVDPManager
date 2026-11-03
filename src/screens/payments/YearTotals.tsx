@@ -23,7 +23,7 @@ type Props = {
 export function YearTotals({ summary, series }: Props) {
   const { currency, totalPayments, received, purchaseCount, averageMonthlyPurchase } = summary;
   const payments = series.filter((s) => s.type !== 'purchase' && s.total !== 0);
-  const purchases = series.filter((s) => s.type === 'purchase' && s.total !== 0);
+  const operations = series.filter((s) => s.type === 'purchase' && s.total !== 0);
   const receivedPercent = totalPayments > 0 ? Math.round((received / totalPayments) * 100) : 0;
 
   return (
@@ -40,7 +40,7 @@ export function YearTotals({ summary, series }: Props) {
           ))}
           {payments.length > 1 && (
             <TotalRow
-              label="Усього виплат"
+              label="Усього надходжень"
               value={<Money value={totalPayments} currency={currency} />}
             />
           )}
@@ -54,11 +54,11 @@ export function YearTotals({ summary, series }: Props) {
         </View>
       )}
 
-      {payments.length > 0 && purchases.length > 0 && <Separator variant="card" />}
+      {payments.length > 0 && operations.length > 0 && <Separator variant="card" />}
 
-      {purchases.length > 0 && (
+      {operations.length > 0 && (
         <View style={styles.rows}>
-          {purchases.map((s) => (
+          {operations.map((s) => (
             <LegendRow
               key={s.color}
               color={s.color}

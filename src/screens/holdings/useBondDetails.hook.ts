@@ -1,8 +1,8 @@
 import { useWallet } from '@/hooks/useWallet.hook';
-import { type Purchase, canBuyOn, purchaseCurrency } from '@/lib/portfolio/portfolio';
-import { removePositionFromActivePlan } from '@/stores/activePlan';
-import { removePurchase } from '@/stores/purchases';
+import { type Operation, canBuyOn, purchaseCurrency } from '@/lib/portfolio/portfolio';
 import { showToast } from '@/stores/appSettings';
+import { removeOperation } from '@/stores/operations';
+import { removePositionFromActivePlan } from '@/stores/plans';
 import { confirmDestructive } from '@/utils/confirm';
 import { formatDate } from '@/utils/date';
 import { formatMoney } from '@/utils/format';
@@ -15,19 +15,28 @@ export function useBondDetails(isin: string) {
   const item = positions.find(({ position }) => position.isin === isin);
   const position = item?.position;
   const payments = item?.payments ?? [];
-  const hasTopUps = (position?.purchases.length ?? 0) > 1;
+  const hasTopUps = (position?.operations.length ?? 0) > 1;
   const canTopUp = !!bond && canBuyOn(bond, today);
 
-  function deletePurchase(purchase: Purchase) {
+  function deletePurchase(purchase: Operation) {
     if (!position) return;
     confirmDestructive(
-      'Видалити купівлю?',
-      `${formatDate(purchase.purchaseDate)} · ${purchase.quantity} шт · ${formatMoney(purchase.amount, purchaseCurrency(purchase, bond))}`,
+      purchase.type === 'sale' ? 'Видалити продаж?' : 'Видалити купівлю?',
+      `${formatDate(purchase.date)} · ${purchase.quantity} шт · ${formatMoney(purchase.amount, purchaseCurrency(purchase, bond))}`,
       'Видалити',
       () => {
-        if (position.purchases.length === 1) goBackOrHome();
-        removePurchase(purchase.id);
-        showToast({ tone: 'success', title: 'Купівлю видалено', message: position.isin });
+        try {
+          removeOperation(purchase.id);
+        } catch (error) {
+          showToast({
+            tone: 'error',
+            title: 'Операцію не видалено',
+            message: error instanceof Error ? error.message : 'Спробуйте ще раз',
+          });
+          return;
+        }
+        if (position.operations.length === 1) goBackOrHome();
+        showToast({ tone: 'success', title: 'Операцію видалено', message: position.isin });
       },
     );
   }
@@ -36,7 +45,7 @@ export function useBondDetails(isin: string) {
     if (!position) return;
     confirmDestructive(
       'Видалити ОВДП?',
-      `${position.isin} і всі купівлі (${position.purchases.length}) буде видалено з гаманця.`,
+      `${position.isin} і всі операції (${position.operations.length}) буде видалено з гаманця.`,
       'Видалити',
       () => {
         goBackOrHome();

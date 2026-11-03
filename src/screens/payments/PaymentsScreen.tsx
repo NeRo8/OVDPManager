@@ -18,7 +18,7 @@ import { YearTotals } from './YearTotals';
 
 /**
  * The payments tab, one year at a time: the year's totals, the monthly chart, then the payments
- * and purchases of the month picked on the chart. The header button narrows all of it.
+ * and operations of the month picked on the chart. The header button narrows all of it.
  */
 export default function PaymentsScreen() {
   const filtered = useFilteredWallet();

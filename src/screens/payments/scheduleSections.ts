@@ -4,7 +4,7 @@ import { MONTHS, formatTotals } from '@/utils/format';
 export type ScheduleSection = {
   key: string;
   title: string;
-  /** Income of the month: payments only, purchases are money paid out. Empty without payments. */
+  /** Income of the month: payments only, operations are money paid out. Empty without payments. */
   paymentTotal: string;
   data: ScheduleEvent[];
 };

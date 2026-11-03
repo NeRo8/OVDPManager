@@ -1,19 +1,18 @@
-import { z } from 'zod';
-
 import type { InvestmentPlan } from '@/lib/portfolio/plan';
-import { CURRENCIES, type PlanPurchase } from '@/lib/portfolio/portfolio';
+import type { PlanOperation } from '@/lib/portfolio/portfolio';
 import type { ThemePreference } from '@/stores/appSettings';
 import { todayISO } from '@/utils/date';
 
 import { type BackupEncryption, decryptBackup, encryptBackup } from './backupCipher';
+import { contentsSchema, legacyContentsSchema, validateContents } from './contents.schema';
 
 const FORMAT = 'ovdp-manager-backup';
-const VERSION = 6;
+const VERSION = 7;
 
-/** The file: readable framing around the encrypted plans and purchases. */
+/** The file: readable framing around the encrypted plans and operations. */
 export type Backup = {
   format: typeof FORMAT;
-  version: typeof VERSION;
+  version: number;
   exportedAt: string;
   encryption: BackupEncryption;
   /** BackupContents as JSON, AES-256-GCM encrypted, base64 */
@@ -23,39 +22,15 @@ export type Backup = {
 /** What the encrypted data holds. */
 type BackupContents = {
   /** Every purchase of every plan, each with its `planId`. */
-  holdings: PlanPurchase[];
+  operations: PlanOperation[];
   plans: Omit<InvestmentPlan, 'isActive'>[];
   activePlanId?: string;
   theme?: ThemePreference;
 };
 
-const currencySchema = z.enum(CURRENCIES);
-const idSchema = z.string().trim().min(1);
-const contentsSchema = z.object({
-  activePlanId: idSchema.optional(),
-  theme: z.enum(['system', 'light', 'dark']).optional(),
-  plans: z.array(
-    z.object({
-      id: idSchema,
-      name: z.string().trim().min(1),
-    }),
-  ),
-  holdings: z.array(
-    z.object({
-      id: idSchema,
-      planId: idSchema,
-      isin: z.string().trim().min(1),
-      purchaseDate: z.iso.date(),
-      amount: z.number().positive().max(Number.MAX_SAFE_INTEGER),
-      quantity: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
-      currency: currencySchema,
-    }),
-  ),
-});
-
-/** What a backup carries: every plan, the active one marked, their purchases and the theme. */
+/** What a backup carries: every plan, the active one marked, their operations and the theme. */
 export type BackupData = {
-  purchases: PlanPurchase[];
+  operations: PlanOperation[];
   plans: InvestmentPlan[];
   theme?: ThemePreference;
 };
@@ -64,11 +39,11 @@ export type BackupData = {
 const CONTEXT = `${FORMAT}:${VERSION}`;
 
 export async function serializeBackup(
-  { purchases, plans, theme }: BackupData,
+  { operations, plans, theme }: BackupData,
   key: string,
 ): Promise<string> {
   const contents: BackupContents = {
-    holdings: purchases,
+    operations,
     plans: plans.map(({ isActive: _isActive, ...plan }) => plan),
     activePlanId: plans.find((plan) => plan.isActive)?.id,
     theme,
@@ -100,37 +75,26 @@ function parseJson<T>(text: string): T {
  */
 export async function parseBackup(text: string, key: string): Promise<BackupData> {
   const backup = parseJson<Backup>(text);
-  if (backup.format !== FORMAT) throw new Error('Це не резервна копія ОВДП Портфеля');
-  if (backup.version !== VERSION) {
+  if (!backup || typeof backup !== 'object' || backup.format !== FORMAT)
+    throw new Error('Це не резервна копія ОВДП Портфеля');
+  if (backup.version !== VERSION && backup.version !== 6) {
     throw new Error(
       'Ця версія копії не підтримується: створіть нову копію в актуальній версії застосунку',
     );
   }
 
-  const contents: unknown = parseJson<unknown>(await decryptBackup(backup, key, CONTEXT));
-  const validated = contentsSchema.safeParse(contents);
-  if (!validated.success) throw new Error('Копія містить некоректні дані планів або купівель');
-  const { holdings, plans, activePlanId, theme } = validated.data;
-  // The app opens only with a plan, so a backup without one would leave nothing to show.
-  if (!plans.length) throw new Error('У копії немає жодного плану');
-
-  const planIds = new Set(plans.map((plan) => plan.id));
-  if (activePlanId && !planIds.has(activePlanId)) {
-    throw new Error('Активного плану немає в копії');
-  }
-  if (
-    planIds.size !== plans.length ||
-    new Set(holdings.map((purchase) => purchase.id)).size !== holdings.length
-  ) {
-    throw new Error('Копія містить повторні ідентифікатори');
-  }
-  holdings.forEach((purchase, index) => {
-    if (!planIds.has(purchase.planId)) {
-      throw new Error(`Купівля №${index + 1}: її плану немає в копії`);
-    }
-  });
+  const contents: unknown = parseJson<unknown>(
+    await decryptBackup(backup, key, `${FORMAT}:${backup.version}`),
+  );
+  const validated =
+    backup.version === 6
+      ? legacyContentsSchema.safeParse(contents)
+      : contentsSchema.safeParse(contents);
+  if (!validated.success) throw new Error('Копія містить некоректні дані планів або операцій');
+  const { plans, activePlanId, theme } = validated.data;
+  const operations = validateContents(validated.data);
   return {
-    purchases: holdings,
+    operations,
     plans: plans.map((plan, index) => ({
       ...plan,
       isActive: activePlanId ? plan.id === activePlanId : index === 0,

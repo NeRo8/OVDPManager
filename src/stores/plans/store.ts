@@ -9,7 +9,7 @@ const STORAGE_KEY = 'investment-plan-v1';
 
 export const initialState: PlansState = { plans: [] };
 
-/** Investment plans; their purchases live in the purchases store. */
+/** Investment plans; their operations live in the operations store. */
 export const usePlansStore = create<PlansState>()(
   persist(() => initialState, {
     name: STORAGE_KEY,

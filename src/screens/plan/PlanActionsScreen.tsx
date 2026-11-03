@@ -6,10 +6,14 @@ import { StyleSheet } from 'react-native-unistyles';
 import { ActionRow } from '@/components/layout/ActionRow';
 import { Section } from '@/components/layout/Section';
 import { Typography } from '@/components/typography/Typography';
-import { getActivePlan } from '@/stores/activePlan';
-import { duplicateInvestmentPlan, removeInvestmentPlan, useInvestmentPlans } from '@/stores/plans';
-import { usePurchases } from '@/stores/purchases';
 import { showToast } from '@/stores/appSettings';
+import { useOperations } from '@/stores/operations';
+import {
+  getActivePlan,
+  duplicateInvestmentPlan,
+  removeInvestmentPlan,
+  useInvestmentPlans,
+} from '@/stores/plans';
 import { confirmDestructive } from '@/utils/confirm';
 import { plural } from '@/utils/format';
 
@@ -21,7 +25,7 @@ export default function PlanActionsScreen() {
   const { planId } = useLocalSearchParams<{ planId: string }>();
   const plans = useInvestmentPlans();
   const plan = plans.find((item) => item.id === planId);
-  const numberOfPurchases = usePurchases().filter((item) => item.planId === planId).length;
+  const numberOfPurchases = useOperations().filter((item) => item.planId === planId).length;
 
   // The plan is gone only while the sheet closes after deleting it.
   if (!plan) return null;
@@ -54,7 +58,7 @@ export default function PlanActionsScreen() {
     confirmDestructive(
       'Видалити план?',
       (numberOfPurchases
-        ? `План «${plan.name}» і ${numberOfPurchases} ${plural(numberOfPurchases, 'купівлю', 'купівлі', 'купівель')} в ньому буде видалено.`
+        ? `План «${plan.name}» і ${numberOfPurchases} ${plural(numberOfPurchases, 'операцію', 'операції', 'операцій')} в ньому буде видалено.`
         : `План «${plan.name}» буде видалено.`) +
         (plans.length === 1
           ? ' Це останній план: після видалення можна створити новий або відновити копію.'

@@ -1,8 +1,10 @@
-import { type Purchase, isPlannedPurchase } from '@/lib/portfolio/portfolio';
+import { type Operation, isPlannedPurchase } from '@/lib/portfolio/portfolio';
 
 /** A purchase of a bond already bought, not only planned, is a top-up: «Докупити ОВДП». */
-export function hasMadePurchase(purchases: Purchase[], today: string): boolean {
-  return purchases.some((purchase) => !isPlannedPurchase(purchase, today));
+export function hasMadePurchase(operations: Operation[], today: string): boolean {
+  return operations.some(
+    (purchase) => purchase.type === 'purchase' && !isPlannedPurchase(purchase, today),
+  );
 }
 
 /**
@@ -10,12 +12,12 @@ export function hasMadePurchase(purchases: Purchase[], today: string): boolean {
  * there: editing a purchase, topping up a bond already bought, or a first purchase of it.
  */
 export function purchaseScreenTitle(
-  purchases: Purchase[],
+  operations: Operation[],
   isin: string | undefined,
   purchaseId: string | undefined,
   today: string,
 ): string {
-  const ofBond = purchases.filter((purchase) => purchase.isin === isin);
+  const ofBond = operations.filter((purchase) => purchase.isin === isin);
   if (purchaseId) {
     return ofBond.some((purchase) => purchase.id === purchaseId)
       ? 'Змінити купівлю'

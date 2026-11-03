@@ -1,4 +1,4 @@
-import type { Bond, Purchase } from './portfolio';
+import type { Bond, Operation } from './portfolio';
 import { buildWallet } from './wallet';
 
 function bondOf(isin: string, currency: Bond['currency'], maturityDate: string): Bond {
@@ -24,12 +24,21 @@ const byIsin = new Map([hryvnia, dollar].map((bond) => [bond.isin, bond]));
 const today = '2025-08-01';
 
 let nextId = 0;
-function purchase(isin: string, currency: Purchase['currency'], purchaseDate: string): Purchase {
+function purchase(isin: string, currency: Operation['currency'], date: string): Operation {
   nextId += 1;
-  return { id: String(nextId), isin, currency, purchaseDate, amount: 990, quantity: 1 };
+  return {
+    type: 'purchase',
+    ovdp: null,
+    id: String(nextId),
+    isin,
+    currency,
+    date,
+    amount: 990,
+    quantity: 1,
+  };
 }
 
-const purchases = [
+const operations = [
   purchase(hryvnia.isin, 'UAH', '2025-02-01'),
   purchase(dollar.isin, 'USD', '2025-03-01'),
   purchase(hryvnia.isin, 'UAH', '2025-04-01'),
@@ -38,9 +47,9 @@ const purchases = [
 ];
 
 describe('buildWallet', () => {
-  const wallet = buildWallet(purchases, byIsin, today);
+  const wallet = buildWallet(operations, byIsin, today);
 
-  it('groups the purchases into a Position per bond', () => {
+  it('groups the operations into a Position per bond', () => {
     expect(wallet.positions.map(({ position }) => position.isin)).toEqual([
       hryvnia.isin,
       dollar.isin,
@@ -61,7 +70,7 @@ describe('buildWallet', () => {
   });
 
   it('lists every purchase as an event by date, the missing bond’s too', () => {
-    expect(wallet.purchaseEvents.map(({ date }) => date)).toEqual([
+    expect(wallet.operationEvents.map(({ date }) => date)).toEqual([
       '2025-02-01',
       '2025-03-01',
       '2025-04-01',

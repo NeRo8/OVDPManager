@@ -1,4 +1,4 @@
-import type { Bond, Purchase } from '@/lib/portfolio/portfolio';
+import type { Bond, Operation } from '@/lib/portfolio/portfolio';
 import { buildWallet } from '@/lib/portfolio/wallet';
 
 import { upcomingPurchases } from './upcomingPurchases';
@@ -19,10 +19,12 @@ const bond: Bond = {
   ],
 };
 
-const purchase = (id: string, purchaseDate: string, amount: number): Purchase => ({
+const purchase = (id: string, date: string, amount: number): Operation => ({
+  type: 'purchase',
+  ovdp: null,
   id,
   isin: bond.isin,
-  purchaseDate,
+  date,
   amount,
   quantity: 1,
   currency: 'UAH',
@@ -43,27 +45,27 @@ describe('upcomingPurchases', () => {
   );
   const [uah] = upcomingPurchases(wallet);
 
-  it('lists the planned purchases until the end of next month', () => {
+  it('lists the planned operations until the end of next month', () => {
     expect(uah.through).toBe('2026-11-30');
-    expect(uah.purchases.map(({ id }) => id)).toEqual(['2']);
+    expect(uah.operations.map(({ id }) => id)).toEqual(['2']);
   });
 
-  it('sets the plan’s payments in that time against what the purchases need', () => {
+  it('sets the plan’s payments in that time against what the operations need', () => {
     expect(uah.amount).toBe(1010);
     expect(uah.planMoney).toBe(0);
     expect(uah.ownMoney).toBe(1010);
   });
 
   it('counts the plan’s payments coming in that time', () => {
-    const december = buildWallet(wallet.purchases, wallet.byIsin, '2026-11-30');
+    const december = buildWallet(wallet.operations, wallet.byIsin, '2026-11-30');
     const [next] = upcomingPurchases(december);
-    expect(next.purchases.map(({ id }) => id)).toEqual(['3']);
+    expect(next.operations.map(({ id }) => id)).toEqual(['3']);
     // The December coupon of the two bonds bought before.
     expect(next.planMoney).toBe(160);
     expect(next.ownMoney).toBe(860);
   });
 
-  it('needs no own money when the plan’s payments cover the purchases', () => {
+  it('needs no own money when the plan’s payments cover the operations', () => {
     const cheap = buildWallet(
       [purchase('1', '2026-03-01', 1000), purchase('2', '2026-12-20', 50)],
       wallet.byIsin,
@@ -74,7 +76,7 @@ describe('upcomingPurchases', () => {
 
   it('does not pay for a purchase with a payment that comes after it', () => {
     const early = buildWallet(
-      [...wallet.purchases.slice(0, 2), purchase('5', '2026-12-10', 100)],
+      [...wallet.operations.slice(0, 2), purchase('5', '2026-12-10', 100)],
       wallet.byIsin,
       '2026-11-30',
     );
@@ -85,14 +87,14 @@ describe('upcomingPurchases', () => {
   });
 
   it('counts a payment due today, as it is still to come', () => {
-    const couponDay = buildWallet(wallet.purchases.slice(0, 3), wallet.byIsin, '2026-12-15');
+    const couponDay = buildWallet(wallet.operations.slice(0, 3), wallet.byIsin, '2026-12-15');
     const [next] = upcomingPurchases(couponDay);
-    expect(next.purchases.map(({ id }) => id)).toEqual(['3']);
+    expect(next.operations.map(({ id }) => id)).toEqual(['3']);
     expect(next.planMoney).toBe(160);
     expect(next.ownMoney).toBe(860);
   });
 
-  it('gives nothing without planned purchases', () => {
+  it('gives nothing without planned operations', () => {
     expect(upcomingPurchases(buildWallet([], wallet.byIsin, '2026-10-31'))).toEqual([]);
   });
 });

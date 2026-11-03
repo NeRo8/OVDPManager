@@ -13,10 +13,11 @@ import { ScreenScrollView } from '@/components/layout/ScreenScrollView';
 import { Section } from '@/components/layout/Section';
 import { useBonds } from '@/hooks/useBonds.hook';
 import { useKeyRate, useKeyRateUpdatedAt } from '@/hooks/useKeyRate.hook';
-import { planCount, purchaseCount } from '@/lib/portfolio/counts';
-import { useToday, useThemePreference, type ThemePreference, showToast } from '@/stores/appSettings';
+import { planCount, operationCount } from '@/lib/portfolio/counts';
+import { useToday, useThemePreference, type ThemePreference } from '@/stores/appSettings';
+import { showToast } from '@/stores/appSettings';
+import { useOperations } from '@/stores/operations';
 import { useInvestmentPlans } from '@/stores/plans';
-import { usePurchases } from '@/stores/purchases';
 import { setThemePreference } from '@/theme/themePreference';
 import { formatDateTime } from '@/utils/date';
 
@@ -29,7 +30,7 @@ const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
 ];
 
 export default function SettingsScreen() {
-  const numberOfPurchases = usePurchases().length;
+  const numberOfPurchases = useOperations().length;
   const numberOfPlans = useInvestmentPlans().length;
   const themePreference = useThemePreference();
   const { updatedAt } = useBonds();
@@ -47,7 +48,7 @@ export default function SettingsScreen() {
     <ScreenScrollView>
       <Section
         title="Дані"
-        footer={`Створено ${planCount(numberOfPlans)}. Усього ${purchaseCount(numberOfPurchases)}. Дані на пристрої не шифруються застосунком; захист залежить від налаштувань пристрою. Копія у хмарі чи файлі зашифрована вашим ключем.`}
+        footer={`Створено ${planCount(numberOfPlans)}. Усього ${operationCount(numberOfPurchases)}. Дані на пристрої не шифруються застосунком; захист залежить від налаштувань пристрою. Копія у хмарі чи файлі зашифрована вашим ключем.`}
       >
         <LinkRow title="Створити копію" onPress={openBackupExport} />
         <LinkRow title="Відновити з копії" onPress={openBackupImport} />

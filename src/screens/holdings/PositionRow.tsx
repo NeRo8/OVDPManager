@@ -35,10 +35,10 @@ export function PositionRow({ item, onPress }: Props) {
       }
       subtitle={
         bond ? (
-          `${formatPercent(bond.rate)} · ${state === 'redeemed' ? 'погашено' : `до ${formatDate(bond.maturityDate)}`}`
+          `${formatPercent(bond.rate)} · ${state === 'sold' ? 'продано' : state === 'redeemed' ? 'погашено' : `до ${formatDate(bond.maturityDate)}`}`
         ) : (
           <Typography variant="caption1" tone="warning">
-            Немає в даних НБУ
+            Немає збережених даних ОВДП
           </Typography>
         )
       }

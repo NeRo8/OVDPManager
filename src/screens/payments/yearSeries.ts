@@ -6,7 +6,7 @@ import { round2 } from '@/utils/number';
 import type { YearSummary } from './yearSummary';
 
 export type YearSeries = ChartSeries & {
-  /** The event type the series shows; purchases come as two series, made and planned */
+  /** The event type the series shows; operations come as two series, made and planned */
   type: ScheduleEventType;
   color: SeriesColor;
   /** The year's sum of the monthly values */
@@ -14,7 +14,7 @@ export type YearSeries = ChartSeries & {
 };
 
 /**
- * The chart series of the year, one per event type the filters let through; planned purchases are
+ * The chart series of the year, one per event type the filters let through; planned operations are
  * a series of their own color, there only when the year has some.
  */
 export function yearSeries(
@@ -22,6 +22,17 @@ export function yearSeries(
   types: readonly ScheduleEventType[],
 ): YearSeries[] {
   const all: YearSeries[] = [
+    ...(summary.saleTotal > 0
+      ? [
+          {
+            label: 'Продажі',
+            type: 'sale' as const,
+            color: 'sale' as const,
+            values: summary.monthlySales,
+            total: summary.saleTotal,
+          },
+        ]
+      : []),
     {
       label: 'Купони',
       type: 'coupon',
@@ -57,7 +68,7 @@ export function yearSeries(
         ]
       : []),
   ];
-  // A year of only planned purchases has no row of made ones at zero.
+  // A year of only planned operations has no row of made ones at zero.
   return all.filter(
     (series) =>
       types.includes(series.type) &&

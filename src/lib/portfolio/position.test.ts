@@ -1,6 +1,6 @@
 import { formatMoney } from '@/utils/format';
 
-import { type Bond, type Purchase, groupPositions } from './portfolio';
+import { type Bond, type Operation, groupPositions } from './portfolio';
 import { netIncomeBasis, resultsByCurrency, walletPosition } from './position';
 
 /** Two years, a 10% coupon paid twice a year on a nominal of 1000, redeemed at once. */
@@ -22,18 +22,26 @@ const bond: Bond = {
 };
 
 let nextId = 0;
-function purchase(fields: Partial<Purchase> & Pick<Purchase, 'purchaseDate' | 'amount'>): Purchase {
+function purchase(fields: Partial<Operation> & Pick<Operation, 'date' | 'amount'>): Operation {
   nextId += 1;
-  return { id: String(nextId), isin: bond.isin, quantity: 1, currency: 'UAH', ...fields };
+  return {
+    type: 'purchase',
+    ovdp: null,
+    id: String(nextId),
+    isin: bond.isin,
+    quantity: 1,
+    currency: 'UAH',
+    ...fields,
+  };
 }
 
-/** The Position of the purchases, as the Wallet builds it on `today`; `null` for no NBU data. */
-function positionOf(purchases: Purchase[], today: string, of: Bond | null = bond) {
-  return walletPosition(groupPositions(purchases)[0], of ?? undefined, today);
+/** The Position of the operations, as the Wallet builds it on `today`; `null` for no NBU data. */
+function positionOf(operations: Operation[], today: string, of: Bond | null = bond) {
+  return walletPosition(groupPositions(operations)[0], of ?? undefined, today);
 }
 
 describe('walletPosition', () => {
-  const bought = [purchase({ purchaseDate: '2025-01-01', amount: 1980, quantity: 2 })];
+  const bought = [purchase({ date: '2025-01-01', amount: 1980, quantity: 2 })];
 
   it('sums up what the Position cost and pays, received and still ahead', () => {
     const { results } = positionOf(bought, '2026-03-15');
@@ -41,6 +49,7 @@ describe('walletPosition', () => {
       invested: 1980,
       coupons: 400,
       redemption: 2000,
+      saleProceeds: 0,
       received: 200,
       expected: 2200,
       totalPayments: 2400,
@@ -57,13 +66,13 @@ describe('walletPosition', () => {
   });
 
   it('tells what of the Position is still only planned', () => {
-    const mixed = [...bought, purchase({ purchaseDate: '2026-05-01', amount: 990, quantity: 1 })];
+    const mixed = [...bought, purchase({ date: '2026-05-01', amount: 990, quantity: 1 })];
     expect(positionOf(mixed, '2026-03-15').planned).toEqual({ quantity: 1, amount: 990 });
     expect(positionOf(mixed, '2026-05-01').planned).toEqual({ quantity: 0, amount: 0 });
   });
 
   it('is planned while every purchase is still ahead', () => {
-    const planned = [purchase({ purchaseDate: '2026-05-01', amount: 990 })];
+    const planned = [purchase({ date: '2026-05-01', amount: 990 })];
     expect(positionOf(planned, '2026-03-15').state).toBe('planned');
     expect(positionOf(planned, '2026-05-01').state).toBe('inCirculation');
   });
@@ -86,22 +95,22 @@ describe('walletPosition', () => {
   });
 
   it('yields about the coupon rate when bought at the nominal', () => {
-    const atNominal = [purchase({ purchaseDate: '2025-01-01', amount: 1000 })];
+    const atNominal = [purchase({ date: '2025-01-01', amount: 1000 })];
     expect(positionOf(atNominal, '2026-03-15').annualYield).toBeCloseTo(10, 0);
   });
 
-  it('weights the yields of its purchases by what each cost', () => {
-    const cheap = purchase({ purchaseDate: '2025-01-01', amount: 900 });
-    const dear = purchase({ purchaseDate: '2025-01-01', amount: 1100 });
+  it('weights the yields of its operations by what each cost', () => {
+    const cheap = purchase({ date: '2025-01-01', amount: 900 });
+    const dear = purchase({ date: '2025-01-01', amount: 1100 });
     const both = positionOf([cheap, dear], '2026-03-15').annualYield ?? 0;
-    const alone = (one: Purchase) => positionOf([one], '2026-03-15').annualYield ?? 0;
+    const alone = (one: Operation) => positionOf([one], '2026-03-15').annualYield ?? 0;
     expect(both).toBeCloseTo((alone(cheap) * 900 + alone(dear) * 1100) / 2000, 1);
   });
 
   it('leaves a purchase with no yield out of the yield and counts it, the others still yielding', () => {
-    const atNominal = purchase({ purchaseDate: '2025-01-01', amount: 1000 });
+    const atNominal = purchase({ date: '2025-01-01', amount: 1000 });
     // 1 ₴ for a bond that pays 1 200 ₴: no yield up to 1000 % fits, most likely a typo.
-    const typo = purchase({ purchaseDate: '2025-01-01', amount: 1 });
+    const typo = purchase({ date: '2025-01-01', amount: 1 });
     const position = positionOf([atNominal, typo], '2026-03-15');
     expect(position.annualYield).toBe(positionOf([atNominal], '2026-03-15').annualYield);
     expect(position.annualYieldBasis).toBe(1000);
@@ -114,7 +123,7 @@ describe('walletPosition', () => {
   });
 
   it('gives a payment on the purchase day to the previous owner', () => {
-    const onCouponDay = [purchase({ purchaseDate: '2026-01-01', amount: 1000 })];
+    const onCouponDay = [purchase({ date: '2026-01-01', amount: 1000 })];
     const { payments } = positionOf(onCouponDay, '2026-03-15');
     expect(payments.map((payment) => payment.date)).toEqual([
       '2026-07-01',
@@ -126,19 +135,15 @@ describe('walletPosition', () => {
 
 describe('resultsByCurrency', () => {
   const dollarBond: Bond = { ...bond, isin: 'UA4000000002', currency: 'USD' };
-  const uah = positionOf([purchase({ purchaseDate: '2025-01-01', amount: 1000 })], '2026-03-15');
+  const uah = positionOf([purchase({ date: '2025-01-01', amount: 1000 })], '2026-03-15');
   const usd = walletPosition(
     groupPositions([
-      purchase({ isin: dollarBond.isin, currency: 'USD', purchaseDate: '2025-01-01', amount: 950 }),
+      purchase({ isin: dollarBond.isin, currency: 'USD', date: '2025-01-01', amount: 950 }),
     ])[0],
     dollarBond,
     '2026-03-15',
   );
-  const unknown = positionOf(
-    [purchase({ purchaseDate: '2025-01-01', amount: 500 })],
-    '2026-03-15',
-    null,
-  );
+  const unknown = positionOf([purchase({ date: '2025-01-01', amount: 500 })], '2026-03-15', null);
 
   it('sums the Positions of each currency, counting the cost of those without the NBU data', () => {
     const totals = resultsByCurrency([uah, unknown, usd, uah]);
@@ -171,7 +176,7 @@ describe('resultsByCurrency', () => {
   it('counts the net income of the Positions whose redemption is published, and how many are not', () => {
     const unpublished = { ...bond, payments: bond.payments.filter((p) => p.type === 'coupon') };
     const incomplete = positionOf(
-      [purchase({ purchaseDate: '2025-01-01', amount: 1000 })],
+      [purchase({ date: '2025-01-01', amount: 1000 })],
       '2026-03-15',
       unpublished,
     );
@@ -193,8 +198,8 @@ describe('resultsByCurrency', () => {
   });
 
   it('averages the annual yield by what each Position cost', () => {
-    const cheap = positionOf([purchase({ purchaseDate: '2025-01-01', amount: 900 })], '2026-03-15');
-    const dear = positionOf([purchase({ purchaseDate: '2025-01-01', amount: 1100 })], '2026-03-15');
+    const cheap = positionOf([purchase({ date: '2025-01-01', amount: 900 })], '2026-03-15');
+    const dear = positionOf([purchase({ date: '2025-01-01', amount: 1100 })], '2026-03-15');
     const [total] = resultsByCurrency([cheap, dear]);
     expect(total.annualYield).toBeCloseTo(
       ((cheap.annualYield ?? 0) * 900 + (dear.annualYield ?? 0) * 1100) / 2000,

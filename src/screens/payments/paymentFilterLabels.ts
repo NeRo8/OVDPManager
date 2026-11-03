@@ -4,6 +4,7 @@ export const EVENT_TYPE_LABELS: Record<ScheduleEventType, string> = {
   coupon: 'Купони',
   redemption: 'Погашення',
   purchase: 'Купівлі',
+  sale: 'Продажі',
 };
 
 export const TIME_LABELS: Record<ScheduleTimeFilter, string> = {

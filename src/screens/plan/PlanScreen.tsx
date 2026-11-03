@@ -24,15 +24,15 @@ import { upcomingPurchases } from './upcomingPurchases';
 import { UpcomingPurchasesSection } from './UpcomingPurchasesSection';
 
 /**
- * The plans tab: the active plan as a whole. First what to do next — the purchases until the end of
- * next month, then its purchases (bought or planned) added up to what the plan costs and earns
+ * The plans tab: the active plan as a whole. First what to do next — the operations until the end of
+ * next month, then its operations (bought or planned) added up to what the plan costs and earns
  * over its whole term.
  */
 export default function PlanScreen() {
   const wallet = useWallet();
-  const { plan, bonds, refresh, positions, purchases } = wallet;
+  const { plan, refresh, positions, operations } = wallet;
   const upcoming = upcomingPurchases(wallet);
-  const numberOfPurchases = purchases.length;
+  const numberOfPurchases = operations.length;
   const pullToRefresh = usePullToRefresh(refresh);
   const totals = resultsByCurrency(positions);
   // Totals come in CURRENCIES order.
@@ -52,7 +52,7 @@ export default function PlanScreen() {
       >
         <StaleBondsNotice />
         <Typography variant="subhead" tone="secondary" style={styles.intro}>
-          Підсумок плану за всіма його купівлями — зробленими й запланованими. Виплати рахуються за
+          Підсумок плану за всіма його купівлями й продажами. Виплати рахуються за збереженим
           графіком НБУ.
         </Typography>
 
@@ -69,19 +69,18 @@ export default function PlanScreen() {
             key={item.currency}
             upcoming={item}
             showCurrency={upcoming.length > 1}
-            paymentsKnown={
-              !!bonds &&
-              wallet.positions.every(
-                (position) => position.currency !== item.currency || !!position.results?.complete,
-              )
-            }
+            paymentsKnown={wallet.positions.every(
+              (position) => position.currency !== item.currency || !!position.results?.complete,
+            )}
           />
         ))}
 
         {/* The totals need the NBU data; without it this stands in their place. */}
-        {numberOfPurchases > 0 && <BondsUnavailableCard />}
+        {numberOfPurchases > 0 && positions.every((position) => !position.bond) && (
+          <BondsUnavailableCard />
+        )}
 
-        {bonds && total && (
+        {total && (
           <>
             {currencies.length > 1 && (
               <SegmentedSelect
@@ -105,7 +104,7 @@ export default function PlanScreen() {
               />
             </Section>
             <Section
-              title="Виплати"
+              title="Надходження"
               footer={
                 total.incompleteCount > 0
                   ? `НБУ ще не опублікував погашення ${total.incompleteCount} ОВДП, тож у погашенні й усього виплат їх немає.`
@@ -123,8 +122,12 @@ export default function PlanScreen() {
                 value={<Money value={total.coupons} currency={total.currency} />}
               />
               <InfoRow
-                label="Усього виплат"
-                hint="Погашення разом із купонами"
+                label="Продажі"
+                value={<Money value={total.saleProceeds} currency={total.currency} />}
+              />
+              <InfoRow
+                label="Усього надходжень"
+                hint="Купони, погашення та суми продажів"
                 value={<Money value={total.totalPayments} currency={total.currency} />}
               />
             </Section>
@@ -148,7 +151,7 @@ export default function PlanScreen() {
                   hint={
                     total.incompleteCount > 0
                       ? `Чистий дохід поділено на вкладення лише в ОВДП з опублікованим погашенням: ${formatMoney(total.published.invested, total.currency)}.`
-                      : 'Чистий дохід у відсотках від вкладень за весь строк, без перерахунку на рік, податків і комісій'
+                      : 'Чистий дохід у відсотках від вкладень за весь строк, без перерахунку на рік; комісії враховані в сумах операцій'
                   }
                   value={<Percent value={total.returnPercent} />}
                 />

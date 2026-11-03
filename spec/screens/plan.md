@@ -8,8 +8,8 @@
 - `src/screens/plan/upcomingPurchases.ts` — `upcomingPurchases(wallet)`.
 - `src/screens/plan/PlanListScreen.tsx`, `PlanRow.tsx` — «Мої плани»; `PlanActionsScreen.tsx` — аркуш дій; `PlanNameScreen.tsx` — назва плану й `/welcome`.
 - `src/stores/plans/` — сховище планів `investment-plan-v1`: `createInvestmentPlan`, `renameInvestmentPlan`, `duplicateInvestmentPlan`, `removeInvestmentPlan`, `restorePortfolio`; `useInvestmentPlans`, `getInvestmentPlans`.
-- `src/stores/activePlan/` — дії та селектори активного плану; його ознака зберігається в планах.
-- `src/stores/purchases/actions.ts` — `copyPlanPurchases`, `removePlanPurchases`.
+- `src/stores/plans/` — дії та селектори активного плану; його ознака зберігається в планах.
+- `src/stores/operations/actions.ts` — `copyPlanOperations`, `removePlanOperations`.
 - `src/lib/portfolio/plan.ts` — `InvestmentPlan { id, name, isActive }`, `DEFAULT_PLAN_NAME = 'Мій план'`, `PLAN_NAME_MAX_LENGTH = 80`.
 - `useWallet()` (`src/hooks/useWallet.hook.ts`) — гаманець активного плану, `plan`, `bonds`, `refresh`; `resultsByCurrency` (`src/lib/portfolio/position.ts`).
 
@@ -48,7 +48,7 @@
 
 **PLAN-01.** Активний план має `isActive: true` у сховищі планів. При видаленні активного плану обирається перший з решти; `undefined` лише коли планів немає. Джерело: `activeOf` у `activePlan/selectors.ts` та дії сховища планів.
 
-**PLAN-02.** Гаманець і виплати показують лише купівлі з `planId` активного плану (`useActivePurchases`). Перемикання плану змінює всі вкладки одразу.
+**PLAN-02.** Гаманець і виплати показують лише купівлі з `planId` активного плану (`useActiveOperations`). Перемикання плану змінює всі вкладки одразу.
 
 **PLAN-03.** Новий план отримує `id` = `Date.now()` у base36 + «-» + 6 випадкових символів base36 і додається в кінець списку; `createActivePlan` робить його активним. Джерело: `plans/actions.ts`, `activePlan/actions.ts`.
 
@@ -162,3 +162,5 @@
 **PLAN-28.** Після видалення плану показано тост; якщо він був активним і лишився інший план, тост називає новий активний план.
 
 - `src/stores/plans/plans.test.ts`: унікальність назв, дублювання, запасний активний план після видалення.
+
+**PLAN-29.** Підсумки читають збережені операції та `ovdp` і доступні без каталогу. Надходження та чистий дохід включають продажі; вкладено — лише суми купівель. Списки планів і налаштування рахують операції обох типів.

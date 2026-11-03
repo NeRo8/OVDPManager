@@ -7,13 +7,12 @@ import { HeaderButton } from '@/components/button/HeaderButton';
 import { screenContent } from '@/components/layout/screenContent';
 import { SectionCell } from '@/components/layout/SectionCell';
 import { Typography } from '@/components/typography/Typography';
-import { purchaseCount } from '@/lib/portfolio/counts';
+import { operationCount } from '@/lib/portfolio/counts';
 import type { InvestmentPlan } from '@/lib/portfolio/plan';
-import { isPlannedPurchase, type PlanPurchase } from '@/lib/portfolio/portfolio';
-import { useActivePlan } from '@/stores/activePlan';
+import { isPlannedPurchase, type PlanOperation } from '@/lib/portfolio/portfolio';
 import { useToday } from '@/stores/appSettings';
-import { setActivePlan, useInvestmentPlans } from '@/stores/plans';
-import { usePurchases } from '@/stores/purchases';
+import { useOperations } from '@/stores/operations';
+import { useActivePlan, setActivePlan, useInvestmentPlans } from '@/stores/plans';
 import { plural } from '@/utils/format';
 
 import { PlanRow } from './PlanRow';
@@ -26,15 +25,15 @@ const keyOf = (plan: InvestmentPlan) => plan.id;
  */
 export default function PlanListScreen() {
   const plans = useInvestmentPlans();
-  const purchases = usePurchases();
+  const operations = useOperations();
   const activePlan = useActivePlan();
   const today = useToday();
   const createPlan = () => router.push('/plan/name');
 
-  function subtitle(planPurchases: PlanPurchase[]) {
+  function subtitle(planPurchases: PlanOperation[]) {
     const planned = planPurchases.filter((purchase) => isPlannedPurchase(purchase, today)).length;
     return [
-      planPurchases.length ? purchaseCount(planPurchases.length) : 'Купівель ще немає',
+      planPurchases.length ? operationCount(planPurchases.length) : 'Операцій ще немає',
       planned > 0 &&
         `з них ${planned} ${plural(planned, 'запланована', 'заплановані', 'запланованих')}`,
     ]
@@ -44,7 +43,7 @@ export default function PlanListScreen() {
 
   const renderItem = ({ item: plan, index }: ListRenderItemInfo<InvestmentPlan>) => {
     const choose = () => setActivePlan(plan.id);
-    const planPurchases = purchases.filter((purchase) => purchase.planId === plan.id);
+    const planPurchases = operations.filter((purchase) => purchase.planId === plan.id);
     return (
       <SectionCell index={index} count={plans.length}>
         <PlanRow

@@ -32,7 +32,7 @@ export function countActiveFilters(filters: PaymentFilters, options: WalletScope
 
 /** A payment counts as past once received, a purchase once its date has come. */
 function isPastEvent(event: ScheduleEvent, today: string): boolean {
-  return event.type === 'purchase' ? event.date <= today : event.isPaid;
+  return 'id' in event ? event.date <= today : event.isPaid;
 }
 
 export type FilteredSchedule = {
@@ -44,13 +44,13 @@ export type FilteredSchedule = {
 
 /**
  * Every payment and purchase of the wallet that passes the filters: of their currency and bonds,
- * of the types and the time picked. Each event belongs to one bond, whose payments and purchases
+ * of the types and the time picked. Each event belongs to one bond, whose payments and operations
  * do not depend on the other bonds, so filtering the events gives what the wallet of only those
  * bonds would hold.
  */
 export function filterSchedule(wallet: Wallet, filters: PaymentFilters): FilteredSchedule {
   const { currency, isins, types, time } = filters;
-  const inCurrency = [...wallet.payments, ...wallet.purchaseEvents].filter(
+  const inCurrency = [...wallet.payments, ...wallet.operationEvents].filter(
     (event) => currency === null || event.currency === currency,
   );
   const events = inCurrency

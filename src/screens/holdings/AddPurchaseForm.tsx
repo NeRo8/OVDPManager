@@ -11,7 +11,7 @@ import { Section } from '@/components/layout/Section';
 import { Money } from '@/components/typography/Money';
 import { Percent } from '@/components/typography/Percent';
 import { useAddPurchaseForm } from '@/hooks/useAddPurchaseForm.hook';
-import type { Bond, Purchase } from '@/lib/portfolio/portfolio';
+import type { Bond, Operation } from '@/lib/portfolio/portfolio';
 import { formatDate } from '@/utils/date';
 
 import { HintsSection } from './HintsSection';
@@ -21,7 +21,7 @@ type Props = {
   /** Bonds of this ISIN already in the plan, besides the purchase edited */
   ownedQuantity: number;
   /** The purchase to confirm or correct; without it the form adds a new one */
-  purchase?: Purchase;
+  purchase?: Operation;
   onSaved: () => void;
 };
 
@@ -30,8 +30,11 @@ type Props = {
  * disabled until the whole purchase is valid.
  */
 export function AddPurchaseForm({ bond, ownedQuantity, purchase, onSaved }: Props) {
-  const { control, isValid, submit, purchaseDate, pricePerBond, isPlanned, preview } =
-    useAddPurchaseForm(bond, onSaved, purchase);
+  const { control, isValid, submit, date, pricePerBond, isPlanned, preview } = useAddPurchaseForm(
+    bond,
+    onSaved,
+    purchase,
+  );
   const { currency } = bond;
   const save = () => void submit();
 
@@ -52,13 +55,13 @@ export function AddPurchaseForm({ bond, ownedQuantity, purchase, onSaved }: Prop
         title={isPlanned ? 'Запланована купівля' : 'Купівля'}
         footer={
           isPlanned
-            ? `Дата ще попереду: купівля буде в плані як запланована й почне приносити виплати після ${formatDate(purchaseDate)}. Коли купівля відбудеться, внесіть фактичну суму. Для тисяч використовуйте пробіл: 1 000,00.`
+            ? `Дата ще попереду: купівля буде в плані як запланована й почне приносити виплати після ${formatDate(date)}. Коли купівля відбудеться, внесіть фактичну суму. Для тисяч використовуйте пробіл: 1 000,00.`
             : 'Сума — скільки списали за всю купівлю; ціна 1 шт рахується з неї. Для тисяч використовуйте пробіл: 1 000,00.'
         }
       >
         <Controller
           control={control}
-          name="purchaseDate"
+          name="date"
           render={({ field, fieldState }) => (
             <FieldRow label="Дата купівлі" error={fieldState.error?.message}>
               <DateField value={field.value} onChange={field.onChange} />

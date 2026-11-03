@@ -18,8 +18,8 @@ export function uniquePlanName(name: string, plans: { name: string }[]): string 
 }
 
 /**
- * An investment plan: the basis of the app. Its purchases (past or planned) are the wallet
- * purchases with its id; the wallet and the payments show the active plan.
+ * An investment plan: the basis of the app. Its operations (past or planned) are the wallet
+ * operations with its id; the wallet and the payments show the active plan.
  */
 export type InvestmentPlan = {
   id: string;

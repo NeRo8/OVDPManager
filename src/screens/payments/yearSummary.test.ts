@@ -1,8 +1,8 @@
-import type { PurchaseEvent } from '@/lib/portfolio/portfolio';
+import type { OperationEvent } from '@/lib/portfolio/portfolio';
 
 import { yearSummary } from './yearSummary';
 
-function purchase(date: string): PurchaseEvent {
+function purchase(date: string): OperationEvent {
   return {
     type: 'purchase',
     date,
@@ -22,7 +22,7 @@ describe('yearSummary', () => {
     expect(yearSummary(events, 'UAH', '2027-01-01').defaultMonth).toBe(11);
   });
 
-  it('separates made and planned purchases by month', () => {
+  it('separates made and planned operations by month', () => {
     const summary = yearSummary(
       [purchase('2026-02-01'), purchase('2026-09-01')],
       'UAH',

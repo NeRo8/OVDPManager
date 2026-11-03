@@ -1,8 +1,17 @@
 import { type InvestmentPlan, PLAN_NAME_MAX_LENGTH, uniquePlanName } from '@/lib/portfolio/plan';
-import type { PlanPurchase } from '@/lib/portfolio/portfolio';
-import { copyPlanPurchases, removePlanPurchases, replacePurchases } from '@/stores/purchases';
+import type { PlanOperation } from '@/lib/portfolio/portfolio';
+import { getCachedBonds } from '@/stores/bonds/selectors';
+import {
+  recoverOperationBonds,
+  addOperation,
+  removePosition,
+  copyPlanOperations,
+  removePlanOperations,
+  replaceOperations,
+} from '@/stores/operations';
 import { createId } from '@/utils/id';
 
+import { getActivePlan } from './selectors';
 import { usePlansStore } from './store';
 
 function updatePlans(update: (current: InvestmentPlan[]) => InvestmentPlan[]): void {
@@ -27,7 +36,7 @@ export function renameInvestmentPlan(id: string, name: string): void {
 const COPY_SUFFIX = ' (копія)';
 
 /**
- * Copies the plan with all its purchases under the name «… (копія)», cut to fit the
+ * Copies the plan with all its operations under the name «… (копія)», cut to fit the
  * name's limit.
  * The active plan stays as it was. Returns the copy's name.
  */
@@ -38,13 +47,13 @@ export function duplicateInvestmentPlan(id: string): string | undefined {
     plan.name.slice(0, PLAN_NAME_MAX_LENGTH - COPY_SUFFIX.length).trimEnd() + COPY_SUFFIX,
     usePlansStore.getState().plans,
   );
-  copyPlanPurchases(id, createInvestmentPlan(name));
+  copyPlanOperations(id, createInvestmentPlan(name));
   return name;
 }
 
-/** Removes the plan with all its purchases. */
+/** Removes the plan with all its operations. */
 export function removeInvestmentPlan(id: string): void {
-  removePlanPurchases(id);
+  removePlanOperations(id);
   updatePlans((plans) => selectActivePlan(plans.filter((plan) => plan.id !== id)));
 }
 
@@ -59,8 +68,31 @@ export function setActivePlan(id: string): void {
   updatePlans((plans) => selectActivePlan(plans, id));
 }
 
-/** Restores from a backup: its plans and their purchases replace everything. */
-export function restorePortfolio(purchases: PlanPurchase[], plans: InvestmentPlan[]): void {
-  replacePurchases(purchases);
+/** Restores from a backup: its plans and their operations replace everything. */
+export function restorePortfolio(operations: PlanOperation[], plans: InvestmentPlan[]): void {
+  replaceOperations(operations);
+  recoverOperationBonds(getCachedBonds().bonds ?? []);
   usePlansStore.setState({ plans: selectActivePlan(plans) });
+}
+
+/** A new plan becomes active, ready for its first operations. */
+export function createActivePlan(name: string): void {
+  setActivePlan(createInvestmentPlan(name));
+}
+
+/**
+ * Adds the purchase to the active plan. The app's screens open only once there is a plan, so one
+ * is always active; without it nothing is added.
+ */
+export function addOperationToActivePlan(purchase: Omit<PlanOperation, 'id' | 'planId'>): boolean {
+  const plan = getActivePlan();
+  if (!plan) return false;
+  addOperation({ ...purchase, planId: plan.id });
+  return true;
+}
+
+/** Removes every purchase of the ISIN from the active plan. */
+export function removePositionFromActivePlan(isin: string): void {
+  const plan = getActivePlan();
+  if (plan) removePosition(plan.id, isin);
 }

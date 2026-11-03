@@ -16,7 +16,7 @@ import { ScheduleEventRow } from '@/components/portfolio/ScheduleEventRow';
 import { Typography } from '@/components/typography/Typography';
 import {
   type PositionPayment,
-  type Purchase,
+  type Operation,
   canBuyOn,
   isPlannedPurchase,
 } from '@/lib/portfolio/portfolio';
@@ -28,10 +28,10 @@ import { SaleButton } from './SaleButton';
 import { useBondDetails } from './useBondDetails.hook';
 import { useHoldOrSell } from './useHoldOrSell.hook';
 
-type BondRow = Purchase | PositionPayment;
-type BondTab = 'purchases' | 'payments';
+type BondRow = Operation | PositionPayment;
+type BondTab = 'operations' | 'payments';
 
-const isPurchase = (row: BondRow): row is Purchase => 'purchaseDate' in row;
+const isPurchase = (row: BondRow): row is Operation => 'id' in row;
 const keyOf = (row: BondRow) => (isPurchase(row) ? row.id : `${row.date}-${row.type}`);
 
 function assessmentMessage(hasBond: boolean, onlyPlannedPurchases: boolean, matured: boolean) {
@@ -50,7 +50,7 @@ function emptyPaymentsMessage(hasBond: boolean, paymentCount: number) {
 }
 
 /**
- * A bond in the wallet: its terms, result and whether to keep or sell it, with purchases and
+ * A bond in the wallet: its terms, result and whether to keep or sell it, with operations and
  * payments on separate tabs.
  */
 export default function BondScreen() {
@@ -74,18 +74,20 @@ export default function BondScreen() {
 
   const tabs: { label: string; value: BondTab }[] = [
     { label: `Виплати (${payments.length})`, value: 'payments' },
-    { label: `Купівлі (${position.purchases.length})`, value: 'purchases' },
+    { label: `Операції (${position.operations.length})`, value: 'operations' },
   ];
-  const rows: BondRow[] = tab === 'purchases' ? position.purchases : payments;
-  const onlyPlanned = position.purchases.every((purchase) => isPlannedPurchase(purchase, today));
+  const rows: BondRow[] = tab === 'operations' ? position.operations : payments;
+  const onlyPlanned = position.operations.every((purchase) => isPlannedPurchase(purchase, today));
 
   const topUp = () =>
     router.push({ pathname: '/add/[isin]/purchase', params: { isin: position.isin } });
-  const openPurchase = (purchase: Purchase) =>
-    router.push({
-      pathname: '/add/[isin]/purchase',
-      params: { isin: position.isin, purchaseId: purchase.id },
-    });
+  const openPurchase = (purchase: Operation) =>
+    purchase.type === 'sale'
+      ? router.push({ pathname: '/bond/[isin]/sale', params: { isin, operationId: purchase.id } })
+      : router.push({
+          pathname: '/add/[isin]/purchase',
+          params: { isin: position.isin, purchaseId: purchase.id },
+        });
 
   const renderItem = ({ item, index }: ListRenderItemInfo<BondRow>) => (
     <SectionCell index={index} count={rows.length}>
@@ -108,7 +110,7 @@ export default function BondScreen() {
       <Stack.Screen
         options={{
           title: position.isin,
-          headerRight: assessment ? () => <SaleButton isin={position.isin} /> : undefined,
+          headerRight: bond ? () => <SaleButton isin={position.isin} /> : undefined,
         }}
       />
       <FlatList
@@ -124,7 +126,7 @@ export default function BondScreen() {
                 <BondTerms bond={bond} />
               ) : (
                 <Typography variant="footnote" tone="warning">
-                  Цієї ОВДП немає в даних НБУ — параметри випуску й графік виплат недоступні.
+                  Для цієї старої купівлі не збережено умови ОВДП та графік виплат.
                 </Typography>
               )}
             </Card>

@@ -13,6 +13,8 @@ export type YearSummary = {
   /** Per month, January first */
   monthlyCoupons: number[];
   monthlyRedemptions: number[];
+  monthlySales: number[];
+  saleTotal: number;
   /** Purchases made, and the planned ones (dated after today) apart */
   monthlyPurchases: number[];
   monthlyPlannedPurchases: number[];
@@ -22,9 +24,9 @@ export type YearSummary = {
   totalPayments: number;
   /** Payments already received */
   received: number;
-  /** Paid for the year's purchases, planned ones included */
+  /** Paid for the year's operations, planned ones included */
   invested: number;
-  /** The part of `invested` that is planned purchases */
+  /** The part of `invested` that is planned operations */
   planned: number;
   purchaseCount: number;
   averageMonthlyPurchase: number;
@@ -42,32 +44,39 @@ export function yearSummary(
 ): YearSummary {
   const inCurrency = yearEvents.filter((event) => event.currency === currency);
   const payments = inCurrency.filter(
-    (event): event is PositionPayment => event.type !== 'purchase',
+    (event): event is PositionPayment => event.type === 'coupon' || event.type === 'redemption',
   );
+  const sales = inCurrency.filter((event) => event.type === 'sale');
+  const saleTotal = sumTotals(sales);
   const coupons = payments.filter((payment) => payment.type === 'coupon');
   const redemptions = payments.filter((payment) => payment.type === 'redemption');
-  const purchases = inCurrency.filter((event) => event.type === 'purchase');
-  const plannedPurchases = purchases.filter((event) => event.date > today);
+  const operations = inCurrency.filter((event) => event.type === 'purchase');
+  const plannedPurchases = operations.filter((event) => event.date > today);
   const monthly = (events: ScheduleEvent[]) =>
     MONTHS.map((_, month) => sumTotals(events.filter((event) => monthOf(event) === month)));
 
   const couponTotal = sumTotals(coupons);
   const redemptionTotal = sumTotals(redemptions);
-  const invested = sumTotals(purchases);
+  const invested = sumTotals(operations);
   const nextEvent = inCurrency.find((event) => event.date >= today) ?? inCurrency.at(-1);
   return {
     currency,
+    monthlySales: monthly(sales),
+    saleTotal,
     monthlyCoupons: monthly(coupons),
     monthlyRedemptions: monthly(redemptions),
-    monthlyPurchases: monthly(purchases.filter((event) => event.date <= today)),
+    monthlyPurchases: monthly(operations.filter((event) => event.date <= today)),
     monthlyPlannedPurchases: monthly(plannedPurchases),
     couponTotal,
     redemptionTotal,
-    totalPayments: round2(couponTotal + redemptionTotal),
-    received: sumTotals(payments.filter((payment) => payment.isPaid)),
+    totalPayments: round2(couponTotal + redemptionTotal + saleTotal),
+    received: round2(
+      sumTotals(payments.filter((payment) => payment.isPaid)) +
+        sumTotals(sales.filter((sale) => sale.date <= today)),
+    ),
     invested,
     planned: sumTotals(plannedPurchases),
-    purchaseCount: purchases.length,
+    purchaseCount: operations.length,
     averageMonthlyPurchase: round2(invested / MONTHS.length),
     defaultMonth: nextEvent ? monthOf(nextEvent) : null,
   };

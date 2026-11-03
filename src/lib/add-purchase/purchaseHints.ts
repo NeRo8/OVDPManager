@@ -21,7 +21,7 @@ const CHECK_AMOUNT: Verdict = { tone: 'warning', title: 'Перевірте су
 
 type Input = {
   bond: Bond;
-  purchaseDate: string;
+  date: string;
   /** Today, to avoid projecting currently known market rates into the future. */
   today: string;
   pricePerBond: number;
@@ -108,7 +108,7 @@ function priceHint({ bond, pricePerBond, annualYield }: Input): Hint | null {
 }
 
 /** What else to know: missing data, a long lock-up, another currency. */
-function otherHints({ bond, purchaseDate, isComplete }: Input): Hint[] {
+function otherHints({ bond, date, isComplete }: Input): Hint[] {
   const hints: Hint[] = [];
   if (!isComplete) {
     hints.push({
@@ -116,10 +116,10 @@ function otherHints({ bond, purchaseDate, isComplete }: Input): Hint[] {
       text: 'НБУ ще не опублікував погашення цієї ОВДП, тому річну дохідність не пораховано.',
     });
   }
-  if (maturityTerm(bond, purchaseDate) === 'long') {
+  if (maturityTerm(bond, date) === 'long') {
     hints.push({
       tone: 'info',
-      text: `Гроші будуть в ОВДП до ${formatDate(bond.maturityDate)} (${formatTimeLeft(purchaseDate, bond.maturityDate)}). Продати раніше можна лише за ринковою ціною, і вона може бути нижчою за вашу.`,
+      text: `Гроші будуть в ОВДП до ${formatDate(bond.maturityDate)} (${formatTimeLeft(date, bond.maturityDate)}). Продати раніше можна лише за ринковою ціною, і вона може бути нижчою за вашу.`,
     });
   }
   if (bond.currency !== 'UAH') {
@@ -171,10 +171,10 @@ function verdictOf(hints: Hint[]): Verdict | null {
  */
 export function assessPurchase(input: Input): PurchaseAssessment {
   if (isImplausible(input)) return { verdict: CHECK_AMOUNT, hints: [implausibleHint(input)] };
-  const { bond, purchaseDate, today, annualYield, keyRate, bonds } = input;
-  const isPlanned = isPlannedPurchase({ purchaseDate }, today);
+  const { bond, date, today, annualYield, keyRate, bonds } = input;
+  const isPlanned = isPlannedPurchase({ date }, today);
   // A planned purchase is compared with what is known today.
-  const comparisonDate = isPlanned ? today : purchaseDate;
+  const comparisonDate = isPlanned ? today : date;
   const market = newBondsRate(bond, comparisonDate, bonds);
   const hints = sortHints([
     lossHint(input),

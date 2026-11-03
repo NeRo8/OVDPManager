@@ -1,4 +1,4 @@
-import type { Bond, Purchase } from '@/lib/portfolio/portfolio';
+import type { Bond, Operation } from '@/lib/portfolio/portfolio';
 import { isinsIn, buildWallet, walletScopeOptions } from '@/lib/portfolio/wallet';
 import type { PaymentFilters } from '@/stores/paymentFilters';
 
@@ -24,12 +24,14 @@ const hryvnia = bondOf('UA4000000001', 'UAH');
 const dollar = bondOf('UA4000000002', 'USD');
 const byIsin = new Map([hryvnia, dollar].map((bond) => [bond.isin, bond]));
 
-function purchase(bond: Bond, purchaseDate: string): Purchase {
+function purchase(bond: Bond, date: string): Operation {
   return {
-    id: purchaseDate + bond.isin,
+    type: 'purchase',
+    ovdp: null,
+    id: date + bond.isin,
     isin: bond.isin,
     currency: bond.currency,
-    purchaseDate,
+    date,
     amount: 990,
     quantity: 1,
   };
@@ -75,7 +77,7 @@ describe('effectiveFilters', () => {
 });
 
 describe('filterSchedule', () => {
-  it('keeps the currency picked, payments before purchases on the same day', () => {
+  it('keeps the currency picked, payments before operations on the same day', () => {
     const { events, totalCount } = filterSchedule(wallet, { ...fresh, currency: 'UAH' });
     expect(events.map(({ date, type }) => `${date} ${type}`)).toEqual([
       '2025-01-10 purchase',
@@ -86,7 +88,7 @@ describe('filterSchedule', () => {
     expect(totalCount).toBe(4);
   });
 
-  it('keeps the types and the time picked: upcoming are payments ahead and planned purchases', () => {
+  it('keeps the types and the time picked: upcoming are payments ahead and planned operations', () => {
     const upcoming = filterSchedule(wallet, { ...fresh, currency: 'UAH', time: 'upcoming' });
     expect(upcoming.events.map(({ type }) => type)).toEqual(['purchase', 'redemption']);
     const coupons = filterSchedule(wallet, { ...fresh, currency: 'UAH', types: ['coupon'] });
@@ -101,9 +103,9 @@ describe('filterSchedule', () => {
     expect(coupons.totalCount).toBe(3);
   });
 
-  it('allows filtering purchases of a bond missing from NBU data', () => {
+  it('allows filtering operations of a bond missing from NBU data', () => {
     const unknown = { ...purchase(hryvnia, '2025-03-01'), isin: 'UA4000000099' };
-    const withUnknown = buildWallet([...wallet.purchases, unknown], byIsin, wallet.today);
+    const withUnknown = buildWallet([...wallet.operations, unknown], byIsin, wallet.today);
     const options = walletScopeOptions(withUnknown);
     expect(options.isins).toContain(unknown.isin);
     const filters = effectiveFilters({ ...fresh, currency: 'UAH', isins: [unknown.isin] }, options);

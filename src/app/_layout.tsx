@@ -12,9 +12,8 @@ import { LaunchSplash } from '@/components/splash/LaunchSplash';
 import { ToastHost } from '@/components/toast/ToastHost';
 import { purchaseScreenTitle } from '@/screens/holdings/purchaseScreenTitle';
 import { planNameTitle } from '@/screens/plan/planNameTitle';
-import { getActivePurchases } from '@/stores/activePlan';
 import { useToday, useIsOnboardingCompleted } from '@/stores/appSettings';
-import { useInvestmentPlans } from '@/stores/plans';
+import { getActiveOperations, useInvestmentPlans } from '@/stores/plans';
 import { goBackOr } from '@/utils/navigation';
 
 // Filters open over their list, which shows every change at once; closing is all that is left.
@@ -83,7 +82,7 @@ export default function RootLayout() {
                     };
                     // Read when the screen is pushed; the screen keeps its title current itself.
                     return {
-                      title: purchaseScreenTitle(getActivePurchases(), isin, purchaseId, today),
+                      title: purchaseScreenTitle(getActiveOperations(), isin, purchaseId, today),
                     };
                   }}
                 />

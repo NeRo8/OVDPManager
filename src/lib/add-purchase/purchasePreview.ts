@@ -46,7 +46,14 @@ export function purchasePreview({
   keyRateFailed,
   bonds,
 }: Input): PurchasePreview | null {
-  const draft = { ...values, id: 'draft', isin: bond.isin, currency: bond.currency };
+  const draft = {
+    type: 'purchase' as const,
+    ovdp: bond,
+    ...values,
+    id: 'draft',
+    isin: bond.isin,
+    currency: bond.currency,
+  };
   const position = groupPositions([draft])[0];
   const { results, payments, nextPayment, annualYield } = walletPosition(position, bond, today);
   const price = pricePerBond(values.amount, values.quantity);
@@ -56,7 +63,7 @@ export function purchasePreview({
     ...assessPurchase({
       ...yieldInput,
       bond,
-      purchaseDate: values.purchaseDate,
+      date: values.date,
       today,
       pricePerBond: price,
       keyRate,

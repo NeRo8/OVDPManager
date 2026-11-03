@@ -12,7 +12,7 @@
 - `src/lib/payment-filters/filterSchedule.ts` — `effectiveFilters`, `countActiveFilters`, `filterSchedule`.
 - `src/stores/paymentFilters/` — сховище фільтрів (ключ `payment-filters-v1`), дії `updatePaymentFilters`, `togglePaymentFilterType`, `togglePaymentFilterIsin`, `resetPaymentFilters`.
 - `src/lib/payment-filters/scheduleEventTypes.ts` — `SCHEDULE_EVENT_TYPES = ['coupon', 'redemption', 'purchase']`.
-- З `src/lib/portfolio/`: `Wallet` (`payments`, `purchaseEvents`, `today`, `byIsin`), `walletScopeOptions`, `isinsIn` (`wallet.ts`), `compareScheduleEvents`, `sumTotals` (`portfolio.ts`); з `src/components/portfolio/`: `ScheduleEventRow`, `WalletGate`, `StaleBondsNotice`, `NbuSourceNote`.
+- З `src/lib/portfolio/`: `Wallet` (`payments`, `operationEvents`, `today`, `byIsin`), `walletScopeOptions`, `isinsIn` (`wallet.ts`), `compareScheduleEvents`, `sumTotals` (`portfolio.ts`); з `src/components/portfolio/`: `ScheduleEventRow`, `WalletGate`, `StaleBondsNotice`, `NbuSourceNote`.
 
 ## Що на екрані
 
@@ -36,7 +36,7 @@
 
 **PAY-01.** Вкладка показується лише всередині `WalletGate`: якщо в активному плані немає жодної купівлі — замість неї `EmptyWallet`; якщо купівлі є, але даних НБУ ще немає — `BondsUnavailable` (скелет або помилка з повтором). Джерело: `src/components/portfolio/WalletGate.tsx`, `BondsGate.tsx`.
 
-**PAY-02.** Події екрана — це `filterSchedule(wallet, filters)` з підігнаними фільтрами (PFLT-02): з `payments` + `purchaseEvents` гаманця лишено події валюти фільтра, далі його ОВДП, позначених типів і часу (PFLT-06), відсортовано `compareScheduleEvents`. Гаманець не перебудовується: кожна подія належить одній ОВДП, а виплати й купівлі ОВДП не залежать від інших, тож відбір подій дає те саме, що гаманець лише з цих ОВДП. `totalCount` — кількість подій валюти фільтра до решти умов. Джерело: `filterSchedule.ts`.
+**PAY-02.** Події екрана — це `filterSchedule(wallet, filters)` з підігнаними фільтрами (PFLT-02): з `payments` + `operationEvents` гаманця лишено події валюти фільтра, далі його ОВДП, позначених типів і часу (PFLT-06), відсортовано `compareScheduleEvents`. Гаманець не перебудовується: кожна подія належить одній ОВДП, а виплати й купівлі ОВДП не залежать від інших, тож відбір подій дає те саме, що гаманець лише з цих ОВДП. `totalCount` — кількість подій валюти фільтра до решти умов. Джерело: `filterSchedule.ts`.
 
 **PAY-03.** Порядок подій: за датою (рядкове порівняння `YYYY-MM-DD`); того самого дня виплата стоїть перед купівлею. Приклад з тесту: `2025-01-10 purchase`, `2025-07-01 coupon`, `2026-05-01 purchase`, `2026-07-01 redemption`. Джерело: `compareScheduleEvents` у `src/lib/portfolio/portfolio.ts`.
 
@@ -150,3 +150,5 @@
 **PAY-18.** У картці «За рік» серії з нульовою сумою приховані.
 
 - Тести `yearSummary`, `yearSeries`, `scheduleSections` і `filterSchedule` охоплюють основні розрахунки та перемикання типів.
+
+**PAY-19.** Продаж — окремий вид події та фільтра. Він є додатним надходженням у розкладі, місячному графіку й річних підсумках. Купівлі залишаються витратами. Дві операції одного ISIN одного дня мають різні ключі за id. «Усього надходжень» включає купони, погашення та продажі.

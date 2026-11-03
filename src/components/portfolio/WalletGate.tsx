@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { useActivePurchases } from '@/stores/activePlan';
+import { useActiveOperations } from '@/stores/plans';
 
 import { BondsGate } from './BondsGate';
 import { EmptyWallet } from './EmptyWallet';
@@ -15,7 +15,11 @@ type Props = {
  * without the NBU data the screen waits for it or offers a retry.
  */
 export function WalletGate({ children, allowMissingBonds = false }: Props) {
-  const { purchases } = useActivePurchases();
-  if (purchases.length === 0) return <EmptyWallet />;
-  return allowMissingBonds ? children : <BondsGate>{children}</BondsGate>;
+  const { operations } = useActiveOperations();
+  if (operations.length === 0) return <EmptyWallet />;
+  return allowMissingBonds || operations.some((operation) => operation.ovdp) ? (
+    children
+  ) : (
+    <BondsGate>{children}</BondsGate>
+  );
 }

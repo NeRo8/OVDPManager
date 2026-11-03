@@ -6,7 +6,7 @@
 
 - Сховище: `src/utils/storage.ts` (`mmkvStorage`).
 - Сховища стану (папка на кожне, `types.ts` / `store.ts` / `selectors.ts` / `actions.ts` / `index.ts`):
-  `src/stores/purchases/`, `src/stores/plans/`, `src/stores/activePlan/`, `src/stores/bonds/`, `src/stores/keyRate/`, `src/stores/paymentFilters/`, `src/stores/bondPickerFilters/`, `src/stores/onboarding/`, `src/stores/appSettings/`, `src/stores/toast/`.
+  `src/stores/operations/`, `src/stores/plans/`, `src/stores/bonds/`, `src/stores/keyRate/`, `src/stores/paymentFilters/`, `src/stores/bondPickerFilters/`, `src/stores/onboarding/`, `src/stores/appSettings/`, `src/stores/toast/`.
 - Клієнт НБУ: `src/api/nbu/client.ts` (`nbuClient`, `NbuError`).
 - Запити: `src/api/nbu/nbuBonds.ts`, `nbuKeyRate.ts`, `dailyRates.ts`, `useBonds.hook.ts`, `keyRateQuery.ts`, `useKeyRate.hook.ts`.
 - TanStack Query: `src/api/queryClient.ts`, `src/api/QueryProvider.tsx`.
@@ -20,13 +20,13 @@
 
 **DATA-01.** Усі збережені сховища пишуть в один екземпляр MMKV без шифрування (`createMMKV()` без параметрів); це обране правило зберігання на пристрої. Резервні копії шифруються перед збереженням у файл чи відправленням у хмару. Адаптер синхронний: `getItem` → `mmkv.getString(key) ?? null`, `setItem` → `mmkv.set`, `removeItem` → `mmkv.remove`. `src/utils/storage.ts`.
 
-**DATA-02.** Кожне збережене сховище — `create()(persist(() => initialState, { name: STORAGE_KEY, storage: createJSONStorage(() => mmkvStorage) }))`: стан зберігається як JSON-рядок під своїм ключем; `appSettings` зберігає лише тему і час останнього відкриття, а поточну дату відновлює під час запуску; бо адаптер синхронний, сховище читається під час створення, ще до першого екрана. `version` і `migrate` немає: дані іншого вигляду не перетворюються. Сховища змінюються лише через функції з `actions.ts` (`setState`). Усі `store.ts`.
+**DATA-02.** Сховища зберігаються через Zustand persist у синхронному MMKV. `operations` використовує старий ключ `holdings-v1`, але `version: 1`: міграція читає попередні `purchases` з `purchaseDate`, додає `type: purchase`, переносить дату в `date` і бере повний `ovdp` із кешу НБУ. Якщо дані втрачені, `ovdp: null`; сама купівля зберігається.
 
 **DATA-03.** Збережені сховища, їхні ключі й вигляд:
 
 | Ключ MMKV                | Сховище                    | Вигляд стану                                                                  | Початковий стан                    |
 | ------------------------ | -------------------------- | ----------------------------------------------------------------------------- | ---------------------------------- |
-| `holdings-v1`            | `stores/purchases`         | `{ purchases: PlanPurchase[] }`                                               | `{ purchases: [] }`                |
+| `holdings-v1`            | `stores/operations`        | `{ operations: PlanOperation[] }`                                             | `{ operations: [] }`               |
 | `investment-plan-v1`     | `stores/plans`             | `{ plans: InvestmentPlan[] }`                                                 | `{ plans: [] }`                    |
 | `nbu-bonds-v1`           | `stores/bonds`             | `{ bonds: Bond[] \| null; updatedAt: number \| null }` (мс)                   | `{ bonds: null, updatedAt: null }` |
 | `nbu-key-rate-v1`        | `stores/keyRate`           | `{ byYear: Record<рік, { rates: Record<дата, %>; throughDate; updatedAt }> }` | `{ byYear: {} }`                   |
@@ -35,13 +35,13 @@
 | `onboarding-v1`          | `stores/onboarding`        | `{ isCompleted: boolean }`                                                    | `{ isCompleted: false }`           |
 | `theme-preference-v1`    | `stores/appSettings`       | `{ preference }`; дата `today` лише в пам’яті                                 | тема `system`, дата запуску        |
 
-**DATA-04.** Дії сховища купівель (`src/stores/purchases/actions.ts`): `addPurchase` (новий `id` = `Date.now()` у base36 + `-` + 6 випадкових символів, додається в кінець), `removePurchase(id)` (прибирає першу з таким `id`), `updatePurchase(id, { purchaseDate, quantity, amount })` (змінює лише ці три поля; `currency`, `isin`, `planId` лишаються), `replacePurchases` (замінює все), `removePosition(planId, isin)`, `removePlanPurchases(planId)`, `copyPlanPurchases(from, to)` (копії з новими `id` додаються в кінець). Селектори: `usePurchases`, `getPurchases` — купівлі всіх планів.
+**DATA-04.** `stores/operations` містить усі `PlanOperation`. Дії: `addOperation`, `updateOperation`, `removeOperation`, `removePosition`, `removePlanOperations`, `copyPlanOperations`, `replaceOperations`. Перед зміною історії перевіряється, що продажі не перевищують залишок на жодну дату в кожному плані та ISIN. Копіювання й видалення плану охоплюють обидва типи операцій.
 
 **DATA-05.** Дії сховища планів (`src/stores/plans/actions.ts`): `createInvestmentPlan(name)` (id як у DATA-04, план — у кінець, повертає id), `renameInvestmentPlan`, `duplicateInvestmentPlan(id)` (назва = `name.slice(0, 80 − 8).trimEnd() + ' (копія)'`, копіює купівлі, активний план не змінює, повертає назву або `undefined`), `removeInvestmentPlan(id)` (спершу купівлі плану, потім план), `restorePortfolio(purchases, plans)` (замінює обидва сховища). Назва перевіряється формою, сховище її не обрізає (крім суфіксів).
 
-**DATA-06.** Активний план визначається полем `isActive` у сховищі планів. Серед наявних планів активний рівно один; якщо планів немає, активний план — `undefined`. `setActivePlan` змінює ознаку в планах; невідомий id залишає поточний вибір. `createActivePlan(name)` створює план і робить його активним. `addPurchaseToActivePlan` і `removePositionFromActivePlan` без активного плану нічого не роблять.
+**DATA-06.** Активний план визначається полем `isActive` у сховищі планів. Серед наявних планів активний рівно один; якщо планів немає, активний план — `undefined`. `setActivePlan` змінює ознаку в планах; невідомий id залишає поточний вибір. `createActivePlan(name)` створює план і робить його активним. `addOperationToActivePlan` і `removePositionFromActivePlan` без активного плану нічого не роблять.
 
-**DATA-07.** Після видалення активного плану активним стає перший із решти. Резервні копії зберігають `activePlanId` у форматі версії 6; при відновленні копії без нього активним стає перший план.
+**DATA-07.** Селектори `useActivePlan`, `getActivePlan`, `useActiveOperations`, `getActiveOperations` і дії активного плану знаходяться в `stores/plans`. Окремого `stores/activePlan` немає. Вибір зберігається через `InvestmentPlan.isActive`, рівно один план активний, якщо плани існують.
 
 **DATA-08.** Не зберігаються між запусками: сповіщення (`src/stores/toast/store.ts`, звичайний `create` без `persist`), кеш TanStack Query (лише в пам'яті, без persister), копія в хмарі (`useCloudBackup`), чернетки форм, ціна продажу, сторінка онбордингу. Вхід у Google зберігає нативний Firebase SDK, а не застосунок.
 
@@ -91,7 +91,7 @@
 
 **DATA-26.** `BondsGate` (вибір ОВДП, деталі ОВДП, форма купівлі): показує вміст, щойно `bonds` не `null`. Інакше: без помилки — `LoadingState` (скелет) з підписом «Завантажуємо дані НБУ…»; з помилкою — `EmptyState` з іконкою `cloud-offline-outline`, заголовком «Немає зв’язку з НБУ», текстом помилки й кнопкою «Спробувати ще раз» (ручний `refresh`). `src/components/portfolio/BondsGate.tsx`, `BondsUnavailable.tsx`.
 
-**DATA-27.** `WalletGate` (гаманець, «Виплати»): якщо в активному плані немає купівель — `EmptyWallet` («Гаманець порожній», «Додайте ОВДП за її номером (ISIN), датою купівлі та сумою — і побачите виплати купонів.», кнопки «Додати ОВДП» → `/add` і «Відновити з копії» → `/backup/import`); інакше — `BondsGate` (DATA-26). Порожній план перевіряється раніше, ніж наявність даних НБУ. `WalletGate.tsx`, `EmptyWallet.tsx`.
+**DATA-27.** `WalletGate` показує порожній гаманець без операцій. За наявності збережених `ovdp` він показує портфель без очікування каталогу НБУ; `allowMissingBonds` дозволяє показати й старі записи без збережених умов. Форма редагування використовує збережені умови ОВДП.
 
 **DATA-28.** `BondsUnavailableCard` (вкладка «План»): нічого, коли каталог є; без каталогу й без помилки — `SkeletonCard` у `SkeletonGroup` з підписом «Завантажуємо дані НБУ…»; з помилкою — картка «Немає зв’язку з НБУ», текст помилки, кнопка «Спробувати ще раз». Решта екрана показується без даних НБУ. `BondsUnavailableCard.tsx`.
 
@@ -105,8 +105,8 @@
 
 1. **Перший запуск без мережі.** Каталогу немає: після остаточної помилки показано «Немає зв’язку з НБУ». Автоматичний повтор під час відкриття екрана чи повернення на передній план чекає понад 5 хвилин; кнопка повтору доступна одразу (DATA-21).
 2. **Оновлення не вдалося, є збережений каталог.** Екрани працюють зі збереженим; сповіщення з «Повторити» (DATA-23) і рядок `StaleBondsNotice` (DATA-29). Вік каталогу (`updatedAt`) ніде не показується.
-3. **НБУ повернув порожній масив.** `bonds = []` (не `null`), тож охоронці пропускають, а всі позиції стають `unknown` без виплат.
-4. **НБУ прибрав ОВДП з каталогу.** Каталог замінюється цілком (DATA-11), тож позиції цієї ОВДП стають `unknown`: зникають їхні виплати й результати.
+3. **НБУ повернув порожній масив.** Каталог порожній, але збережені ОВДП продовжують забезпечувати історію й розрахунки.
+4. **НБУ прибрав ОВДП.** Збережений `ovdp` залишається в операціях та резервних копіях.
 5. **Неочікувана відповідь.** Структура відповідей НБУ задається типами TypeScript без перевірки під час виконання; якщо контракт сервера зміниться, застосунок потребуватиме виправлення.
 6. **Сьогоднішню ставку ще не опубліковано.** `fillDailyRates` заповнює сьогодні вчорашньою ставкою, і рік зберігається з `throughDate` = сьогодні; якщо ставка змінилася з сьогодні, застосунок покаже стару до наступного запиту (через 12 годин або на наступному запуску наступного дня).
 7. **Новий день без перезапуску.** «Повнота» поточного року (DATA-14) перевіряється лише під час створення запиту; якщо запит уже в пам'яті, оновлення чекає `staleTime` 12 годин. `keyRateOn` тим часом дає ставку останнього збереженого дня (DATA-16).
@@ -124,7 +124,7 @@
 - `src/api/nbu/nbuKeyRate.test.ts`: DATA-12 (параметри запиту з 14 днями до 1 січня, відкидання інших `id_api`, заповнення днів, помилка без ставки на 1 січня).
 - `src/api/nbu/keyRateQuery.test.ts`: DATA-14 (ключ, `staleTime` минулого й поточного року, повнота збереженого року, новий день, збереження відповіді), DATA-15.
 - `src/api/queryClient.test.ts`: DATA-21 (5 хвилин після помилки для всіх автоматичних оновлень), DATA-23 (сповіщення з «Повторити» лише над показаними даними й з `errorTitle`).
-- `src/stores/purchases/purchases.test.ts`: DATA-04 (додавання з власним id, зміна, видалення купівлі, позиції в плані й усього плану, копіювання плану).
+- `src/stores/operations/purchases.test.ts`: DATA-04 (додавання з власним id, зміна, видалення купівлі, позиції в плані й усього плану, копіювання плану).
 - `src/stores/plans/plans.test.ts` і `activePlan.test.ts`: DATA-05…DATA-07 (дублювання з унікальною назвою, запасний активний план, новий план активний, купівлі й видалення лише в активному плані).
 - `src/stores/toast/toast.test.ts`: DATA-24 (одне сповіщення, новий `id`, ховається лише те, що на екрані).
 
@@ -135,3 +135,5 @@
 **GAP-DATA-03. Каталог замінюється цілком.** Якщо НБУ прибере ОВДП зі списку (наприклад, давно погашені) або поверне порожній масив, старі позиції втратять виплати й результати. Чи прибирає `depo_securities` погашені ОВДП — невідомо, варто перевірити на справжній відповіді. Доказ: `useBonds.hook.ts` (`saveBonds(fetched, …)`), `bonds/actions.ts`. Серйозність: середня.
 
 **GAP-DATA-05. Сьогоднішня ставка «вгадується» і зберігається як справжня.** Див. крайній випадок 6–7: заповнений учорашньою ставкою сьогоднішній день зберігається з `throughDate` = сьогодні, а «новий день» перевіряється лише для нового запиту. У день зміни ставки підказки можуть до 12 годин порівнювати зі старою. Доказ: `nbuKeyRate.ts`, `keyRateQuery.ts`. Серйозність: низька.
+
+**DATA-33.** Перед заміною каталогу відсутні знімки відновлюються з попереднього кешу, потім свіжі дані об’єднуються зі збереженими. Один ISIN отримує однаковий графік у всіх операціях усіх планів. Відсутність ISIN або виплати не видаляє збережені дані; минулі суми зберігаються, майбутні виплати з тією самою датою й типом оновлюються. Старий кеш при відновленні копії заповнює лише відсутні ISIN, не перезаписуючи знімки з копії.

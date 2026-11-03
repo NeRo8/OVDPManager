@@ -2,7 +2,7 @@ import {
   CURRENCIES,
   type Currency,
   type PositionPayment,
-  type PurchaseEvent,
+  type OperationEvent,
   compareScheduleEvents,
   sumTotals,
 } from '@/lib/portfolio/portfolio';
@@ -15,14 +15,14 @@ export type UpcomingPurchases = {
   currency: Currency;
   /** The last day they cover: the end of next month */
   through: string;
-  /** Planned purchases by date */
-  purchases: PurchaseEvent[];
+  /** Planned operations by date */
+  operations: OperationEvent[];
   amount: number;
   /** The plan's coupons and redemptions still to come until `through`, today's included */
   planMoney: number;
   /**
    * The own money to have so that every purchase is paid for on its date: the plan's payments
-   * count only for the purchases on or after their date
+   * count only for the operations on or after their date
    */
   ownMoney: number;
 };
@@ -31,17 +31,17 @@ export type UpcomingPurchases = {
  * The deepest the plan's money falls going through the period by date, a payment before a
  * purchase on the same day (as the schedule orders them): what own money has to cover.
  */
-function shortfall(payments: PositionPayment[], purchases: PurchaseEvent[]): number {
+function shortfall(payments: PositionPayment[], operations: OperationEvent[]): number {
   let balance = 0;
   let lowest = 0;
-  for (const event of [...payments, ...purchases].sort(compareScheduleEvents)) {
+  for (const event of [...payments, ...operations].sort(compareScheduleEvents)) {
     balance += event.type === 'purchase' ? -event.total : event.total;
     lowest = Math.min(lowest, balance);
   }
   return round2(-lowest);
 }
 
-/** The active plan's planned purchases until the end of next month, per currency that has any. */
+/** The active plan's planned operations until the end of next month, per currency that has any. */
 export function upcomingPurchases(wallet: Wallet): UpcomingPurchases[] {
   const { today } = wallet;
   const through = monthRange(today, 1).to;
@@ -50,10 +50,11 @@ export function upcomingPurchases(wallet: Wallet): UpcomingPurchases[] {
     event.date > today && event.date <= through;
 
   return CURRENCIES.flatMap((currency): UpcomingPurchases[] => {
-    const purchases = wallet.purchaseEvents.filter(
-      (event) => event.currency === currency && plannedUntilThrough(event),
+    const operations = wallet.operationEvents.filter(
+      (event) =>
+        event.type === 'purchase' && event.currency === currency && plannedUntilThrough(event),
     );
-    if (!purchases.length) return [];
+    if (!operations.length) return [];
     const payments = wallet.payments.filter(
       (payment) => payment.currency === currency && !payment.isPaid && payment.date <= through,
     );
@@ -61,10 +62,10 @@ export function upcomingPurchases(wallet: Wallet): UpcomingPurchases[] {
       {
         currency,
         through,
-        purchases,
-        amount: sumTotals(purchases),
+        operations,
+        amount: sumTotals(operations),
         planMoney: sumTotals(payments),
-        ownMoney: shortfall(payments, purchases),
+        ownMoney: shortfall(payments, operations),
       },
     ];
   });

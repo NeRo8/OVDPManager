@@ -1,7 +1,7 @@
 import { yearSeries } from './yearSeries';
 import { yearSummary } from './yearSummary';
 
-it('shows planned purchases separately and respects selected event types', () => {
+it('shows planned operations separately and respects selected event types', () => {
   const summary = yearSummary(
     [
       {

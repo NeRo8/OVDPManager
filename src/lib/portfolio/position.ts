@@ -1,6 +1,7 @@
 import { formatMoney } from '@/utils/format';
 import { round2 } from '@/utils/number';
 
+import { purchaseLots } from './operations';
 import {
   type Bond,
   CURRENCIES,
@@ -20,18 +21,19 @@ import { annualYield } from './yield';
  * Where a Position stands: every purchase still ahead, in circulation, redeemed (its maturity date
  * behind today), or unknown without the NBU data.
  */
-export type PositionState = 'planned' | 'inCirculation' | 'redeemed' | 'unknown';
+export type PositionState = 'planned' | 'inCirculation' | 'redeemed' | 'sold' | 'unknown';
 
-/** What purchases cost and earn, held to maturity. */
+/** What operations cost and earn, held to maturity. */
 export type PositionResults = {
   invested: number;
   coupons: number;
   redemption: number;
+  saleProceeds: number;
   /** Payments already received */
   received: number;
   /** Payments still ahead */
   expected: number;
-  /** Coupons plus redemption */
+  /** Coupons, redemption and sale proceeds */
   totalPayments: number;
   /** False while NBU has not published the redemption: the payments fall short */
   complete: boolean;
@@ -77,15 +79,15 @@ export type WalletPosition = {
   /** Missing without the NBU data */
   results?: PositionResults;
   /**
-   * «Річна дохідність» of the purchases that have one, weighted by what they cost; null until NBU
+   * «Річна дохідність» of the operations that have one, weighted by what they cost; null until NBU
    * publishes the redemption, or when no purchase has one
    */
   annualYield: number | null;
-  /** What the purchases in `annualYield` cost: its weight in an average over several Positions */
+  /** What the operations in `annualYield` cost: its weight in an average over several Positions */
   annualYieldBasis: number;
   /** Purchases left out of `annualYield`, as no yield `annualYield` can find fits their price */
   purchasesWithoutYield: number;
-  /** Its purchases still planned (dated after today), together; zero when all are made */
+  /** Its operations still planned (dated after today), together; zero when all are made */
   planned: { quantity: number; amount: number };
 };
 
@@ -108,18 +110,28 @@ function positionResults(
   position: Position,
   bond: Bond,
   payments: PositionPayment[],
+  today: string,
 ): PositionResults {
   const coupons = sumTotals(payments.filter((payment) => payment.type === 'coupon'));
   const redemption = sumTotals(payments.filter((payment) => payment.type === 'redemption'));
   const invested = position.investedAmount;
-  const totalPayments = round2(coupons + redemption);
-  const complete = hasRedemption(bond);
+  const sales = position.operations.filter((operation) => operation.type === 'sale');
+  const saleProceeds = round2(sales.reduce((sum, sale) => sum + sale.amount, 0));
+  const totalPayments = round2(coupons + redemption + saleProceeds);
+  const complete = position.quantity === 0 || hasRedemption(bond);
   return {
     invested,
     coupons,
     redemption,
-    received: sumTotals(payments.filter((payment) => payment.isPaid)),
-    expected: sumTotals(payments.filter((payment) => !payment.isPaid)),
+    saleProceeds,
+    received: round2(
+      sumTotals(payments.filter((payment) => payment.isPaid)) +
+        sales.filter((sale) => sale.date <= today).reduce((sum, sale) => sum + sale.amount, 0),
+    ),
+    expected: round2(
+      sumTotals(payments.filter((payment) => !payment.isPaid)) +
+        sales.filter((sale) => sale.date > today).reduce((sum, sale) => sum + sale.amount, 0),
+    ),
     totalPayments,
     complete,
     ...netIncomeOf({ invested, totalPayments }, complete),
@@ -143,14 +155,25 @@ const NO_YIELD: PositionYield = {
  * not hide the others'. Null while NBU has not published the redemption, as the payments fall
  * short, and when no purchase has a yield.
  */
-function positionYield(position: Position, bond: Bond, today: string): PositionYield {
-  if (!hasRedemption(bond)) return NO_YIELD;
+function positionYield(position: Position, bond: Bond): PositionYield {
+  if (position.quantity > 0 && !hasRedemption(bond)) return NO_YIELD;
   let weighted = 0;
   let weight = 0;
   let purchasesWithoutYield = 0;
-  for (const purchase of position.purchases) {
-    const payments = positionPayments([purchase], bond, today);
-    const yearly = annualYield(purchase.amount, purchase.purchaseDate, payments);
+  for (const { purchase, sales } of purchaseLots(position.operations)) {
+    const payments = bond.payments
+      .filter((payment) => payment.date > purchase.date)
+      .map((payment) => ({
+        date: payment.date,
+        total:
+          payment.amount *
+          (purchase.quantity -
+            sales
+              .filter((sale) => sale.date < payment.date)
+              .reduce((sum, sale) => sum + sale.quantity, 0)),
+      }))
+      .filter((payment) => payment.total > 0);
+    const yearly = annualYield(purchase.amount, purchase.date, [...payments, ...sales]);
     if (yearly === null) {
       purchasesWithoutYield += 1;
     } else {
@@ -167,7 +190,8 @@ function positionYield(position: Position, bond: Bond, today: string): PositionY
 
 function positionState(position: Position, bond: Bond | undefined, today: string): PositionState {
   if (!bond) return 'unknown';
-  if (position.purchases.every((purchase) => isPlannedPurchase(purchase, today))) return 'planned';
+  if (position.quantity === 0) return 'sold';
+  if (position.operations.every((purchase) => isPlannedPurchase(purchase, today))) return 'planned';
   return isRedeemed(bond, today) ? 'redeemed' : 'inCirculation';
 }
 
@@ -177,7 +201,7 @@ export function walletPosition(
   bond: Bond | undefined,
   today: string,
 ): WalletPosition {
-  const payments = bond ? positionPayments(position.purchases, bond, today) : [];
+  const payments = bond ? positionPayments(position.operations, bond, today) : [];
   return {
     position,
     bond,
@@ -185,15 +209,15 @@ export function walletPosition(
     payments,
     nextPayment: nextPayment(payments),
     state: positionState(position, bond, today),
-    results: bond && positionResults(position, bond, payments),
-    ...(bond ? positionYield(position, bond, today) : NO_YIELD),
+    results: bond && positionResults(position, bond, payments, today),
+    ...(bond ? positionYield(position, bond) : NO_YIELD),
     planned: plannedPart(position, today),
   };
 }
 
-/** A Position's purchases still planned (dated after today), together. */
+/** A Position's operations still planned (dated after today), together. */
 export function plannedPart(position: Position, today: string): WalletPosition['planned'] {
-  const planned = position.purchases.filter((purchase) => isPlannedPurchase(purchase, today));
+  const planned = position.operations.filter((purchase) => isPlannedPurchase(purchase, today));
   return {
     quantity: planned.reduce((sum, purchase) => sum + purchase.quantity, 0),
     amount: round2(planned.reduce((sum, purchase) => sum + purchase.amount, 0)),
@@ -232,6 +256,7 @@ export function resultsByCurrency(positions: WalletPosition[]): CurrencyResults[
         ),
         coupons: sum(results, (item) => item.coupons),
         redemption: sum(results, (item) => item.redemption),
+        saleProceeds: sum(results, (item) => item.saleProceeds),
         received: sum(results, (item) => item.received),
         expected: sum(results, (item) => item.expected),
         totalPayments: sum(results, (item) => item.totalPayments),
@@ -261,5 +286,5 @@ export function resultsByCurrency(positions: WalletPosition[]): CurrencyResults[
 export function netIncomeBasis({ currency, incompleteCount, published }: CurrencyResults) {
   if (incompleteCount === 0) return undefined;
   const money = (value: number) => formatMoney(value, currency);
-  return `Виплати ${money(published.totalPayments)} мінус вкладено ${money(published.invested)}, лише ОВДП з опублікованим погашенням`;
+  return `Виплати ${money(published.totalPayments)} мінус вкладено ${money(published.invested)}, лише повністю продані ОВДП або ОВДП з опублікованим погашенням`;
 }

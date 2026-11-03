@@ -5,12 +5,12 @@ import {
   newBondsLabel,
   newBondsRate,
 } from '@/lib/portfolio/market';
+import { quantityOn } from '@/lib/portfolio/operations';
 import {
   type Bond,
   type Position,
   canBuyOn,
   groupPositions,
-  isPlannedPurchase,
   sumTotals,
 } from '@/lib/portfolio/portfolio';
 import { walletPosition } from '@/lib/portfolio/position';
@@ -40,7 +40,7 @@ export type SaleComparison = {
 export type HoldOrSell = {
   verdict: Verdict | null;
   hints: Hint[];
-  /** Bonds held today: planned purchases are left out */
+  /** Bonds held today: planned operations are left out */
   quantity: number;
   /** The price per bond from which selling today loses nothing; 0 once payments returned the cost */
   breakEvenPrice: number;
@@ -157,8 +157,8 @@ function saleHints(
  */
 export function holdOrSell(input: Input): HoldOrSell | null {
   const { position, bond, today, keyRate, salePrice } = input;
-  const held = position.purchases.filter((purchase) => !isPlannedPurchase(purchase, today));
-  if (held.length === 0 || !canBuyOn(bond, today)) return null;
+  const held = position.operations.filter((purchase) => purchase.date <= today);
+  if (held.length === 0 || quantityOn(held, today) === 0 || !canBuyOn(bond, today)) return null;
   const {
     payments,
     results,
@@ -166,9 +166,10 @@ export function holdOrSell(input: Input): HoldOrSell | null {
   } = walletPosition(groupPositions(held)[0], bond, today);
   if (!results?.complete || results.netIncome === null) return null;
 
-  const quantity = held.reduce((total, purchase) => total + purchase.quantity, 0);
+  const quantity = quantityOn(held, today);
   // A payment on the day of the sale still goes to the seller.
-  const received = sumTotals(payments.filter((payment) => payment.date <= today));
+  const received =
+    sumTotals(payments.filter((payment) => payment.date <= today)) + results.saleProceeds;
   const remaining = payments.filter((payment) => payment.date > today);
   const remainingPerBond = remaining.map((payment) => ({
     date: payment.date,

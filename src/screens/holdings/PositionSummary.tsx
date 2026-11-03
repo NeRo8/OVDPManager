@@ -9,14 +9,19 @@ import { ownedLabel } from './ownedLabel';
 
 type Props = {
   item: WalletPosition;
-  /** Bought in several purchases: the average price is worth showing */
+  /** Bought in several operations: the average price is worth showing */
   hasTopUps: boolean;
 };
 
 /** What a bond in the wallet has cost, brought and will bring, and what that comes to a year. */
 export function PositionSummary({ item, hasTopUps }: Props) {
   const { position, currency, results, planned, annualYield, purchasesWithoutYield } = item;
-  const price = pricePerBond(position.investedAmount, position.quantity);
+  const price = pricePerBond(
+    position.investedAmount,
+    position.operations
+      .filter((operation) => operation.type === 'purchase')
+      .reduce((sum, operation) => sum + operation.quantity, 0),
+  );
   return (
     <Section title="Підсумок">
       <InfoRow label="Кількість" value={ownedLabel(position.quantity, planned.quantity)} />
@@ -29,6 +34,12 @@ export function PositionSummary({ item, hasTopUps }: Props) {
           label="З них заплановано"
           hint="Купівлі, яких ще не зроблено"
           value={<Money value={planned.amount} currency={currency} />}
+        />
+      )}
+      {!!results?.saleProceeds && (
+        <InfoRow
+          label="Отримано від продажів"
+          value={<Money value={results.saleProceeds} currency={currency} />}
         />
       )}
       {hasTopUps && (

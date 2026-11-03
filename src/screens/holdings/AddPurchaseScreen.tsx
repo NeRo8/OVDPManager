@@ -20,14 +20,14 @@ export default function AddPurchaseScreen() {
   const bond = byIsin.get(isin);
   const position = positions.find((item) => item.position.isin === isin)?.position;
   const purchase = purchaseId
-    ? position?.purchases.find((item) => item.id === purchaseId)
+    ? position?.operations.find((item) => item.id === purchaseId && item.type === 'purchase')
     : undefined;
-  const purchases = position?.purchases ?? [];
-  // The other purchases of the bond: the one edited is the form itself.
-  const ownedQuantity = purchases
+  const operations = position?.operations ?? [];
+  // The other operations of the bond: the one edited is the form itself.
+  const ownedQuantity = operations
     .filter((item) => item.id !== purchase?.id && !isPlannedPurchase(item, today))
-    .reduce((sum, item) => sum + item.quantity, 0);
-  const title = purchaseScreenTitle(purchases, isin, purchaseId, today);
+    .reduce((sum, item) => sum + (item.type === 'purchase' ? item.quantity : -item.quantity), 0);
+  const title = purchaseScreenTitle(operations, isin, purchaseId, today);
 
   // Leave the issue open so another purchase can be entered for a different date.
   const closeAdding = () => router.back();
@@ -48,18 +48,23 @@ export default function AddPurchaseScreen() {
   return (
     <>
       <Stack.Screen options={{ title }} />
-      <BondsGate>
-        {bond ? (
-          <AddPurchaseForm
-            bond={bond}
-            ownedQuantity={ownedQuantity}
-            purchase={purchase}
-            onSaved={closeAdding}
+
+      {bond ? (
+        <AddPurchaseForm
+          bond={bond}
+          ownedQuantity={ownedQuantity}
+          purchase={purchase}
+          onSaved={closeAdding}
+        />
+      ) : (
+        <BondsGate>
+          <EmptyState
+            icon="search-outline"
+            title={isin}
+            message="Немає збережених умов цієї ОВДП або даних у каталозі НБУ."
           />
-        ) : (
-          <EmptyState icon="search-outline" title={isin} message="Цієї ОВДП немає в даних НБУ." />
-        )}
-      </BondsGate>
+        </BondsGate>
+      )}
     </>
   );
 }

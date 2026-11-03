@@ -1,4 +1,4 @@
-import type { Bond, Purchase } from '@/lib/portfolio/portfolio';
+import type { Bond, Operation } from '@/lib/portfolio/portfolio';
 import { buildWallet } from '@/lib/portfolio/wallet';
 
 import { sortWalletPositions } from './walletOrder';
@@ -24,10 +24,12 @@ const bonds = [
   bondOf('UA4000000005', '2027-02-01'),
 ];
 
-const purchaseOf = (isin: string, purchaseDate = '2024-02-01'): Purchase => ({
+const purchaseOf = (isin: string, date = '2024-02-01'): Operation => ({
+  type: 'purchase',
+  ovdp: null,
   id: isin,
   isin,
-  purchaseDate,
+  date,
   amount: 1000,
   quantity: 1,
   currency: 'UAH',
@@ -35,7 +37,7 @@ const purchaseOf = (isin: string, purchaseDate = '2024-02-01'): Purchase => ({
 
 describe('sortWalletPositions', () => {
   it('puts the nearest maturity first, the redeemed after, the latest of them first', () => {
-    const purchases = [
+    const operations = [
       // Missing from the NBU data: last.
       purchaseOf('UA4000000099'),
       ...bonds.map((bond) => purchaseOf(bond.isin)),
@@ -45,7 +47,7 @@ describe('sortWalletPositions', () => {
     const byIsin = new Map(
       [...bonds, bondOf('UA4000000006', '2026-12-15')].map((bond) => [bond.isin, bond]),
     );
-    const { positions } = buildWallet(purchases, byIsin, today);
+    const { positions } = buildWallet(operations, byIsin, today);
     expect(sortWalletPositions(positions).map(({ position }) => position.isin.slice(-2))).toEqual([
       '06',
       '02',

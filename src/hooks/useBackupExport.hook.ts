@@ -12,8 +12,8 @@ import { backupFileName, serializeBackup } from '@/lib/backup/backup';
 import { BackupKeySchema } from '@/lib/backup/backupKey.schema';
 import { errorMessage } from '@/lib/backup/errorMessage';
 import { getThemePreference, showToast } from '@/stores/appSettings';
+import { getOperations } from '@/stores/operations';
 import { getInvestmentPlans } from '@/stores/plans';
-import { getPurchases } from '@/stores/purchases';
 import { askDestructive } from '@/utils/confirm';
 import { formatDateTime } from '@/utils/date';
 
@@ -32,7 +32,7 @@ type BackupExportForm = z.infer<typeof BackupExportSchema>;
 
 /** Every plan and purchase on the device, and the theme, as a backup holds them. */
 const currentBackup = () => ({
-  purchases: getPurchases(),
+  operations: getOperations(),
   plans: getInvestmentPlans(),
   theme: getThemePreference(),
 });

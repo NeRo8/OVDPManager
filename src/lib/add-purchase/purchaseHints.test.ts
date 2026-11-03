@@ -3,7 +3,7 @@ import { formatMoney } from '@/utils/format';
 
 import { annualYieldText, assessPurchase } from './purchaseHints';
 
-const purchaseDate = '2026-10-29';
+const date = '2026-10-29';
 
 let nextIsin = 0;
 function bondOf(fields: Partial<Bond> = {}): Bond {
@@ -25,8 +25,8 @@ function bondOf(fields: Partial<Bond> = {}): Bond {
 function assess(fields: Partial<Parameters<typeof assessPurchase>[0]> = {}) {
   return assessPurchase({
     bond: bondOf(),
-    purchaseDate,
-    today: purchaseDate,
+    date,
+    today: date,
     pricePerBond: 1000,
     netIncome: 300,
     isComplete: true,
@@ -191,7 +191,7 @@ describe('assessPurchase', () => {
 
 it('explains unavailable comparisons and today’s rates for a future purchase', () => {
   const result = assess({
-    purchaseDate: '2027-01-01',
+    date: '2027-01-01',
     today: '2026-10-29',
     keyRate: null,
     bonds: [],

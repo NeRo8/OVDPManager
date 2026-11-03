@@ -6,7 +6,7 @@ import { ListRow } from '@/components/layout/ListRow';
 import { Section } from '@/components/layout/Section';
 import { Money } from '@/components/typography/Money';
 import { Typography } from '@/components/typography/Typography';
-import type { PurchaseEvent } from '@/lib/portfolio/portfolio';
+import type { OperationEvent } from '@/lib/portfolio/portfolio';
 import { SERIES_COLORS } from '@/theme/series';
 import { formatDate } from '@/utils/date';
 import { currencySign } from '@/utils/format';
@@ -32,8 +32,8 @@ function ownMoneyHint(paymentsKnown: boolean, ownMoney: number) {
  * purchase opens it to confirm with what was really paid.
  */
 export function UpcomingPurchasesSection({ upcoming, showCurrency, paymentsKnown }: Props) {
-  const { currency, through, purchases, amount, planMoney, ownMoney } = upcoming;
-  const confirm = ({ isin, id }: PurchaseEvent) =>
+  const { currency, through, operations, amount, planMoney, ownMoney } = upcoming;
+  const confirm = ({ isin, id }: OperationEvent) =>
     router.push({ pathname: '/add/[isin]/purchase', params: { isin, purchaseId: id } });
 
   return (
@@ -41,7 +41,7 @@ export function UpcomingPurchasesSection({ upcoming, showCurrency, paymentsKnown
       title={showCurrency ? `Найближчі купівлі · ${currency}` : 'Найближчі купівлі'}
       footer={`До ${formatDate(through)}. Суми орієнтовні, доки купівлю не підтверджено: торкніться її, коли вона відбудеться, і внесіть те, що списав банк чи брокер.`}
     >
-      {purchases.map((purchase) => {
+      {operations.map((purchase) => {
         const open = () => confirm(purchase);
         return (
           <ListRow

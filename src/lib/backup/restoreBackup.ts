@@ -1,7 +1,7 @@
-import { planCount, purchaseCount } from '@/lib/portfolio/counts';
-import { getInvestmentPlans, restorePortfolio } from '@/stores/plans';
-import { getPurchases } from '@/stores/purchases';
+import { planCount, operationCount } from '@/lib/portfolio/counts';
 import { showToast } from '@/stores/appSettings';
+import { getOperations } from '@/stores/operations';
+import { getInvestmentPlans, restorePortfolio } from '@/stores/plans';
 import { setThemePreference } from '@/theme/themePreference';
 import { confirmDestructive } from '@/utils/confirm';
 
@@ -26,10 +26,10 @@ export function restoreBackup(
   onRestored: () => void,
 ): void {
   const currentPlans = getInvestmentPlans().length;
-  const currentPurchases = getPurchases().length;
-  const restoredSummary = `${planCount(restored.plans.length)} і ${purchaseCount(restored.purchases.length)} ${SOURCE_PHRASES[source]}`;
+  const currentPurchases = getOperations().length;
+  const restoredSummary = `${planCount(restored.plans.length)} і ${operationCount(restored.operations.length)} ${SOURCE_PHRASES[source]}`;
   const apply = () => {
-    restorePortfolio(restored.purchases, restored.plans);
+    restorePortfolio(restored.operations, restored.plans);
     if (restored.theme) setThemePreference(restored.theme);
     showToast({
       tone: 'success',
@@ -44,7 +44,7 @@ export function restoreBackup(
   }
   confirmDestructive(
     'Замінити дані з копії?',
-    `Зараз ${planCount(currentPlans)} і ${purchaseCount(currentPurchases)}. Їх буде замінено на ${restoredSummary}.`,
+    `Зараз ${planCount(currentPlans)} і ${operationCount(currentPurchases)}. Їх буде замінено на ${restoredSummary}.`,
     'Замінити',
     apply,
   );

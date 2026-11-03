@@ -5,6 +5,7 @@ const GROUPS = {
   planned: 0,
   inCirculation: 0,
   redeemed: 1,
+  sold: 1,
   unknown: 2,
 } as const satisfies Record<PositionState, number>;
 

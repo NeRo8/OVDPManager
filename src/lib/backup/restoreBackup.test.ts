@@ -1,9 +1,8 @@
 import type { InvestmentPlan } from '@/lib/portfolio/plan';
-import type { PlanPurchase } from '@/lib/portfolio/portfolio';
-import { getActivePlan } from '@/stores/activePlan';
-import { getInvestmentPlans, restorePortfolio } from '@/stores/plans';
-import { getPurchases } from '@/stores/purchases';
+import type { PlanOperation } from '@/lib/portfolio/portfolio';
 import { showToast } from '@/stores/appSettings';
+import { getOperations } from '@/stores/operations';
+import { getActivePlan, getInvestmentPlans, restorePortfolio } from '@/stores/plans';
 import { confirmDestructive } from '@/utils/confirm';
 
 import { restoreBackup } from './restoreBackup';
@@ -23,16 +22,18 @@ const confirm = jest.mocked(confirmDestructive);
 const toast = jest.mocked(showToast);
 
 const plan: InvestmentPlan = { id: 'restored', name: 'З копії', isActive: true };
-const purchase = (id: string, planId: string): PlanPurchase => ({
+const purchase = (id: string, planId: string): PlanOperation => ({
+  type: 'purchase',
+  ovdp: null,
   id,
   planId,
   isin: 'UA4000227045',
-  purchaseDate: '2025-03-10',
+  date: '2025-03-10',
   amount: 1000,
   quantity: 1,
   currency: 'UAH',
 });
-const backup = { plans: [plan], purchases: [purchase('a', plan.id), purchase('b', plan.id)] };
+const backup = { plans: [plan], operations: [purchase('a', plan.id), purchase('b', plan.id)] };
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -46,11 +47,11 @@ describe('restoreBackup', () => {
 
     expect(confirm).not.toHaveBeenCalled();
     expect(getInvestmentPlans()).toEqual([plan]);
-    expect(getPurchases()).toEqual(backup.purchases);
+    expect(getOperations()).toEqual(backup.operations);
     expect(toast).toHaveBeenCalledWith({
       tone: 'success',
       title: 'Копію відновлено',
-      message: 'Відновлено 1 план і 2 купівлі з файлу.',
+      message: 'Відновлено 1 план і 2 операції з файлу.',
     });
     expect(onRestored).toHaveBeenCalledTimes(1);
   });
@@ -64,7 +65,7 @@ describe('restoreBackup', () => {
 
     expect(confirm).toHaveBeenCalledWith(
       'Замінити дані з копії?',
-      'Зараз 1 план і 1 купівля. Їх буде замінено на 1 план і 2 купівлі з хмари.',
+      'Зараз 1 план і 1 операція. Їх буде замінено на 1 план і 2 операції з хмари.',
       'Замінити',
       expect.any(Function),
     );
@@ -73,18 +74,18 @@ describe('restoreBackup', () => {
     expect(onRestored).not.toHaveBeenCalled();
     expect(toast).not.toHaveBeenCalled();
 
-    // Confirmed: everything is replaced, plans and purchases alike.
+    // Confirmed: everything is replaced, plans and operations alike.
     const [, , , apply] = confirm.mock.calls[0];
     apply();
     expect(getInvestmentPlans()).toEqual([plan]);
-    expect(getPurchases()).toEqual(backup.purchases);
+    expect(getOperations()).toEqual(backup.operations);
     expect(onRestored).toHaveBeenCalledTimes(1);
   });
 
   it('names where the copy came from', () => {
     restoreBackup(backup, 'pasted', jest.fn());
     expect(toast).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Відновлено 1 план і 2 купівлі з копії.' }),
+      expect.objectContaining({ message: 'Відновлено 1 план і 2 операції з копії.' }),
     );
   });
 

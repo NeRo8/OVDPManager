@@ -5,4 +5,5 @@ export const SCHEDULE_EVENT_TYPES: readonly ScheduleEventType[] = [
   'coupon',
   'redemption',
   'purchase',
+  'sale',
 ];

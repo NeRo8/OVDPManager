@@ -4,14 +4,14 @@
 
 ## Звідки дані
 
-- `src/lib/portfolio/portfolio.ts` — типи `Bond`, `BondPayment`, `Purchase`, `PlanPurchase`, `Position`, `PositionPayment`, `PurchaseEvent`, `ScheduleEvent`; `CURRENCIES`, `bondChoices`, `groupPositions`, `isPlannedPurchase`, `isRedeemed`, `canBuyOn`, `maturesWithin`, `pricePerBond`, `purchaseCurrency`, `positionCurrency`, `positionPayments`, `purchaseEvents`, `compareScheduleEvents`, `sumTotals`, `nextPayment`.
+- `src/lib/portfolio/portfolio.ts` — типи `Bond`, `BondPayment`, `Purchase`, `PlanOperation`, `Position`, `PositionPayment`, `OperationEvent`, `ScheduleEvent`; `CURRENCIES`, `bondChoices`, `groupPositions`, `isPlannedPurchase`, `isRedeemed`, `canBuyOn`, `maturesWithin`, `pricePerBond`, `purchaseCurrency`, `positionCurrency`, `positionPayments`, `operationEvents`, `compareScheduleEvents`, `sumTotals`, `nextPayment`.
 - `src/lib/portfolio/position.ts` — `PositionState`, `PositionResults`, `CurrencyResults`, `WalletPosition`, `hasRedemption`, `walletPosition`, `resultsByCurrency` (усередині: `netIncomeOf`, `positionResults`, `positionYield`, `positionState`, `plannedPart`).
 - `src/lib/portfolio/wallet.ts` — `Wallet`, `buildWallet`, `WalletScopeOptions`, `walletScopeOptions`, `isinsIn`.
 - `src/lib/portfolio/yield.ts` — `annualYield`, `amountForYield`, `ANNUAL_YIELD_RANGE`.
 - `src/lib/portfolio/market.ts` — `maturityTerm`, `NEW_BOND_MONTHS`, `MIN_NEW_BONDS`, `MAX_PLAUSIBLE_YIELD`, `newBondsRate`, `median`, `newBondsLabel`.
 - `src/lib/portfolio/hints.ts`, `src/lib/portfolio/yieldHints.ts` — `Hint`, `Verdict`, `sortHints`, `worstTone`, `keyRateHint`, `newBondsHint`.
 - `src/lib/portfolio/plan.ts` — `InvestmentPlan`, `DEFAULT_PLAN_NAME`, `PLAN_NAME_MAX_LENGTH`; `src/lib/portfolio/counts.ts` — `purchaseCount`, `planCount`.
-- `src/hooks/useWallet.hook.ts` — `useWallet`; `src/stores/activePlan/` — `useActivePlan`, `getActivePlan`, `useActivePurchases`, `getActivePurchases`.
+- `src/hooks/useWallet.hook.ts` — `useWallet`; `src/stores/plans/` — `useActivePlan`, `getActivePlan`, `useActiveOperations`, `getActiveOperations`.
 - `src/api/nbu/nbuBonds.ts` — як рядок НБУ стає `Bond` (детально — у `spec/data-and-sync.md`).
 - `src/utils/number.ts` (`round2`), `src/utils/date.ts` (дати), `src/utils/format.ts` (гроші, множина, розбір сум).
 
@@ -43,29 +43,29 @@
 
 **DOM-11.** Строк до погашення (`maturityTerm`): `short` («до 1 року»), якщо `maturesWithin(…, 12)`; інакше `medium` («1–3 роки»), якщо `maturesWithin(…, 36)`; інакше `long` («понад 3 роки»). Приклад від 2026-10-29: погашення 2027-10-29 — `short`, 2027-10-30 — `medium`, 2029-10-29 — `medium`, 2029-10-30 — `long`. `market.ts`, `maturityTerm`.
 
-**DOM-12.** Купівля запланована (`isPlannedPurchase`), коли `purchaseDate > today`. Купівля, датована сьогодні, уже вважається зробленою; підтвердження не потрібне. `portfolio.ts`, `isPlannedPurchase`.
+**DOM-12.** Купівля запланована (`isPlannedPurchase`), коли `date > today`. Купівля, датована сьогодні, уже вважається зробленою; підтвердження не потрібне. `portfolio.ts`, `isPlannedPurchase`.
 
 **DOM-13.** `daysBetween(from, to)` — різниця календарних днів (`differenceInCalendarDays`), тож перехід на літній час день не зсуває. `date.ts`.
 
 ### Купівля і план
 
-**DOM-14.** `Purchase` має поля `id`, `isin`, `purchaseDate`, `amount` (уся сума, списана за купівлю, у валюті ОВДП), `quantity`, `currency` (валюта ОВДП, запам'ятована під час додавання). `PlanPurchase` додає `planId`. `portfolio.ts`.
+**DOM-14.** `Operation` має `id`, `type: purchase | sale`, `isin`, `date`, `amount`, `quantity`, `currency`, `ovdp: Bond | null`. Сума і кількість додатні; `amount` — повна витрачена сума з комісіями або отримана сума після комісій. `PlanOperation` додає `planId`. `ovdp` містить усі умови й графік; `null` допустимий лише для старих купівель із утраченими даними.
 
-**DOM-15.** Валюта купівлі — валюта ОВДП з даних НБУ, якщо ОВДП там є; лише без неї береться збережене `purchase.currency` (`purchaseCurrency`). Валюта позиції — валюта її першої купівлі за тим самим правилом (`positionCurrency`). `portfolio.ts`.
+**DOM-15.** Валюта операції зберігається під час її створення та не змінюється через каталог НБУ. Валюта позиції — валюта її операцій; резервна копія перевіряє узгодженість із вкладеним `ovdp`.
 
 **DOM-16.** «Ціна 1 шт» = `round2(amount / quantity)` (`pricePerBond`). За недодатної кількості повертається `null`. `portfolio.ts`, `pricePerBond`.
 
 **DOM-17.** План — `InvestmentPlan { id, name, isActive }`. Назва плану — до `PLAN_NAME_MAX_LENGTH = 80` символів; запропонована назва першого плану — «Мій план» (`DEFAULT_PLAN_NAME`). `src/lib/portfolio/plan.ts`.
 
-**DOM-18.** Купівлі плану — це всі `PlanPurchase` з його `planId`; окремого списку запланованих купівель немає. Гаманець будується з купівель активного плану (`useActivePurchases`: `purchase.planId === plan?.id`). Без жодного плану гаманець порожній. `src/hooks/useWallet.hook.ts`.
+**DOM-18.** План містить усі операції з його `planId`. `useActiveOperations` зі `stores/plans` надає операції активного плану для побудови гаманця.
 
 ### Позиція і право на виплати
 
-**DOM-20.** Позиція (`groupPositions`) — усі купівлі одного ISIN серед переданих купівель. Позиції йдуть у порядку, у якому кожен ISIN уперше трапився в масиві купівель; купівлі в позиції сортуються за `purchaseDate` (у разі рівних дат лишається порядок масиву). `quantity` — сума кількостей без округлення; `investedAmount` — `round2` суми `amount`. `portfolio.ts`, `groupPositions`.
+**DOM-20.** Позиція об’єднує всі операції ISIN. `quantity` — куплено мінус продано, включно із запланованими купівлями; `investedAmount` — сума тільки купівель. Сортування операцій: дата, купівлі перед продажами в один день, потім id. Після повного продажу позиція та її історія залишаються.
 
-**DOM-21.** Право на виплату: для кожної виплати ОВДП рахуються лише купівлі, датовані **строго раніше** за дату виплати (`purchase.purchaseDate < payment.date`). Виплата в день купівлі належить попередньому власнику; докупівля починає заробляти з наступної виплати. Виплата з нульовою кількістю пропускається. `portfolio.ts`, `positionPayments`.
+**DOM-21.** Право на виплату визначається залишком до дати виплати: купівлі мінус продажі зі строго меншою датою. Купон у день продажу залишається продавцю; купівля того дня його не отримує. Продажі розподіляються за FIFO; виплати після продажу не нараховуються на продану кількість.
 
-Формула для кожної виплати: `quantity = Σ quantity купівель із датою < дата виплати`; `plannedQuantity = Σ quantity тих із них, що ще заплановані` (DOM-12: `purchaseDate > today`); `total = round2(amount × quantity)`; `isPaid = payment.date < today`.
+Формула для кожної виплати: `quantity = Σ quantity купівель − Σ quantity продажів із датою < дата виплати`; `plannedQuantity = Σ quantity тих із них, що ще заплановані` (DOM-12: `date > today`); `total = round2(amount × quantity)`; `isPaid = payment.date < today`.
 
 Приклад: купівля 2026-01-01, купон теж 2026-01-01 — купон у виплати позиції не потрапляє; перший купон — 2026-07-01.
 
@@ -75,11 +75,11 @@
 
 **DOM-23.** Наступна виплата позиції (`nextPayment`) — перша неотримана виплата в порядку графіка ОВДП; якщо купон і погашення в один день, це купон (DOM-03). `portfolio.ts`, `nextPayment`.
 
-**DOM-24.** Стан позиції (`PositionState`, `positionState`) перевіряється в такому порядку: немає ОВДП у даних НБУ → `unknown`; усі купівлі заплановані (DOM-12) → `planned`; ОВДП погашена (DOM-08) → `redeemed`; інакше → `inCirculation`. Позиція із запланованою і зробленою купівлею — не `planned`. `position.ts`, `positionState`.
+**DOM-24.** Стани позиції: без збережених або резервних даних ОВДП — `unknown`; нульовий залишок після продажів — `sold`; усі операції є майбутніми купівлями — `planned`; після погашення — `redeemed`; інакше — `inCirculation`.
 
 **DOM-25.** `walletPosition(position, bond, today)` дає `WalletPosition`: `position`, `bond` (немає, якщо ОВДП нема в даних НБУ), `currency` (DOM-15), `payments` (DOM-21; порожні без ОВДП), `nextPayment`, `state`, `results` (немає без ОВДП), `annualYield` (`null` без ОВДП), `planned` (DOM-60; є й без ОВДП). `position.ts`, `walletPosition`.
 
-**DOM-60.** Запланована частина позиції (`WalletPosition.planned`, `plannedPart`): `{ quantity, amount }` — сума кількостей і `round2` суми `amount` купівель позиції, ще запланованих на сьогодні (DOM-12: `purchaseDate > today`); коли всі купівлі зроблені — `{ quantity: 0, amount: 0 }`. Позиція `planned` (DOM-24) має `planned.quantity = position.quantity`. Приклад (`position.test.ts`): куплено 2 шт за 1 980 01.01.2025 і заплановано 1 шт за 990 на 01.05.2026 — на 15.03.2026 `planned = { quantity: 1, amount: 990 }` (позиція при цьому `inCirculation`, бо не всі купівлі заплановані), на 01.05.2026 (купівля сьогоднішня, уже зроблена) — `{ quantity: 0, amount: 0 }`. З цього гаманець, картка ОВДП і вибір ОВДП пишуть, скільки ОВДП позиції ще лише заплановано (див. [screens/wallet-and-bond.md](screens/wallet-and-bond.md), WAL-05). `position.ts`, `plannedPart`.
+**DOM-60.** Запланована частина позиції (`WalletPosition.planned`, `plannedPart`): `{ quantity, amount }` — сума кількостей і `round2` суми `amount` купівель позиції, ще запланованих на сьогодні (DOM-12: `date > today`); коли всі купівлі зроблені — `{ quantity: 0, amount: 0 }`. Позиція `planned` (DOM-24) має `planned.quantity = position.quantity`. Приклад (`position.test.ts`): куплено 2 шт за 1 980 01.01.2025 і заплановано 1 шт за 990 на 01.05.2026 — на 15.03.2026 `planned = { quantity: 1, amount: 990 }` (позиція при цьому `inCirculation`, бо не всі купівлі заплановані), на 01.05.2026 (купівля сьогоднішня, уже зроблена) — `{ quantity: 0, amount: 0 }`. З цього гаманець, картка ОВДП і вибір ОВДП пишуть, скільки ОВДП позиції ще лише заплановано (див. [screens/wallet-and-bond.md](screens/wallet-and-bond.md), WAL-05). `position.ts`, `plannedPart`.
 
 ### Результати позиції (PositionResults)
 
@@ -88,10 +88,11 @@
 - `invested` = `position.investedAmount` (усі купівлі, разом із запланованими).
 - `coupons` = `round2(Σ total виплат-купонів)` (DOM-21).
 - `redemption` = `round2(Σ total виплат-погашень)`.
-- `received` = `round2(Σ total виплат з isPaid)`.
-- `expected` = `round2(Σ total виплат без isPaid)`.
-- `totalPayments` = `round2(coupons + redemption)`.
-- `complete` = `hasRedemption(bond)` (DOM-6).
+- `saleProceeds` — сума продажів.
+- `received` = виплати з `isPaid` плюс продажі з датою не пізніше сьогодні.
+- `expected` = виплати без `isPaid` плюс майбутні продажі, якщо вони імпортовані.
+- `totalPayments` = `round2(coupons + redemption + saleProceeds)`.
+- `complete` = `position.quantity === 0 || hasRedemption(bond)` (DOM-6).
 
 `position.ts`, `positionResults`, `sumTotals`.
 
@@ -99,7 +100,7 @@
 
 Приклад (`position.test.ts`): ОВДП 10 %, номінал 1000, купони по 50 щопівроку з 2025-07-01 до 2027-01-01, погашення 1000 у 2027-01-01. Дві ОВДП куплено 2025-01-01 за 1980, сьогодні 2026-03-15: `invested` 1980, `coupons` 400, `redemption` 2000, `received` 200, `expected` 2200, `totalPayments` 2400, `netIncome` 420, `returnPercent` 21,21.
 
-**DOM-30.** «Річна дохідність» позиції (`positionYield`): `null`, якщо погашення не опубліковано або вкладена сума недодатна. Інакше для кожної купівлі окремо рахується `annualYield(amount, purchaseDate, виплати лише цієї купівлі за DOM-21)`. Купівля з `null` (ціна, якій не відповідає жодна дохідність у межах −99…1000 %, найімовірніше помилка в сумі) у середню не входить і рахується в `purchasesWithoutYield`, тож не ховає дохідність решти. Результат — `round2(Σ (дохідність × amount) / Σ amount)` за купівлями з дохідністю; ця сума — `annualYieldBasis`. Без жодної такої купівлі — `null`. Заплановані купівлі входять. Приклад: купівля 1 шт за 1 000 ₴ і помилкова за 1 ₴ — дохідність позиції як у першої, `purchasesWithoutYield = 1`, `annualYieldBasis = 1000`. `position.ts`, `positionYield`.
+**DOM-30.** «Річна дохідність» позиції (`positionYield`): `null`, якщо погашення не опубліковано або вкладена сума недодатна. Інакше для кожної купівлі окремо рахується `annualYield(amount, date, виплати лише цієї купівлі за DOM-21)`. Купівля з `null` (ціна, якій не відповідає жодна дохідність у межах −99…1000 %, найімовірніше помилка в сумі) у середню не входить і рахується в `purchasesWithoutYield`, тож не ховає дохідність решти. Результат — `round2(Σ (дохідність × amount) / Σ amount)` за купівлями з дохідністю; ця сума — `annualYieldBasis`. Без жодної такої купівлі — `null`. Заплановані купівлі входять. Приклад: купівля 1 шт за 1 000 ₴ і помилкова за 1 ₴ — дохідність позиції як у першої, `purchasesWithoutYield = 1`, `annualYieldBasis = 1000`. `position.ts`, `positionYield`.
 
 ### Підсумки за валютою (resultsByCurrency)
 
@@ -113,9 +114,9 @@
 
 ### Гаманець (Wallet)
 
-**DOM-35.** `buildWallet(purchases, byIsin, today)` будує всі поля з купівель: `positions` = `groupPositions(purchases)` → `walletPosition` (DOM-25); `payments` — виплати всіх позицій, відсортовані лише за датою (у межах дати зберігається порядок позицій, а в позиції — порядок графіка ОВДП); `purchaseEvents` — кожна купівля як подія (DOM-36); а також `purchases`, `byIsin`, `today`. Виплат ОВДП, яких немає в даних НБУ, немає. `wallet.ts`, `buildWallet`.
+**DOM-35.** `buildWallet(purchases, byIsin, today)` будує всі поля з купівель: `positions` = `groupPositions(purchases)` → `walletPosition` (DOM-25); `payments` — виплати всіх позицій, відсортовані лише за датою (у межах дати зберігається порядок позицій, а в позиції — порядок графіка ОВДП); `operationEvents` — кожна купівля як подія (DOM-36); а також `purchases`, `byIsin`, `today`. Виплат ОВДП, яких немає в даних НБУ, немає. `wallet.ts`, `buildWallet`.
 
-**DOM-36.** Подія купівлі (`purchaseEvents`): `type: 'purchase'`, `id`, `date = purchaseDate`, `isin`, `currency` (DOM-15), `quantity`, `total = amount` (без округлення), `isTopUp` — `true` для кожної купівлі позиції, крім найранішої (у разі однакових дат — крім першої в масиві). Події сортуються за датою; входять і купівлі ОВДП, яких немає в даних НБУ. `portfolio.ts`, `purchaseEvents`.
+**DOM-36.** Подія купівлі (`operationEvents`): `type: 'purchase'`, `id`, `date = date`, `isin`, `currency` (DOM-15), `quantity`, `total = amount` (без округлення), `isTopUp` — `true` для кожної купівлі позиції, крім найранішої (у разі однакових дат — крім першої в масиві). Події сортуються за датою; входять і купівлі ОВДП, яких немає в даних НБУ. `portfolio.ts`, `operationEvents`.
 
 **DOM-37.** Порядок подій розкладу (`compareScheduleEvents`): за датою, а в один день виплата перед купівлею. `portfolio.ts`.
 
@@ -127,15 +128,15 @@
 
 **DOM-61.** ОВДП валюти (`isinsIn(options, currency)`): ISIN з `options.isins`, у яких `currencyOf` дорівнює `currency`, у тому самому порядку; за `currency = null` — усі `options.isins`. З цього списку фільтри виплат показують розділ «ОВДП» (лише ОВДП обраної валюти). `wallet.ts`, `isinsIn`.
 
-**DOM-41.** `useWallet()` = `buildWallet(купівлі активного плану, byIsin з useBonds, today)` плюс `plan`, `bonds` (увесь каталог або `null`) і `refresh`. `useToday` читає календарну дату зі спільного сховища налаштувань. Дата оновлюється під час запуску та повернення застосунку на передній план; окремого таймера опівночі немає. Сесії зазвичай тривають до 15 хвилин, тому для оновлення дати після опівночі достатньо знову відкрити застосунок. `src/hooks/useWallet.hook.ts`.
+**DOM-41.** `useWallet()` будує гаманець з операцій активного плану. Вкладені `ovdp` мають пріоритет; каталог використовується для нового вибору й відновлення старих записів без знімка. Гаманець, картка ОВДП, виплати й підсумок плану доступні без каталогу, якщо знімки збережені.
 
 **DOM-42.** Вибір ОВДП для купівлі (`bondChoices(bonds, query, today)`): запит очищається від пробілів і переводиться у великі літери. Без запиту — лише ОВДП, які можна купити сьогодні (DOM-9). Із запитом — усі ОВДП, чий ISIN містить запит, також погашені. Спершу ті, що можна купити, далі — за `maturityDate`. `portfolio.ts`, `bondChoices`.
 
 ### Річна дохідність і ціна для дохідності
 
-**DOM-43.** `annualYield(amount, purchaseDate, payments)` — ставка `r` (частка на рік, виплачувана двома половинами), за якої дисконтовані виплати дорівнюють сумі купівлі:
+**DOM-43.** `annualYield(amount, date, payments)` — ставка `r` (частка на рік, виплачувана двома половинами), за якої дисконтовані виплати дорівнюють сумі купівлі:
 
-`amount = Σ total_i / (1 + r/2)^(h_i)`, де `h_i = daysBetween(purchaseDate, date_i) / 365 × 2` (півроки).
+`amount = Σ total_i / (1 + r/2)^(h_i)`, де `h_i = daysBetween(date, date_i) / 365 × 2` (півроки).
 
 Пошук — бісекцією на `[−0,99; 10,00]` (тобто −99…1000 %, `ANNUAL_YIELD_RANGE`), 100 кроків, результат `round2(r × 100)` у відсотках. `src/lib/portfolio/yield.ts`, `annualYield`.
 
@@ -179,7 +180,7 @@
 
 ## Стани
 
-- **Немає ОВДП у даних НБУ** (каталог ще не завантажено або ISIN там відсутній): позиція `unknown`, без виплат, `results` і дохідності; її купівлі все одно є серед `purchaseEvents` і рахуються у валюті `purchase.currency`; `resultsByCurrency` її пропускає.
+- **Немає ОВДП у даних НБУ** (каталог ще не завантажено або ISIN там відсутній): позиція `unknown`, без виплат, `results` і дохідності; її купівлі все одно є серед `operationEvents` і рахуються у валюті `purchase.currency`; `resultsByCurrency` її пропускає.
 - **Погашення ще не опубліковано**: `complete: false`, `netIncome`/`returnPercent`/`annualYield` — `null`; виплати-купони й суми `coupons`, `received`, `expected` рахуються.
 - **Порожній план**: `buildWallet([])` дає порожні масиви; `resultsByCurrency` — порожній список.
 
@@ -225,3 +226,5 @@
 **DOM-62.** Купівлі одного ISIN з однаковою датою впорядковуються за id, тому ознака докупівлі не залежить від порядку збереження. `parseAmount` приймає десяткові кому й крапку та однозначні формати `1,000.50` і `1.000,50`; некоректне `1,000,50` відхиляється.
 
 **DOM-63.** Коли облікову ставку не вдалося завантажити (`useKeyRate(...).failed`, DATA-17), гривнева оцінка каже про це підказкою тону `info` (`keyRateFailedHint`): «Не вдалося завантажити облікову ставку НБУ, тож порівняння з нею немає. Спробуйте пізніше.» Тон `info`, бо ставка, що не завантажилась, нічого не каже про купівлю, тож вердикт не змінюється. Для USD і EUR, де ставку не порівнюють, і поки ставка лише завантажується — нічого. `yieldHints.ts`, `keyRateFailedHint`.
+
+**DOM-64.** Річна дохідність кожної купівлі враховує її купони, погашення залишку та надходження від продажів, розподілені за FIFO. Дохідності зважуються на суми купівель, як раніше. Для повністю проданої позиції опубліковане погашення не потрібне. Усі потоки в один день не дають визначеної річної дохідності (`null`).

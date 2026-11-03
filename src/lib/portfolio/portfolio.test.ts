@@ -7,7 +7,7 @@ import {
   nextPayment,
   positionPayments,
   pricePerBond,
-  purchaseEvents,
+  operationEvents,
 } from './portfolio';
 
 function bondOf(isin: string, maturityDate: string): Bond {
@@ -33,8 +33,10 @@ it('does not divide by a zero quantity when displaying a price', () => {
 
 it('identifies same-day top-ups consistently regardless of storage order', () => {
   const purchase = {
+    type: 'purchase' as const,
+    ovdp: null,
     isin: maturingToday.isin,
-    purchaseDate: '2025-01-01',
+    date: '2025-01-01',
     quantity: 1,
     amount: 1000,
     currency: 'UAH' as const,
@@ -42,7 +44,7 @@ it('identifies same-day top-ups consistently regardless of storage order', () =>
   const first = { ...purchase, id: 'a' };
   const second = { ...purchase, id: 'b' };
   const events = (items: (typeof first)[]) =>
-    purchaseEvents(items, new Map()).map(({ id, isTopUp }) => [id, isTopUp]);
+    operationEvents(items, new Map()).map(({ id, isTopUp }) => [id, isTopUp]);
   expect(events([first, second])).toEqual([
     ['a', false],
     ['b', true],
@@ -109,16 +111,18 @@ describe('positionPayments', () => {
       { date: '2027-03-01', type: 'redemption', amount: 1000 },
     ],
   };
-  const purchase = (id: string, purchaseDate: string, quantity: number) => ({
+  const purchase = (id: string, date: string, quantity: number) => ({
+    type: 'purchase' as const,
+    ovdp: null,
     id,
     isin: bond.isin,
-    purchaseDate,
+    date,
     amount: quantity * 1000,
     quantity,
     currency: 'UAH' as const,
   });
 
-  it('counts of each payment the bonds of purchases still planned', () => {
+  it('counts of each payment the bonds of operations still planned', () => {
     // Two bonds bought, three more planned for June.
     const payments = positionPayments(
       [purchase('made', '2025-01-10', 2), purchase('planned', '2026-06-01', 3)],

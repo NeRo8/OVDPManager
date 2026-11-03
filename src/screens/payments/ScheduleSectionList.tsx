@@ -27,7 +27,7 @@ type Props = Pick<
 };
 
 const keyOf = (event: ScheduleEvent) =>
-  event.type === 'purchase' ? event.id : `${event.isin}-${event.date}-${event.type}`;
+  'id' in event ? event.id : `${event.isin}-${event.date}-${event.type}`;
 
 /** Events grouped by month: the payments screen's list. */
 export function ScheduleSectionList({ empty, ...props }: Props) {
