@@ -14,11 +14,9 @@ import { Section } from '@/components/layout/Section';
 import { useBonds } from '@/hooks/useBonds.hook';
 import { useKeyRate, useKeyRateUpdatedAt } from '@/hooks/useKeyRate.hook';
 import { planCount, purchaseCount } from '@/lib/portfolio/counts';
-import { useToday } from '@/stores/appSettings';
-import { useThemePreference, type ThemePreference } from '@/stores/appSettings';
+import { useToday, useThemePreference, type ThemePreference, showToast } from '@/stores/appSettings';
 import { useInvestmentPlans } from '@/stores/plans';
 import { usePurchases } from '@/stores/purchases';
-import { showToast } from '@/stores/toast';
 import { setThemePreference } from '@/theme/themePreference';
 import { formatDateTime } from '@/utils/date';
 

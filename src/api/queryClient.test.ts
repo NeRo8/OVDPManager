@@ -1,6 +1,6 @@
 import type { Query } from '@tanstack/react-query';
 
-import { showToast } from '@/stores/toast';
+import { showToast } from '@/stores/appSettings';
 
 import { queryClient } from './queryClient';
 

@@ -5,7 +5,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { type IconName, ThemedIcon } from '@/components/icon/ThemedIcon';
 import { Typography } from '@/components/typography/Typography';
-import { hideToast, type Toast, type ToastTone } from '@/stores/toast';
+import { hideToast, type Toast, type ToastTone } from '@/stores/appSettings';
 
 // Entering and leaving the screen: a strong ease-out, so it responds at once and settles softly.
 const EASE_OUT = Easing.bezier(0.23, 1, 0.32, 1);
@@ -25,10 +25,10 @@ export function ToastView({ toast }: Props) {
   styles.useVariants({ tone: toast.tone });
   const { action } = toast;
 
-  const dismiss = () => hideToast(toast.id);
+  const dismiss = () => hideToast();
 
   const runAction = () => {
-    hideToast(toast.id);
+    hideToast();
     action?.onPress();
   };
 

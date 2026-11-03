@@ -13,8 +13,7 @@ import { ToastHost } from '@/components/toast/ToastHost';
 import { purchaseScreenTitle } from '@/screens/holdings/purchaseScreenTitle';
 import { planNameTitle } from '@/screens/plan/planNameTitle';
 import { getActivePurchases } from '@/stores/activePlan';
-import { useToday } from '@/stores/appSettings';
-import { useIsOnboardingCompleted } from '@/stores/onboarding';
+import { useToday, useIsOnboardingCompleted } from '@/stores/appSettings';
 import { useInvestmentPlans } from '@/stores/plans';
 import { goBackOr } from '@/utils/navigation';
 

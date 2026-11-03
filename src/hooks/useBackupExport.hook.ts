@@ -11,10 +11,9 @@ import { ensureGoogleAccount } from '@/api/backup/googleAccount';
 import { backupFileName, serializeBackup } from '@/lib/backup/backup';
 import { BackupKeySchema } from '@/lib/backup/backupKey.schema';
 import { errorMessage } from '@/lib/backup/errorMessage';
-import { getThemePreference } from '@/stores/appSettings';
+import { getThemePreference, showToast } from '@/stores/appSettings';
 import { getInvestmentPlans } from '@/stores/plans';
 import { getPurchases } from '@/stores/purchases';
-import { showToast } from '@/stores/toast';
 import { askDestructive } from '@/utils/confirm';
 import { formatDateTime } from '@/utils/date';
 

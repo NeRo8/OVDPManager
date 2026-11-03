@@ -1,7 +1,7 @@
 import { planCount, purchaseCount } from '@/lib/portfolio/counts';
 import { getInvestmentPlans, restorePortfolio } from '@/stores/plans';
 import { getPurchases } from '@/stores/purchases';
-import { showToast } from '@/stores/toast';
+import { showToast } from '@/stores/appSettings';
 import { setThemePreference } from '@/theme/themePreference';
 import { confirmDestructive } from '@/utils/confirm';
 

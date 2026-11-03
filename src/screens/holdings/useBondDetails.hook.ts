@@ -2,7 +2,7 @@ import { useWallet } from '@/hooks/useWallet.hook';
 import { type Purchase, canBuyOn, purchaseCurrency } from '@/lib/portfolio/portfolio';
 import { removePositionFromActivePlan } from '@/stores/activePlan';
 import { removePurchase } from '@/stores/purchases';
-import { showToast } from '@/stores/toast';
+import { showToast } from '@/stores/appSettings';
 import { confirmDestructive } from '@/utils/confirm';
 import { formatDate } from '@/utils/date';
 import { formatMoney } from '@/utils/format';

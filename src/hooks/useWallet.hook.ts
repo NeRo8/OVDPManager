@@ -3,8 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { keyRateQuery, keyRateYear } from '@/api/nbu/keyRateQuery';
 import { buildWallet } from '@/lib/portfolio/wallet';
 import { useActivePurchases } from '@/stores/activePlan';
-import { useToday } from '@/stores/appSettings';
-import { showToast } from '@/stores/toast';
+import { useToday, showToast } from '@/stores/appSettings';
 
 import { useBonds } from './useBonds.hook';
 

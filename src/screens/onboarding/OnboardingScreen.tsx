@@ -10,7 +10,7 @@ import { StyleSheet, withUnistyles } from 'react-native-unistyles';
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { Button } from '@/components/button/Button';
-import { completeOnboarding } from '@/stores/onboarding';
+import { completeOnboarding } from '@/stores/appSettings';
 
 import { OnboardingBackdrop } from './OnboardingBackdrop';
 import { OnboardingSlide } from './OnboardingSlide';

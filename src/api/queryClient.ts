@@ -1,6 +1,6 @@
 import { QueryCache, QueryClient } from '@tanstack/react-query';
 
-import { showToast } from '@/stores/toast';
+import { showToast } from '@/stores/appSettings';
 
 declare module '@tanstack/react-query' {
   interface Register {

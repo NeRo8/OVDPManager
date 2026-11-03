@@ -16,9 +16,8 @@ import {
   pricePerBond,
 } from '@/lib/portfolio/portfolio';
 import { addPurchaseToActivePlan } from '@/stores/activePlan';
-import { useToday } from '@/stores/appSettings';
+import { useToday, showToast } from '@/stores/appSettings';
 import { updatePurchase } from '@/stores/purchases';
-import { showToast } from '@/stores/toast';
 
 import { useBonds } from './useBonds.hook';
 import { useKeyRate } from './useKeyRate.hook';

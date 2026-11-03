@@ -11,7 +11,7 @@ import {
   signOutOfGoogle,
 } from '@/api/backup/googleAccount';
 import { errorMessage } from '@/lib/backup/errorMessage';
-import { showToast } from '@/stores/toast';
+import { showToast } from '@/stores/appSettings';
 import { confirmDestructive } from '@/utils/confirm';
 
 import { cloudBackupQueryKey, useCloudBackup } from './useCloudBackup.hook';

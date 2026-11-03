@@ -3,7 +3,7 @@ import type { PlanPurchase } from '@/lib/portfolio/portfolio';
 import { getActivePlan } from '@/stores/activePlan';
 import { getInvestmentPlans, restorePortfolio } from '@/stores/plans';
 import { getPurchases } from '@/stores/purchases';
-import { showToast } from '@/stores/toast';
+import { showToast } from '@/stores/appSettings';
 import { confirmDestructive } from '@/utils/confirm';
 
 import { restoreBackup } from './restoreBackup';

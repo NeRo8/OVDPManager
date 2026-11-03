@@ -9,7 +9,7 @@ import { Typography } from '@/components/typography/Typography';
 import { getActivePlan } from '@/stores/activePlan';
 import { duplicateInvestmentPlan, removeInvestmentPlan, useInvestmentPlans } from '@/stores/plans';
 import { usePurchases } from '@/stores/purchases';
-import { showToast } from '@/stores/toast';
+import { showToast } from '@/stores/appSettings';
 import { confirmDestructive } from '@/utils/confirm';
 import { plural } from '@/utils/format';
 

@@ -12,7 +12,7 @@ import { WrongBackupKeyError } from '@/lib/backup/backupCipher';
 import { BackupKeySchema } from '@/lib/backup/backupKey.schema';
 import { errorMessage } from '@/lib/backup/errorMessage';
 import { type BackupSource, restoreBackup } from '@/lib/backup/restoreBackup';
-import { showToast } from '@/stores/toast';
+import { showToast } from '@/stores/appSettings';
 
 import { useGoogleAccount } from './useGoogleAccount.hook';
 

@@ -3,7 +3,7 @@ import { AccessibilityInfo, View } from 'react-native';
 
 import { StyleSheet } from 'react-native-unistyles';
 
-import { hideToast, useToast } from '@/stores/toast';
+import { hideToast, useToast } from '@/stores/appSettings';
 
 import { ToastView } from './ToastView';
 

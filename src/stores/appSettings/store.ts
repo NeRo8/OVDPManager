@@ -11,7 +11,9 @@ const STORAGE_KEY = 'theme-preference-v1';
 
 export const initialState: AppSettingsState = {
   preference: 'system',
+  isOnboardingCompleted: false,
   today: todayISO(),
+  toast: null,
 };
 
 export const useAppSettingsStore = create<AppSettingsState>()(
