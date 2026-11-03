@@ -1,6 +1,6 @@
 import { type ScheduleEvent, compareScheduleEvents } from '@/lib/portfolio/portfolio';
 import { type Wallet, type WalletScopeOptions, isinsIn } from '@/lib/portfolio/wallet';
-import type { PaymentFilters } from '@/stores/paymentFilters';
+import type { PaymentFilters } from '@/stores/operations';
 
 /**
  * The saved filters fitted to the wallet. The schedule shows one currency: a currency the wallet

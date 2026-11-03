@@ -6,7 +6,7 @@ import { ResetFiltersHeader } from '@/components/navigation/ResetFiltersHeader';
 import { Typography } from '@/components/typography/Typography';
 import { useBondPicker } from '@/hooks/useBondPicker.hook';
 import { currencyTitle } from '@/lib/portfolio/portfolio';
-import { type BondSort, resetBondPickerFilters, updateBondPickerFilters } from '@/stores/bondPickerFilters';
+import { type BondSort, resetBondPickerFilters, updateBondPickerFilters } from '@/stores/bonds';
 
 import { SORT_LABELS, TERM_LABELS } from './bondFilterLabels';
 

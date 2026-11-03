@@ -1,4 +1,4 @@
-import type { BondSort, BondTerm } from '@/stores/bondPickerFilters';
+import type { BondSort, BondTerm } from '@/stores/bonds';
 
 export const TERM_LABELS: Record<BondTerm, string> = {
   all: 'Усі строки',

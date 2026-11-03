@@ -1,9 +1,11 @@
+import { SCHEDULE_EVENT_TYPES } from '@/lib/payment-filters/scheduleEventTypes';
 import { operationHistoryError, refreshOperationBonds } from '@/lib/portfolio/operations';
 import type { Bond, PlanOperation } from '@/lib/portfolio/portfolio';
 import { todayISO } from '@/utils/date';
 import { createId } from '@/utils/id';
 
-import { useOperationsStore } from './store';
+import { initialState, useOperationsStore } from './store';
+import type { PaymentFilters, ScheduleEventType } from './types';
 
 function updateOperations(update: (current: PlanOperation[]) => PlanOperation[]): void {
   const operations = update(useOperationsStore.getState().operations);
@@ -72,4 +74,32 @@ export function recoverOperationBonds(bonds: Bond[]): void {
       .map((operation) => operation.isin),
   );
   syncOperationBonds(bonds.filter((bond) => !known.has(bond.isin)));
+}
+
+export function updatePaymentFilters(patch: Partial<PaymentFilters>): void {
+  useOperationsStore.setState(({ filters }) => ({
+    filters: { ...filters, ...patch },
+  }));
+}
+
+/**
+ * Adds the event type to the shown ones, or removes it. Every type picked, or none left, shows
+ * every type, as the bonds do.
+ */
+export function togglePaymentFilterType(type: ScheduleEventType): void {
+  const { types } = useOperationsStore.getState().filters;
+  const next = types.includes(type) ? types.filter((t) => t !== type) : [...types, type];
+  updatePaymentFilters({ types: next.length === SCHEDULE_EVENT_TYPES.length ? [] : next });
+}
+
+/** Adds the bond to the shown ones, or removes it. */
+export function togglePaymentFilterIsin(isin: string): void {
+  const { isins } = useOperationsStore.getState().filters;
+  updatePaymentFilters({
+    isins: isins.includes(isin) ? isins.filter((i) => i !== isin) : [...isins, isin],
+  });
+}
+
+export function resetPaymentFilters(): void {
+  useOperationsStore.setState({ filters: initialState.filters });
 }

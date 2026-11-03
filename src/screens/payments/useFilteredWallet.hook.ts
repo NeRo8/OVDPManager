@@ -2,7 +2,7 @@ import { useWallet } from '@/hooks/useWallet.hook';
 import { countActiveFilters, effectiveFilters } from '@/lib/payment-filters/filterSchedule';
 import type { Currency } from '@/lib/portfolio/portfolio';
 import { walletScopeOptions } from '@/lib/portfolio/wallet';
-import { usePaymentFilters } from '@/stores/paymentFilters';
+import { usePaymentFilters } from '@/stores/operations';
 
 /** The wallet with the saved payment filters, fitted to the bonds and currencies it has. */
 export function useFilteredWallet() {

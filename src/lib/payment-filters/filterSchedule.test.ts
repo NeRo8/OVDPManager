@@ -1,6 +1,6 @@
 import type { Bond, Operation } from '@/lib/portfolio/portfolio';
 import { isinsIn, buildWallet, walletScopeOptions } from '@/lib/portfolio/wallet';
-import type { PaymentFilters } from '@/stores/paymentFilters';
+import type { PaymentFilters } from '@/stores/operations';
 
 import { countActiveFilters, effectiveFilters, filterSchedule } from './filterSchedule';
 

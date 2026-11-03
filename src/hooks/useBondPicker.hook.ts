@@ -4,7 +4,7 @@ import { bondPicker } from '@/lib/add-purchase/bondPicker';
 import { groupPositions } from '@/lib/portfolio/portfolio';
 import { plannedPart } from '@/lib/portfolio/position';
 import { useToday } from '@/stores/appSettings';
-import { useBondPickerFilters } from '@/stores/bondPickerFilters';
+import { useBondPickerFilters } from '@/stores/bonds';
 import { useActiveOperations } from '@/stores/plans';
 
 import { useBonds } from './useBonds.hook';

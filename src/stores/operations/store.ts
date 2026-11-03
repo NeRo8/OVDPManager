@@ -9,9 +9,12 @@ import type { OperationsState } from './types';
 
 const STORAGE_KEY = 'holdings-v1';
 
-export const initialState: OperationsState = { operations: [] };
+export const initialState: OperationsState = {
+  operations: [],
+  filters: { types: [], time: 'all', currency: null, isins: [] },
+};
 
-/** Purchases of every plan, each with its `planId`. */
+/** Purchases of every plan, each with its `planId`, and the payments schedule's filters. */
 export const useOperationsStore = create<OperationsState>()(
   persist(() => initialState, {
     name: STORAGE_KEY,

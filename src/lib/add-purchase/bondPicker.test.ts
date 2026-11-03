@@ -1,5 +1,5 @@
 import type { Bond } from '@/lib/portfolio/portfolio';
-import type { BondPickerFiltersState } from '@/stores/bondPickerFilters';
+import type { BondPickerFilters } from '@/stores/bonds';
 
 import { bondPicker } from './bondPicker';
 
@@ -26,7 +26,7 @@ const bonds = [
   bondOf('UA4000000005', { maturityDate: today, rate: 20 }),
 ];
 
-const fresh: BondPickerFiltersState = { currency: null, term: 'all', sort: 'maturity' };
+const fresh: BondPickerFilters = { currency: null, term: 'all', sort: 'maturity' };
 const isins = (list: Bond[]) => list.map((bond) => bond.isin.slice(-1));
 
 describe('bondPicker', () => {

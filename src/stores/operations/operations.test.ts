@@ -7,8 +7,14 @@ import {
   removePosition,
   removeOperation,
   replaceOperations,
+  resetPaymentFilters,
+  togglePaymentFilterIsin,
+  togglePaymentFilterType,
   updateOperation,
+  updatePaymentFilters,
 } from '@/stores/operations';
+
+import { initialState, useOperationsStore } from './store';
 
 const purchaseOf = (planId: string, isin: string): Omit<PlanOperation, 'id'> => ({
   type: 'purchase',
@@ -84,4 +90,52 @@ it('does not change stored history when editing or deleting a purchase would inv
     updateOperation(bought.id, { date: '2026-03-01', quantity: 10, amount: 10000 }),
   ).toThrow('перевищує');
   expect(getOperations()).toEqual(before);
+});
+
+describe('payment filters', () => {
+  const paymentFilters = () => useOperationsStore.getState().filters;
+
+  beforeEach(() => resetPaymentFilters());
+
+  it('shows every type again once the last type picked is unchecked, or every type is picked', () => {
+    togglePaymentFilterType('coupon');
+    expect(paymentFilters().types).toEqual(['coupon']);
+    togglePaymentFilterType('coupon');
+    expect(paymentFilters().types).toEqual([]);
+
+    togglePaymentFilterType('coupon');
+    togglePaymentFilterType('redemption');
+    togglePaymentFilterType('purchase');
+    expect(paymentFilters().types).toEqual([]);
+  });
+
+  it('adds a bond to those shown or takes it away, none left showing every bond', () => {
+    togglePaymentFilterIsin('UA1');
+    togglePaymentFilterIsin('UA2');
+    expect(paymentFilters().isins).toEqual(['UA1', 'UA2']);
+    togglePaymentFilterIsin('UA1');
+    expect(paymentFilters().isins).toEqual(['UA2']);
+    togglePaymentFilterIsin('UA2');
+    expect(paymentFilters().isins).toEqual([]);
+  });
+
+  it('keeps what is not changed, and resets to every event of the first currency', () => {
+    updatePaymentFilters({ currency: 'USD', time: 'past' });
+    togglePaymentFilterIsin('UA1');
+    expect(paymentFilters()).toEqual({
+      ...initialState.filters,
+      currency: 'USD',
+      time: 'past',
+      isins: ['UA1'],
+    });
+    resetPaymentFilters();
+    expect(paymentFilters()).toEqual(initialState.filters);
+  });
+
+  it('stays as picked when the operations change or are restored from a backup', () => {
+    updatePaymentFilters({ time: 'past' });
+    addOperation(purchaseOf('a', 'UA1'));
+    replaceOperations([]);
+    expect(paymentFilters().time).toBe('past');
+  });
 });

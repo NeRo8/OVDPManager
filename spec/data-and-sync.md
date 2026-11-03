@@ -6,7 +6,7 @@
 
 - Сховище: `src/utils/storage.ts` (`mmkvStorage`).
 - Сховища стану (папка на кожне, `types.ts` / `store.ts` / `selectors.ts` / `actions.ts` / `index.ts`):
-  `src/stores/operations/`, `src/stores/plans/`, `src/stores/bonds/`, `src/stores/keyRate/`, `src/stores/paymentFilters/`, `src/stores/bondPickerFilters/`, `src/stores/onboarding/`, `src/stores/appSettings/`, `src/stores/toast/`.
+  `src/stores/operations/`, `src/stores/plans/`, `src/stores/bonds/`, `src/stores/keyRate/`, `src/stores/onboarding/`, `src/stores/appSettings/`, `src/stores/toast/`.
 - Клієнт НБУ: `src/api/nbu/client.ts` (`nbuClient`, `NbuError`).
 - Запити: `src/api/nbu/nbuBonds.ts`, `nbuKeyRate.ts`, `dailyRates.ts`, `useBonds.hook.ts`, `keyRateQuery.ts`, `useKeyRate.hook.ts`.
 - TanStack Query: `src/api/queryClient.ts`, `src/api/QueryProvider.tsx`.
@@ -24,16 +24,14 @@
 
 **DATA-03.** Збережені сховища, їхні ключі й вигляд:
 
-| Ключ MMKV                | Сховище                    | Вигляд стану                                                                  | Початковий стан                    |
-| ------------------------ | -------------------------- | ----------------------------------------------------------------------------- | ---------------------------------- |
-| `holdings-v1`            | `stores/operations`        | `{ operations: PlanOperation[] }`                                             | `{ operations: [] }`               |
-| `investment-plan-v1`     | `stores/plans`             | `{ plans: InvestmentPlan[] }`                                                 | `{ plans: [] }`                    |
-| `nbu-bonds-v1`           | `stores/bonds`             | `{ bonds: Bond[] \| null; updatedAt: number \| null }` (мс)                   | `{ bonds: null, updatedAt: null }` |
-| `nbu-key-rate-v1`        | `stores/keyRate`           | `{ byYear: Record<рік, { rates: Record<дата, %>; throughDate; updatedAt }> }` | `{ byYear: {} }`                   |
-| `payment-filters-v1`     | `stores/paymentFilters`    | `{ types; time: 'all' \| 'upcoming' \| 'past'; currency; isins }`             | див. сховище                       |
-| `bond-picker-filters-v1` | `stores/bondPickerFilters` | `{ currency; term; sort: 'maturity' \| 'rate' }`                              | див. сховище                       |
-| `onboarding-v1`          | `stores/onboarding`        | `{ isCompleted: boolean }`                                                    | `{ isCompleted: false }`           |
-| `theme-preference-v1`    | `stores/appSettings`       | `{ preference }`; дата `today` лише в пам’яті                                 | тема `system`, дата запуску        |
+| Ключ MMKV             | Сховище              | Вигляд стану                                                                                       | Початковий стан                                       |
+| --------------------- | -------------------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `holdings-v1`         | `stores/operations`  | `{ operations: PlanOperation[]; filters }` (фільтри виплат, PFLT-01)                               | `{ operations: [] }`, фільтри — PFLT-01               |
+| `investment-plan-v1`  | `stores/plans`       | `{ plans: InvestmentPlan[] }`                                                                      | `{ plans: [] }`                                       |
+| `nbu-bonds-v1`        | `stores/bonds`       | `{ bonds: Bond[] \| null; updatedAt: number \| null; filters }` (мс; фільтри вибору ОВДП, PICK-06) | `{ bonds: null, updatedAt: null }`, фільтри — PICK-06 |
+| `nbu-key-rate-v1`     | `stores/keyRate`     | `{ byYear: Record<рік, { rates: Record<дата, %>; throughDate; updatedAt }> }`                      | `{ byYear: {} }`                                      |
+| `onboarding-v1`       | `stores/onboarding`  | `{ isCompleted: boolean }`                                                                         | `{ isCompleted: false }`                              |
+| `theme-preference-v1` | `stores/appSettings` | `{ preference }`; дата `today` лише в пам’яті                                                      | тема `system`, дата запуску                           |
 
 **DATA-04.** `stores/operations` містить усі `PlanOperation`. Дії: `addOperation`, `updateOperation`, `removeOperation`, `removePosition`, `removePlanOperations`, `copyPlanOperations`, `replaceOperations`. Перед зміною історії перевіряється, що продажі не перевищують залишок на жодну дату в кожному плані та ISIN. Копіювання й видалення плану охоплюють обидва типи операцій.
 

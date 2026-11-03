@@ -10,7 +10,7 @@
 - `src/screens/payments/yearSummary.ts` — `yearSummary(yearEvents, currency, today)`.
 - `src/screens/payments/scheduleSections.ts` — `groupScheduleEventsByMonth`.
 - `src/lib/payment-filters/filterSchedule.ts` — `effectiveFilters`, `countActiveFilters`, `filterSchedule`.
-- `src/stores/paymentFilters/` — сховище фільтрів (ключ `payment-filters-v1`), дії `updatePaymentFilters`, `togglePaymentFilterType`, `togglePaymentFilterIsin`, `resetPaymentFilters`.
+- `src/stores/operations/` — фільтри поруч з операціями, поле `filters` (ключ `holdings-v1`), дії `updatePaymentFilters`, `togglePaymentFilterType`, `togglePaymentFilterIsin`, `resetPaymentFilters`.
 - `src/lib/payment-filters/scheduleEventTypes.ts` — `SCHEDULE_EVENT_TYPES = ['coupon', 'redemption', 'purchase']`.
 - З `src/lib/portfolio/`: `Wallet` (`payments`, `operationEvents`, `today`, `byIsin`), `walletScopeOptions`, `isinsIn` (`wallet.ts`), `compareScheduleEvents`, `sumTotals` (`portfolio.ts`); з `src/components/portfolio/`: `ScheduleEventRow`, `WalletGate`, `StaleBondsNotice`, `NbuSourceNote`.
 
@@ -86,7 +86,7 @@
 
 ### Фільтри
 
-**PFLT-01.** Сховище `payment-filters-v1` зберігає `{ types: [], time: 'all', currency: null, isins: [] }` за замовчуванням. Фільтри одні на весь застосунок, не на план: після перемикання плану вони лишаються, а невідповідне відсіюється підгонкою (PFLT-02), не стираючи збереженого. Джерело: `paymentFilters/store.ts`.
+**PFLT-01.** Поле `filters` сховища операцій (`holdings-v1`) зберігає `{ types: [], time: 'all', currency: null, isins: [] }` за замовчуванням. Фільтри одні на весь застосунок, не на план: після перемикання плану вони лишаються, а невідповідне відсіюється підгонкою (PFLT-02), не стираючи збереженого. Зміна операцій чи відновлення з резервної копії (`replaceOperations`) фільтрів не чіпає; «Скинути фільтри» (`resetPaymentFilters`) — лише фільтри. Джерело: `operations/store.ts`.
 
 **PFLT-02.** Підгонка (`effectiveFilters`): валюта, якої гаманець не має (або `null`), замінюється першою валютою гаманця в порядку `CURRENCIES` (UAH, USD, EUR); з ОВДП лишаються лише ті, що є в гаманці й належать показаній валюті (`isinsIn(options, валюта)`, DOM-61). Отже екран завжди показує рівно одну валюту, а вибрані ОВДП завжди її, тож поєднання «долар + гривнева ОВДП» не ховає всього. Збережене в сховищі не змінюється: ОВДП іншої валюти знову діють, щойно ту валюту оберуть. Валюти гаманця — ті, що трапляються серед його виплат і купівель (`walletScopeOptions`). Приклади з тесту: гаманець UAH + USD; збережено `null` → UAH; збережено EUR → UAH; збережено USD → USD; збережено гривневу ОВДП і USD → USD без вибраних ОВДП (усі доларові), ту саму ОВДП і UAH → її й показано.
 
@@ -141,7 +141,7 @@
 - `src/lib/payment-filters/filterSchedule.test.ts`: PFLT-02 (перша валюта для `null` і відсутньої; ОВДП лише показаної валюти — «keeps only the bonds of the currency shown…»), PFLT-10 (`isinsIn` для USD), PAY-02/PAY-03 (порядок, виплата перед купівлею того самого дня, `totalCount`), PFLT-06 (майбутні = купівля попереду й погашення), відбір за типом (PAY-08 частково).
 - `src/lib/portfolio/portfolio.test.ts`: `plannedQuantity` виплат (DOM-59), з якого PAY-13 пише «заплановано»; сам рядок не тестується.
 - `filterSchedule.test.ts` також: PFLT-03 (`countActiveFilters`), PFLT-11 (`totalCount` лише показаної валюти).
-- `src/stores/paymentFilters/paymentFilters.test.ts`: PFLT-04 (тип: останній знятий чи всі три — знову «Усі події»), PFLT-05 (`togglePaymentFilterIsin`), скидання.
+- `src/stores/operations/operations.test.ts`: PFLT-04 (тип: останній знятий чи всі три — знову «Усі події»), PFLT-05 (`togglePaymentFilterIsin`), скидання, фільтри не змінюються разом з операціями (PFLT-01).
 - `src/screens/payments/yearSummary.test.ts`, `yearSeries.test.ts`, `scheduleSections.test.ts`: підсумки року, серії графіка й місяці списку (PAY-05…PAY-08, PAY-12).
 - **Без тестів:** PAY-04 (межі років і вибір місяця живуть у хуку `useYearSchedule`), PAY-09…PAY-15 (екран).
 

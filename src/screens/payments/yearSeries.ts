@@ -1,5 +1,5 @@
 import type { ChartSeries } from '@/components/chart/ColumnChart';
-import type { ScheduleEventType } from '@/stores/paymentFilters';
+import type { ScheduleEventType } from '@/stores/operations';
 import type { SeriesColor } from '@/theme/series';
 import { round2 } from '@/utils/number';
 

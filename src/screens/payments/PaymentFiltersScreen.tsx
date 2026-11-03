@@ -15,7 +15,7 @@ import {
   updatePaymentFilters,
   type ScheduleEventType,
   type ScheduleTimeFilter,
-} from '@/stores/paymentFilters';
+} from '@/stores/operations';
 import { formatDate } from '@/utils/date';
 import { formatPercent } from '@/utils/format';
 

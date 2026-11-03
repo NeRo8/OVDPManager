@@ -1,4 +1,4 @@
-import type { ScheduleEventType, ScheduleTimeFilter } from '@/stores/paymentFilters';
+import type { ScheduleEventType, ScheduleTimeFilter } from '@/stores/operations';
 
 export const EVENT_TYPE_LABELS: Record<ScheduleEventType, string> = {
   coupon: 'Купони',

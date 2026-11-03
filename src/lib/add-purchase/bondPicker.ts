@@ -1,6 +1,6 @@
 import { maturityTerm } from '@/lib/portfolio/market';
 import { type Bond, CURRENCIES, type Currency, bondChoices } from '@/lib/portfolio/portfolio';
-import type { BondPickerFiltersState, BondTerm } from '@/stores/bondPickerFilters';
+import type { BondPickerFilters, BondTerm } from '@/stores/bonds';
 
 type FilterOption<T> = { value: T; count: number };
 
@@ -29,7 +29,7 @@ export type BondPicker = {
  */
 export function bondPicker(
   bonds: Bond[],
-  filters: BondPickerFiltersState,
+  filters: BondPickerFilters,
   query: string,
   today: string,
 ): BondPicker {
