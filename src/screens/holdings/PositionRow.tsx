@@ -6,7 +6,7 @@ import { Avatar } from '@/components/avatar/Avatar';
 import { ListRow } from '@/components/layout/ListRow';
 import { Money } from '@/components/typography/Money';
 import { Typography } from '@/components/typography/Typography';
-import type { WalletPosition } from '@/lib/portfolio/position';
+import type { PositionState, WalletPosition } from '@/lib/portfolio/position';
 import { currencyColor } from '@/theme/currency';
 import { formatDate } from '@/utils/date';
 import { currencySign, formatPercent } from '@/utils/format';
@@ -18,9 +18,25 @@ type Props = {
   onPress: () => void;
 };
 
+/** Sold or redeemed, or the date it matures. */
+function stateLabel(state: PositionState, maturityDate: string): string {
+  if (state === 'sold') return 'продано';
+  if (state === 'redeemed') return 'погашено';
+  return `до ${formatDate(maturityDate)}`;
+}
+
 /** A bond of the wallet: its currency's badge, rate and maturity, what it cost and how many. */
 export function PositionRow({ item, onPress }: Props) {
   const { position, bond, currency, state, planned } = item;
+
+  const subtitle = bond ? (
+    `${formatPercent(bond.rate)} · ${stateLabel(state, bond.maturityDate)}`
+  ) : (
+    <Typography variant="caption1" tone="warning">
+      Немає збережених даних ОВДП
+    </Typography>
+  );
+  const ownedTone = planned.quantity > 0 ? 'accent' : 'secondary';
 
   return (
     <ListRow
@@ -33,26 +49,13 @@ export function PositionRow({ item, onPress }: Props) {
           {position.isin}
         </Typography>
       }
-      subtitle={
-        bond ? (
-          `${formatPercent(bond.rate)} · ${state === 'sold' ? 'продано' : state === 'redeemed' ? 'погашено' : `до ${formatDate(bond.maturityDate)}`}`
-        ) : (
-          <Typography variant="caption1" tone="warning">
-            Немає збережених даних ОВДП
-          </Typography>
-        )
-      }
+      subtitle={subtitle}
       trailing={
         <View style={styles.amount}>
           <Typography variant="callout" weight="semibold" tabular align="right">
             <Money value={position.investedAmount} currency={currency} />
           </Typography>
-          <Typography
-            variant="caption1"
-            tone={planned.quantity > 0 ? 'accent' : 'secondary'}
-            tabular
-            align="right"
-          >
+          <Typography variant="caption1" tone={ownedTone} tabular align="right">
             {ownedLabel(position.quantity, planned.quantity)}
           </Typography>
         </View>
