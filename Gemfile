@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby file: '.ruby-version'
+ruby file: '.tool-versions'
 
 # Expo CLI runs `bundle exec pod` when this Gemfile lists cocoapods.
 gem 'cocoapods', '1.16.2'

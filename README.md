@@ -6,20 +6,19 @@ Mobile Expo app for tracking Ukrainian government bonds, their future payments, 
 
 This project pins its toolchain:
 
-| Tool      | Version   | Source                                            |
-| --------- | --------- | ------------------------------------------------- |
-| Node.js   | `24.22.1` | `.node-version`, `engines.node` in `package.json` |
-| Yarn      | `1.22.22` | `packageManager` in `package.json`                |
-| Ruby      | `3.4.11`  | `.ruby-version`, `ruby` in `Gemfile`              |
-| CocoaPods | `1.16.2`  | `Gemfile` / `Gemfile.lock`                        |
+| Tool      | Version   | Source                                              |
+| --------- | --------- | --------------------------------------------------- |
+| Node.js   | `24.22.1` | `.tool-versions`, `engines.node` in `package.json`  |
+| Yarn      | `1.22.22` | `.tool-versions`, `packageManager` in `package.json` |
+| Ruby      | `3.4.11`  | `.tool-versions`, read by `Gemfile`                  |
+| CocoaPods | `1.16.2`  | `Gemfile` / `Gemfile.lock`                          |
 
-Any version manager that reads `.node-version` / `.ruby-version` picks these up automatically (fnm with `--use-on-cd`, mise, asdf, rbenv, chruby). `yarn install` fails on a different Node version, and Bundler refuses to run on a different Ruby version. When you bump a version, update both places listed in the table.
+Install and activate [mise](https://mise.jdx.dev/getting-started.html) to use the pinned Node, Yarn and Ruby versions. `yarn install` fails on a different Node version, and Bundler refuses to run on a different Ruby version. When you bump a version, update every place that pins it, including the EAS configuration described below.
 
 1. Install the toolchain and dependencies
 
    ```bash
-   fnm install            # or: mise install
-   corepack enable
+   mise install
    yarn install           # JS dependencies
    bundle install         # Ruby gems (CocoaPods) for iOS builds
    ```
