@@ -1,80 +1,98 @@
 # ОВДП Портфель
 
-Mobile Expo app for tracking Ukrainian government bonds, their future payments, investment plans, and encrypted backups (to a file or to the cloud).
+An Expo app for iOS that tracks Ukrainian government bonds (ОВДП): the bonds you hold or plan to buy, their coupon and redemption payments, the return on each purchase, and when selling a bond beats holding it. Bond data and the key rate come from the National Bank of Ukraine's open API. Purchases belong to investment plans, and everything can be saved to an encrypted backup, in a file or in the cloud.
+
+The UI is in Ukrainian. [`GLOSSARY.md`](GLOSSARY.md) explains every term it uses, and [`spec/`](spec/) describes each screen and calculation as numbered rules.
+
+## What the app does
+
+The app has four tabs:
+
+- **Виплати** shows payments one year at a time: the year's totals, a monthly chart and the events of the month you pick. Filters cover currency, event type (coupons, redemptions, purchases), time (all, upcoming, past) and bonds.
+- **Гаманець** is the wallet of the active plan. A bond's card shows its terms, results, payments and purchases, and says whether to keep the bond or sell it. The sale screen gives the prices at which selling pays off. The «+» button opens the bond picker (filters by currency and term, search by ISIN, date or rate), then the bond's details and the purchase form. The form rates each purchase against the key rate and new bonds.
+- **План** shows the purchases planned for the next weeks, the money they need and the plan's totals. «Мої плани» switches, creates, renames, copies and deletes plans.
+- **Налаштування** creates and restores backups, connects the Google account for the cloud copy, picks the theme and replays the intro.
+
+On first launch the app shows an intro, then asks to name the first plan or restore a backup.
+
+Backups are encrypted on the device with a key the user types (Argon2id, AES-256-GCM via `react-native-quick-crypto`). The file can be shared or kept in Firestore, one copy per Google account. A lost key cannot be recovered.
 
 ## Get started
 
-This project pins its toolchain:
+The project pins its toolchain:
 
-| Tool      | Version   | Source                                              |
-| --------- | --------- | --------------------------------------------------- |
-| Node.js   | `24.22.1` | `.tool-versions`, `engines.node` in `package.json`  |
+| Tool      | Version   | Source                                               |
+| --------- | --------- | ---------------------------------------------------- |
+| Node.js   | `24.22.1` | `.tool-versions`, `engines.node` in `package.json`   |
 | Yarn      | `1.22.22` | `.tool-versions`, `packageManager` in `package.json` |
 | Ruby      | `3.4.11`  | `.tool-versions`, read by `Gemfile`                  |
-| CocoaPods | `1.16.2`  | `Gemfile` / `Gemfile.lock`                          |
+| CocoaPods | `1.16.2`  | `Gemfile` / `Gemfile.lock`                           |
 
-Install and activate [mise](https://mise.jdx.dev/getting-started.html) to use the pinned Node, Yarn and Ruby versions. `yarn install` fails on a different Node version, and Bundler refuses to run on a different Ruby version. When you bump a version, update every place that pins it, including the EAS configuration described below.
+Install and activate [mise](https://mise.jdx.dev/getting-started.html): it reads `.tool-versions` and switches to these versions inside the project. `yarn install` fails on another Node version, and Bundler refuses to run on another Ruby version. When you bump a version, update every place that pins it, including `eas.json` and `.eas/workflows/production.yml` (see below).
 
-1. Install the toolchain and dependencies
+1. Install the toolchain and dependencies:
 
    ```bash
-   mise install
+   mise install           # Node, Ruby and Yarn
    yarn install           # JS dependencies
-   bundle install         # Ruby gems (CocoaPods) for iOS builds
+   bundle install         # CocoaPods for iOS builds
    ```
 
-2. Start the app
+2. Build and run the app:
 
    ```bash
-   yarn start             # dev server
-   yarn expo run:ios      # native iOS build; Expo runs `bundle exec pod install`
-   yarn expo run:android  # native Android build
+   yarn ios               # development build on the iOS simulator (bundle exec expo run:ios)
+   yarn start             # dev server for a development build already installed
    ```
 
-This app uses Unistyles and other native modules. Run it in a [development build](https://docs.expo.dev/develop/development-builds/introduction/) on an Android emulator, iOS simulator, or device. Expo Go cannot load these modules.
+The app uses native modules (Unistyles, MMKV, Skia, Firebase, quick-crypto), so it runs only in a [development build](https://docs.expo.dev/develop/development-builds/introduction/), never in Expo Go. Firebase reads `GoogleService-Info.plist` from the project root. `ios/` and `android/` are generated by `expo prebuild` and not committed: native settings live in `app.json` and `plugins/`. After a native dependency changes, run `npx expo prebuild --clean` and then `yarn ios`.
 
-## Builds (EAS)
+Only iOS is built and shipped. The code has an Android configuration (`yarn android`), but Android builds are not maintained.
 
-iOS builds go through [EAS Build](https://docs.expo.dev/build/introduction/); Android is not shipped yet. The Expo project belongs to a personal account (`owner` in `app.json`), so sign in with `npx eas-cli login`. The scripts run EAS CLI through `npx eas-cli` (`24.8.0` or newer, `cli.version` in `eas.json`), so no global install is needed.
+## Releases (EAS)
+
+iOS builds go through [EAS Build](https://docs.expo.dev/build/introduction/) on the personal Expo account `nero8` (`owner` in `app.json`). EAS CLI runs through `npx eas-cli` (`>= 24.8.0`, `cli.version` in `eas.json`), so no global install is needed.
 
 | Profile      | Distribution | EAS environment | Use                                    |
 | ------------ | ------------ | --------------- | -------------------------------------- |
 | `production` | App Store    | `production`    | TestFlight internal testing and later. |
 
-It extends `base`, which pins Node 24.22.1, Yarn 1.22.22 and CocoaPods 1.16.2: EAS calls a bare `pod` and never reads the `Gemfile`, so change a version in every place that names it. Build numbers live on EAS (`appVersionSource: remote`) and the profile raises them on its own; the user-facing version is `version` in `app.json`. Signing credentials are managed by EAS.
+`production` extends `base`, which pins Node 24.22.1, Yarn 1.22.22 and CocoaPods 1.16.2, because EAS never reads `.tool-versions` or the `Gemfile`. Build numbers live on EAS (`appVersionSource: remote`) and go up on their own; the version users see is `version` in `app.json`. EAS manages the signing credentials.
 
-Releases go out on their own: merging a `develop` → `master` pull request runs the EAS Workflow `.eas/workflows/production.yml`, which builds the `production` profile on Expo's side and submits it to TestFlight. It needs the GitHub repository linked to the project on expo.dev and an App Store Connect API key in the project's credentials. Put `[eas skip]` in a commit message to push to `master` without a build. `yarn publish:ios` does the same by hand (production build, then upload to TestFlight, without waiting); anything else runs through `npx eas-cli`. Development builds are made locally with `yarn ios`.
+Merging a `develop` → `master` pull request releases the app: the EAS Workflow `.eas/workflows/production.yml` builds the `production` profile on Expo's side and submits it to TestFlight. Its submit job does not read `eas.json`, so the workflow pins Node and Yarn again in `defaults.tools`. The workflow needs the GitHub repository linked to the project on expo.dev and an App Store Connect API key in the project's credentials. To push to `master` without a build, put `[eas skip]` in the commit message. `yarn publish:ios` runs the same build and submission by hand, without waiting for the result.
 
-The first build asks for the Apple Developer login and lets EAS create the certificate and provisioning profile. Submissions go to App Store Connect app `6826422237`, team `W25YBRT2T2` (`ascAppId` and `appleTeamId` in `submit.production.ios` in `eas.json`). Internal testers get a build once Apple has processed it.
+Submissions go to App Store Connect app `6826422237`, team `W25YBRT2T2` (`submit.production.ios` in `eas.json`). The App Store listing is EAS Metadata (`npx eas-cli metadata:push`): texts in `store.config.json`, the App Review contact in `store.config.js`, which reads `REVIEW_PHONE` from `.env` (see `.env.example`). The support and privacy pages it links to are in `docs/`, served by GitHub Pages at <https://nero8.github.io/OVDPManager/>.
 
-Backups are encrypted on the device with standard algorithms (Argon2id, AES-256-GCM) from `react-native-quick-crypto`, not Apple's OS, before they are saved to a file or sent to Firestore, and decrypted on the device when restored. For standard algorithms App Store Connect needs a document only for the App Store in France (the French encryption declaration), and the app is not distributed there, so `app.json` declares `ios.config.usesNonExemptEncryption: false` (`ITSAppUsesNonExemptEncryption = NO`) and builds go to TestFlight without encryption questions. Keep France out of «Pricing and Availability» in App Store Connect; to add it, upload the declaration under «App Encryption Documentation», set `usesNonExemptEncryption` back to `true` and add the approved key as `ITSEncryptionExportComplianceCode` in `ios.infoPlist`.
+The backup encryption uses standard algorithms, so App Store Connect needs a document only for the App Store in France, where the app is not distributed. `app.json` therefore declares `ios.config.usesNonExemptEncryption: false`, and builds reach TestFlight without encryption questions. Keep France out of «Pricing and Availability». To add it, upload the French encryption declaration under «App Encryption Documentation», set `usesNonExemptEncryption` to `true` and add the approved key as `ITSEncryptionExportComplianceCode` in `ios.infoPlist`.
 
 ## Project structure
 
-| Path                                          | Responsibility                                                          |
-| --------------------------------------------- | ----------------------------------------------------------------------- |
-| `src/app/`                                    | Thin routes; `_layout.tsx` files define the root stack and bottom tabs. |
-| `src/pages/`                                  | Screen UI and page-specific model hooks.                                |
-| `src/features/`                               | User actions: adding a bond, managing backups, filtering payments.      |
-| `src/entities/portfolio/`                     | Bond and holding models, the wallet hook, NBU data, and shared blocks.  |
-| `src/shared/api/`                             | Shared Axios client for the NBU API.                                    |
-| `src/shared/ui/`, `lib/`, `theme/`, `config/` | Reusable components, utilities, Unistyles theme, and app assets.        |
+| Path              | Contents                                                                                        |
+| ----------------- | ----------------------------------------------------------------------------------------------- |
+| `src/app/`        | Expo Router routes only: each renders a screen. `_layout.tsx` files define the stacks and tabs. |
+| `src/screens/`    | Screen bodies by area, with the parts and logic only that area uses.                            |
+| `src/components/` | The UI kit, and the portfolio blocks several screens share (`portfolio/`).                      |
+| `src/hooks/`      | The wallet, NBU queries, the purchase form, the bond picker, backups, pull-to-refresh.          |
+| `src/stores/`     | Zustand stores, a folder each; all but the toast are persisted in MMKV.                         |
+| `src/api/`        | The NBU client and requests, the TanStack Query client, backup files and Firebase.              |
+| `src/lib/`        | Domain calculations and the backup codec.                                                       |
+| `src/utils/`      | Generic helpers: dates, formatting, numbers, storage.                                           |
+| `src/theme/`      | The Unistyles theme and design tokens.                                                          |
+| `assets/`         | The app icon, splash artwork and fonts.                                                         |
 
-Each page, feature, and entity has an `index.ts` public API. Imports point down the stack: pages can use features, entities, and shared code; features can use entities and shared code; entities can use shared code. Imports inside a slice use relative paths. See [CLAUDE.md](CLAUDE.md) for entry points and data flow.
-
-The app targets iOS and Android. Its four bottom tabs show payments (upcoming, or a year with its chart, as swipeable top tabs; both filterable), the wallet, the active investment plan, and settings (backups, the cloud account, and the app theme). Bond details are one scrolling screen with the bond's parameters, totals, purchases, and payments. Bond details, the bond picker and its filters, adding a purchase, payment filters, the plan list, and restoring a backup are stack routes.
+This is the default Expo layout plus `stores/`, `api/` and `lib/`. Modules are imported by file with the `@/` alias (`@/components/layout/Section`); only store folders have an `index.ts`. Tests are Jest (`jest-expo`) files named `<module>.test.ts`, next to the module they cover; they test calculations, stores and requests, not screens. [`CLAUDE.md`](CLAUDE.md) describes the data flow, storage and styling rules.
 
 ## Code quality
 
-Run the checks locally:
-
 ```bash
-yarn format:check
-yarn lint
-yarn lint:fsd
-yarn typecheck
+yarn format:check      # Prettier
+yarn lint              # ESLint
+yarn typecheck         # tsc --noEmit
+yarn knip              # unused files, exports and dependencies
+yarn test              # Jest
+yarn validate          # all of the above
 ```
 
-Run `yarn format` to format project files, or `yarn validate` to run all checks together. Husky checks the branch name and runs ESLint and Prettier on staged files before each commit, commitlint checks that each message is a Conventional Commit, and `yarn validate` runs before each push.
+`yarn format` and `yarn lint:fix` fix what they can. Husky checks the branch name and runs ESLint and Prettier on staged files before each commit. commitlint checks that each message is a Conventional Commit, and `yarn validate` runs before each push.
 
-`eslint.base.js`, `tsconfig.base.json`, `commitlint.config.js`, `.lintstagedrc.json`, `.validate-branch-namerc.json`, `.husky/*`, `.prettierrc.json`, `.editorconfig` and `.vscode/extensions.json` are the same in Local03, Tokomni, Oncall, OVDPManager and expo-linphone-module: change them in all five. The app's own rules go on top, in `eslint.config.js` (its aliases for `importOrder()`, its own rules) and `tsconfig.json` (`paths`, `types`).
+`eslint.base.js`, `tsconfig.base.json`, `commitlint.config.js`, `.lintstagedrc.json`, `.validate-branch-namerc.json`, `.husky/*`, `.prettierrc.json`, `.editorconfig` and `.vscode/extensions.json` are the same in Local03, Tokomni, Oncall, OVDPManager and expo-linphone-module: change them in all five. The app's own rules go on top, in `eslint.config.js` and `tsconfig.json`.
