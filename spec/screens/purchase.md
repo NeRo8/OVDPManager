@@ -5,10 +5,10 @@
 ## Звідки дані
 
 - Маршрути: `src/app/add/index.tsx` (`BondPickerScreen`, скелет `list`, заголовок «Оберіть ОВДП»), `src/app/bond-filters.tsx` (`BondFiltersScreen`, скелет `filters`, модальне вікно «Фільтри ОВДП»), `src/app/add/[isin]/index.tsx` (`AddBondDetailsScreen`, скелет `list`, заголовок за замовчуванням «ОВДП»), `src/app/add/[isin]/purchase.tsx` (`AddPurchaseScreen`, скелет `form`, заголовок за замовчуванням «Додати купівлю»). Опції заголовків — `src/app/_layout.tsx`.
-- Екрани: `src/pages/holdings/ui/BondPickerScreen.tsx`, `BondChoiceRow.tsx`, `ownedLabel.ts`, `BondFiltersScreen.tsx`, `BondFiltersButton.tsx`, `bondFilterLabels.ts`, `AddBondDetailsScreen.tsx`, `AddPurchaseScreen.tsx`, `AddPurchaseForm.tsx`, `HintsSection.tsx`.
-- Фіча: `src/features/add-purchase/model/bondPicker.ts` (`bondPicker`: валюти, строки, сортування, пошук і лічильник фільтрів), `useBondPicker.hook.ts`, сховище фільтрів `bondPickerFilters/` (ключ `bond-picker-filters-v1`, типи `BondTerm` і `BondSort`), `purchaseForm.schema.ts`, `useAddPurchaseForm.hook.ts`, `purchasePreview.ts` (`purchasePreview`: чернетка як позиція з однієї купівлі та її оцінка), `purchaseHints.ts` (`assessPurchase`, `annualYieldText`).
-- Сутність: `useWallet()`, `useBonds()`, `useKeyRate(date)`; `bondChoices`, `canBuyOn`, `isRedeemed`, `isPlannedPurchase`, `pricePerBond`, `groupPositions` (`model/portfolio.ts`); `walletPosition` (`model/position.ts`); `maturityTerm`, `newBondsRate`, `MAX_PLAUSIBLE_YIELD` (`model/market.ts`); `ANNUAL_YIELD_RANGE` (`model/yield.ts`); `keyRateHint`, `newBondsHint` (`model/yieldHints.ts`); `sortHints`, `worstTone` (`model/hints.ts`); `BondParameters`, `BondsGate` (`ui/`); дії `addPurchaseToActivePlan` (`model/activePlan/actions.ts`), `updatePurchase` (`model/purchases/actions.ts`).
-- Спільне: `parseAmount`, `round2`, `formatMoney`, `formatDate`, `formatTimeLeft`, `formatPercent` (`src/shared/lib/`), `useToday` (`src/shared/config/`), `Input` (`src/shared/ui/form/Input.tsx`, очищення введеного), `DateField`, `FieldRow`.
+- Екрани: `src/screens/holdings/BondPickerScreen.tsx`, `BondChoiceRow.tsx`, `ownedLabel.ts`, `BondFiltersScreen.tsx`, `BondFiltersButton.tsx`, `bondFilterLabels.ts`, `AddBondDetailsScreen.tsx`, `AddPurchaseScreen.tsx`, `AddPurchaseForm.tsx`, `HintsSection.tsx`.
+- Логіка купівлі: `src/lib/add-purchase/bondPicker.ts` (`bondPicker`: валюти, строки, сортування, пошук і лічильник фільтрів), `purchaseForm.schema.ts`, `purchasePreview.ts` (`purchasePreview`: чернетка як позиція з однієї купівлі та її оцінка), `purchaseHints.ts` (`assessPurchase`, `annualYieldText`); хуки `src/hooks/useBondPicker.hook.ts`, `src/hooks/useAddPurchaseForm.hook.ts`; сховище фільтрів `src/stores/bondPickerFilters/` (ключ `bond-picker-filters-v1`, типи `BondTerm` і `BondSort`).
+- Портфель: `useWallet()`, `useBonds()`, `useKeyRate(date)` (`src/hooks/`); `bondChoices`, `canBuyOn`, `isRedeemed`, `isPlannedPurchase`, `pricePerBond`, `groupPositions` (`portfolio.ts`); `walletPosition` (`position.ts`); `maturityTerm`, `newBondsRate`, `MAX_PLAUSIBLE_YIELD` (`market.ts`); `ANNUAL_YIELD_RANGE` (`yield.ts`); `keyRateHint`, `newBondsHint` (`yieldHints.ts`); `sortHints`, `worstTone` (`hints.ts`), усе в `src/lib/portfolio/`; `BondParameters`, `BondsGate` (`src/components/portfolio/`); дії `addPurchaseToActivePlan` (`src/stores/activePlan/actions.ts`), `updatePurchase` (`src/stores/purchases/actions.ts`).
+- Спільне: `parseAmount`, `round2`, `formatMoney`, `formatDate`, `formatTimeLeft`, `formatPercent` (`src/utils/`), `useToday` (`src/stores/appSettings/`), `Input` (`src/components/form/Input.tsx`, очищення введеного), `DateField`, `FieldRow`.
 
 ## Що на екрані
 
@@ -84,7 +84,7 @@
 
 ### Поля форми
 
-**BUY-01.** У форму потрапляють: з подробиць (FAB, нова купівля), з картки ОВДП (FAB «Докупити», нова купівля; дотик до купівлі — зміна з `purchaseId`) і з «Найближчих купівель» вкладки «План» (зміна з `purchaseId`, `src/pages/plan/ui/UpcomingPurchasesSection.tsx`).
+**BUY-01.** У форму потрапляють: з подробиць (FAB, нова купівля), з картки ОВДП (FAB «Докупити», нова купівля; дотик до купівлі — зміна з `purchaseId`) і з «Найближчих купівель» вкладки «План» (зміна з `purchaseId`, `src/screens/plan/UpcomingPurchasesSection.tsx`).
 
 **BUY-02.** Форму показано, лише коли каталог НБУ є (`BondsGate`) і ISIN у ньому знайдено; інакше — PICK-17. Купівля завжди йде в активний план; параметра плану маршрут не має.
 
@@ -161,7 +161,7 @@
 
 **BUY-30.** З `purchaseId` форма шукає купівлю серед купівель позиції цього ISIN в активному плані. Не знайдено (видалено, інший план, інший ISIN) — `EmptyState` з іконкою `receipt-outline`, «Купівлі немає», «Цю купівлю вже видалено з плану або план змінився. Відкрийте ОВДП у гаманці, щоб побачити її купівлі.» Заголовок шапки тоді не змінюється («Додати купівлю»). Ця перевірка йде раніше за `BondsGate`. Джерело: `AddPurchaseScreen`.
 
-**BUY-31.** Заголовок шапки (`purchaseScreenTitle`, той самий у `_layout.tsx`, поки форма виїжджає, і на самому екрані): зміна купівлі — «Змінити купівлю», а якщо її вже немає — «Купівлі немає»; нова купівля, коли в плані є зроблена купівля цього ISIN (`hasMadePurchase`, BUY-32 > 0), — «Докупити ОВДП»; інакше «Додати купівлю». `src/pages/holdings/model/purchaseScreenTitle.ts`.
+**BUY-31.** Заголовок шапки (`purchaseScreenTitle`, той самий у `_layout.tsx`, поки форма виїжджає, і на самому екрані): зміна купівлі — «Змінити купівлю», а якщо її вже немає — «Купівлі немає»; нова купівля, коли в плані є зроблена купівля цього ISIN (`hasMadePurchase`, BUY-32 > 0), — «Докупити ОВДП»; інакше «Додати купівлю». `src/screens/holdings/purchaseScreenTitle.ts`.
 
 **BUY-32.** «Інші ОВДП цього ISIN» (`ownedQuantity`) = кількість зроблених купівель позиції, крім тієї, що змінюється. Заплановані купівлі не входять.
 
@@ -218,13 +218,13 @@
 
 ## Покриття тестами
 
-- `src/features/add-purchase/model/__tests__/purchaseHints.test.ts` — BUY-18 (`annualYieldText` у всіх чотирьох випадках), BUY-21 («Перевірте суму» за `null` угору й униз і за 55 %), BUY-22, BUY-23 (текст збитку), BUY-24 (пороги success/warning/error за ставки 16 %), BUY-25 (текст, мінімум 2 нові ОВДП, валюта й строк), BUY-26 (ціна — `info`, не судить), BUY-27 (довгий строк `info`; неопубліковане погашення `warning`), BUY-28 (вердикти), а також що доларова ОВДП не порівнюється з обліковою ставкою.
-- `src/entities/portfolio/model/__tests__/portfolio.test.ts` — `canBuyOn`/`isRedeemed` (BUY-05 межа погашення, PICK-01, PICK-11) і `bondChoices` (PICK-01, PICK-10).
-- `src/features/add-purchase/model/__tests__/bondPicker.test.ts` — PICK-02, PICK-03 (обрана валюта без ОВДП), PICK-04 (лічильники строків, межа року), PICK-05 (сортування за ставкою з рівними ставками), PICK-07, пошук поза фільтрами (PICK-10).
-- `src/entities/portfolio/model/__tests__/market.test.ts` — `maturityTerm` (PICK-04, BUY-27 довгий строк) і `newBondsRate` (BUY-25).
-- `src/entities/portfolio/model/__tests__/position.test.ts` — `walletPosition`, на якому стоять BUY-13…BUY-17 (виплата в день купівлі — попередньому власнику).
+- `src/lib/add-purchase/purchaseHints.test.ts` — BUY-18 (`annualYieldText` у всіх чотирьох випадках), BUY-21 («Перевірте суму» за `null` угору й униз і за 55 %), BUY-22, BUY-23 (текст збитку), BUY-24 (пороги success/warning/error за ставки 16 %), BUY-25 (текст, мінімум 2 нові ОВДП, валюта й строк), BUY-26 (ціна — `info`, не судить), BUY-27 (довгий строк `info`; неопубліковане погашення `warning`), BUY-28 (вердикти), а також що доларова ОВДП не порівнюється з обліковою ставкою.
+- `src/lib/portfolio/portfolio.test.ts` — `canBuyOn`/`isRedeemed` (BUY-05 межа погашення, PICK-01, PICK-11) і `bondChoices` (PICK-01, PICK-10).
+- `src/lib/add-purchase/bondPicker.test.ts` — PICK-02, PICK-03 (обрана валюта без ОВДП), PICK-04 (лічильники строків, межа року), PICK-05 (сортування за ставкою з рівними ставками), PICK-07, пошук поза фільтрами (PICK-10).
+- `src/lib/portfolio/market.test.ts` — `maturityTerm` (PICK-04, BUY-27 довгий строк) і `newBondsRate` (BUY-25).
+- `src/lib/portfolio/position.test.ts` — `walletPosition`, на якому стоять BUY-13…BUY-17 (виплата в день купівлі — попередньому власнику).
 - `purchaseForm.schema.test.ts` — BUY-05 (межі дати розміщення й погашення з текстами), BUY-06…BUY-08 (порожні й нульові кількість і сума, нечислова сума, округлення до копійок); `format.test.ts` — розбір суми.
-- `src/pages/holdings/model/__tests__/purchaseScreenTitle.test.ts` — BUY-31 (заголовки, сьогоднішня купівля вже зроблена, ISIN купівлі має збігатися).
+- `src/screens/holdings/purchaseScreenTitle.test.ts` — BUY-31 (заголовки, сьогоднішня купівля вже зроблена, ISIN купівлі має збігатися).
 - `purchasePreview.test.ts` — показ чернетки (BUY-13…BUY-17 через `walletPosition`).
 - Без повного покриття: PICK-08, PICK-09, PICK-12…PICK-17; BUY-10, BUY-11, BUY-12, BUY-14, BUY-15, BUY-19, BUY-20 (вибір дати облікової ставки — є лише `keyRate.test.ts` для `keyRateOn`), BUY-21 межа рівно 40 %, BUY-26 точні тексти, BUY-27 текст про валюту, BUY-29, BUY-30, BUY-32…BUY-36 (зміна купівлі, збереження).
 

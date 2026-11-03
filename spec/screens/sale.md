@@ -5,10 +5,10 @@
 ## Звідки дані
 
 - Маршрут: `src/app/bond/[isin]/sale.tsx` → `SaleScreen` у `DeferredScreen skeleton="form"`; заголовок «Продаж» (`src/app/_layout.tsx`).
-- Екран: `src/pages/holdings/ui/SaleScreen.tsx`, `SalePricesSection.tsx`, `saleTexts.ts` (`breakEvenText`), `HintsSection.tsx`; кнопка входу `SaleButton.tsx` на картці ОВДП.
-- Логіка: `src/pages/holdings/model/useSaleForm.hook.ts` (поле ціни), `salePrice.schema.ts`, `useHoldOrSell.hook.ts`, `holdOrSell.ts` (`holdOrSell`, `benchmarkOf`, `saleHints`, `yieldVerdict`; ставку нових ОВДП `newBondsRate` пораховано один раз для орієнтира й підказки).
-- Сутність: `useWallet()`, `useBonds()`, `useKeyRate(today)`; `walletPosition`, `groupPositions`, `isPlannedPurchase`, `canBuyOn`, `sumTotals`, `annualYield`, `amountForYield`, `newBondsRate`, `newBondsLabel`, `keyRateHint`, `newBondsHint`, `MAX_PLAUSIBLE_YIELD`, `sortHints`, `worstTone` (`src/entities/portfolio/model/`).
-- Спільне: `parseAmount`, `round2`, `formatMoney`, `formatDate` (`src/shared/lib/`), `Input type="decimal"`, `FieldRow`, `InfoRow`, `Section`, `FormScrollView` (`src/shared/ui/`).
+- Екран: `src/screens/holdings/SaleScreen.tsx`, `SalePricesSection.tsx`, `saleTexts.ts` (`breakEvenText`), `HintsSection.tsx`; кнопка входу `SaleButton.tsx` на картці ОВДП.
+- Логіка: `src/screens/holdings/useSaleForm.hook.ts` (поле ціни), `salePrice.schema.ts`, `useHoldOrSell.hook.ts`, `holdOrSell.ts` (`holdOrSell`, `benchmarkOf`, `saleHints`, `yieldVerdict`; ставку нових ОВДП `newBondsRate` пораховано один раз для орієнтира й підказки).
+- Портфель: `useWallet()`, `useBonds()`, `useKeyRate(today)`; `walletPosition`, `groupPositions`, `isPlannedPurchase`, `canBuyOn`, `sumTotals`, `annualYield`, `amountForYield`, `newBondsRate`, `newBondsLabel`, `keyRateHint`, `newBondsHint`, `MAX_PLAUSIBLE_YIELD`, `sortHints`, `worstTone` (`src/hooks/`, `src/lib/portfolio/`).
+- Спільне: `parseAmount`, `round2`, `formatMoney`, `formatDate` (`src/utils/`), `Input type="decimal"`, `FieldRow`, `InfoRow`, `Section`, `FormScrollView` (`src/components/`).
 - Сховищ екран не має: ціна живе лише в стані форми (`react-hook-form`).
 
 ## Що на екрані
@@ -43,7 +43,7 @@
 
 **SALE-07.** «Отримано» для продажу — сума виплат зроблених купівель з датою ≤ сьогодні (`payment.date <= today`): виплата сьогоднішнього дня належить продавцеві, бо покупець, що купує сьогодні, її не отримає. Решта виплат (дата > сьогодні) — «майбутні» для SALE-08 і SALE-10. Екран пояснює, що картка вважатиме сьогоднішню виплату отриманою наступного дня.
 
-**SALE-08.** «Вигідніше продати» = `amountForYield(today, майбутні виплати на 1 шт, ставка орієнтира)` = `round2(Σ amountᵢ / (1 + r/2)^(2·daysᵢ/365))`, де `amountᵢ` — сума виплати на одну ОВДП з графіка НБУ, `daysᵢ` — днів від сьогодні до неї, `r` — ставка орієнтира (SALE-09) як частка. Це ціна 1 шт, за якої тримання дає рівно ставку орієнтира; вище неї гроші з продажу в новій ОВДП заробили б більше. Без орієнтира рядка немає (`sellAbovePrice = null`). Приклад: ОВДП з купоном 50 ₴ 01.07.2026 і 50 ₴ + погашення 1 000 ₴ 01.01.2027, сьогодні 15.03.2026, орієнтир 15 % → ≈ «понад 983,17 ₴»; за 16 % → ≈ 976,12 ₴. Джерело: `holdOrSell`, `amountForYield` (`model/yield.ts`).
+**SALE-08.** «Вигідніше продати» = `amountForYield(today, майбутні виплати на 1 шт, ставка орієнтира)` = `round2(Σ amountᵢ / (1 + r/2)^(2·daysᵢ/365))`, де `amountᵢ` — сума виплати на одну ОВДП з графіка НБУ, `daysᵢ` — днів від сьогодні до неї, `r` — ставка орієнтира (SALE-09) як частка. Це ціна 1 шт, за якої тримання дає рівно ставку орієнтира; вище неї гроші з продажу в новій ОВДП заробили б більше. Без орієнтира рядка немає (`sellAbovePrice = null`). Приклад: ОВДП з купоном 50 ₴ 01.07.2026 і 50 ₴ + погашення 1 000 ₴ 01.01.2027, сьогодні 15.03.2026, орієнтир 15 % → ≈ «понад 983,17 ₴»; за 16 % → ≈ 976,12 ₴. Джерело: `holdOrSell`, `amountForYield` (`src/lib/portfolio/yield.ts`).
 
 **SALE-09.** Орієнтир (`benchmarkOf`), по черзі:
 
@@ -108,13 +108,13 @@
 
 ## Покриття тестами
 
-- `src/pages/holdings/model/__tests__/holdOrSell.test.ts`:
+- `src/screens/holdings/holdOrSell.test.ts`:
   - SALE-03 (рахує лише зроблені купівлі; лише заплановані → `null`);
   - SALE-02 (день погашення і неопубліковане погашення → `null`);
   - SALE-06 (890 ₴ у прикладі), SALE-08 (`amountForYield` за 15 % від нових ОВДП), SALE-09 (запасний орієнтир — облікова ставка 16 %; валютна без нових → `sellAbovePrice = null`);
   - SALE-11 (`saleResult` = −20 і `200 + 2·ціна − 1 980`), SALE-12 (10 ₴ і 5 000 ₴ → «Перевірте ціну», `sale = null`), SALE-13 (обидва вердикти, текст збитку, валютна без орієнтира → вердикту немає);
   - `holdResult` 420 ₴ (SALE-15).
-- `src/entities/portfolio/model/__tests__/market.test.ts` — `amountForYield` (SALE-08) і `newBondsRate` (SALE-09.1).
+- `src/lib/portfolio/market.test.ts` — `amountForYield` (SALE-08) і `newBondsRate` (SALE-09.1).
 - Округлення ціни без збитку перевірено тестом.
 - Без тестів: SALE-07 (виплата сьогоднішнього дня в «отримано»), SALE-10 межі рівно 0 % і рівно 40 %, SALE-13 тексти `success` та `info`, SALE-14, SALE-16 (нерівність, на якій тримається підпис), SALE-17.
 

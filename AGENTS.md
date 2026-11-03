@@ -58,8 +58,8 @@ Third-party skills in `.claude/skills/` are general guides; this project's setup
 - Reanimated 4 / worklets: use `scheduleOnRN` / `scheduleOnUI` instead of `runOnJS`, and `.get()` / `.set()` on shared values instead of `.value`.
 - Styling uses Unistyles 3: import `StyleSheet` from `react-native-unistyles`, not from `react-native`.
 - Zod is v4: use `z.email()`, `z.iso.date()`, the `error` param, `z.flattenError()` / `z.treeifyError()`; not the Zod 3 forms (`.email()`, `message`, `required_error`, `.flatten()`, `.merge()`).
-- Feature-Sliced Design is applied deliberately and checked by `yarn lint:fsd`. Do not restructure existing code unless asked:
-  - `src/app/` is both the Expo Router root and the FSD app layer; never rename it to `_app` or put non-route files in it.
-  - Single-consumer slices in `features/` are intentional (`insignificant-slice` is off); their UI lives in `pages/`. Do not fold them into pages.
-  - Keep the NBU fetch and its cache stores in `entities/portfolio/api/`, the `*.hook.ts` file naming, and one folder per store with `types.ts` / `store.ts` / `selectors.ts` / `actions.ts` / `index.ts`.
+- The folder layout is the default Expo one plus `stores/`, `api/` and `lib/` (see `CLAUDE.md`). Do not restructure existing code unless asked:
+  - `src/app/` is the Expo Router root; never rename it or put non-route files in it.
+  - Import modules by file through `@/`; don't add barrel `index.ts` files, except the one every store folder has.
+  - Keep the NBU requests in `api/nbu/` and their caches in `stores/`, the `*.hook.ts` file naming, tests next to the module they cover, and one folder per store with `types.ts` / `store.ts` / `selectors.ts` / `actions.ts` / `index.ts`.
 - Declare component props as a named type (`type Props = {...}`), even where skill examples write them inline.

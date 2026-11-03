@@ -4,15 +4,15 @@
 
 ## Звідки дані
 
-- `src/pages/payments/ui/PaymentsScreen.tsx` — екран; `ScheduleSectionList.tsx` — список місяця; `YearTotals.tsx` — картка «За рік»; `MonthBreakdown.tsx` — картка «По місяцях»; `yearSeries.ts` — серії графіка; `PaymentFiltersButton.tsx` — кнопка в заголовку; `PaymentFiltersScreen.tsx`, `paymentFilterLabels.ts` — екран фільтрів.
-- `src/pages/payments/model/useFilteredWallet.hook.ts` — `useWallet()` + збережені фільтри, підігнані до гаманця (`effectiveFilters`), і кількість увімкнених фільтрів (`countActiveFilters`).
-- `src/pages/payments/model/useYearSchedule.hook.ts` — межі років, вибраний рік і місяць, підсумок року, секції списку.
-- `src/pages/payments/model/yearSummary.ts` — `yearSummary(yearEvents, currency, today)`.
-- `src/pages/payments/model/scheduleSections.ts` — `groupScheduleEventsByMonth`.
-- `src/features/payment-filters/model/filterSchedule.ts` — `effectiveFilters`, `countActiveFilters`, `filterSchedule`.
-- `src/features/payment-filters/model/paymentFilters/` — сховище фільтрів (ключ `payment-filters-v1`), дії `updatePaymentFilters`, `togglePaymentFilterType`, `togglePaymentFilterIsin`, `resetPaymentFilters`.
-- `src/features/payment-filters/model/scheduleEventTypes.ts` — `SCHEDULE_EVENT_TYPES = ['coupon', 'redemption', 'purchase']`.
-- З `src/entities/portfolio/`: `Wallet` (`payments`, `purchaseEvents`, `today`, `byIsin`), `walletScopeOptions`, `isinsIn` (`model/wallet.ts`), `compareScheduleEvents`, `sumTotals` (`model/portfolio.ts`), `ScheduleEventRow`, `WalletGate`, `StaleBondsNotice`, `NbuSourceNote`.
+- `src/screens/payments/PaymentsScreen.tsx` — екран; `ScheduleSectionList.tsx` — список місяця; `YearTotals.tsx` — картка «За рік»; `MonthBreakdown.tsx` — картка «По місяцях»; `yearSeries.ts` — серії графіка; `PaymentFiltersButton.tsx` — кнопка в заголовку; `PaymentFiltersScreen.tsx`, `paymentFilterLabels.ts` — екран фільтрів.
+- `src/screens/payments/useFilteredWallet.hook.ts` — `useWallet()` + збережені фільтри, підігнані до гаманця (`effectiveFilters`), і кількість увімкнених фільтрів (`countActiveFilters`).
+- `src/screens/payments/useYearSchedule.hook.ts` — межі років, вибраний рік і місяць, підсумок року, секції списку.
+- `src/screens/payments/yearSummary.ts` — `yearSummary(yearEvents, currency, today)`.
+- `src/screens/payments/scheduleSections.ts` — `groupScheduleEventsByMonth`.
+- `src/lib/payment-filters/filterSchedule.ts` — `effectiveFilters`, `countActiveFilters`, `filterSchedule`.
+- `src/stores/paymentFilters/` — сховище фільтрів (ключ `payment-filters-v1`), дії `updatePaymentFilters`, `togglePaymentFilterType`, `togglePaymentFilterIsin`, `resetPaymentFilters`.
+- `src/lib/payment-filters/scheduleEventTypes.ts` — `SCHEDULE_EVENT_TYPES = ['coupon', 'redemption', 'purchase']`.
+- З `src/lib/portfolio/`: `Wallet` (`payments`, `purchaseEvents`, `today`, `byIsin`), `walletScopeOptions`, `isinsIn` (`wallet.ts`), `compareScheduleEvents`, `sumTotals` (`portfolio.ts`); з `src/components/portfolio/`: `ScheduleEventRow`, `WalletGate`, `StaleBondsNotice`, `NbuSourceNote`.
 
 ## Що на екрані
 
@@ -34,11 +34,11 @@
 
 ## Правила
 
-**PAY-01.** Вкладка показується лише всередині `WalletGate`: якщо в активному плані немає жодної купівлі — замість неї `EmptyWallet`; якщо купівлі є, але даних НБУ ще немає — `BondsUnavailable` (скелет або помилка з повтором). Джерело: `src/entities/portfolio/ui/WalletGate.tsx`, `BondsGate.tsx`.
+**PAY-01.** Вкладка показується лише всередині `WalletGate`: якщо в активному плані немає жодної купівлі — замість неї `EmptyWallet`; якщо купівлі є, але даних НБУ ще немає — `BondsUnavailable` (скелет або помилка з повтором). Джерело: `src/components/portfolio/WalletGate.tsx`, `BondsGate.tsx`.
 
 **PAY-02.** Події екрана — це `filterSchedule(wallet, filters)` з підігнаними фільтрами (PFLT-02): з `payments` + `purchaseEvents` гаманця лишено події валюти фільтра, далі його ОВДП, позначених типів і часу (PFLT-06), відсортовано `compareScheduleEvents`. Гаманець не перебудовується: кожна подія належить одній ОВДП, а виплати й купівлі ОВДП не залежать від інших, тож відбір подій дає те саме, що гаманець лише з цих ОВДП. `totalCount` — кількість подій валюти фільтра до решти умов. Джерело: `filterSchedule.ts`.
 
-**PAY-03.** Порядок подій: за датою (рядкове порівняння `YYYY-MM-DD`); того самого дня виплата стоїть перед купівлею. Приклад з тесту: `2025-01-10 purchase`, `2025-07-01 coupon`, `2026-05-01 purchase`, `2026-07-01 redemption`. Джерело: `compareScheduleEvents` у `model/portfolio.ts`.
+**PAY-03.** Порядок подій: за датою (рядкове порівняння `YYYY-MM-DD`); того самого дня виплата стоїть перед купівлею. Приклад з тесту: `2025-01-10 purchase`, `2025-07-01 coupon`, `2026-05-01 purchase`, `2026-07-01 redemption`. Джерело: `compareScheduleEvents` у `src/lib/portfolio/portfolio.ts`.
 
 **PAY-04.** Межі перемикача року: `firstYear` = найменший, `lastYear` = найбільший рік серед відфільтрованих подій (усіх років, не лише вибраного). Якщо подій немає зовсім — обидві межі дорівнюють поточному року (`wallet.today`). Джерело: `useYearSchedule`.
 
@@ -68,7 +68,7 @@
 
 **PAY-12.** Список під графіком містить лише події вибраного місяця вибраного року (графік — увесь рік). Секція одна: заголовок `${MONTHS[m]} ${рік}`, праворуч `formatTotals` виплат секції (без купівель); якщо в місяці лише купівлі — праворуч порожньо. Джерело: `useYearSchedule`, `groupScheduleEventsByMonth`.
 
-**PAY-13.** Рядок події (`ScheduleEventRow` з `showIsin`): аватар зі знаком валюти в кольорі серії події; заголовок — ISIN; підзаголовок — «Купон» / «Погашення» / «Купівля» / «Докупівля» (купівля ОВДП, що вже є в позиції, `isTopUp`), для купівлі ще «N шт», для отриманої виплати «отримано» (рядок притьмарено), для майбутньої виплати — «сьогодні» / «завтра» / «через N днів»; останньою частиною — позначка запланованого: для купівлі з датою пізніше за сьогодні — «заплановано»; для виплати з `plannedQuantity > 0` (DOM-59) — «заплановано», коли всі її ОВДП із запланованих купівель, інакше «<plannedQuantity> з <quantity> шт заплановано». Частини розділено « · », напр. «Купон · через 45 днів · 3 з 5 шт заплановано», «Купівля · 3 шт · заплановано». Праворуч дата й сума: виплата «+», купівля «−». Той самий рядок стоїть на картці ОВДП (BND-06). Джерело: `src/entities/portfolio/ui/ScheduleEventRow.tsx`.
+**PAY-13.** Рядок події (`ScheduleEventRow` з `showIsin`): аватар зі знаком валюти в кольорі серії події; заголовок — ISIN; підзаголовок — «Купон» / «Погашення» / «Купівля» / «Докупівля» (купівля ОВДП, що вже є в позиції, `isTopUp`), для купівлі ще «N шт», для отриманої виплати «отримано» (рядок притьмарено), для майбутньої виплати — «сьогодні» / «завтра» / «через N днів»; останньою частиною — позначка запланованого: для купівлі з датою пізніше за сьогодні — «заплановано»; для виплати з `plannedQuantity > 0` (DOM-59) — «заплановано», коли всі її ОВДП із запланованих купівель, інакше «<plannedQuantity> з <quantity> шт заплановано». Частини розділено « · », напр. «Купон · через 45 днів · 3 з 5 шт заплановано», «Купівля · 3 шт · заплановано». Праворуч дата й сума: виплата «+», купівля «−». Той самий рядок стоїть на картці ОВДП (BND-06). Джерело: `src/components/portfolio/ScheduleEventRow.tsx`.
 
 **PAY-14.** Ключ рядка: для купівлі — її `id`, для виплати — `${isin}-${date}-${type}` (одна виплата на ОВДП, дату й тип, бо позиція підсумовує свої купівлі). Джерело: `ScheduleSectionList.tsx`.
 
@@ -138,11 +138,11 @@
 
 ## Покриття тестами
 
-- `src/features/payment-filters/model/__tests__/filterSchedule.test.ts`: PFLT-02 (перша валюта для `null` і відсутньої; ОВДП лише показаної валюти — «keeps only the bonds of the currency shown…»), PFLT-10 (`isinsIn` для USD), PAY-02/PAY-03 (порядок, виплата перед купівлею того самого дня, `totalCount`), PFLT-06 (майбутні = купівля попереду й погашення), відбір за типом (PAY-08 частково).
-- `src/entities/portfolio/model/__tests__/portfolio.test.ts`: `plannedQuantity` виплат (DOM-59), з якого PAY-13 пише «заплановано»; сам рядок не тестується.
+- `src/lib/payment-filters/filterSchedule.test.ts`: PFLT-02 (перша валюта для `null` і відсутньої; ОВДП лише показаної валюти — «keeps only the bonds of the currency shown…»), PFLT-10 (`isinsIn` для USD), PAY-02/PAY-03 (порядок, виплата перед купівлею того самого дня, `totalCount`), PFLT-06 (майбутні = купівля попереду й погашення), відбір за типом (PAY-08 частково).
+- `src/lib/portfolio/portfolio.test.ts`: `plannedQuantity` виплат (DOM-59), з якого PAY-13 пише «заплановано»; сам рядок не тестується.
 - `filterSchedule.test.ts` також: PFLT-03 (`countActiveFilters`), PFLT-11 (`totalCount` лише показаної валюти).
-- `src/features/payment-filters/model/__tests__/paymentFilters.test.ts`: PFLT-04 (тип: останній знятий чи всі три — знову «Усі події»), PFLT-05 (`togglePaymentFilterIsin`), скидання.
-- `src/pages/payments/model/__tests__/yearSummary.test.ts`, `yearSeries.test.ts`, `scheduleSections.test.ts`: підсумки року, серії графіка й місяці списку (PAY-05…PAY-08, PAY-12).
+- `src/stores/paymentFilters/paymentFilters.test.ts`: PFLT-04 (тип: останній знятий чи всі три — знову «Усі події»), PFLT-05 (`togglePaymentFilterIsin`), скидання.
+- `src/screens/payments/yearSummary.test.ts`, `yearSeries.test.ts`, `scheduleSections.test.ts`: підсумки року, серії графіка й місяці списку (PAY-05…PAY-08, PAY-12).
 - **Без тестів:** PAY-04 (межі років і вибір місяця живуть у хуку `useYearSchedule`), PAY-09…PAY-15 (екран).
 
 ## Прогалини й питання

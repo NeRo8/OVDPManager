@@ -4,92 +4,92 @@
 
 ## Звідки дані
 
-- Сховище: `src/shared/lib/storage.ts` (`mmkvStorage`).
+- Сховище: `src/utils/storage.ts` (`mmkvStorage`).
 - Сховища стану (папка на кожне, `types.ts` / `store.ts` / `selectors.ts` / `actions.ts` / `index.ts`):
-  `src/entities/portfolio/model/purchases/`, `src/entities/portfolio/model/plans/`, `src/entities/portfolio/model/activePlan/`, `src/entities/portfolio/api/bonds/`, `src/entities/portfolio/api/keyRate/`, `src/features/payment-filters/model/paymentFilters/`, `src/features/add-purchase/model/bondPickerFilters/`, `src/features/onboarding/model/onboarding/`, `src/shared/config/appSettings/`, `src/shared/lib/toast/`.
-- Клієнт НБУ: `src/shared/api/nbu/client.ts` (`nbuClient`, `NbuError`).
-- Запити: `src/entities/portfolio/api/nbuBonds.ts`, `nbuKeyRate.ts`, `dailyRates.ts`, `useBonds.hook.ts`, `keyRateQuery.ts`, `useKeyRate.hook.ts`.
-- TanStack Query: `src/shared/api/queryClient.ts`, `src/shared/api/QueryProvider.tsx`.
-- Сповіщення: `src/shared/lib/toast/`, `src/shared/ui/toast/ToastHost.tsx`, `src/shared/ui/toast/ToastView.tsx`.
-- Оновлення жестом: `src/shared/lib/usePullToRefresh.hook.ts`.
-- Стани екранів: `src/entities/portfolio/ui/BondsGate.tsx`, `BondsUnavailable.tsx`, `BondsUnavailableCard.tsx`, `WalletGate.tsx`, `EmptyWallet.tsx`, `StaleBondsNotice.tsx`, `NbuSourceNote.tsx`.
+  `src/stores/purchases/`, `src/stores/plans/`, `src/stores/activePlan/`, `src/stores/bonds/`, `src/stores/keyRate/`, `src/stores/paymentFilters/`, `src/stores/bondPickerFilters/`, `src/stores/onboarding/`, `src/stores/appSettings/`, `src/stores/toast/`.
+- Клієнт НБУ: `src/api/nbu/client.ts` (`nbuClient`, `NbuError`).
+- Запити: `src/api/nbu/nbuBonds.ts`, `nbuKeyRate.ts`, `dailyRates.ts`, `useBonds.hook.ts`, `keyRateQuery.ts`, `useKeyRate.hook.ts`.
+- TanStack Query: `src/api/queryClient.ts`, `src/api/QueryProvider.tsx`.
+- Сповіщення: `src/stores/toast/`, `src/components/toast/ToastHost.tsx`, `src/components/toast/ToastView.tsx`.
+- Оновлення жестом: `src/hooks/usePullToRefresh.hook.ts`.
+- Стани екранів: `src/components/portfolio/BondsGate.tsx`, `BondsUnavailable.tsx`, `BondsUnavailableCard.tsx`, `WalletGate.tsx`, `EmptyWallet.tsx`, `StaleBondsNotice.tsx`, `NbuSourceNote.tsx`.
 
 ## Правила
 
 ### Сховище MMKV
 
-**DATA-01.** Усі збережені сховища пишуть в один екземпляр MMKV без шифрування (`createMMKV()` без параметрів); це обране правило зберігання на пристрої. Резервні копії шифруються перед збереженням у файл чи відправленням у хмару. Адаптер синхронний: `getItem` → `mmkv.getString(key) ?? null`, `setItem` → `mmkv.set`, `removeItem` → `mmkv.remove`. `src/shared/lib/storage.ts`.
+**DATA-01.** Усі збережені сховища пишуть в один екземпляр MMKV без шифрування (`createMMKV()` без параметрів); це обране правило зберігання на пристрої. Резервні копії шифруються перед збереженням у файл чи відправленням у хмару. Адаптер синхронний: `getItem` → `mmkv.getString(key) ?? null`, `setItem` → `mmkv.set`, `removeItem` → `mmkv.remove`. `src/utils/storage.ts`.
 
 **DATA-02.** Кожне збережене сховище — `create()(persist(() => initialState, { name: STORAGE_KEY, storage: createJSONStorage(() => mmkvStorage) }))`: стан зберігається як JSON-рядок під своїм ключем; `appSettings` зберігає лише тему і час останнього відкриття, а поточну дату відновлює під час запуску; бо адаптер синхронний, сховище читається під час створення, ще до першого екрана. `version` і `migrate` немає: дані іншого вигляду не перетворюються. Сховища змінюються лише через функції з `actions.ts` (`setState`). Усі `store.ts`.
 
 **DATA-03.** Збережені сховища, їхні ключі й вигляд:
 
-| Ключ MMKV                | Сховище                                     | Вигляд стану                                                                  | Початковий стан                    |
-| ------------------------ | ------------------------------------------- | ----------------------------------------------------------------------------- | ---------------------------------- |
-| `holdings-v1`            | `entities/portfolio/model/purchases`        | `{ purchases: PlanPurchase[] }`                                               | `{ purchases: [] }`                |
-| `investment-plan-v1`     | `entities/portfolio/model/plans`            | `{ plans: InvestmentPlan[] }`                                                 | `{ plans: [] }`                    |
-| `nbu-bonds-v1`           | `entities/portfolio/api/bonds`              | `{ bonds: Bond[] \| null; updatedAt: number \| null }` (мс)                   | `{ bonds: null, updatedAt: null }` |
-| `nbu-key-rate-v1`        | `entities/portfolio/api/keyRate`            | `{ byYear: Record<рік, { rates: Record<дата, %>; throughDate; updatedAt }> }` | `{ byYear: {} }`                   |
-| `payment-filters-v1`     | `features/payment-filters/…/paymentFilters` | `{ types; time: 'all' \| 'upcoming' \| 'past'; currency; isins }`             | див. сховище                       |
-| `bond-picker-filters-v1` | `features/add-purchase/…/bondPickerFilters` | `{ currency; term; sort: 'maturity' \| 'rate' }`                              | див. сховище                       |
-| `onboarding-v1`          | `features/onboarding/model/onboarding`      | `{ isCompleted: boolean }`                                                    | `{ isCompleted: false }`           |
-| `theme-preference-v1`    | `shared/config/appSettings`                 | `{ preference }`; дата `today` лише в пам’яті                                 | тема `system`, дата запуску        |
+| Ключ MMKV                | Сховище                    | Вигляд стану                                                                  | Початковий стан                    |
+| ------------------------ | -------------------------- | ----------------------------------------------------------------------------- | ---------------------------------- |
+| `holdings-v1`            | `stores/purchases`         | `{ purchases: PlanPurchase[] }`                                               | `{ purchases: [] }`                |
+| `investment-plan-v1`     | `stores/plans`             | `{ plans: InvestmentPlan[] }`                                                 | `{ plans: [] }`                    |
+| `nbu-bonds-v1`           | `stores/bonds`             | `{ bonds: Bond[] \| null; updatedAt: number \| null }` (мс)                   | `{ bonds: null, updatedAt: null }` |
+| `nbu-key-rate-v1`        | `stores/keyRate`           | `{ byYear: Record<рік, { rates: Record<дата, %>; throughDate; updatedAt }> }` | `{ byYear: {} }`                   |
+| `payment-filters-v1`     | `stores/paymentFilters`    | `{ types; time: 'all' \| 'upcoming' \| 'past'; currency; isins }`             | див. сховище                       |
+| `bond-picker-filters-v1` | `stores/bondPickerFilters` | `{ currency; term; sort: 'maturity' \| 'rate' }`                              | див. сховище                       |
+| `onboarding-v1`          | `stores/onboarding`        | `{ isCompleted: boolean }`                                                    | `{ isCompleted: false }`           |
+| `theme-preference-v1`    | `stores/appSettings`       | `{ preference }`; дата `today` лише в пам’яті                                 | тема `system`, дата запуску        |
 
-**DATA-04.** Дії сховища купівель (`src/entities/portfolio/model/purchases/actions.ts`): `addPurchase` (новий `id` = `Date.now()` у base36 + `-` + 6 випадкових символів, додається в кінець), `removePurchase(id)` (прибирає першу з таким `id`), `updatePurchase(id, { purchaseDate, quantity, amount })` (змінює лише ці три поля; `currency`, `isin`, `planId` лишаються), `replacePurchases` (замінює все), `removePosition(planId, isin)`, `removePlanPurchases(planId)`, `copyPlanPurchases(from, to)` (копії з новими `id` додаються в кінець). Селектори: `usePurchases`, `getPurchases` — купівлі всіх планів.
+**DATA-04.** Дії сховища купівель (`src/stores/purchases/actions.ts`): `addPurchase` (новий `id` = `Date.now()` у base36 + `-` + 6 випадкових символів, додається в кінець), `removePurchase(id)` (прибирає першу з таким `id`), `updatePurchase(id, { purchaseDate, quantity, amount })` (змінює лише ці три поля; `currency`, `isin`, `planId` лишаються), `replacePurchases` (замінює все), `removePosition(planId, isin)`, `removePlanPurchases(planId)`, `copyPlanPurchases(from, to)` (копії з новими `id` додаються в кінець). Селектори: `usePurchases`, `getPurchases` — купівлі всіх планів.
 
-**DATA-05.** Дії сховища планів (`src/entities/portfolio/model/plans/actions.ts`): `createInvestmentPlan(name)` (id як у DATA-04, план — у кінець, повертає id), `renameInvestmentPlan`, `duplicateInvestmentPlan(id)` (назва = `name.slice(0, 80 − 8).trimEnd() + ' (копія)'`, копіює купівлі, активний план не змінює, повертає назву або `undefined`), `removeInvestmentPlan(id)` (спершу купівлі плану, потім план), `restorePortfolio(purchases, plans)` (замінює обидва сховища). Назва перевіряється формою, сховище її не обрізає (крім суфіксів).
+**DATA-05.** Дії сховища планів (`src/stores/plans/actions.ts`): `createInvestmentPlan(name)` (id як у DATA-04, план — у кінець, повертає id), `renameInvestmentPlan`, `duplicateInvestmentPlan(id)` (назва = `name.slice(0, 80 − 8).trimEnd() + ' (копія)'`, копіює купівлі, активний план не змінює, повертає назву або `undefined`), `removeInvestmentPlan(id)` (спершу купівлі плану, потім план), `restorePortfolio(purchases, plans)` (замінює обидва сховища). Назва перевіряється формою, сховище її не обрізає (крім суфіксів).
 
 **DATA-06.** Активний план визначається полем `isActive` у сховищі планів. Серед наявних планів активний рівно один; якщо планів немає, активний план — `undefined`. `setActivePlan` змінює ознаку в планах; невідомий id залишає поточний вибір. `createActivePlan(name)` створює план і робить його активним. `addPurchaseToActivePlan` і `removePositionFromActivePlan` без активного плану нічого не роблять.
 
 **DATA-07.** Після видалення активного плану активним стає перший із решти. Резервні копії зберігають `activePlanId` у форматі версії 6; при відновленні копії без нього активним стає перший план.
 
-**DATA-08.** Не зберігаються між запусками: сповіщення (`src/shared/lib/toast/store.ts`, звичайний `create` без `persist`), кеш TanStack Query (лише в пам'яті, без persister), копія в хмарі (`useCloudBackup`), чернетки форм, ціна продажу, сторінка онбордингу. Вхід у Google зберігає нативний Firebase SDK, а не застосунок.
+**DATA-08.** Не зберігаються між запусками: сповіщення (`src/stores/toast/store.ts`, звичайний `create` без `persist`), кеш TanStack Query (лише в пам'яті, без persister), копія в хмарі (`useCloudBackup`), чернетки форм, ціна продажу, сторінка онбордингу. Вхід у Google зберігає нативний Firebase SDK, а не застосунок.
 
 ### Клієнт НБУ
 
-**DATA-09.** Усі запити до НБУ йдуть через один `axios`-клієнт: `baseURL: 'https://bank.gov.ua'`, `timeout: 8000` мс. Будь-яка помилка перетворюється на `NbuError` з готовим текстом: відповідь із кодом → «НБУ відповів з помилкою <status>»; `ECONNABORTED`/`ETIMEDOUT` → «Час очікування відповіді НБУ минув»; інша мережева помилка → «Не вдалося з’єднатися з НБУ»; не-axios помилка → «Не вдалося завантажити дані НБУ». `src/shared/api/nbu/client.ts`.
+**DATA-09.** Усі запити до НБУ йдуть через один `axios`-клієнт: `baseURL: 'https://bank.gov.ua'`, `timeout: 8000` мс. Будь-яка помилка перетворюється на `NbuError` з готовим текстом: відповідь із кодом → «НБУ відповів з помилкою <status>»; `ECONNABORTED`/`ETIMEDOUT` → «Час очікування відповіді НБУ минув»; інша мережева помилка → «Не вдалося з’єднатися з НБУ»; не-axios помилка → «Не вдалося завантажити дані НБУ». `src/api/nbu/client.ts`.
 
 ### Каталог ОВДП
 
-**DATA-10.** Каталог: `GET /depo_securities?json`, відповідь типізується як `NbuSecurity[]`, її структура додатково не перевіряється. Перетворення рядків і відбір валют — DOM-02…DOM-05 у `spec/domain.md`. `src/entities/portfolio/api/nbuBonds.ts`, `fetchBonds`.
+**DATA-10.** Каталог: `GET /depo_securities?json`, відповідь типізується як `NbuSecurity[]`, її структура додатково не перевіряється. Перетворення рядків і відбір валют — DOM-02…DOM-05 у `spec/domain.md`. `src/api/nbu/nbuBonds.ts`, `fetchBonds`.
 
 **DATA-32.** Дати останнього оновлення каталогу й облікової ставки доступні в налаштуваннях; повідомлення про помилку оновлення каталогу показує дату збережених даних.
 
-**DATA-11.** `useBonds()`: запит `['nbu', 'bonds']`; `queryFn` завантажує каталог і зберігає його цілком (`saveBonds(fetched, Date.now())` — заміна, не злиття); `staleTime` = 6 годин; `initialData` і `initialDataUpdatedAt` беруться зі збереженого каталогу, тож на запуску НБУ питають, лише якщо збереженого немає або йому понад 6 годин; `meta.errorTitle` = «Не вдалося оновити дані НБУ». Екрани читають каталог зі сховища (`useCachedBonds`), а не з відповіді запиту. Повертає `bonds` (`Bond[] | null`), `error` (текст або `null`), `byIsin` (`Map` за ISIN), `refresh` (ручний `refetch`). `src/entities/portfolio/api/useBonds.hook.ts`.
+**DATA-11.** `useBonds()`: запит `['nbu', 'bonds']`; `queryFn` завантажує каталог і зберігає його цілком (`saveBonds(fetched, Date.now())` — заміна, не злиття); `staleTime` = 6 годин; `initialData` і `initialDataUpdatedAt` беруться зі збереженого каталогу, тож на запуску НБУ питають, лише якщо збереженого немає або йому понад 6 годин; `meta.errorTitle` = «Не вдалося оновити дані НБУ». Екрани читають каталог зі сховища (`useCachedBonds`), а не з відповіді запиту. Повертає `bonds` (`Bond[] | null`), `error` (текст або `null`), `byIsin` (`Map` за ISIN), `refresh` (ручний `refetch`). `src/hooks/useBonds.hook.ts`.
 
 ### Облікова ставка
 
-**DATA-12.** Ставка завантажується роками: `GET /NBUStatService/v1/statdirectory/key` з `start` = 1 січня року мінус 14 днів (`YYYYMMDD`), `end` = `throughDate` (`YYYYMMDD`), `id_api=KEY_PolicyRate`, `json`. Відповідь типізується як `NbuKeyRow[]`; залишаються рядки з `id_api === 'KEY_PolicyRate'`; `dt` (`YYYYMMDD`) → `YYYY-MM-DD`, `value` → ставка. Потім `fillDailyRates` від 1 січня до `throughDate` з помилкою «НБУ не повернув облікову ставку на <дата>». `src/entities/portfolio/api/nbuKeyRate.ts`, `fetchKeyRates`.
+**DATA-12.** Ставка завантажується роками: `GET /NBUStatService/v1/statdirectory/key` з `start` = 1 січня року мінус 14 днів (`YYYYMMDD`), `end` = `throughDate` (`YYYYMMDD`), `id_api=KEY_PolicyRate`, `json`. Відповідь типізується як `NbuKeyRow[]`; залишаються рядки з `id_api === 'KEY_PolicyRate'`; `dt` (`YYYYMMDD`) → `YYYY-MM-DD`, `value` → ставка. Потім `fillDailyRates` від 1 січня до `throughDate` з помилкою «НБУ не повернув облікову ставку на <дата>». `src/api/nbu/nbuKeyRate.ts`, `fetchKeyRates`.
 
-**DATA-13.** `fillDailyRates(rows, firstDate, throughDate, missing)` сортує рядки за датою й для кожного календарного дня від `firstDate` до `throughDate` включно бере ставку останнього рядка з датою `<=` цього дня; дні, яких НБУ не повернув (вихідні, ще не опублікований сьогоднішній день), отримують попередню ставку. Якщо до першого дня немає жодного рядка — кидає `Error(missing(день))`. Приклад: рядки 2024-12-27 → 13,5 і 2025-01-03 → 14,5 дають 01.01–02.01 = 13,5, 03.01–04.01 = 14,5. `src/entities/portfolio/api/dailyRates.ts`.
+**DATA-13.** `fillDailyRates(rows, firstDate, throughDate, missing)` сортує рядки за датою й для кожного календарного дня від `firstDate` до `throughDate` включно бере ставку останнього рядка з датою `<=` цього дня; дні, яких НБУ не повернув (вихідні, ще не опублікований сьогоднішній день), отримують попередню ставку. Якщо до першого дня немає жодного рядка — кидає `Error(missing(день))`. Приклад: рядки 2024-12-27 → 13,5 і 2025-01-03 → 14,5 дають 01.01–02.01 = 13,5, 03.01–04.01 = 14,5. `src/api/nbu/dailyRates.ts`.
 
-**DATA-14.** `keyRateQuery(year)`: ключ `['nbu', 'key-rate', year]`; рік минулий, якщо `year < поточного`; `throughDate` = `year-12-31` для минулого, інакше сьогодні; збережений рік «повний», якщо його `throughDate >= throughDate`. `initialData`/`initialDataUpdatedAt` даються лише для повного року. `staleTime`: `Infinity` для минулого року, 12 годин для поточного. `queryFn` зберігає `{ rates, throughDate, updatedAt: Date.now() }` у `byYear[year]`. `meta.errorTitle` немає, тож невдалий запит ставки сповіщення не показує. `src/entities/portfolio/api/keyRateQuery.ts`.
+**DATA-14.** `keyRateQuery(year)`: ключ `['nbu', 'key-rate', year]`; рік минулий, якщо `year < поточного`; `throughDate` = `year-12-31` для минулого, інакше сьогодні; збережений рік «повний», якщо його `throughDate >= throughDate`. `initialData`/`initialDataUpdatedAt` даються лише для повного року. `staleTime`: `Infinity` для минулого року, 12 годин для поточного. `queryFn` зберігає `{ rates, throughDate, updatedAt: Date.now() }` у `byYear[year]`. `meta.errorTitle` немає, тож невдалий запит ставки сповіщення не показує. `src/api/nbu/keyRateQuery.ts`.
 
 **DATA-15.** Дата, чия ставка відповідає даті `date` (`keyRateDate`): сама дата, якщо вона раніше за сьогодні, інакше сьогодні (і для сьогодні, і для майбутньої дати). Рік запиту (`keyRateYear`) — рік цієї дати. `keyRateQuery.ts`.
 
-**DATA-16.** `keyRateOn(byYear, date)`: `null`, якщо рік дати не завантажено; інакше `rates[date]`; якщо такого дня немає і `date > throughDate` — ставка дня `throughDate`; інакше `null`. `src/entities/portfolio/api/keyRate/selectors.ts`.
+**DATA-16.** `keyRateOn(byYear, date)`: `null`, якщо рік дати не завантажено; інакше `rates[date]`; якщо такого дня немає і `date > throughDate` — ставка дня `throughDate`; інакше `null`. `src/stores/keyRate/selectors.ts`.
 
 **DATA-17.** `useKeyRate(date)` повертає `{ rate, failed }`: `rate` = `keyRateOn(збережені роки, keyRateDate(date))`, до першого завантаження року — `null`; `failed` — ставки немає, бо запит її року не вдався (`rate === null` і запит у стані помилки). Хук запускає `keyRateQuery(keyRateYear(date))`. `useKeyRate.hook.ts`.
 
 ### Правила TanStack Query
 
-**DATA-21.** Типові налаштування запитів: `retry: 1` (одна повторна спроба з типовою затримкою бібліотеки). Після остаточної помилки автоматичні повтори під час відкриття екрана, повернення на передній план і відновлення з’єднання чекають понад 5 хвилин (`notFailedRecently`). Ручні `refetch` (кнопки «Спробувати ще раз», «Повторити», жест оновлення) це правило обходять. `src/shared/api/queryClient.ts`.
+**DATA-21.** Типові налаштування запитів: `retry: 1` (одна повторна спроба з типовою затримкою бібліотеки). Після остаточної помилки автоматичні повтори під час відкриття екрана, повернення на передній план і відновлення з’єднання чекають понад 5 хвилин (`notFailedRecently`). Ручні `refetch` (кнопки «Спробувати ще раз», «Повторити», жест оновлення) це правило обходять. `src/api/queryClient.ts`.
 
-**DATA-22.** Під час запуску й повернення на передній план `refreshToday` оновлює календарну дату. Повернення на передній план передається у `focusManager`: активні запити оновлюються лише тоді, коли їхній кеш застарів і минуло понад 5 хвилин після останньої помилки. Минулі роки ставки із `staleTime: Infinity` примусово не оновлюються. `onlineManager` не налаштовано для мережі пристрою. `src/shared/api/QueryProvider.tsx`.
+**DATA-22.** Під час запуску й повернення на передній план `refreshToday` оновлює календарну дату. Повернення на передній план передається у `focusManager`: активні запити оновлюються лише тоді, коли їхній кеш застарів і минуло понад 5 хвилин після останньої помилки. Минулі роки ставки із `staleTime: Infinity` примусово не оновлюються. `onlineManager` не налаштовано для мережі пристрою. `src/api/QueryProvider.tsx`.
 
 **DATA-23.** Коли запит із `meta.errorTitle` остаточно не вдався (після повторної спроби) і в нього вже є дані (`query.state.data !== undefined`), показується сповіщення: `tone: 'error'`, заголовок — `errorTitle`, текст — «<повідомлення помилки>. Показано збережені дані.», дія «Повторити» (`refetchQueries` за ключем запиту). Без даних сповіщення немає: помилку показує екран. `queryClient.ts`, `QueryCache.onError`.
 
 ### Сповіщення
 
-**DATA-24.** Одночасно є лише одне сповіщення: нове замінює попереднє (`showToast` дає новий `id`). `tone` ∈ `error | success | info`. Воно зникає через 4 с, а з дією — через 6 с; дотик до сповіщення закриває його; дотик до дії закриває й виконує дію. Під час появи текст «<заголовок>. <текст>» зачитується для screen reader. `hideToast(id)` закриває лише сповіщення з цим `id`. `src/shared/lib/toast/actions.ts`, `src/shared/ui/toast/ToastHost.tsx`, `ToastView.tsx`.
+**DATA-24.** Одночасно є лише одне сповіщення: нове замінює попереднє (`showToast` дає новий `id`). `tone` ∈ `error | success | info`. Воно зникає через 4 с, а з дією — через 6 с; дотик до сповіщення закриває його; дотик до дії закриває й виконує дію. Під час появи текст «<заголовок>. <текст>» зачитується для screen reader. `hideToast(id)` закриває лише сповіщення з цим `id`. `src/stores/toast/actions.ts`, `src/components/toast/ToastHost.tsx`, `ToastView.tsx`.
 
 ### Оновлення жестом
 
-**DATA-25.** `usePullToRefresh(refresh)` показує індикатор лише під час оновлення, яке запустив жест. Гаманець, план і «Виплати» оновлюють каталог НБУ та облікову ставку. Ручне оновлення обходить строк свіжості кешу й паузу після помилки. `src/shared/lib/usePullToRefresh.hook.ts`, `src/entities/portfolio/model/useWallet.hook.ts`.
+**DATA-25.** `usePullToRefresh(refresh)` показує індикатор лише під час оновлення, яке запустив жест. Гаманець, план і «Виплати» оновлюють каталог НБУ та облікову ставку. Ручне оновлення обходить строк свіжості кешу й паузу після помилки. `src/hooks/usePullToRefresh.hook.ts`, `src/hooks/useWallet.hook.ts`.
 
 ## Стани
 
-**DATA-26.** `BondsGate` (вибір ОВДП, деталі ОВДП, форма купівлі): показує вміст, щойно `bonds` не `null`. Інакше: без помилки — `LoadingState` (скелет) з підписом «Завантажуємо дані НБУ…»; з помилкою — `EmptyState` з іконкою `cloud-offline-outline`, заголовком «Немає зв’язку з НБУ», текстом помилки й кнопкою «Спробувати ще раз» (ручний `refresh`). `src/entities/portfolio/ui/BondsGate.tsx`, `BondsUnavailable.tsx`.
+**DATA-26.** `BondsGate` (вибір ОВДП, деталі ОВДП, форма купівлі): показує вміст, щойно `bonds` не `null`. Інакше: без помилки — `LoadingState` (скелет) з підписом «Завантажуємо дані НБУ…»; з помилкою — `EmptyState` з іконкою `cloud-offline-outline`, заголовком «Немає зв’язку з НБУ», текстом помилки й кнопкою «Спробувати ще раз» (ручний `refresh`). `src/components/portfolio/BondsGate.tsx`, `BondsUnavailable.tsx`.
 
 **DATA-27.** `WalletGate` (гаманець, «Виплати»): якщо в активному плані немає купівель — `EmptyWallet` («Гаманець порожній», «Додайте ОВДП за її номером (ISIN), датою купівлі та сумою — і побачите виплати купонів.», кнопки «Додати ОВДП» → `/add` і «Відновити з копії» → `/backup/import`); інакше — `BondsGate` (DATA-26). Порожній план перевіряється раніше, ніж наявність даних НБУ. `WalletGate.tsx`, `EmptyWallet.tsx`.
 
@@ -116,17 +116,17 @@
 
 ## Покриття тестами
 
-- `src/entities/portfolio/api/__tests__/dailyRates.test.ts`: DATA-13 (заповнення пропусків, помилка без рядка до першого дня).
-- `src/entities/portfolio/api/__tests__/keyRate.test.ts`: DATA-16 (день року, день після `throughDate`, незавантажений рік).
+- `src/api/nbu/dailyRates.test.ts`: DATA-13 (заповнення пропусків, помилка без рядка до першого дня).
+- `src/stores/keyRate/keyRate.test.ts`: DATA-16 (день року, день після `throughDate`, незавантажений рік).
 
-- `src/shared/api/nbu/__tests__/client.test.ts`: DATA-09 (`NbuError` для статусу, тайм-ауту й відсутнього з'єднання).
-- `src/entities/portfolio/api/__tests__/nbuBonds.test.ts`: DATA-10 (запит каталогу; мапінг — DOM-02…DOM-04).
-- `src/entities/portfolio/api/__tests__/nbuKeyRate.test.ts`: DATA-12 (параметри запиту з 14 днями до 1 січня, відкидання інших `id_api`, заповнення днів, помилка без ставки на 1 січня).
-- `src/entities/portfolio/api/__tests__/keyRateQuery.test.ts`: DATA-14 (ключ, `staleTime` минулого й поточного року, повнота збереженого року, новий день, збереження відповіді), DATA-15.
-- `src/shared/api/__tests__/queryClient.test.ts`: DATA-21 (5 хвилин після помилки для всіх автоматичних оновлень), DATA-23 (сповіщення з «Повторити» лише над показаними даними й з `errorTitle`).
-- `src/entities/portfolio/model/__tests__/purchases.test.ts`: DATA-04 (додавання з власним id, зміна, видалення купівлі, позиції в плані й усього плану, копіювання плану).
-- `src/entities/portfolio/model/__tests__/plans.test.ts` і `activePlan.test.ts`: DATA-05…DATA-07 (дублювання з унікальною назвою, запасний активний план, новий план активний, купівлі й видалення лише в активному плані).
-- `src/shared/lib/toast/__tests__/toast.test.ts`: DATA-24 (одне сповіщення, новий `id`, ховається лише те, що на екрані).
+- `src/api/nbu/client.test.ts`: DATA-09 (`NbuError` для статусу, тайм-ауту й відсутнього з'єднання).
+- `src/api/nbu/nbuBonds.test.ts`: DATA-10 (запит каталогу; мапінг — DOM-02…DOM-04).
+- `src/api/nbu/nbuKeyRate.test.ts`: DATA-12 (параметри запиту з 14 днями до 1 січня, відкидання інших `id_api`, заповнення днів, помилка без ставки на 1 січня).
+- `src/api/nbu/keyRateQuery.test.ts`: DATA-14 (ключ, `staleTime` минулого й поточного року, повнота збереженого року, новий день, збереження відповіді), DATA-15.
+- `src/api/queryClient.test.ts`: DATA-21 (5 хвилин після помилки для всіх автоматичних оновлень), DATA-23 (сповіщення з «Повторити» лише над показаними даними й з `errorTitle`).
+- `src/stores/purchases/purchases.test.ts`: DATA-04 (додавання з власним id, зміна, видалення купівлі, позиції в плані й усього плану, копіювання плану).
+- `src/stores/plans/plans.test.ts` і `activePlan.test.ts`: DATA-05…DATA-07 (дублювання з унікальною назвою, запасний активний план, новий план активний, купівлі й видалення лише в активному плані).
+- `src/stores/toast/toast.test.ts`: DATA-24 (одне сповіщення, новий `id`, ховається лише те, що на екрані).
 
 **Без тестів:** DATA-01…DATA-03, DATA-08, DATA-11, DATA-17, DATA-22, DATA-25…DATA-32: сховища й ключі, хуки запитів, оновлення дати, стани охоронців (компоненти не тестуються).
 

@@ -6,18 +6,18 @@
 
 - `src/app/_layout.tsx` — кореневий стек, охорона, параметри екранів (заголовки, модальні вікна, аркуш), `ToastHost`, `LaunchSplash`.
 - `src/app/(tabs)/_layout.tsx` — `NativeTabs` (вкладки); `src/app/(tabs)/(<tab>)/_layout.tsx` — стек кожної вкладки.
-- Файли маршрутів `src/app/**.tsx` — тонкі обгортки, що рендерять екран з `pages` (більшість — у `DeferredScreen`).
+- Файли маршрутів `src/app/**.tsx` — тонкі обгортки, що рендерять екран з `screens` (більшість — у `DeferredScreen`).
 - `src/app/+native-intent.ts` — `redirectSystemPath`.
-- `src/shared/ui/navigation/NativeStack.tsx` — стек з параметрами заголовка застосунку; `DeferredScreen.tsx` — відкладене монтування; `ResetFiltersHeader.tsx` — кнопка скидання фільтрів.
-- `src/shared/ui/skeleton/ScreenSkeleton.tsx` — форми скелетів `list`, `form`, `filters`.
-- `src/shared/lib/navigation.ts` — `goBackOrHome`.
-- Стан охорони: `useIsOnboardingCompleted()` (`src/features/onboarding`, сховище `onboarding-v1`) і `useInvestmentPlans().length > 0` (сховище `investment-plan-v1`).
+- `src/components/navigation/NativeStack.tsx` — стек з параметрами заголовка застосунку; `DeferredScreen.tsx` — відкладене монтування; `ResetFiltersHeader.tsx` — кнопка скидання фільтрів.
+- `src/components/skeleton/ScreenSkeleton.tsx` — форми скелетів `list`, `form`, `filters`.
+- `src/utils/navigation.ts` — `goBackOrHome`.
+- Стан охорони: `useIsOnboardingCompleted()` (`src/stores/onboarding`, сховище `onboarding-v1`) і `useInvestmentPlans().length > 0` (сховище `investment-plan-v1`).
 
 ## Карта маршрутів
 
 Скорочення: **П** — подання (push — звичайний перехід у стеку; modal; formSheet), **С** — скелет `DeferredScreen` («—» — без відкладення), **Охорона**: А = `isOnboarded && hasPlans` (застосунок), W = `isOnboarded && !hasPlans`, O = `!isOnboarded`, «—» = без охорони.
 
-| Файл маршруту                    | URL                    | Екран (`pages`)                | П         | Заголовок (статичний → з екрана)                                          | С         | Охорона | Звідки відкривається                                                                   |
+| Файл маршруту                    | URL                    | Екран (`screens`)              | П         | Заголовок (статичний → з екрана)                                          | С         | Охорона | Звідки відкривається                                                                   |
 | -------------------------------- | ---------------------- | ------------------------------ | --------- | ------------------------------------------------------------------------- | --------- | ------- | -------------------------------------------------------------------------------------- |
 | `onboarding.tsx`                 | `/onboarding`          | `OnboardingScreen`             | push      | без заголовка                                                             | —         | O       | перший запуск (редирект)                                                               |
 | `welcome.tsx`                    | `/welcome`             | `PlanNameScreen` (перший план) | push      | «Перший план»                                                             | —         | W       | редирект, коли планів немає                                                            |

@@ -5,12 +5,12 @@
 ## Звідки дані
 
 - Маршрути: `src/app/(tabs)/(holdings)/_layout.tsx` (стек вкладки, заголовок «Гаманець»), `src/app/(tabs)/(holdings)/holdings.tsx` → `PortfolioScreen`; `src/app/bond/[isin]/index.tsx` → `BondScreen` у `DeferredScreen skeleton="list"`; заголовок маршруту за замовчуванням «ОВДП» (`src/app/_layout.tsx`).
-- Екрани: `src/pages/holdings/ui/PortfolioScreen.tsx`, `PositionRow.tsx`, `BondScreen.tsx`, `PositionSummary.tsx`, `ownedLabel.ts`, `PurchaseRow.tsx`, `HintsSection.tsx`, `SaleButton.tsx`.
-- Логіка сторінки: `src/pages/holdings/model/walletOrder.ts` (порядок рядків гаманця), `useBondDetails.hook.ts` (позиція, видалення), `useHoldOrSell.hook.ts` і `holdOrSell.ts` (оцінка «Тримати чи продати»).
-- Сутність: `useWallet()` (`src/entities/portfolio/model/useWallet.hook.ts`) → `buildWallet` (`model/wallet.ts`) → `groupPositions`, `positionPayments`, `isPlannedPurchase`, `canBuyOn`, `isRedeemed`, `pricePerBond`, `purchaseCurrency` (`model/portfolio.ts`), `walletPosition` (`model/position.ts`), `keyRateHint`, `newBondsHint` (`model/yieldHints.ts`), `newBondsRate`, `newBondsLabel`, `MAX_PLAUSIBLE_YIELD` (`model/market.ts`), `sortHints`, `worstTone` (`model/hints.ts`).
-- Компоненти сутності: `WalletGate`, `BondsGate`, `BondsUnavailable`, `EmptyWallet`, `StaleBondsNotice`, `NbuSourceNote`, `BondTerms`, `ScheduleEventRow` (`src/entities/portfolio/ui/`).
-- Сховища: покупки `holdings-v1` (`model/purchases/`), плани з ознакою активного `investment-plan-v1`, каталог НБУ `nbu-bonds-v1` (через `useBonds`), облікова ставка `nbu-key-rate-v1` (через `useKeyRate(today)`).
-- Дії: `removePurchase` (`model/purchases/actions.ts`), `removePositionFromActivePlan` (`model/activePlan/actions.ts`), `confirmDestructive`, `goBackOrHome` (`src/shared/lib/`).
+- Екрани: `src/screens/holdings/PortfolioScreen.tsx`, `PositionRow.tsx`, `BondScreen.tsx`, `PositionSummary.tsx`, `ownedLabel.ts`, `PurchaseRow.tsx`, `HintsSection.tsx`, `SaleButton.tsx`.
+- Логіка сторінки: `src/screens/holdings/walletOrder.ts` (порядок рядків гаманця), `useBondDetails.hook.ts` (позиція, видалення), `useHoldOrSell.hook.ts` і `holdOrSell.ts` (оцінка «Тримати чи продати»).
+- Портфель: `useWallet()` (`src/hooks/useWallet.hook.ts`) → `buildWallet` (`wallet.ts`) → `groupPositions`, `positionPayments`, `isPlannedPurchase`, `canBuyOn`, `isRedeemed`, `pricePerBond`, `purchaseCurrency` (`portfolio.ts`), `walletPosition` (`position.ts`), `keyRateHint`, `newBondsHint` (`yieldHints.ts`), `newBondsRate`, `newBondsLabel`, `MAX_PLAUSIBLE_YIELD` (`market.ts`), `sortHints`, `worstTone` (`hints.ts`), усе в `src/lib/portfolio/`.
+- Компоненти портфеля: `WalletGate`, `BondsGate`, `BondsUnavailable`, `EmptyWallet`, `StaleBondsNotice`, `NbuSourceNote`, `BondTerms`, `ScheduleEventRow` (`src/components/portfolio/`).
+- Сховища: покупки `holdings-v1` (`src/stores/purchases/`), плани з ознакою активного `investment-plan-v1`, каталог НБУ `nbu-bonds-v1` (через `useBonds`), облікова ставка `nbu-key-rate-v1` (через `useKeyRate(today)`).
+- Дії: `removePurchase` (`src/stores/purchases/actions.ts`), `removePositionFromActivePlan` (`src/stores/activePlan/actions.ts`), `confirmDestructive`, `goBackOrHome` (`src/utils/`).
 
 ## Що на екрані
 
@@ -54,15 +54,15 @@
 
 ### Гаманець
 
-**WAL-01.** Вкладка показує позиції лише активного плану: купівлі зі сховища `holdings-v1`, у яких `planId` дорівнює id активного плану, згруповані за ISIN (`useActivePurchases`, `groupPositions`). Джерело: `src/entities/portfolio/model/useWallet.hook.ts`.
+**WAL-01.** Вкладка показує позиції лише активного плану: купівлі зі сховища `holdings-v1`, у яких `planId` дорівнює id активного плану, згруповані за ISIN (`useActivePurchases`, `groupPositions`). Джерело: `src/hooks/useWallet.hook.ts`.
 
-**WAL-02.** Порядок рядків (`sortWalletPositions`): спершу ОВДП, які ще не погашені (в обігу й заплановані), від найближчої дати погашення; далі погашені, від найпізнішого погашення; наприкінці ОВДП без даних НБУ. За однакової дати — за ISIN. Валюта на порядок не впливає. Приклад: сьогодні 31.10.2026; ОВДП з погашенням 01.02.2027 і 01.05.2028 в обігу, погашені 01.03.2026 і 01.06.2025, і одна без даних НБУ → 01.02.2027, 01.05.2028, 01.03.2026, 01.06.2025, без даних. Джерело: `src/pages/holdings/model/walletOrder.ts`, `PortfolioScreen`.
+**WAL-02.** Порядок рядків (`sortWalletPositions`): спершу ОВДП, які ще не погашені (в обігу й заплановані), від найближчої дати погашення; далі погашені, від найпізнішого погашення; наприкінці ОВДП без даних НБУ. За однакової дати — за ISIN. Валюта на порядок не впливає. Приклад: сьогодні 31.10.2026; ОВДП з погашенням 01.02.2027 і 01.05.2028 в обігу, погашені 01.03.2026 і 01.06.2025, і одна без даних НБУ → 01.02.2027, 01.05.2028, 01.03.2026, 01.06.2025, без даних. Джерело: `src/screens/holdings/walletOrder.ts`, `PortfolioScreen`.
 
 **WAL-03.** Підзаголовок рядка: `«<rate>% · погашено»`, якщо стан позиції `redeemed` (дата погашення раніше за сьогодні, і хоч одна купівля не запланована), інакше `«<rate>% · до <ДД.ММ.РРРР погашення>»` — також для запланованої позиції і в сам день погашення. Без ОВДП у даних НБУ — «Немає в даних НБУ». Приклад: ставка 16.5, погашення 2027-05-12, сьогодні 2026-10-31 → «16,5% · до 12.05.2027». Джерело: `PositionRow`, `positionState`.
 
 **WAL-04.** Сума праворуч — «Вкладено» всієї позиції (`round2` суми всіх купівель, разом із запланованими), кількість — сума кількостей усіх купівель. Приклад: купівлі 10 шт за 10 500 ₴ і заплановані 5 шт за 5 100 ₴ → «15 600,00 ₴», «15 шт, з них 5 заплановано» (WAL-05). Джерело: `groupPositions`, `PositionRow`.
 
-**WAL-05.** Кількість під сумою — `ownedLabel(quantity, planned)` (`src/pages/holdings/ui/ownedLabel.ts`), де `quantity` = `position.quantity`, а `planned` = `planned.quantity` позиції (DOM-60: ОВДП купівель з датою пізніше за сьогодні): `planned = 0` → «10 шт»; `planned ≥ quantity` (заплановано все, стан `planned`) → «10 шт · заплановано»; інакше → «10 шт, з них 3 заплановано». Колір — `accent`, коли `planned > 0`, інакше `secondary`. Той самий текст — у «Кількість» картки ОВДП (BND-13) і у виборі ОВДП (PICK-12). Приклад: куплено 7 шт, заплановано докупити 3 шт → «10 шт, з них 3 заплановано»; коли настане дата докупівлі — «10 шт». Джерело: `PositionRow`, `ownedLabel`, `walletPosition` (`planned`).
+**WAL-05.** Кількість під сумою — `ownedLabel(quantity, planned)` (`src/screens/holdings/ownedLabel.ts`), де `quantity` = `position.quantity`, а `planned` = `planned.quantity` позиції (DOM-60: ОВДП купівель з датою пізніше за сьогодні): `planned = 0` → «10 шт»; `planned ≥ quantity` (заплановано все, стан `planned`) → «10 шт · заплановано»; інакше → «10 шт, з них 3 заплановано». Колір — `accent`, коли `planned > 0`, інакше `secondary`. Той самий текст — у «Кількість» картки ОВДП (BND-13) і у виборі ОВДП (PICK-12). Приклад: куплено 7 шт, заплановано докупити 3 шт → «10 шт, з них 3 заплановано»; коли настане дата докупівлі — «10 шт». Джерело: `PositionRow`, `ownedLabel`, `walletPosition` (`planned`).
 
 **WAL-06.** Валюта рядка (знак і колір `Avatar`, валюта суми) — валюта ОВДП з даних НБУ, а без неї — валюта, збережена в першій купівлі позиції (`positionCurrency`).
 
@@ -109,7 +109,7 @@
 3. ОВДП вже не можна купити сьогодні: `!canBuyOn(bond, today)`, тобто сьогодні — день погашення або пізніше;
 4. результати неповні: НБУ не опублікував погашення (`!results.complete`) або чистий дохід `null`.
 
-Джерело: `src/pages/holdings/model/holdOrSell.ts`, `holdOrSell`.
+Джерело: `src/screens/holdings/holdOrSell.ts`, `holdOrSell`.
 
 **HOLD-02.** Оцінка дивиться лише на зроблені купівлі (дата ≤ сьогодні); заплановані купівлі позиції в неї не входять. Річна дохідність позиції для оцінки — `walletPosition(groupPositions(held)[0], bond, today).annualYield`: дохідність кожної зробленої купівлі від її ціни й дати, зважена на заплачене (див. spec/domain.md). Приклад: 2 шт за 1 980 ₴ 01.01.2025 і заплановані 2 шт на 01.05.2026 → оцінка рахує лише перші 2 шт.
 
@@ -188,12 +188,12 @@
 
 ## Покриття тестами
 
-- `src/pages/holdings/model/__tests__/walletOrder.test.ts` — WAL-02 (ОВДП в обігу й заплановані від найближчого погашення, погашені від найпізнішого, без даних НБУ в кінці).
-- `src/pages/holdings/model/__tests__/holdOrSell.test.ts` — HOLD-01 (п. 2: усі купівлі заплановані → `null`; п. 3: день погашення → `null`; п. 4: погашення не опубліковано → `null`), HOLD-02 (рахує лише зроблені купівлі), HOLD-06 (вердикти «Дохідність нижча за орієнтир» і «Варто тримати»).
-- `src/entities/portfolio/model/__tests__/position.test.ts` — стани позиції й результати, на яких стоять WAL-03, WAL-05, BND-03, BND-04 (виплата в день купівлі — попередньому власнику); `planned` позиції (DOM-60, «tells what of the Position is still only planned»), на якому стоять WAL-05 і BND-13; дохідність позиції з купівлею без дохідності (DOM-30), на якій стоїть BND-15.
-- `src/entities/portfolio/model/__tests__/portfolio.test.ts` — `isRedeemed` і `canBuyOn`, на яких стоять WAL-03 і BND-10.
-- `src/entities/portfolio/model/__tests__/market.test.ts` — `newBondsRate`, `newBondsLabel` (HOLD-03.2, HOLD-05).
-- `src/entities/portfolio/model/__tests__/portfolio.test.ts` — `plannedQuantity` виплат (DOM-59), з якого BND-06 пише «заплановано».
+- `src/screens/holdings/walletOrder.test.ts` — WAL-02 (ОВДП в обігу й заплановані від найближчого погашення, погашені від найпізнішого, без даних НБУ в кінці).
+- `src/screens/holdings/holdOrSell.test.ts` — HOLD-01 (п. 2: усі купівлі заплановані → `null`; п. 3: день погашення → `null`; п. 4: погашення не опубліковано → `null`), HOLD-02 (рахує лише зроблені купівлі), HOLD-06 (вердикти «Дохідність нижча за орієнтир» і «Варто тримати»).
+- `src/lib/portfolio/position.test.ts` — стани позиції й результати, на яких стоять WAL-03, WAL-05, BND-03, BND-04 (виплата в день купівлі — попередньому власнику); `planned` позиції (DOM-60, «tells what of the Position is still only planned»), на якому стоять WAL-05 і BND-13; дохідність позиції з купівлею без дохідності (DOM-30), на якій стоїть BND-15.
+- `src/lib/portfolio/portfolio.test.ts` — `isRedeemed` і `canBuyOn`, на яких стоять WAL-03 і BND-10.
+- `src/lib/portfolio/market.test.ts` — `newBondsRate`, `newBondsLabel` (HOLD-03.2, HOLD-05).
+- `src/lib/portfolio/portfolio.test.ts` — `plannedQuantity` виплат (DOM-59), з якого BND-06 пише «заплановано».
 - Без тестів: WAL-01, WAL-04, WAL-06…WAL-08, BND-01, BND-02, BND-05…BND-13 (екрани не тестуються), `ownedLabel`, HOLD-04 з усіма порогами на картці (поріг `gap = 1` і текст «близька»/«вища» не перевірено ніде прямо), HOLD-07 (порожні підказки при непорожній оцінці), HOLD-09.
 
 ## Прогалини й питання

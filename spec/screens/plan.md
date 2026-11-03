@@ -4,14 +4,14 @@
 
 ## Звідки дані
 
-- `src/pages/plan/ui/PlanScreen.tsx` — вкладка; `PlanListButton.tsx` — кнопка заголовка; `UpcomingPurchasesSection.tsx` — «Найближчі купівлі».
-- `src/pages/plan/model/upcomingPurchases.ts` — `upcomingPurchases(wallet)`.
-- `src/pages/plan/ui/PlanListScreen.tsx`, `PlanRow.tsx` — «Мої плани»; `PlanActionsScreen.tsx` — аркуш дій; `PlanNameScreen.tsx` — назва плану й `/welcome`.
-- `src/entities/portfolio/model/plans/` — сховище планів `investment-plan-v1`: `createInvestmentPlan`, `renameInvestmentPlan`, `duplicateInvestmentPlan`, `removeInvestmentPlan`, `restorePortfolio`; `useInvestmentPlans`, `getInvestmentPlans`.
-- `src/entities/portfolio/model/activePlan/` — дії та селектори активного плану; його ознака зберігається в планах.
-- `src/entities/portfolio/model/purchases/actions.ts` — `copyPlanPurchases`, `removePlanPurchases`.
-- `src/entities/portfolio/model/plan.ts` — `InvestmentPlan { id, name, isActive }`, `DEFAULT_PLAN_NAME = 'Мій план'`, `PLAN_NAME_MAX_LENGTH = 80`.
-- `useWallet()` (`model/useWallet.hook.ts`) — гаманець активного плану, `plan`, `bonds`, `refresh`; `resultsByCurrency` (`model/position.ts`).
+- `src/screens/plan/PlanScreen.tsx` — вкладка; `PlanListButton.tsx` — кнопка заголовка; `UpcomingPurchasesSection.tsx` — «Найближчі купівлі».
+- `src/screens/plan/upcomingPurchases.ts` — `upcomingPurchases(wallet)`.
+- `src/screens/plan/PlanListScreen.tsx`, `PlanRow.tsx` — «Мої плани»; `PlanActionsScreen.tsx` — аркуш дій; `PlanNameScreen.tsx` — назва плану й `/welcome`.
+- `src/stores/plans/` — сховище планів `investment-plan-v1`: `createInvestmentPlan`, `renameInvestmentPlan`, `duplicateInvestmentPlan`, `removeInvestmentPlan`, `restorePortfolio`; `useInvestmentPlans`, `getInvestmentPlans`.
+- `src/stores/activePlan/` — дії та селектори активного плану; його ознака зберігається в планах.
+- `src/stores/purchases/actions.ts` — `copyPlanPurchases`, `removePlanPurchases`.
+- `src/lib/portfolio/plan.ts` — `InvestmentPlan { id, name, isActive }`, `DEFAULT_PLAN_NAME = 'Мій план'`, `PLAN_NAME_MAX_LENGTH = 80`.
+- `useWallet()` (`src/hooks/useWallet.hook.ts`) — гаманець активного плану, `plan`, `bonds`, `refresh`; `resultsByCurrency` (`src/lib/portfolio/position.ts`).
 
 ## Що на екрані
 
@@ -152,7 +152,7 @@
 
 ## Покриття тестами
 
-- `src/pages/plan/model/__tests__/upcomingPurchases.test.ts`: UPC-01 (межа 30.11.2026), UPC-02 (лише заплановані до межі), UPC-04…UPC-06 (виплати плану за період, власні кошти, нуль коли виплат досить, виплата після купівлі не платить за неї, сьогоднішня виплата входить), порожній результат без запланованих.
+- `src/screens/plan/upcomingPurchases.test.ts`: UPC-01 (межа 30.11.2026), UPC-02 (лише заплановані до межі), UPC-04…UPC-06 (виплати плану за період, власні кошти, нуль коли виплат досить, виплата після купівлі не платить за неї, сьогоднішня виплата входить), порожній результат без запланованих.
 - **Без тестів:** PLAN-01 (`activeOf`, запасний перший план), PLAN-03, PLAN-19 (назва копії, копіювання купівель), PLAN-20/21 (видалення з купівлями), PLAN-22…PLAN-25 (форма назви), UPC-03 (кілька валют), екран.
 
 ## Прогалини й питання
@@ -161,4 +161,4 @@
 
 **PLAN-28.** Після видалення плану показано тост; якщо він був активним і лишився інший план, тост називає новий активний план.
 
-- `src/entities/portfolio/model/__tests__/plans.test.ts`: унікальність назв, дублювання, запасний активний план після видалення.
+- `src/stores/plans/plans.test.ts`: унікальність назв, дублювання, запасний активний план після видалення.
