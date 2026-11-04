@@ -85,10 +85,21 @@ const framing = {
           currency,
           year: z.number().int().min(2000).max(9999),
           incomeYears: z.number().int().min(1).max(5),
+          purchaseEndYear: z.number().int().min(2000).max(9998).optional(),
           purchaseYears: z.number().int().min(1).max(3),
           monthly: money.positive(),
           reinvest: z.boolean(),
         })
+        .refine(
+          (goal) => {
+            if (goal.purchaseEndYear === undefined) return true;
+            return (
+              goal.purchaseEndYear < goal.year &&
+              goal.purchaseEndYear - goal.purchaseYears + 1 >= 2000
+            );
+          },
+          { error: 'Некоректний період інвестування' },
+        )
         .optional(),
     }),
   ),

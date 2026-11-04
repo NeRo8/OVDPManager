@@ -4,6 +4,8 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 
 import { FieldRow } from '@/components/form/FieldRow';
 import { Input } from '@/components/form/Input';
+import type { PeriodRange } from '@/components/form/periodRange';
+import { PeriodRangeSelector } from '@/components/form/PeriodRangeSelector';
 import { SegmentedSection } from '@/components/form/SegmentedSection';
 import { FormScrollView } from '@/components/layout/FormScrollView';
 import { Section } from '@/components/layout/Section';
@@ -17,26 +19,31 @@ import {
   couponGoalFormSchema,
 } from '@/lib/coupon-goal/couponGoalForm.schema';
 import {
-  fitPurchaseYears,
-  goalPurchaseYears,
+  firstPurchaseYear,
+  goalPurchaseSpan,
   goalYears,
-  GOAL_INCOME_YEARS,
+  MAX_INCOME_YEARS,
+  MAX_PURCHASE_YEARS,
 } from '@/lib/coupon-goal/goalSpans';
 import { CURRENCIES } from '@/lib/portfolio/portfolio';
 import { buildWallet } from '@/lib/portfolio/wallet';
 import { showToast } from '@/stores/appSettings';
 import { createCouponGoalPlan } from '@/stores/plans';
+import { formatDate } from '@/utils/date';
 
 import { CouponGoalPreview } from './CouponGoalPreview';
 
 const currencies = CURRENCIES.map((value) => ({ label: value, value }));
-const options = (values: number[]) => values.map((value) => ({ label: String(value), value }));
 
 export default function CouponGoalScreen() {
   const wallet = useWallet();
   const { today, bonds, plan } = wallet;
   const years = goalYears(today);
   const saved = plan?.goal && years.includes(plan.goal.year) ? plan.goal : undefined;
+  const firstYear = firstPurchaseYear(today);
+  const purchaseEndYear = saved
+    ? Math.max(firstYear, Math.min(saved.purchaseEndYear ?? saved.year - 1, saved.year - 1))
+    : years[0] - 1;
   const { rate } = useKeyRate(today);
   const form = useForm<CouponGoalFormInput, unknown, CouponGoalFormValues>({
     resolver: zodResolver(couponGoalFormSchema),
@@ -46,7 +53,8 @@ export default function CouponGoalScreen() {
       currency: saved?.currency ?? 'UAH',
       year: saved?.year ?? years[0],
       incomeYears: saved?.incomeYears ?? 1,
-      purchaseYears: saved ? fitPurchaseYears(saved.year, saved.purchaseYears, today) : 1,
+      purchaseEndYear,
+      purchaseYears: saved ? Math.min(saved.purchaseYears, purchaseEndYear - firstYear + 1) : 1,
       payouts: saved?.reinvest === false ? 'withdraw' : 'reinvest',
       monthly: saved ? String(saved.monthly) : '',
     },
@@ -60,12 +68,25 @@ export default function CouponGoalScreen() {
   const baseWallet = buildWallet(baseOperations, wallet.byIsin, today);
   const preview = goal && bonds ? planCouponGoal(baseWallet, bonds, goal, rate) : null;
   const year = values.year ?? years[0];
-  const purchaseYears = goalPurchaseYears(year, today);
+  const purchaseEnd = values.purchaseEndYear ?? year - 1;
+  const purchaseYears = values.purchaseYears ?? 1;
+  const incomeYears = values.incomeYears ?? 1;
+  const purchaseSpan = goalPurchaseSpan(
+    { year, purchaseEndYear: purchaseEnd, purchaseYears },
+    today,
+  );
   const missingData =
     goal &&
     baseWallet.positions.some(
       (position) => position.currency === goal.currency && !position.results?.complete,
     );
+
+  const changePeriods = ([purchaseStart, purchaseStop, couponStart, couponStop]: PeriodRange) => {
+    form.setValue('purchaseEndYear', purchaseStop - 1);
+    form.setValue('purchaseYears', purchaseStop - purchaseStart);
+    form.setValue('year', couponStart);
+    form.setValue('incomeYears', couponStop - couponStart, { shouldValidate: true });
+  };
 
   const submit = form.handleSubmit((validGoal) => {
     if (!preview?.complete || !preview.purchases.length || missingData) return;
@@ -138,49 +159,22 @@ export default function CouponGoalScreen() {
             />
           )}
         />
-        <Controller
-          control={form.control}
-          name="year"
-          render={({ field }) => (
-            <SegmentedSection
-              title="Купони з року"
-              options={options(years)}
-              value={field.value}
-              onChange={(value) => {
-                field.onChange(value);
-                form.setValue(
-                  'purchaseYears',
-                  fitPurchaseYears(value, values.purchaseYears ?? 1, today),
-                  { shouldValidate: true },
-                );
-              }}
-            />
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="incomeYears"
-          render={({ field }) => (
-            <SegmentedSection
-              title="Скільки років отримувати купони"
-              options={options(GOAL_INCOME_YEARS)}
-              value={field.value}
-              onChange={field.onChange}
-            />
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="purchaseYears"
-          render={({ field }) => (
-            <SegmentedSection
-              title="Скільки років купувати"
-              options={options(purchaseYears)}
-              value={field.value}
-              onChange={field.onChange}
-            />
-          )}
-        />
+        <Section
+          title="Періоди"
+          footer={`Інвестування: ${formatDate(purchaseSpan.from)} – ${formatDate(purchaseSpan.to)}. Інвестування — до ${MAX_PURCHASE_YEARS} років, купони — до ${MAX_INCOME_YEARS}. Перетягніть повзунки, щоб змінити межі.`}
+        >
+          <PeriodRangeSelector
+            value={[purchaseEnd - purchaseYears + 1, purchaseEnd + 1, year, year + incomeYears]}
+            limits={{
+              min: firstYear,
+              max: years[years.length - 1] + MAX_INCOME_YEARS,
+              latestCouponStart: years[years.length - 1],
+              maxPurchaseYears: MAX_PURCHASE_YEARS,
+              maxCouponYears: MAX_INCOME_YEARS,
+            }}
+            onChange={changePeriods}
+          />
+        </Section>
         <Controller
           control={form.control}
           name="payouts"

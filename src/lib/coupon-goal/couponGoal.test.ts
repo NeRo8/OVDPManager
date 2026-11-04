@@ -265,3 +265,28 @@ it('shows all months uncovered when no eligible bonds exist', () => {
   expect(result.monthlyTopUp).toBe(0);
   expect(result.shortMonths).toEqual(Array.from({ length: 12 }, (_, index) => index));
 });
+
+it('places investments only in the selected years when there is a gap before coupons', () => {
+  const laterBond: Bond = {
+    ...bond,
+    maturityDate: '2029-03-01',
+    payments: [
+      { date: '2028-03-01', type: 'coupon', amount: 50 },
+      { date: '2028-09-01', type: 'coupon', amount: 50 },
+      { date: '2029-03-01', type: 'redemption', amount: 1000 },
+    ],
+  };
+  const result = planCouponGoal(
+    buildWallet([], new Map(), today),
+    [laterBond],
+    { ...goal, year: 2028, purchaseEndYear: 2026 },
+    null,
+  );
+  expect(result.complete).toBe(true);
+  expect(result.from).toBe('2026-01-02');
+  expect(result.to).toBe('2026-12-31');
+  expect(result.purchases.length).toBeGreaterThan(0);
+  expect(result.purchases.every(({ date }) => date >= result.from && date <= result.to)).toBe(true);
+  expect(result.months[2].added).toBe(100);
+  expect(result.months[8].added).toBe(100);
+});

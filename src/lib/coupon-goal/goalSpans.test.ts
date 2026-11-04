@@ -1,18 +1,8 @@
-import {
-  fitPurchaseYears,
-  goalMonthIndex,
-  goalPurchaseSpan,
-  goalPurchaseYears,
-  goalYears,
-  monthStarts,
-} from './goalSpans';
+import { goalMonthIndex, goalPurchaseSpan, goalYears, monthStarts } from './goalSpans';
 
 it('offers coupon years only when there is time to buy beforehand', () => {
   expect(goalYears('2026-10-31')).toEqual([2027, 2028, 2029, 2030, 2031]);
   expect(goalYears('2026-12-31')).toEqual([2028, 2029, 2030, 2031]);
-  expect(goalPurchaseYears(2028, '2026-10-31')).toEqual([1, 2]);
-  expect(goalPurchaseYears(2028, '2026-12-31')).toEqual([1]);
-  expect(fitPurchaseYears(2028, 3, '2026-12-31')).toBe(1);
 });
 
 it('starts buying tomorrow when the first purchase year is already underway', () => {
@@ -23,6 +13,12 @@ it('starts buying tomorrow when the first purchase year is already underway', ()
   expect(goalPurchaseSpan({ year: 2028, purchaseYears: 1 }, '2026-10-31')).toEqual({
     from: '2027-01-01',
     to: '2027-12-31',
+  });
+  expect(
+    goalPurchaseSpan({ year: 2031, purchaseEndYear: 2028, purchaseYears: 2 }, '2026-10-31'),
+  ).toEqual({
+    from: '2027-01-01',
+    to: '2028-12-31',
   });
   expect(monthStarts({ from: '2026-11-16', to: '2027-02-28' })).toEqual([
     '2026-11-16',

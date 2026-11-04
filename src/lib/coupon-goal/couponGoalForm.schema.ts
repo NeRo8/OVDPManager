@@ -17,6 +17,7 @@ export const couponGoalFormSchema = z
     currency: z.enum(CURRENCIES),
     year: z.number().int().min(2000).max(9999),
     incomeYears: z.number().int().min(1).max(5),
+    purchaseEndYear: z.number().int().min(2000).max(9998),
     purchaseYears: z.number().int().min(1).max(3),
     payouts: z.enum(PAYOUT_CHOICES),
     monthly: z
@@ -31,6 +32,13 @@ export const couponGoalFormSchema = z
           .max(Number.MAX_SAFE_INTEGER, { error: 'Завелика сума' }),
       ),
   })
+  .refine(
+    (goal) =>
+      goal.purchaseEndYear < goal.year && goal.purchaseEndYear - goal.purchaseYears + 1 >= 2000,
+    {
+      error: 'Період інвестування має завершуватися до періоду купонів',
+    },
+  )
   .transform(({ payouts, ...goal }) => ({ ...goal, reinvest: payouts === 'reinvest' }));
 
 /** What the inputs hold. */

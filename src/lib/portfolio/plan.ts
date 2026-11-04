@@ -6,6 +6,8 @@ export type CouponGoal = {
   currency: Currency;
   year: number;
   incomeYears: number;
+  /** Last purchase year; absent in goals made before custom purchase periods. */
+  purchaseEndYear?: number;
   purchaseYears: number;
   monthly: number;
   reinvest: boolean;

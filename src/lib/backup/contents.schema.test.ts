@@ -50,6 +50,7 @@ it('rejects malformed coupon goals and sales marked as generated purchases', () 
     { year: 2028.5 },
     { incomeYears: 6 },
     { purchaseYears: 4 },
+    { purchaseEndYear: 2028 },
     { reinvest: 'yes' },
   ]) {
     expect(

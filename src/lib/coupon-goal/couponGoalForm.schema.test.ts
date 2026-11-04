@@ -5,6 +5,7 @@ const input = {
   currency: 'UAH',
   year: 2028,
   incomeYears: 1,
+  purchaseEndYear: 2027,
   purchaseYears: 1,
   payouts: 'reinvest',
   monthly: '5 000,50',
@@ -16,6 +17,7 @@ it('turns the entered amount and reinvestment choice into a goal', () => {
     currency: 'UAH',
     year: 2028,
     incomeYears: 1,
+    purchaseEndYear: 2027,
     purchaseYears: 1,
     monthly: 5000.5,
     reinvest: true,
@@ -35,6 +37,7 @@ it.each([
   { incomeYears: 6 },
   { purchaseYears: 0 },
   { purchaseYears: 4 },
+  { purchaseEndYear: 2028 },
   { year: 2028.5 },
   { year: 1999 },
 ])('rejects invalid input: %p', (invalid) => {
