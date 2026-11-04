@@ -5,7 +5,7 @@
 ## Звідки дані
 
 - Формат і шифрування: `src/lib/backup/backup.ts` (`serializeBackup`, `parseBackup`, `backupFileName`), `src/lib/backup/backupCipher.ts` (`encryptBackup`, `decryptBackup`, `WrongBackupKeyError`), `src/lib/backup/backupKey.schema.ts`.
-- Перевірка вмісту: `src/lib/backup/contents.schema.ts` (`contentsSchema`, `legacyContentsSchema`, `validateContents`), `src/lib/portfolio/operations.ts` (`operationHistoryError`), `src/lib/portfolio/migrateOperations.ts` (`migratePurchases`).
+- Перевірка вмісту: `src/lib/backup/contents.schema.ts` (`contentsSchema`, `legacyContentsSchema`, `validateContents`), `src/lib/portfolio/operations.ts` (`operationHistoryError`), `src/lib/portfolio/migrateOperations.ts` (`migratePurchases`, `withPlannedFlags`).
 - Створення й відновлення: `src/hooks/useBackupExport.hook.ts`, `src/hooks/useBackupImport.hook.ts`, `src/lib/backup/restoreBackup.ts`, `src/lib/backup/errorMessage.ts`.
 - Файли: `src/api/backup/backupFile.ts` (`exportBackupFile`, `pickBackupFile`).
 - Хмара: `src/api/backup/googleAccount.ts`, `src/api/backup/cloudBackup.ts`, `src/hooks/useCloudBackup.hook.ts`, `src/hooks/useCloudAccount.hook.ts`, `src/hooks/useGoogleAccount.hook.ts`, `firestore.rules`, `src/app/+native-intent.ts`.
@@ -20,7 +20,7 @@
 
 **BKP-01.** Нові копії мають `version: 7`. JSON-обгортка містить `format`, `version`, `exportedAt`, `encryption`, `data`. Шифрування збережено.
 
-**BKP-02.** Зашифровано `{ operations: PlanOperation[], plans: { id, name }[], activePlanId?, theme? }`. Кожна операція містить повний `ovdp` із графіком. Каталог НБУ, фільтри й онбординг не входять у копію.
+**BKP-02.** Зашифровано `{ operations: PlanOperation[], plans: { id, name }[], activePlanId?, theme? }`. Кожна операція містить повний `ovdp` із графіком і ознаку `planned` (DOM-72). Каталог НБУ, фільтри й онбординг не входять у копію.
 
 **BKP-03.** Ключ шифрування виводиться з ключа користувача Argon2id: випадкова сіль 16 байтів, `memory` = 19 456 KiB (19 MiB), `passes` = 2, `parallelism` = 1, довжина 32 байти. Параметри й сіль записуються в `encryption`; під час відновлення беруться з файлу й перевіряються до обчислення: пам’ять 8–65536 KiB, проходи 1–4, потоки 1–4, пам’ять не менша за 8 KiB на потік. `src/lib/backup/backupCipher.ts`, `KDF`, `deriveKey`.
 
@@ -53,14 +53,14 @@
 **BKP-09.** Схема розшифрованого вмісту (`contentsSchema`) вимагає:
 
 - `plans` — масив `{ id, name }` з непорожніми (після обрізання пробілів) ідентифікатором і назвою; `activePlanId` — непорожній рядок, якщо є; `theme` — `system`, `light` або `dark`, якщо є;
-- `operations` — масив операцій: непорожні `id`, `planId`, `isin`; `type` — `purchase` або `sale`; `date` — дата ISO; `amount` — додатна сума; `quantity` — додатне ціле; `currency` — підтримувана валюта; `ovdp` — знімок ОВДП або `null`;
+- `operations` — масив операцій: непорожні `id`, `planId`, `isin`; `type` — `purchase` або `sale`; `date` — дата ISO; `amount` — додатна сума; `quantity` — додатне ціле; `currency` — підтримувана валюта; `ovdp` — знімок ОВДП або `null`; `planned` — `true`/`false`, необов’язкове: копії, записані до підтвердження операцій, його не мають. `validateContents` заповнює його `withPlannedFlags` (DOM-71): `planned = op.planned === true || date > сьогодні`, тож такий файл відновлюється, як і раніше (минулі операції зроблені, майбутні заплановані), позначка `true` зберігається, а операція з датою наперед не може бути зробленою, хоч би що стояло у файлі; майбутній продаж з копії — просто запланований;
 - знімок `ovdp`: непорожній ISIN, додатний номінал, невід’ємна ставка, підтримувана валюта, дати випуску й погашення ISO (випуск раніше за погашення), опис і масив виплат (`coupon` або `redemption`, дата ISO між випуском і погашенням, невід’ємна сума; дата й тип не повторюються);
 - знімок відповідає операції: той самий ISIN і валюта, дата операції не раніше за випуск і раніше за погашення;
 - продаж завжди має знімок (`null` дозволено лише купівлі).
 
 Оболонка перевіряється перед розшифруванням; `null` та чужий формат відхиляються. `contents.schema.ts`, `parseBackup`.
 
-**BKP-29.** Читання підтримує v6 (`holdings` із `purchaseDate`) та v7 (`operations` із `date`, `type`, `ovdp`). Купівлі v6 після тієї самої перевірки планів, теми й полів стають операціями `type: 'purchase'` з `date` = `purchaseDate` і `ovdp: null` (`migratePurchases` без каталогу), далі проходять ті самі перевірки BKP-08 п. 7–11. Лише після успіху замінюються сховища. Відсутні знімки заповнюються під час відновлення з кешу каталогу НБУ, якщо він їх містить; знімків із копії кеш не перезаписує (`restorePortfolio` → `recoverOperationBonds`, BKP-20). `contents.schema.ts`, `legacyContentsSchema`; `src/stores/plans/actions.ts`, `restorePortfolio`.
+**BKP-29.** Читання підтримує v6 (`holdings` із `purchaseDate`) та v7 (`operations` із `date`, `type`, `ovdp`). Купівлі v6 після тієї самої перевірки планів, теми й полів стають операціями `type: 'purchase'` з `date` = `purchaseDate`, `ovdp: null` і `planned` за датою на сьогодні (`migratePurchases` без каталогу, з `todayISO()`), далі проходять ті самі перевірки BKP-08 п. 7–11. Лише після успіху замінюються сховища. Відсутні знімки заповнюються під час відновлення з кешу каталогу НБУ, якщо він їх містить; знімків із копії кеш не перезаписує (`restorePortfolio` → `recoverOperationBonds`, BKP-20). `contents.schema.ts`, `legacyContentsSchema`; `src/stores/plans/actions.ts`, `restorePortfolio`.
 
 ### Створення копії
 
@@ -187,8 +187,8 @@
   - інший ключ і змінені дані дають `WrongBackupKeyError` (BKP-05); завеликі чи некоректні параметри Argon2id (`memory`, `passes`, `parallelism`) — «Непідтримувані параметри шифрування копії» до обчислення ключа (BKP-03);
   - тексти помилок BKP-08: не JSON, чужий формат, інша версія (5), копія без плану, операція без свого плану («Операція №2: її плану немає в копії»), активного плану немає в копії; нульові кількість чи сума, погана дата, порожній ISIN, невідома валюта — «Копія містить некоректні дані планів або операцій»; повторний ідентифікатор операції — «Копія містить повторні ідентифікатори» (BKP-09);
   - зашифрована копія v6 з `holdings` і AAD `ovdp-manager-backup:6` відкривається з тими самими датами купівель (BKP-04, BKP-29);
-  - купівля й продаж з повним знімком ОВДП проходять копію без змін (BKP-02).
-- `src/lib/backup/contents.schema.test.ts` — BKP-09, BKP-29: знімок з іншим ISIN чи валютою, з поганою датою виплати або з повтореною виплатою відхиляється; продаж, більший за наявну кількість, відхиляє `validateContents` (BKP-08, п. 11); вміст v6 з `purchaseDate` читається без каталогу як купівля з `ovdp: null`.
+  - купівля й продаж з повним знімком ОВДП проходять копію без змін, а майбутня операція повертається запланованою (BKP-02, BKP-09).
+- `src/lib/backup/contents.schema.test.ts` — BKP-09, BKP-29: знімок з іншим ISIN чи валютою, з поганою датою виплати або з повтореною виплатою відхиляється; продаж, більший за наявну кількість, відхиляє `validateContents` (BKP-08, п. 11); вміст v6 з `purchaseDate` читається без каталогу як купівля з `ovdp: null`; операції без `planned` отримують його за датою, позначка `true` зберігається, а датована наперед завжди запланована (BKP-09).
 - `src/lib/backup/restoreBackup.test.ts` — BKP-20, BKP-21 (`onRestored`): у порожній застосунок копія відновлюється одразу, з повідомленням «Відновлено 1 план і 2 операції з файлу.» і закриттям екрана; коли дані є — спершу питання «Замінити дані з копії?» з лічильниками «Зараз 1 план і 1 операція. Їх буде замінено на 1 план і 2 операції з хмари.», і нічого не змінюється, доки його не підтверджено; назва джерела в повідомленні («… з копії.» для вставленого тексту); активним стає план, позначений у копії.
 - `src/lib/backup/backupKey.schema.test.ts` — BKP-06 (8…256 символів і тексти помилок).
 - `src/lib/backup/errorMessage.test.ts` — BKP-30: тексти для `auth/user-mismatch`, `auth/network-request-failed`, `firestore/unavailable`, загальний текст для інших кодів Firebase, власний текст інших помилок.
