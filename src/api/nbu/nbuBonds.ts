@@ -20,6 +20,7 @@ type NbuPayment = {
 
 /** Fields used to build a Bond from `/depo_securities?json`; other response fields are not read. */
 type NbuSecurity = {
+  cptype: string;
   /** ISIN: UA4000… for domestic bonds, XS… for OZDP */
   cpcode: string;
   /** Face value of one bond: 1000 for domestic bonds, 1 for OZDP */
@@ -58,6 +59,7 @@ function mapNbuSecurityToBond(security: NbuSecurity, currency: Currency): Bond {
 
   return {
     isin: security.cpcode.trim().toUpperCase(),
+    kind: security.cptype === 'DCP' ? 'ovdp' : 'ozdp',
     nominal: security.nominal,
     rate: security.auk_proc,
     currency,
@@ -72,7 +74,8 @@ function mapNbuSecurityToBond(security: NbuSecurity, currency: Currency): Bond {
 export async function fetchBonds(signal?: AbortSignal): Promise<Bond[]> {
   const { data } = await nbuClient.get<NbuSecurity[]>('/depo_securities?json', { signal });
   return data.flatMap((security) =>
-    isSupportedCurrency(security.val_code)
+    isSupportedCurrency(security.val_code) &&
+    (security.cptype === 'DCP' || security.cptype === 'OZDP')
       ? [mapNbuSecurityToBond(security, security.val_code)]
       : [],
   );

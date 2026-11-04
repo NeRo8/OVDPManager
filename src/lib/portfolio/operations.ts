@@ -75,6 +75,7 @@ export function mergeBond(saved: Bond | null, fetched: Bond, today: string): Bon
   }
   return {
     ...fetched,
+    kind: fetched.kind ?? saved.kind,
     isin: saved.isin,
     currency: saved.currency,
     payments: [...payments.values()].sort(

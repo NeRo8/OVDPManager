@@ -17,7 +17,7 @@ const SORT_OPTIONS = (['maturity', 'rate'] as const).map((value) => ({
 
 /** Narrows and orders the bond picker; every change applies at once and is remembered. */
 export default function BondFiltersScreen() {
-  const { currencies, currency, terms, term, sort, filteredCount, activeFilterCount } =
+  const { currencies, currency, kind, terms, term, sort, filteredCount, activeFilterCount } =
     useBondPicker();
 
   const changeSort = (value: BondSort) => updateBondPickerFilters({ sort: value });
@@ -31,7 +31,7 @@ export default function BondFiltersScreen() {
             <CheckRow
               key={option.value}
               title={currencyTitle(option.value)}
-              subtitle={`ОВДП в обігу: ${option.count}`}
+              subtitle={`Облігацій в обігу: ${option.count}`}
               checked={option.value === currency}
               onPress={() => updateBondPickerFilters({ currency: option.value })}
             />
@@ -39,12 +39,30 @@ export default function BondFiltersScreen() {
         </Section>
       )}
 
+      <Section title="Вид облігації">
+        {(
+          [
+            ['all', 'Усі облігації'],
+            ['ovdp', 'ОВДП'],
+            ['ozdp', 'ОЗДП'],
+            ['unknown', 'Вид невідомий'],
+          ] as const
+        ).map(([value, title]) => (
+          <CheckRow
+            key={value}
+            title={title}
+            checked={kind === value}
+            onPress={() => updateBondPickerFilters({ kind: value })}
+          />
+        ))}
+      </Section>
+
       <Section title="Строк до погашення" footer="Скільки лишилося від сьогодні до погашення.">
         {terms.map((option) => (
           <CheckRow
             key={option.value}
             title={TERM_LABELS[option.value]}
-            subtitle={`ОВДП: ${option.count}`}
+            subtitle={`Облігацій: ${option.count}`}
             checked={option.value === term}
             onPress={() => updateBondPickerFilters({ term: option.value })}
           />
@@ -60,7 +78,7 @@ export default function BondFiltersScreen() {
       />
 
       <Typography variant="subhead" tone="secondary" align="center">
-        Показано ОВДП: {filteredCount}
+        Показано облігацій: {filteredCount}
       </Typography>
     </ScreenScrollView>
   );

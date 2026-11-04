@@ -7,6 +7,7 @@ import { ListRow } from '@/components/layout/ListRow';
 import { Money } from '@/components/typography/Money';
 import { Typography } from '@/components/typography/Typography';
 import type { PositionState, WalletPosition } from '@/lib/portfolio/position';
+import { bondKindLabel } from '@/lib/portfolio/portfolio';
 import { currencyColor } from '@/theme/currency';
 import { formatDate } from '@/utils/date';
 import { currencySign, formatPercent } from '@/utils/format';
@@ -30,10 +31,10 @@ export function PositionRow({ item, onPress }: Props) {
   const { position, bond, currency, state, planned } = item;
 
   const subtitle = bond ? (
-    `${formatPercent(bond.rate)} · ${stateLabel(state, bond.maturityDate)}`
+    `${bondKindLabel(bond.kind)} · ${currency} · ${formatPercent(bond.rate)} · ${stateLabel(state, bond.maturityDate)}`
   ) : (
     <Typography variant="caption1" tone="warning">
-      Немає збережених даних ОВДП
+      Немає збережених даних облігації
     </Typography>
   );
   const ownedTone = planned.quantity > 0 ? 'accent' : 'secondary';

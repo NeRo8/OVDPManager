@@ -10,8 +10,8 @@ export type OnboardingSlideContent = {
 export const ONBOARDING_SLIDES: OnboardingSlideContent[] = [
   {
     icon: 'wallet-outline',
-    title: 'Гаманець ОВДП',
-    text: 'Додавайте купівлі ОВДП з каталогу НБУ. Купони й дати погашення застосунок знає сам.',
+    title: 'Гаманець облігацій',
+    text: 'Додавайте купівлі ОВДП та ОЗДП з каталогу НБУ. Купони й дати погашення застосунок знає сам.',
   },
   {
     icon: 'calendar-outline',

@@ -71,7 +71,7 @@ export function PurchaseRow({ purchase, bond, today, onEdit, onDelete }: Props) 
       )}
       {!bond && (
         <Typography variant="caption1" tone="secondary">
-          Редагування недоступне без збережених умов ОВДП
+          Редагування недоступне без збережених умов облігації
         </Typography>
       )}
       <Typography variant="caption1" tone="secondary">

@@ -1,5 +1,11 @@
 import { maturityTerm } from '@/lib/portfolio/market';
-import { type Bond, CURRENCIES, type Currency, bondChoices } from '@/lib/portfolio/portfolio';
+import {
+  type Bond,
+  type BondKind,
+  CURRENCIES,
+  type Currency,
+  bondChoices,
+} from '@/lib/portfolio/portfolio';
 import type { BondPickerFilters, BondTerm } from '@/stores/bonds';
 
 type FilterOption<T> = { value: T; count: number };
@@ -12,6 +18,7 @@ export type BondPicker = {
   currencies: FilterOption<Currency>[];
   /** The chosen currency, else the first with bonds in circulation, else UAH */
   currency: Currency;
+  kind: BondKind | 'unknown' | 'all';
   /** Every term with its count in the currency shown */
   terms: FilterOption<BondTerm>[];
   /** The rows: the search's results, or the filtered and sorted bonds */
@@ -41,9 +48,11 @@ export function bondPicker(
   })).filter((option) => option.count > 0 || option.value === filters.currency);
   const defaultCurrency = currencies.find((option) => option.count > 0)?.value ?? 'UAH';
   const currency = filters.currency ?? defaultCurrency;
+  const kind = filters.kind ?? 'all';
   const ofCurrency = inCirculation.filter((bond) => bond.currency === currency);
+  const ofKind = ofCurrency.filter((bond) => kind === 'all' || (bond.kind ?? 'unknown') === kind);
   const ofTerm = (term: BondTerm) =>
-    term === 'all' ? ofCurrency : ofCurrency.filter((bond) => maturityTerm(bond, today) === term);
+    term === 'all' ? ofKind : ofKind.filter((bond) => maturityTerm(bond, today) === term);
   const filtered = ofTerm(filters.term);
   const sorted =
     filters.sort === 'rate'
@@ -56,11 +65,13 @@ export function bondPicker(
     isSearching,
     currencies,
     currency,
+    kind,
     terms: TERMS.map((value) => ({ value, count: ofTerm(value).length })),
     choices: isSearching ? bondChoices(bonds, query, today) : sorted,
     filteredCount: sorted.length,
     activeFilterCount: [
       currency !== defaultCurrency,
+      kind !== 'all',
       filters.term !== 'all',
       filters.sort !== 'maturity',
     ].filter(Boolean).length,

@@ -36,18 +36,18 @@ function assessmentMessage(
   matured: boolean,
 ) {
   if (!hasBond) return 'Оцінка недоступна без даних НБУ.';
-  if (sold) return 'Усі ОВДП цього випуску продано, тож тримати чи продавати вже нічого.';
+  if (sold) return 'Усі облігації цього випуску продано, тож тримати чи продавати вже нічого.';
   if (onlyPlannedPurchases) return 'Оцінка з’явиться для зроблених купівель.';
-  if (matured) return 'Оцінка недоступна від дня погашення ОВДП.';
+  if (matured) return 'Оцінка недоступна від дня погашення облігації.';
   return 'Оцінка недоступна без опублікованого погашення.';
 }
 
 function emptyPaymentsMessage(hasBond: boolean, paymentCount: number) {
   if (!hasBond)
-    return 'Цієї ОВДП немає в даних НБУ, тож графіка виплат немає. Він з’явиться, щойно дані оновляться.';
+    return 'Цієї облігації немає в даних НБУ, тож графіка виплат немає. Він з’явиться, щойно дані оновляться.';
   if (paymentCount > 0)
     return 'Усі виплати за графіком НБУ припадають на дати до купівлі, тож цій купівлі вони не належать.';
-  return 'НБУ ще не опублікував графік виплат цієї ОВДП.';
+  return 'НБУ ще не опублікував графік виплат цієї облігації.';
 }
 
 /**
@@ -71,7 +71,7 @@ export default function BondScreen() {
   const { assessment } = useHoldOrSell(isin, null);
 
   if (!item || !position)
-    return <EmptyState icon="search-outline" message="У гаманці немає цієї ОВДП" />;
+    return <EmptyState icon="search-outline" message="У гаманці немає цієї облігації" />;
 
   const tabs: { label: string; value: BondTab }[] = [
     { label: `Виплати (${payments.length})`, value: 'payments' },
@@ -127,7 +127,7 @@ export default function BondScreen() {
                 <BondTerms bond={bond} />
               ) : (
                 <Typography variant="footnote" tone="warning">
-                  Для цієї старої купівлі не збережено умови ОВДП та графік виплат.
+                  Для цієї старої купівлі не збережено умови облігації та графік виплат.
                 </Typography>
               )}
             </Card>
@@ -135,7 +135,7 @@ export default function BondScreen() {
             {assessment && assessment.hints.length > 0 ? (
               <HintsSection
                 title="Тримати чи продати"
-                footer="Порівняння з новими ОВДП тієї ж валюти й строку, розміщеними за останні 12 місяців; без них — з обліковою ставкою НБУ сьогодні. Ціни, за яких продаж вигідний, — на екрані продажу, кнопкою вгорі."
+                footer="Порівняння з новими облігаціями того ж виду, валюти й строку, розміщеними за останні 12 місяців; без них — з обліковою ставкою НБУ сьогодні. Ціни, за яких продаж вигідний, — на екрані продажу, кнопкою вгорі."
                 hints={assessment.hints}
                 verdict={assessment.verdict}
               />
@@ -169,7 +169,7 @@ export default function BondScreen() {
           <View style={styles.listFooter}>
             {tab === 'payments' && hasTopUps && payments.length > 0 && (
               <Typography variant="caption1" tone="secondary" style={styles.sectionFooter}>
-                Кожна виплата враховує лише ОВДП, куплені до її дати.
+                Кожна виплата враховує лише облігації, куплені до її дати.
               </Typography>
             )}
             <Button title="Видалити з гаманця" variant="destructive" onPress={deletePosition} />

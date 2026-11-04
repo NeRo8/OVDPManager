@@ -4,6 +4,8 @@ An Expo app for iOS that tracks Ukrainian government bonds (ОВДП): the bonds
 
 The UI is in Ukrainian. [`GLOSSARY.md`](GLOSSARY.md) explains every term it uses, and [`spec/`](spec/) describes each screen and calculation as numbered rules.
 
+The catalog distinguishes domestic (ОВДП) and external (ОЗДП) government bonds using the NBU security type. Bond kind and currency are separate filters; saved snapshots made before the type was recorded show an unknown kind until refreshed from NBU. Market comparisons use bonds of the same kind and currency.
+
 ## What the app does
 
 The app has four tabs:

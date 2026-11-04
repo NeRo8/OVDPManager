@@ -5,7 +5,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import { Money } from '@/components/typography/Money';
 import { Percent } from '@/components/typography/Percent';
 import { Typography } from '@/components/typography/Typography';
-import type { Bond } from '@/lib/portfolio/portfolio';
+import { type Bond, bondKindLabel } from '@/lib/portfolio/portfolio';
 import { formatDate } from '@/utils/date';
 
 type Props = {
@@ -16,6 +16,8 @@ type Props = {
 export function BondTerms({ bond }: Props) {
   const coupon = bond.payments.find((payment) => payment.type === 'coupon');
   const terms = [
+    { label: 'Вид облігації', value: bondKindLabel(bond.kind) },
+    { label: 'Валюта', value: bond.currency },
     { label: 'Ставка купону', value: <Percent value={bond.rate} /> },
     {
       label: 'Перший купон на 1 шт',

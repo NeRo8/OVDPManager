@@ -42,15 +42,17 @@ function median(values: number[]): number {
 }
 
 /**
- * The coupon rate of the other bonds of `bond`'s currency and term placed in the
+ * The coupon rate of the other bonds of `bond`'s kind, currency and term placed in the
  * `NEW_BOND_MONTHS` before `date` and still for sale on it; null when there are too few.
  */
 export function newBondsRate(bond: Bond, date: string, bonds: Bond[]): NewBondsRate | null {
+  if (!bond.kind) return null;
   const term = maturityTerm(bond, date);
   const since = addMonthsISO(date, -NEW_BOND_MONTHS);
   const newBonds = bonds.filter(
     (other) =>
       other.isin !== bond.isin &&
+      other.kind === bond.kind &&
       other.currency === bond.currency &&
       other.issueDate > since &&
       other.issueDate <= date &&
@@ -67,7 +69,7 @@ const TERM_PHRASES = {
   long: 'понад 3 роки',
 } as const satisfies Record<MaturityTerm, string>;
 
-/** The new bonds in words, after «ставка купону»: «12 ОВДП у UAH зі строком 1–3 роки, …». */
+/** The new bonds in words, after «ставка купону». */
 export function newBondsLabel({ count, term }: NewBondsRate, currency: Bond['currency']): string {
-  return `${count} ОВДП у ${currency} зі строком ${TERM_PHRASES[term]}, розміщених за останні ${NEW_BOND_MONTHS} місяців`;
+  return `облігацій у ${currency} зі строком ${TERM_PHRASES[term]}, розміщених за останні ${NEW_BOND_MONTHS} місяців (кількість: ${count})`;
 }

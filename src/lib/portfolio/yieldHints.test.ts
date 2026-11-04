@@ -40,7 +40,7 @@ describe('newBondsHint', () => {
   it('warns more than a point below their median coupon, in any currency, never an error', () => {
     expect(newBondsHint(14, newBonds, 'UAH')).toEqual({
       tone: 'warning',
-      text: 'Річна дохідність 14% на 2 п.п. нижча за медіанну ставку купону (16%) 3 ОВДП у UAH зі строком 1–3 роки, розміщених за останні 12 місяців: нова ОВДП може дати більше.',
+      text: 'Річна дохідність 14% на 2 п.п. нижча за медіанну ставку купону (16%) облігацій у UAH зі строком 1–3 роки, розміщених за останні 12 місяців (кількість: 3): нова облігація може дати більше.',
     });
     expect(tone(newBondsHint(5, { ...newBonds, rate: 9 }, 'USD'))).toBe('warning');
   });

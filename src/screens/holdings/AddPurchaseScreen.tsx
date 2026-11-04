@@ -38,7 +38,7 @@ export default function AddPurchaseScreen() {
         <EmptyState
           icon="receipt-outline"
           title="Купівлі немає"
-          message="Цю купівлю вже видалено з плану або план змінився. Відкрийте ОВДП у гаманці, щоб побачити її купівлі."
+          message="Цю купівлю вже видалено з плану або план змінився. Відкрийте облігацію у гаманці, щоб побачити її купівлі."
         />
       </>
     );
@@ -60,7 +60,7 @@ export default function AddPurchaseScreen() {
           <EmptyState
             icon="search-outline"
             title={isin}
-            message="Немає збережених умов цієї ОВДП або даних у каталозі НБУ."
+            message="Немає збережених умов цієї облігації або даних у каталозі НБУ."
           />
         </BondsGate>
       )}

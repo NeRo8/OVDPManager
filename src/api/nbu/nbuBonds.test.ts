@@ -2,6 +2,7 @@ import { nbuClient } from './client';
 import { fetchBonds } from './nbuBonds';
 
 const security = (fields: Record<string, unknown>) => ({
+  cptype: 'DCP',
   cpcode: 'UA4000000001',
   nominal: 1000,
   auk_proc: 16.5,
@@ -35,6 +36,7 @@ describe('fetchBonds', () => {
     await expect(fetchBonds()).resolves.toEqual([
       {
         isin: 'UA4000000001',
+        kind: 'ovdp',
         nominal: 1000,
         rate: 16.5,
         currency: 'UAH',
@@ -48,6 +50,18 @@ describe('fetchBonds', () => {
           { date: '2027-06-01', type: 'redemption', amount: 1000 },
         ],
       },
+    ]);
+  });
+
+  it('distinguishes domestic and external government bonds and excludes other securities', async () => {
+    answer([
+      security({ cpcode: 'UA1', cptype: 'DCP' }),
+      security({ cpcode: 'XS1', cptype: 'OZDP' }),
+      security({ cpcode: 'UA2', cptype: 'OMP' }),
+    ]);
+    expect((await fetchBonds()).map(({ isin, kind }) => [isin, kind])).toEqual([
+      ['UA1', 'ovdp'],
+      ['XS1', 'ozdp'],
     ]);
   });
 

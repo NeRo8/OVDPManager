@@ -24,6 +24,12 @@ const operation = {
 };
 const contents = { plans: [{ id: 'p', name: 'План' }], operations: [operation] };
 
+it('retains a bond kind in backups and accepts older snapshots without it', () => {
+  const withKind = { ...contents, operations: [{ ...operation, ovdp: { ...bond, kind: 'ozdp' } }] };
+  expect(contentsSchema.parse(withKind).operations[0].ovdp?.kind).toBe('ozdp');
+  expect(contentsSchema.parse(contents).operations[0].ovdp?.kind).toBeUndefined();
+});
+
 it('validates nested schedules and the operation identity before restoring', () => {
   expect(contentsSchema.safeParse(contents).success).toBe(true);
   for (const ovdp of [

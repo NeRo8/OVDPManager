@@ -9,6 +9,7 @@ function bondOf(fields: Partial<Bond> = {}): Bond {
   nextIsin += 1;
   return {
     isin: `UA40000001${String(nextIsin).padStart(2, '0')}`,
+    kind: 'ovdp',
     nominal: 1000,
     rate: 16,
     currency: 'UAH',
@@ -39,6 +40,7 @@ describe('newBondsRate', () => {
       bondOf({ rate: 17, issueDate: '2026-09-01' }),
       bondOf({ rate: 6, issueDate: '2025-10-29' }),
       bondOf({ rate: 4, currency: 'USD' }),
+      bondOf({ rate: 30, kind: 'ozdp' }),
       bondOf({ rate: 9, maturityDate: '2036-10-29' }),
       bondOf({ rate: 9, issueDate: '2026-11-01' }),
     ];
@@ -49,10 +51,15 @@ describe('newBondsRate', () => {
     expect(newBondsRate(bond, date, [bond, bondOf({ issueDate: '2026-05-01' })])).toBeNull();
   });
 
+  it('does not compare an unclassified bond with either market', () => {
+    const unknown = bondOf({ kind: undefined });
+    expect(newBondsRate(unknown, date, [unknown, bondOf(), bondOf()])).toBeNull();
+  });
+
   it('names them in words', () => {
     const rate: NewBondsRate = { rate: 16, count: 12, term: 'medium' };
     expect(newBondsLabel(rate, 'UAH')).toBe(
-      '12 ОВДП у UAH зі строком 1–3 роки, розміщених за останні 12 місяців',
+      'облігацій у UAH зі строком 1–3 роки, розміщених за останні 12 місяців (кількість: 12)',
     );
   });
 });

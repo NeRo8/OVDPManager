@@ -81,6 +81,25 @@ describe('effectiveFilters', () => {
 });
 
 describe('filterSchedule', () => {
+  it('filters the selected currency by bond kind and keeps unknown kinds separate', () => {
+    const external = { ...hryvnia, isin: 'XS1', kind: 'ozdp' as const };
+    const domestic = { ...hryvnia, kind: 'ovdp' as const };
+    const mixed = buildWallet(
+      [
+        purchase(domestic, '2025-01-10'),
+        purchase(external, '2025-01-10'),
+        purchase(dollar, '2025-01-10'),
+      ],
+      new Map([domestic, external, dollar].map((bond) => [bond.isin, bond])),
+      today,
+    );
+    const filtered = filterSchedule(mixed, { ...fresh, currency: 'UAH', kind: 'ozdp' });
+    expect(filtered.events.length).toBeGreaterThan(0);
+    expect(filtered.events.every((event) => event.isin === external.isin)).toBe(true);
+    expect(filterSchedule(mixed, { ...fresh, currency: 'UAH', kind: 'unknown' }).events).toEqual(
+      [],
+    );
+  });
   it('keeps the currency picked, payments before operations on the same day', () => {
     const { events, totalCount } = filterSchedule(wallet, { ...fresh, currency: 'UAH' });
     expect(events.map(({ date, type }) => `${date} ${type}`)).toEqual([

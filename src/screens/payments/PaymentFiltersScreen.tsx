@@ -6,7 +6,7 @@ import { ResetFiltersHeader } from '@/components/navigation/ResetFiltersHeader';
 import { Typography } from '@/components/typography/Typography';
 import { filterSchedule } from '@/lib/payment-filters/filterSchedule';
 import { SCHEDULE_EVENT_TYPES } from '@/lib/payment-filters/scheduleEventTypes';
-import { currencyTitle, type Currency } from '@/lib/portfolio/portfolio';
+import { bondKindLabel, currencyTitle, type Currency } from '@/lib/portfolio/portfolio';
 import { isinsIn } from '@/lib/portfolio/wallet';
 import {
   resetPaymentFilters,
@@ -61,6 +61,24 @@ export default function PaymentFiltersScreen() {
         </Section>
       )}
 
+      <Section title="Вид облігації">
+        {(
+          [
+            ['all', 'Усі облігації'],
+            ['ovdp', 'ОВДП'],
+            ['ozdp', 'ОЗДП'],
+            ['unknown', 'Вид невідомий'],
+          ] as const
+        ).map(([kind, title]) => (
+          <CheckRow
+            key={kind}
+            title={title}
+            checked={(filters.kind ?? 'all') === kind}
+            onPress={() => updatePaymentFilters({ kind })}
+          />
+        ))}
+      </Section>
+
       <Section title="Події" footer="Графік і підсумки року рахують лише позначені події.">
         <CheckRow
           title="Усі події"
@@ -87,8 +105,12 @@ export default function PaymentFiltersScreen() {
         onChange={changeTime}
       />
 
-      <Section title="ОВДП" footer="Позначте ОВДП, виплати й операції яких показувати.">
-        <CheckRow title="Усі ОВДП" checked={filters.isins.length === 0} onPress={showAllBonds} />
+      <Section title="Облігації" footer="Позначте облігації, виплати й операції яких показувати.">
+        <CheckRow
+          title="Усі облігації"
+          checked={filters.isins.length === 0}
+          onPress={showAllBonds}
+        />
         {isinsIn(options, filters.currency).map((isin) => {
           const bond = wallet.byIsin.get(isin);
           return (
@@ -97,8 +119,8 @@ export default function PaymentFiltersScreen() {
               title={isin}
               subtitle={
                 bond
-                  ? `${formatPercent(bond.rate)} · до ${formatDate(bond.maturityDate)}`
-                  : 'Немає даних НБУ'
+                  ? `${bondKindLabel(bond.kind)} · ${bond.currency} · ${formatPercent(bond.rate)} · до ${formatDate(bond.maturityDate)}`
+                  : `Вид невідомий · ${options.currencyOf[isin]}`
               }
               checked={filters.isins.includes(isin)}
               onPress={() => togglePaymentFilterIsin(isin)}

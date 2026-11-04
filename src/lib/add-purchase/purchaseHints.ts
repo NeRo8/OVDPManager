@@ -64,7 +64,7 @@ function implausibleHint(input: Input): Hint {
   const { bond, pricePerBond, netIncome } = input;
   const price = `${formatMoney(pricePerBond, bond.currency)} за 1 шт`;
   const check =
-    'на ринку ОВДП так не продаються. Перевірте кількість і суму: сума — за всю купівлю.';
+    'на ринку облігації так не продаються. Перевірте кількість і суму: сума — за всю купівлю.';
   if (netIncome !== null && netIncome < 0) {
     return {
       tone: 'warning',
@@ -113,13 +113,13 @@ function otherHints({ bond, date, isComplete }: Input): Hint[] {
   if (!isComplete) {
     hints.push({
       tone: 'warning',
-      text: 'НБУ ще не опублікував погашення цієї ОВДП, тому річну дохідність не пораховано.',
+      text: 'НБУ ще не опублікував погашення цієї облігації, тому річну дохідність не пораховано.',
     });
   }
   if (maturityTerm(bond, date) === 'long') {
     hints.push({
       tone: 'info',
-      text: `Гроші будуть в ОВДП до ${formatDate(bond.maturityDate)} (${formatTimeLeft(date, bond.maturityDate)}). Продати раніше можна лише за ринковою ціною, і вона може бути нижчою за вашу.`,
+      text: `Гроші будуть в облігації до ${formatDate(bond.maturityDate)} (${formatTimeLeft(date, bond.maturityDate)}). Продати раніше можна лише за ринковою ціною, і вона може бути нижчою за вашу.`,
     });
   }
   if (bond.currency !== 'UAH') {
@@ -143,8 +143,8 @@ function noBenchmarkHint({ bond, keyRate, keyRateFailed }: Input): Hint | null {
   return {
     tone: 'info',
     text: keyRateFailed
-      ? 'Не вдалося завантажити облікову ставку НБУ, а нових ОВДП для порівняння недостатньо. Спробуйте пізніше.'
-      : 'Облікова ставка НБУ недоступна, а нових ОВДП для порівняння недостатньо.',
+      ? 'Не вдалося завантажити облікову ставку НБУ, а нових облігацій для порівняння недостатньо. Спробуйте пізніше.'
+      : 'Облікова ставка НБУ недоступна, а нових облігацій для порівняння недостатньо.',
   };
 }
 

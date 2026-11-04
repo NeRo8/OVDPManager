@@ -10,6 +10,7 @@ function bondOf(fields: Partial<Bond> = {}): Bond {
   nextIsin += 1;
   return {
     isin: `UA40000000${String(nextIsin).padStart(2, '0')}`,
+    kind: 'ovdp',
     nominal: 1000,
     rate: 16,
     currency: 'UAH',
@@ -142,7 +143,7 @@ describe('assessPurchase', () => {
     const below = assess({ annualYield: 14.5, keyRate: null, bonds });
     expect(below.verdict?.tone).toBe('warning');
     expect(below.hints[0].text).toBe(
-      'Річна дохідність 14,5% на 1,5 п.п. нижча за медіанну ставку купону (16%) 3 ОВДП у UAH зі строком 1–3 роки, розміщених за останні 12 місяців: нова ОВДП може дати більше.',
+      'Річна дохідність 14,5% на 1,5 п.п. нижча за медіанну ставку купону (16%) облігацій у UAH зі строком 1–3 роки, розміщених за останні 12 місяців (кількість: 3): нова облігація може дати більше.',
     );
     expect(assess({ annualYield: 16.5, keyRate: null, bonds }).verdict?.tone).toBe('success');
   });
@@ -152,7 +153,7 @@ describe('assessPurchase', () => {
     expect(assess({ annualYield: 16, keyRate: null, bonds }).hints).toEqual([
       {
         tone: 'info',
-        text: 'Облікова ставка НБУ недоступна, а нових ОВДП для порівняння недостатньо.',
+        text: 'Облікова ставка НБУ недоступна, а нових облігацій для порівняння недостатньо.',
       },
     ]);
   });
@@ -162,7 +163,7 @@ describe('assessPurchase', () => {
     expect(assess({ keyRate: null, keyRateFailed: true, bonds: fewNewBonds }).hints).toEqual([
       {
         tone: 'info',
-        text: 'Не вдалося завантажити облікову ставку НБУ, а нових ОВДП для порівняння недостатньо. Спробуйте пізніше.',
+        text: 'Не вдалося завантажити облікову ставку НБУ, а нових облігацій для порівняння недостатньо. Спробуйте пізніше.',
       },
     ]);
     const newBonds = [

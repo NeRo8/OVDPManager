@@ -1,4 +1,4 @@
-import type { Currency, PlanOperation, ScheduleEvent } from '@/lib/portfolio/portfolio';
+import type { BondKind, Currency, PlanOperation, ScheduleEvent } from '@/lib/portfolio/portfolio';
 
 export type ScheduleEventType = ScheduleEvent['type'];
 /** Events still ahead (payments not yet received, planned operations), those behind, or both. */
@@ -9,6 +9,7 @@ export type ScheduleTimeFilter = 'all' | 'upcoming' | 'past';
  * Every change applies at once and is remembered.
  */
 export type PaymentFilters = {
+  kind?: BondKind | 'unknown' | 'all';
   /** Event types to show; empty shows every type, as does every type picked */
   types: ScheduleEventType[];
   time: ScheduleTimeFilter;

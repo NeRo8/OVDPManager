@@ -30,6 +30,23 @@ const fresh: BondPickerFilters = { currency: null, term: 'all', sort: 'maturity'
 const isins = (list: Bond[]) => list.map((bond) => bond.isin.slice(-1));
 
 describe('bondPicker', () => {
+  it('filters by bond kind independently of currency and keeps unknown kinds separate', () => {
+    const items = [
+      bondOf('UA1', { kind: 'ovdp', currency: 'USD' }),
+      bondOf('XS1', { kind: 'ozdp', currency: 'USD' }),
+      bondOf('OLD', { currency: 'USD' }),
+    ];
+    expect(
+      bondPicker(items, { ...fresh, currency: 'USD', kind: 'ozdp' }, '', today).choices.map(
+        (b) => b.isin,
+      ),
+    ).toEqual(['XS1']);
+    expect(
+      bondPicker(items, { ...fresh, currency: 'USD', kind: 'unknown' }, '', today).choices.map(
+        (b) => b.isin,
+      ),
+    ).toEqual(['OLD']);
+  });
   it('offers the currencies with bonds for sale, the first of them by default', () => {
     const picker = bondPicker(bonds, fresh, '', today);
     expect(picker.currencies).toEqual([

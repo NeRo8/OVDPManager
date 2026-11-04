@@ -47,7 +47,7 @@ export function newBondsHint(
   if (gap > WARNING_GAP) {
     return {
       tone: 'warning',
-      text: `Річна дохідність ${formatPercent(annualYield)} на ${formatRateNumber(gap)} п.п. нижча за медіанну ставку купону ${rate}: нова ОВДП може дати більше.`,
+      text: `Річна дохідність ${formatPercent(annualYield)} на ${formatRateNumber(gap)} п.п. нижча за медіанну ставку купону ${rate}: нова облігація може дати більше.`,
     };
   }
   return {

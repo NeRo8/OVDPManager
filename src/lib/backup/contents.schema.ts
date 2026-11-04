@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { migratePurchases, withPlannedFlags } from '@/lib/portfolio/migrateOperations';
 import { operationHistoryError, refreshOperationBonds } from '@/lib/portfolio/operations';
-import { CURRENCIES } from '@/lib/portfolio/portfolio';
+import { BOND_KINDS, CURRENCIES } from '@/lib/portfolio/portfolio';
 import { todayISO } from '@/utils/date';
 
 const id = z.string().trim().min(1);
@@ -16,6 +16,7 @@ const payment = z.object({
 const bond = z
   .object({
     isin: id,
+    kind: z.enum(BOND_KINDS).optional(),
     nominal: money.positive(),
     rate: money,
     currency,

@@ -67,11 +67,11 @@ export default function RootLayout() {
                 {/* Each tab draws its own header in its own stack. */}
                 <NativeStack.Screen name="(tabs)" options={{ headerShown: false }} />
                 {/* Adding a purchase to the active plan: choose a bond, review it, then enter the purchase. */}
-                <NativeStack.Screen name="add/index" options={{ title: 'Оберіть ОВДП' }} />
+                <NativeStack.Screen name="add/index" options={{ title: 'Оберіть облігацію' }} />
                 <NativeStack.Screen
                   name="add/[isin]/index"
                   options={({ route }) => ({
-                    title: (route.params as { isin?: string })?.isin ?? 'ОВДП',
+                    title: (route.params as { isin?: string })?.isin ?? 'Облігація',
                   })}
                 />
                 <NativeStack.Screen
@@ -111,12 +111,12 @@ export default function RootLayout() {
                 />
                 <NativeStack.Screen
                   name="bond-filters"
-                  options={{ title: 'Фільтри ОВДП', ...filtersModal('/add') }}
+                  options={{ title: 'Фільтри облігацій', ...filtersModal('/add') }}
                 />
                 <NativeStack.Screen
                   name="bond/[isin]/index"
                   options={({ route }) => ({
-                    title: (route.params as { isin?: string })?.isin ?? 'ОВДП',
+                    title: (route.params as { isin?: string })?.isin ?? 'Облігація',
                   })}
                 />
                 <NativeStack.Screen

@@ -10,6 +10,14 @@ import { compareOperations, purchaseLots, signedQuantity } from './operations';
 export const CURRENCIES = ['UAH', 'USD', 'EUR'] as const;
 export type Currency = (typeof CURRENCIES)[number];
 
+export const BOND_KINDS = ['ovdp', 'ozdp'] as const;
+export type BondKind = (typeof BOND_KINDS)[number];
+
+/** Old snapshots may not contain the NBU classification. */
+export function bondKindLabel(kind: BondKind | undefined): string {
+  return kind === 'ovdp' ? 'ОВДП' : kind === 'ozdp' ? 'ОЗДП' : 'Вид невідомий';
+}
+
 export const CURRENCY_NAMES: Record<Currency, string> = {
   UAH: 'Гривня',
   USD: 'Долар',
@@ -33,6 +41,7 @@ export type BondPayment = {
 
 export type Bond = {
   isin: string;
+  kind?: BondKind;
   nominal: number;
   /** Annual coupon rate, % */
   rate: number;

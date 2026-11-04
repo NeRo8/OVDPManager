@@ -3,7 +3,13 @@ import { ThemedIcon } from '@/components/icon/ThemedIcon';
 import { ListRow } from '@/components/layout/ListRow';
 import { Percent } from '@/components/typography/Percent';
 import { Typography } from '@/components/typography/Typography';
-import { type Bond, CURRENCY_NAMES, canBuyOn, isRedeemed } from '@/lib/portfolio/portfolio';
+import {
+  type Bond,
+  CURRENCY_NAMES,
+  bondKindLabel,
+  canBuyOn,
+  isRedeemed,
+} from '@/lib/portfolio/portfolio';
 import { currencyColor } from '@/theme/currency';
 import { formatDate, formatTimeLeft } from '@/utils/date';
 import { currencySign, formatPercent } from '@/utils/format';
@@ -32,6 +38,7 @@ function maturityLabel(bond: Bond, today: string) {
 export function BondChoiceRow({ bond, today, owned, onPress }: BondChoiceRowProps) {
   const isActive = canBuyOn(bond, today);
   const details = [
+    `${bondKindLabel(bond.kind)} · ${bond.currency}`,
     maturityLabel(bond, today),
     owned && `у гаманці ${ownedLabel(owned.quantity, owned.planned)}`,
   ]

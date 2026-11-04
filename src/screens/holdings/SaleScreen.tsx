@@ -23,7 +23,7 @@ export default function SaleScreen() {
       <EmptyState
         icon="cash-outline"
         title="Продаж недоступний"
-        message="Немає збереженої ОВДП або операції в активному плані."
+        message="Немає збереженої облігації або операції в активному плані."
       />
     );
   }

@@ -44,13 +44,17 @@ export function useBondDetails(isin: string) {
   function deletePosition() {
     if (!position) return;
     confirmDestructive(
-      'Видалити ОВДП?',
+      'Видалити облігацію?',
       `${position.isin} і всі операції (${position.operations.length}) буде видалено з гаманця.`,
       'Видалити',
       () => {
         goBackOrHome();
         removePositionFromActivePlan(position.isin);
-        showToast({ tone: 'success', title: 'ОВДП видалено з гаманця', message: position.isin });
+        showToast({
+          tone: 'success',
+          title: 'Облігацію видалено з гаманця',
+          message: position.isin,
+        });
       },
     );
   }

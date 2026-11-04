@@ -7,6 +7,7 @@ import { holdOrSell } from './holdOrSell';
 /** Two years, a 10% coupon paid twice a year on a nominal of 1000, redeemed at once. */
 const bond: Bond = {
   isin: 'UA4000000001',
+  kind: 'ovdp',
   nominal: 1000,
   rate: 10,
   currency: 'UAH',

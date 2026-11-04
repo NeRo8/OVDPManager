@@ -40,7 +40,7 @@ export function AddPurchaseForm({ bond, ownedQuantity, purchase, onSaved }: Prop
   return (
     <FormScrollView>
       <Section
-        title="ОВДП"
+        title="Облігація"
         footer={
           ownedQuantity > 0
             ? `У гаманці ще ${ownedQuantity} шт з інших купівель — ця купівля ${purchase ? 'рахується' : 'додасться'} до них.`
@@ -107,7 +107,7 @@ export function AddPurchaseForm({ bond, ownedQuantity, purchase, onSaved }: Prop
       {preview && (
         <HintsSection
           title="Наскільки це вигідно"
-          footer="Оцінка — за річною дохідністю до погашення. Облікова ставка й нові ОВДП беруться на дату купівлі, а для запланованої — на сьогодні. Ставка купону нової ОВДП наближена до ринкової дохідності на день розміщення."
+          footer="Оцінка — за річною дохідністю до погашення. Нові облігації того самого виду та валюти й облікова ставка беруться на дату купівлі, а для запланованої — на сьогодні. Купонна ставка наближена до ринкової дохідності на день розміщення."
           hints={preview.hints}
           verdict={preview.verdict}
         />
@@ -154,7 +154,7 @@ export function AddPurchaseForm({ bond, ownedQuantity, purchase, onSaved }: Prop
           ) : (
             <InfoRow
               label="Чистий дохід"
-              hint="НБУ ще не опублікував погашення цієї ОВДП, тому виплати неповні"
+              hint="НБУ ще не опублікував погашення цієї облігації, тому виплати неповні"
               value="Немає повних даних НБУ"
             />
           )}

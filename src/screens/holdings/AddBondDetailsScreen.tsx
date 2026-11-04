@@ -38,18 +38,22 @@ export default function AddBondDetailsScreen() {
       <>
         {header}
         <BondsGate>
-          <EmptyState icon="search-outline" title={isin} message="Цієї ОВДП немає в даних НБУ." />
+          <EmptyState
+            icon="search-outline"
+            title={isin}
+            message="Цієї облігації немає в даних НБУ."
+          />
         </BondsGate>
       </>
     );
 
   const notes = [
     ownedQuantity > 0 &&
-      `У гаманці вже є ${ownedQuantity} шт цієї ОВДП${plannedQuantity > 0 ? `, з них ${plannedQuantity} — заплановані купівлі` : ''}.`,
+      `У гаманці вже є ${ownedQuantity} шт цієї облігації${plannedQuantity > 0 ? `, з них ${plannedQuantity} — заплановані купівлі` : ''}.`,
     !canBuyOn(bond, today) &&
       (isRedeemed(bond, today)
-        ? 'ОВДП уже погашена; можна додати купівлю з минулою датою.'
-        : 'ОВДП погашається сьогодні; можна додати купівлю з минулою датою.'),
+        ? 'Облігація вже погашена; можна додати купівлю з минулою датою.'
+        : 'Облігація погашається сьогодні; можна додати купівлю з минулою датою.'),
     !hasRedemption(bond) && 'НБУ ще не опублікував погашення: розрахунки виплат неповні.',
     'Дохідність залежить від ціни купівлі: її буде розраховано після введення суми й кількості.',
   ]
@@ -79,7 +83,7 @@ export default function AddBondDetailsScreen() {
             contentInsetAdjustmentBehavior="automatic"
             ListHeaderComponent={
               <View style={styles.header}>
-                <Section title="ОВДП" footer={notes || undefined}>
+                <Section title="Облігація" footer={notes || undefined}>
                   <InfoRow label="ISIN" value={bond.isin} />
                 </Section>
                 <BondParameters bond={bond} />
@@ -96,7 +100,7 @@ export default function AddBondDetailsScreen() {
                 layout="inline"
                 icon="calendar-outline"
                 title="Даних про виплати немає"
-                message="НБУ ще не опублікував виплати для цієї ОВДП."
+                message="НБУ ще не опублікував виплати для цієї облігації."
               />
             }
           />

@@ -26,6 +26,7 @@ export function countActiveFilters(filters: PaymentFilters, options: WalletScope
     filters.types.length > 0,
     filters.time !== 'all',
     filters.currency !== (options.currencies[0] ?? null),
+    (filters.kind ?? 'all') !== 'all',
     filters.isins.length > 0,
   ].filter(Boolean).length;
 }
@@ -53,12 +54,14 @@ export type FilteredSchedule = {
  */
 export function filterSchedule(wallet: Wallet, filters: PaymentFilters): FilteredSchedule {
   const { currency, isins, types, time } = filters;
+  const kind = filters.kind ?? 'all';
   const inCurrency = [...wallet.payments, ...wallet.operationEvents].filter(
     (event) => currency === null || event.currency === currency,
   );
   const events = inCurrency
     .filter(
       (event) =>
+        (kind === 'all' || (wallet.byIsin.get(event.isin)?.kind ?? 'unknown') === kind) &&
         (isins.length === 0 || isins.includes(event.isin)) &&
         (types.length === 0 || types.includes(event.type)) &&
         (time === 'all' || isPastEvent(event) === (time === 'past')),

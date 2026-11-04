@@ -61,7 +61,7 @@ export default function PlanScreen() {
             layout="inline"
             icon="bar-chart-outline"
             title="План порожній"
-            message="У плані ще немає купівель, тож підсумовувати нічого. Додайте ОВДП у гаманці: дату купівлі, кількість і суму — купівля з’явиться в гаманці та у виплатах."
+            message="У плані ще немає купівель, тож підсумовувати нічого. Додайте облігацію у гаманці: дату купівлі, кількість і суму — купівля з’явиться в гаманці та у виплатах."
           />
         )}
         {upcoming.map((item) => (
@@ -93,7 +93,7 @@ export default function PlanScreen() {
               title={`Вкладення · ${total.currency}`}
               footer={
                 total.withoutDataCount > 0
-                  ? `${total.withoutDataCount} ОВДП немає в даних НБУ: що вони коштували, тут враховано, а їхні виплати й дохід — ні.`
+                  ? `Облігацій без даних НБУ: ${total.withoutDataCount}. Їхню вартість враховано, а виплати й дохід — ні.`
                   : undefined
               }
             >
@@ -107,7 +107,7 @@ export default function PlanScreen() {
               title="Надходження"
               footer={
                 total.incompleteCount > 0
-                  ? `НБУ ще не опублікував погашення ${total.incompleteCount} ОВДП, тож у погашенні й усього надходжень їх немає.`
+                  ? `НБУ ще не опублікував погашення для ${total.incompleteCount} облігацій, тож у погашенні й усього надходжень їх немає.`
                   : undefined
               }
             >
@@ -136,7 +136,7 @@ export default function PlanScreen() {
                 title="Результат"
                 footer={
                   total.incompleteCount > 0
-                    ? `ОВДП без опублікованого погашення (${total.incompleteCount}) у чистий дохід і дохідність за весь строк не враховано.`
+                    ? `Облігації без опублікованого погашення (${total.incompleteCount}) у чистий дохід і дохідність за весь строк не враховано.`
                     : undefined
                 }
               >
@@ -150,7 +150,7 @@ export default function PlanScreen() {
                   label="Дохідність за весь строк"
                   hint={
                     total.incompleteCount > 0
-                      ? `Чистий дохід поділено на вкладення лише в ОВДП з опублікованим погашенням: ${formatMoney(total.published.invested, total.currency)}.`
+                      ? `Чистий дохід поділено на вкладення лише в облігації з опублікованим погашенням: ${formatMoney(total.published.invested, total.currency)}.`
                       : 'Чистий дохід у відсотках від вкладень за весь строк, без перерахунку на рік; комісії враховані в сумах операцій'
                   }
                   value={<Percent value={total.returnPercent} />}
@@ -158,7 +158,7 @@ export default function PlanScreen() {
                 {total.annualYield !== null && (
                   <InfoRow
                     label="Річна дохідність"
-                    hint={`Ціна купівлі й виплати до погашення, перераховані на рік; середня зважена на суму купівель.${total.withoutYieldCount ? ` Не враховано ОВДП без розрахованої дохідності: ${total.withoutYieldCount}.` : ''}`}
+                    hint={`Ціна купівлі й виплати до погашення, перераховані на рік; середня зважена на суму купівель.${total.withoutYieldCount ? ` Не враховано облігації без розрахованої дохідності: ${total.withoutYieldCount}.` : ''}`}
                     value={<Percent value={total.annualYield} />}
                   />
                 )}

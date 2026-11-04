@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { FlatList, type ListRenderItemInfo, RefreshControl, View } from 'react-native';
 
 import { router } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { FAB_CLEARANCE, FloatingActionButton } from '@/components/button/FloatingActionButton';
+import { SegmentedSection } from '@/components/form/SegmentedSection';
+import { EmptyState } from '@/components/layout/EmptyState';
 import { screenContent } from '@/components/layout/screenContent';
 import { SectionCell } from '@/components/layout/SectionCell';
 import { SectionTitle } from '@/components/layout/SectionTitle';
@@ -14,13 +17,20 @@ import { WalletGate } from '@/components/portfolio/WalletGate';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh.hook';
 import { useWallet } from '@/hooks/useWallet.hook';
 import type { WalletPosition } from '@/lib/portfolio/position';
+import type { BondKind, Currency } from '@/lib/portfolio/portfolio';
 
 import { PositionRow } from './PositionRow';
 import { sortWalletPositions } from './walletOrder';
 
 export default function PortfolioScreen() {
+  const [kind, setKind] = useState<BondKind | 'unknown' | 'all'>('all');
+  const [currency, setCurrency] = useState<Currency | 'all'>('all');
   const { refresh, positions: unsorted } = useWallet();
-  const positions = sortWalletPositions(unsorted);
+  const positions = sortWalletPositions(unsorted).filter(
+    (item) =>
+      (kind === 'all' || (item.bond?.kind ?? 'unknown') === kind) &&
+      (currency === 'all' || item.currency === currency),
+  );
   const pullToRefresh = usePullToRefresh(refresh);
   const openBond = (isin: string) => router.push({ pathname: '/bond/[isin]', params: { isin } });
   const addBond = () => router.push('/add');
@@ -45,13 +55,42 @@ export default function PortfolioScreen() {
             <View style={styles.listHeader}>
               <StaleBondsNotice />
               <BondsUnavailableCard />
-              <SectionTitle title="Мої ОВДП" />
+              <SegmentedSection
+                title="Вид облігації"
+                value={kind}
+                onChange={setKind}
+                options={[
+                  { value: 'all', label: 'Усі' },
+                  { value: 'ovdp', label: 'ОВДП' },
+                  { value: 'ozdp', label: 'ОЗДП' },
+                  { value: 'unknown', label: 'Невідомо' },
+                ]}
+              />
+              <SegmentedSection
+                title="Валюта"
+                value={currency}
+                onChange={setCurrency}
+                options={[
+                  { value: 'all', label: 'Усі' },
+                  { value: 'UAH', label: 'UAH' },
+                  { value: 'USD', label: 'USD' },
+                  { value: 'EUR', label: 'EUR' },
+                ]}
+              />
+              <SectionTitle title="Мої облігації" />
             </View>
           }
           renderItem={renderPosition}
+          ListEmptyComponent={
+            <EmptyState
+              layout="inline"
+              title="Облігацій не знайдено"
+              message="Змініть фільтри виду або валюти."
+            />
+          }
           ListFooterComponent={<NbuSourceNote />}
         />
-        <FloatingActionButton accessibilityLabel="Додати ОВДП" onPress={addBond} />
+        <FloatingActionButton accessibilityLabel="Додати облігацію" onPress={addBond} />
       </View>
     </WalletGate>
   );
