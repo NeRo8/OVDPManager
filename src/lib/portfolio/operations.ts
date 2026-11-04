@@ -1,3 +1,5 @@
+import { formatDate } from '@/utils/date';
+
 import type { Bond, Operation, PlanOperation } from './portfolio';
 
 /** Same-day purchases precede sales; payments precede both. */
@@ -26,7 +28,7 @@ export function operationHistoryError(operations: PlanOperation[]): string | und
     const key = JSON.stringify([operation.planId, operation.isin]);
     const balance = (balances.get(key) ?? 0) + signedQuantity(operation);
     if (balance < 0)
-      return `Продаж ${operation.isin} від ${operation.date} перевищує кількість ОВДП у плані на цю дату.`;
+      return `Продаж ${operation.isin} від ${formatDate(operation.date)} перевищує кількість ОВДП у плані на цю дату.`;
     balances.set(key, balance);
   }
 }

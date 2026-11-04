@@ -95,6 +95,11 @@ export function plural(n: number, one: string, few: string, many: string): strin
   return many;
 }
 
+/** An amount as a form field shows it, with a decimal comma: «4100,5». */
+export function amountInputText(amount: number): string {
+  return String(amount).replace('.', ',');
+}
+
 /** Parses a decimal comma or point, and grouped input such as "1,000.50". */
 export function parseAmount(text: string): number {
   const input = text.replace(/\s/g, '');

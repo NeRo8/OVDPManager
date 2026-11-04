@@ -36,5 +36,8 @@ describe('purchaseScreenTitle', () => {
     expect(purchaseScreenTitle([made], 'UA1', 'deleted', today)).toBe('Купівлі немає');
     // The id must belong to the bond in the address.
     expect(purchaseScreenTitle([made], 'UA2', 'made', today)).toBe('Купівлі немає');
+    // A sale is no purchase to edit.
+    const sold = { ...purchaseOf('sold', 'UA1', '2026-06-01'), type: 'sale' as const };
+    expect(purchaseScreenTitle([made, sold], 'UA1', 'sold', today)).toBe('Купівлі немає');
   });
 });

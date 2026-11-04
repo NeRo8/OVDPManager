@@ -34,8 +34,14 @@ type BondTab = 'operations' | 'payments';
 const isPurchase = (row: BondRow): row is Operation => 'id' in row;
 const keyOf = (row: BondRow) => (isPurchase(row) ? row.id : `${row.date}-${row.type}`);
 
-function assessmentMessage(hasBond: boolean, onlyPlannedPurchases: boolean, matured: boolean) {
+function assessmentMessage(
+  hasBond: boolean,
+  sold: boolean,
+  onlyPlannedPurchases: boolean,
+  matured: boolean,
+) {
   if (!hasBond) return 'Оцінка недоступна без даних НБУ.';
+  if (sold) return 'Усі ОВДП цього випуску продано, тож тримати чи продавати вже нічого.';
   if (onlyPlannedPurchases) return 'Оцінка з’явиться для зроблених купівель.';
   if (matured) return 'Оцінка недоступна від дня погашення ОВДП.';
   return 'Оцінка недоступна без опублікованого погашення.';
@@ -143,7 +149,12 @@ export default function BondScreen() {
                 <Typography variant="footnote" tone="secondary">
                   {assessment
                     ? 'Немає достатньо даних для порівняння дохідності з ринковими орієнтирами.'
-                    : assessmentMessage(!!bond, onlyPlanned, bond ? !canBuyOn(bond, today) : false)}
+                    : assessmentMessage(
+                        !!bond,
+                        item.state === 'sold',
+                        onlyPlanned,
+                        bond ? !canBuyOn(bond, today) : false,
+                      )}
                 </Typography>
               </Card>
             )}

@@ -19,7 +19,8 @@ export function purchaseScreenTitle(
 ): string {
   const ofBond = operations.filter((purchase) => purchase.isin === isin);
   if (purchaseId) {
-    return ofBond.some((purchase) => purchase.id === purchaseId)
+    // A sale's id opens no purchase.
+    return ofBond.some((purchase) => purchase.id === purchaseId && purchase.type === 'purchase')
       ? 'Змінити купівлю'
       : 'Купівлі немає';
   }

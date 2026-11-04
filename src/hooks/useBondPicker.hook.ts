@@ -21,11 +21,14 @@ export function useBondPicker() {
   const today = useToday();
   const [query, setQuery] = useState('');
 
+  // A bond sold off in full is no longer owned, so its row says nothing.
   const owned = new Map(
-    groupPositions(operations).map((position) => [
-      position.isin,
-      { quantity: position.quantity, planned: plannedPart(position, today).quantity },
-    ]),
+    groupPositions(operations)
+      .filter((position) => position.quantity > 0)
+      .map((position) => [
+        position.isin,
+        { quantity: position.quantity, planned: plannedPart(position, today).quantity },
+      ]),
   );
 
   return {

@@ -9,6 +9,7 @@ import type { Bond } from '@/lib/portfolio/portfolio';
 import { showToast } from '@/stores/appSettings';
 import { getOperations, updateOperation } from '@/stores/operations';
 import { addOperationToActivePlan } from '@/stores/plans';
+import { amountInputText } from '@/utils/format';
 import { goBackOrHome } from '@/utils/navigation';
 
 import { type SaleFormInput, type SaleFormValues, saleFormSchema } from './saleForm.schema';
@@ -27,7 +28,7 @@ export function useSaleForm(bond: Bond, operationId?: string) {
     defaultValues: {
       date: existing?.date ?? today,
       quantity: existing ? String(existing.quantity) : '',
-      amount: existing ? String(existing.amount) : '',
+      amount: existing ? amountInputText(existing.amount) : '',
     },
   });
   const { isValid } = useFormState({ control: form.control });

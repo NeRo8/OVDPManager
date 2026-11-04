@@ -15,15 +15,13 @@ import {
   isPlannedPurchase,
   pricePerBond,
 } from '@/lib/portfolio/portfolio';
-import { useToday , showToast } from '@/stores/appSettings';
+import { useToday, showToast } from '@/stores/appSettings';
 import { updateOperation } from '@/stores/operations';
 import { addOperationToActivePlan } from '@/stores/plans';
+import { amountInputText } from '@/utils/format';
 
 import { useBonds } from './useBonds.hook';
 import { useKeyRate } from './useKeyRate.hook';
-
-/** The amount as the input shows it, with a decimal comma. */
-const amountText = (amount: number) => String(amount).replace('.', ',');
 
 /**
  * The final step of adding a purchase to the active plan: when, how many and for how much. With
@@ -43,7 +41,7 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void, purchase?: O
       ? {
           date: purchase.date,
           quantity: String(purchase.quantity),
-          amount: amountText(purchase.amount),
+          amount: amountInputText(purchase.amount),
         }
       : { date: today, quantity: '', amount: '' },
   });
