@@ -6,6 +6,7 @@ const today = '2026-10-31';
 const purchaseOf = (id: string, isin: string, date: string): Operation => ({
   type: 'purchase',
   ovdp: null,
+  planned: false,
   id,
   isin,
   date,
@@ -15,15 +16,22 @@ const purchaseOf = (id: string, isin: string, date: string): Operation => ({
 });
 
 const made = purchaseOf('made', 'UA1', '2026-05-01');
-const planned = purchaseOf('planned', 'UA2', '2026-12-01');
+const planned = { ...purchaseOf('planned', 'UA2', '2026-12-01'), planned: true };
 
 describe('purchaseScreenTitle', () => {
   it('tops up a bond already bought, not one only planned', () => {
-    expect(hasMadePurchase([made], today)).toBe(true);
-    expect(hasMadePurchase([planned], today)).toBe(false);
+    expect(hasMadePurchase([made])).toBe(true);
+    expect(hasMadePurchase([planned])).toBe(false);
     expect(purchaseScreenTitle([made, planned], 'UA1', undefined, today)).toBe('Докупити ОВДП');
     expect(purchaseScreenTitle([made, planned], 'UA2', undefined, today)).toBe('Додати купівлю');
     expect(purchaseScreenTitle([made, planned], 'UA3', undefined, today)).toBe('Додати купівлю');
+  });
+
+  it('asks to confirm a planned purchase whose date has come, and only counts it once confirmed', () => {
+    const overdue = { ...purchaseOf('overdue', 'UA2', '2026-10-01'), planned: true };
+    expect(purchaseScreenTitle([overdue], 'UA2', 'overdue', today)).toBe('Підтвердити купівлю');
+    expect(purchaseScreenTitle([overdue], 'UA2', undefined, today)).toBe('Додати купівлю');
+    expect(purchaseScreenTitle([planned], 'UA2', 'planned', today)).toBe('Змінити купівлю');
   });
 
   it('counts a purchase dated today as made', () => {

@@ -3,7 +3,6 @@ import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { EmptyState } from '@/components/layout/EmptyState';
 import { BondsGate } from '@/components/portfolio/BondsGate';
 import { useWallet } from '@/hooks/useWallet.hook';
-import { isPlannedPurchase } from '@/lib/portfolio/portfolio';
 
 import { AddPurchaseForm } from './AddPurchaseForm';
 import { purchaseScreenTitle } from './purchaseScreenTitle';
@@ -25,7 +24,7 @@ export default function AddPurchaseScreen() {
   const operations = position?.operations ?? [];
   // The other operations of the bond: the one edited is the form itself.
   const ownedQuantity = operations
-    .filter((item) => item.id !== purchase?.id && !isPlannedPurchase(item, today))
+    .filter((item) => item.id !== purchase?.id && !item.planned)
     .reduce((sum, item) => sum + (item.type === 'purchase' ? item.quantity : -item.quantity), 0);
   const title = purchaseScreenTitle(operations, isin, purchaseId, today);
 

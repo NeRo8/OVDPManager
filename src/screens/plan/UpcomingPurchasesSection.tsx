@@ -6,7 +6,8 @@ import { ListRow } from '@/components/layout/ListRow';
 import { Section } from '@/components/layout/Section';
 import { Money } from '@/components/typography/Money';
 import { Typography } from '@/components/typography/Typography';
-import type { OperationEvent } from '@/lib/portfolio/portfolio';
+import { type OperationEvent, awaitsConfirmation } from '@/lib/portfolio/portfolio';
+import { useToday } from '@/stores/appSettings';
 import { SERIES_COLORS } from '@/theme/series';
 import { formatDate } from '@/utils/date';
 import { currencySign } from '@/utils/format';
@@ -29,17 +30,27 @@ function ownMoneyHint(paymentsKnown: boolean, ownMoney: number) {
 
 /**
  * «Найближчі купівлі»: what to buy until the end of next month and the money for it. A tap on a
- * purchase opens it to confirm with what was really paid.
+ * purchase opens it to confirm with what was really paid; one whose date has come says it waits.
  */
 export function UpcomingPurchasesSection({ upcoming, showCurrency, paymentsKnown }: Props) {
   const { currency, through, operations, amount, planMoney, ownMoney } = upcoming;
+  const today = useToday();
   const confirm = ({ isin, id }: OperationEvent) =>
     router.push({ pathname: '/add/[isin]/purchase', params: { isin, purchaseId: id } });
+
+  function subtitle(purchase: OperationEvent) {
+    if (!awaitsConfirmation(purchase, today)) return purchase.isin;
+    return (
+      <Typography variant="caption1" tone="warning">
+        {purchase.isin} · чекає підтвердження
+      </Typography>
+    );
+  }
 
   return (
     <Section
       title={showCurrency ? `Найближчі купівлі · ${currency}` : 'Найближчі купівлі'}
-      footer={`До ${formatDate(through)}. Суми орієнтовні, доки купівлю не підтверджено: торкніться її, коли вона відбудеться, і внесіть те, що списав банк чи брокер.`}
+      footer={`До ${formatDate(through)}. Суми орієнтовні, доки купівлю не підтверджено: коли настане її дата, торкніться її й скажіть, чи вона відбулась, а якщо так — внесіть те, що списав банк чи брокер.`}
     >
       {operations.map((purchase) => {
         const open = () => confirm(purchase);
@@ -48,7 +59,7 @@ export function UpcomingPurchasesSection({ upcoming, showCurrency, paymentsKnown
             key={purchase.id}
             leading={<Avatar label={currencySign(currency)} color={SERIES_COLORS.purchase.badge} />}
             title={`${formatDate(purchase.date)} · ${purchase.quantity} шт`}
-            subtitle={purchase.isin}
+            subtitle={subtitle(purchase)}
             trailing={
               <Typography variant="subhead" weight="medium" tabular>
                 <Money value={purchase.total} currency={currency} />
@@ -56,7 +67,7 @@ export function UpcomingPurchasesSection({ upcoming, showCurrency, paymentsKnown
             }
             onPress={open}
             accessibilityRole="button"
-            accessibilityLabel={`Змінити купівлю ${purchase.isin} від ${formatDate(purchase.date)}`}
+            accessibilityLabel={`Підтвердити купівлю ${purchase.isin} від ${formatDate(purchase.date)}`}
           />
         );
       })}

@@ -1,6 +1,6 @@
 import { type Hint, type Verdict, sortHints, worstTone } from '@/lib/portfolio/hints';
 import { MAX_PLAUSIBLE_YIELD, maturityTerm, newBondsRate } from '@/lib/portfolio/market';
-import { type Bond, isPlannedPurchase } from '@/lib/portfolio/portfolio';
+import { type Bond, plannedByDate } from '@/lib/portfolio/portfolio';
 import { ANNUAL_YIELD_RANGE } from '@/lib/portfolio/yield';
 import { keyRateFailedHint, keyRateHint, newBondsHint } from '@/lib/portfolio/yieldHints';
 import { formatDate, formatTimeLeft } from '@/utils/date';
@@ -172,7 +172,7 @@ function verdictOf(hints: Hint[]): Verdict | null {
 export function assessPurchase(input: Input): PurchaseAssessment {
   if (isImplausible(input)) return { verdict: CHECK_AMOUNT, hints: [implausibleHint(input)] };
   const { bond, date, today, annualYield, keyRate, bonds } = input;
-  const isPlanned = isPlannedPurchase({ date }, today);
+  const isPlanned = plannedByDate(date, today);
   // A planned purchase is compared with what is known today.
   const comparisonDate = isPlanned ? today : date;
   const market = newBondsRate(bond, comparisonDate, bonds);

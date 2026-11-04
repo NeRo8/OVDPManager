@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { purchaseFormSchema } from '@/lib/add-purchase/purchaseForm.schema';
 import { operationHistoryError } from '@/lib/portfolio/operations';
-import type { Bond, PlanOperation } from '@/lib/portfolio/portfolio';
+import { type Bond, type PlanOperation, plannedByDate } from '@/lib/portfolio/portfolio';
 
 export function saleFormSchema(
   bond: Bond,
@@ -11,26 +11,23 @@ export function saleFormSchema(
   today: string,
   id = 'draft-sale',
 ) {
-  return purchaseFormSchema(bond, 'sale')
-    .refine((values) => values.date <= today, {
-      path: ['date'],
-      error: 'Продаж не може бути в майбутньому',
-    })
-    .superRefine((values, context) => {
-      const error = operationHistoryError([
-        ...operations.filter((operation) => operation.id !== id),
-        {
-          ...values,
-          id,
-          planId,
-          type: 'sale',
-          ovdp: bond,
-          isin: bond.isin,
-          currency: bond.currency,
-        },
-      ]);
-      if (error) context.addIssue({ code: 'custom', path: ['quantity'], message: error });
-    });
+  // A sale may be dated ahead: it is planned until confirmed, and the history must allow it then.
+  return purchaseFormSchema(bond, 'sale').superRefine((values, context) => {
+    const error = operationHistoryError([
+      ...operations.filter((operation) => operation.id !== id),
+      {
+        ...values,
+        id,
+        planId,
+        type: 'sale',
+        ovdp: bond,
+        isin: bond.isin,
+        currency: bond.currency,
+        planned: plannedByDate(values.date, today),
+      },
+    ]);
+    if (error) context.addIssue({ code: 'custom', path: ['quantity'], message: error });
+  });
 }
 
 export type SaleFormInput = z.input<ReturnType<typeof saleFormSchema>>;

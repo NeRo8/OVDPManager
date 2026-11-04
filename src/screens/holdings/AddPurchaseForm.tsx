@@ -27,16 +27,15 @@ type Props = {
 
 /**
  * The purchase form for one bond: each field shows its own error once edited, and Save stays
- * disabled until the whole purchase is valid.
+ * disabled until the whole purchase is valid. A planned purchase whose date has come asks whether
+ * it took place: saving it confirms it, «Купівля не відбулась» removes it.
  */
 export function AddPurchaseForm({ bond, ownedQuantity, purchase, onSaved }: Props) {
-  const { control, isValid, submit, date, pricePerBond, isPlanned, preview } = useAddPurchaseForm(
-    bond,
-    onSaved,
-    purchase,
-  );
+  const { control, isValid, submit, date, pricePerBond, isPlanned, awaiting, cancel, preview } =
+    useAddPurchaseForm(bond, onSaved, purchase);
   const { currency } = bond;
   const save = () => void submit();
+  const saveTitle = awaiting && !isPlanned ? 'Купівля відбулась' : 'Зберегти';
 
   return (
     <FormScrollView>
@@ -162,7 +161,8 @@ export function AddPurchaseForm({ bond, ownedQuantity, purchase, onSaved }: Prop
         </Section>
       )}
 
-      <Button title="Зберегти" disabled={!isValid} onPress={save} />
+      <Button title={saveTitle} disabled={!isValid} onPress={save} />
+      {awaiting && <Button title="Купівля не відбулась" variant="secondary" onPress={cancel} />}
     </FormScrollView>
   );
 }

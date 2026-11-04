@@ -38,6 +38,7 @@ function purchase(fields: Partial<Operation> & Pick<Operation, 'date' | 'amount'
   return {
     type: 'purchase',
     ovdp: null,
+    planned: false,
     id: String(nextId),
     isin: bond.isin,
     quantity: 2,
@@ -72,6 +73,12 @@ const ahead = [
 ];
 
 describe('holdOrSell', () => {
+  it('judges only what took place: a planned purchase whose date has come is not held', () => {
+    const waiting = purchase({ date: '2026-03-01', amount: 1980, planned: true });
+    expect(assess({ operations: [waiting] })).toBeNull();
+    expect(assess({ operations: [{ ...waiting, planned: false }] })).not.toBeNull();
+  });
+
   it('gives the prices that decide: break-even and where selling beats new bonds', () => {
     const result = assess();
     expect(result).toMatchObject({

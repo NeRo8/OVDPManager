@@ -11,6 +11,7 @@ import { NativeStack } from '@/components/navigation/NativeStack';
 import { LaunchSplash } from '@/components/splash/LaunchSplash';
 import { ToastHost } from '@/components/toast/ToastHost';
 import { purchaseScreenTitle } from '@/screens/holdings/purchaseScreenTitle';
+import { saleScreenTitle } from '@/screens/holdings/saleScreenTitle';
 import { planNameTitle } from '@/screens/plan/planNameTitle';
 import { useToday, useIsOnboardingCompleted } from '@/stores/appSettings';
 import { getActiveOperations, useInvestmentPlans } from '@/stores/plans';
@@ -118,7 +119,14 @@ export default function RootLayout() {
                     title: (route.params as { isin?: string })?.isin ?? 'ОВДП',
                   })}
                 />
-                <NativeStack.Screen name="bond/[isin]/sale" options={{ title: 'Продаж' }} />
+                <NativeStack.Screen
+                  name="bond/[isin]/sale"
+                  options={({ route }) => {
+                    const { operationId } = (route.params ?? {}) as { operationId?: string };
+                    // Read when the screen is pushed; the screen keeps its title current itself.
+                    return { title: saleScreenTitle(getActiveOperations(), operationId, today) };
+                  }}
+                />
                 <NativeStack.Screen name="backup/export" options={{ title: 'Створити копію' }} />
               </NativeStack.Protected>
               <NativeStack.Protected

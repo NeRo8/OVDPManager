@@ -9,7 +9,7 @@ import { Typography } from '@/components/typography/Typography';
 import {
   type Bond,
   type Operation,
-  isPlannedPurchase,
+  awaitsConfirmation,
   pricePerBond,
   purchaseCurrency,
 } from '@/lib/portfolio/portfolio';
@@ -33,7 +33,7 @@ type Props = {
 export function PurchaseRow({ purchase, bond, today, onEdit, onDelete }: Props) {
   const kind = purchase.type === 'sale' ? 'Продаж' : 'Купівля';
   const currency = purchaseCurrency(purchase, bond);
-  const isPlanned = isPlannedPurchase(purchase, today);
+  const awaiting = awaitsConfirmation(purchase, today);
   const price = pricePerBond(purchase.amount, purchase.quantity);
   const edit = () => onEdit(purchase);
   const remove = () => onDelete(purchase);
@@ -64,9 +64,9 @@ export function PurchaseRow({ purchase, bond, today, onEdit, onDelete }: Props) 
         </Pressable>
       }
     >
-      {isPlanned && bond && (
-        <Typography variant="caption1" tone="accent">
-          Заплановано — торкніться, щоб змінити
+      {purchase.planned && bond && (
+        <Typography variant="caption1" tone={awaiting ? 'warning' : 'accent'}>
+          {awaiting ? 'Чекає підтвердження — торкніться' : 'Заплановано — торкніться, щоб змінити'}
         </Typography>
       )}
       {!bond && (

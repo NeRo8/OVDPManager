@@ -18,6 +18,7 @@ import {
 const purchase = {
   type: 'purchase',
   ovdp: null,
+  planned: false,
   isin: 'UA1',
   date: '2026-01-15',
   amount: 1000,
@@ -96,6 +97,7 @@ describe('plan store', () => {
     addOperation({
       type: 'purchase',
       ovdp: null,
+      planned: false,
       planId: id,
       isin: 'UA1',
       currency: 'UAH',

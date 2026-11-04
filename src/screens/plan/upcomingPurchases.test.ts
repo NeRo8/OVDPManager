@@ -19,9 +19,12 @@ const bond: Bond = {
   ],
 };
 
+const today = '2026-10-31';
+// Planned while ahead of `today`, made (confirmed) before it.
 const purchase = (id: string, date: string, amount: number): Operation => ({
   type: 'purchase',
   ovdp: null,
+  planned: date > today,
   id,
   isin: bond.isin,
   date,
@@ -41,9 +44,12 @@ describe('upcomingPurchases', () => {
       purchase('4', '2027-01-05', 1030),
     ],
     new Map([[bond.isin, bond]]),
-    '2026-10-31',
+    today,
   );
   const [uah] = upcomingPurchases(wallet);
+  /** The operations as on a later day, every one dated by then confirmed. */
+  const confirmedBy = (day: string, operations = wallet.operations) =>
+    operations.map((operation) => ({ ...operation, planned: operation.date > day }));
 
   it('lists the planned operations until the end of next month', () => {
     expect(uah.through).toBe('2026-11-30');
@@ -57,7 +63,7 @@ describe('upcomingPurchases', () => {
   });
 
   it('counts the plan’s payments coming in that time', () => {
-    const december = buildWallet(wallet.operations, wallet.byIsin, '2026-11-30');
+    const december = buildWallet(confirmedBy('2026-11-30'), wallet.byIsin, '2026-11-30');
     const [next] = upcomingPurchases(december);
     expect(next.operations.map(({ id }) => id)).toEqual(['3']);
     // The December coupon of the two bonds bought before.
@@ -67,7 +73,10 @@ describe('upcomingPurchases', () => {
 
   it('needs no own money when the plan’s payments cover the operations', () => {
     const cheap = buildWallet(
-      [purchase('1', '2026-03-01', 1000), purchase('2', '2026-12-20', 50)],
+      confirmedBy('2026-11-30', [
+        purchase('1', '2026-03-01', 1000),
+        purchase('2', '2026-12-20', 50),
+      ]),
       wallet.byIsin,
       '2026-11-30',
     );
@@ -76,7 +85,10 @@ describe('upcomingPurchases', () => {
 
   it('does not pay for a purchase with a payment that comes after it', () => {
     const early = buildWallet(
-      [...wallet.operations.slice(0, 2), purchase('5', '2026-12-10', 100)],
+      confirmedBy('2026-11-30', [
+        ...wallet.operations.slice(0, 2),
+        purchase('5', '2026-12-10', 100),
+      ]),
       wallet.byIsin,
       '2026-11-30',
     );
@@ -87,14 +99,26 @@ describe('upcomingPurchases', () => {
   });
 
   it('counts a payment due today, as it is still to come', () => {
-    const couponDay = buildWallet(wallet.operations.slice(0, 3), wallet.byIsin, '2026-12-15');
+    const couponDay = buildWallet(
+      confirmedBy('2026-12-15', wallet.operations.slice(0, 3)),
+      wallet.byIsin,
+      '2026-12-15',
+    );
     const [next] = upcomingPurchases(couponDay);
     expect(next.operations.map(({ id }) => id)).toEqual(['3']);
     expect(next.planMoney).toBe(160);
     expect(next.ownMoney).toBe(860);
   });
 
+  it('keeps a planned purchase whose date has come until it is confirmed', () => {
+    // On 30.11 the purchase of 20.11 is still planned: nobody said it took place.
+    const unconfirmed = buildWallet(wallet.operations, wallet.byIsin, '2026-11-30');
+    const [next] = upcomingPurchases(unconfirmed);
+    expect(next.operations.map(({ id }) => id)).toEqual(['2', '3']);
+    expect(next.amount).toBe(2030);
+  });
+
   it('gives nothing without planned operations', () => {
-    expect(upcomingPurchases(buildWallet([], wallet.byIsin, '2026-10-31'))).toEqual([]);
+    expect(upcomingPurchases(buildWallet([], wallet.byIsin, today))).toEqual([]);
   });
 });

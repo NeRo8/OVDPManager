@@ -9,8 +9,7 @@ import { SectionCell } from '@/components/layout/SectionCell';
 import { Typography } from '@/components/typography/Typography';
 import { operationCount } from '@/lib/portfolio/counts';
 import type { InvestmentPlan } from '@/lib/portfolio/plan';
-import { isPlannedPurchase, type PlanOperation } from '@/lib/portfolio/portfolio';
-import { useToday } from '@/stores/appSettings';
+import type { PlanOperation } from '@/lib/portfolio/portfolio';
 import { useOperations } from '@/stores/operations';
 import { useActivePlan, setActivePlan, useInvestmentPlans } from '@/stores/plans';
 import { plural } from '@/utils/format';
@@ -27,11 +26,10 @@ export default function PlanListScreen() {
   const plans = useInvestmentPlans();
   const operations = useOperations();
   const activePlan = useActivePlan();
-  const today = useToday();
   const createPlan = () => router.push('/plan/name');
 
   function subtitle(planPurchases: PlanOperation[]) {
-    const planned = planPurchases.filter((purchase) => isPlannedPurchase(purchase, today)).length;
+    const planned = planPurchases.filter((operation) => operation.planned).length;
     return [
       planPurchases.length ? operationCount(planPurchases.length) : 'Операцій ще немає',
       planned > 0 &&

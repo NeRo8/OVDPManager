@@ -7,7 +7,7 @@ import { ListRow } from '@/components/layout/ListRow';
 import { Money } from '@/components/typography/Money';
 import { SignedValue } from '@/components/typography/SignedValue';
 import { Typography } from '@/components/typography/Typography';
-import type { ScheduleEvent } from '@/lib/portfolio/portfolio';
+import { type ScheduleEvent, awaitsConfirmation, isReceived } from '@/lib/portfolio/portfolio';
 import { useToday } from '@/stores/appSettings';
 import { SERIES_COLORS, type SeriesColor } from '@/theme/series';
 import { daysBetween, formatDate, formatDaysLeft } from '@/utils/date';
@@ -38,21 +38,24 @@ type Props = {
 
 /**
  * A payment, a purchase (money paid) or a sale (money received). A payment still ahead says how
- * many days are left until it; a planned purchase, and a payment for bonds still only planned,
- * say so.
+ * many days are left until it; a planned operation, and a payment for bonds still only planned,
+ * say so, and once their date has come without a confirmation, that they wait for one.
  */
 export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
   const today = useToday();
   const series = SERIES[event.type];
   const isPurchase = event.type === 'purchase';
   const isOperation = 'id' in event;
-  const isPaid = isOperation ? event.type === 'sale' && event.date <= today : event.isPaid;
+  const isPaid = isOperation ? event.type === 'sale' && !event.planned : isReceived(event);
   const isUpcoming = isOperation ? event.date > today : !event.isPaid;
+  const awaiting = isOperation
+    ? awaitsConfirmation(event, today)
+    : event.isPaid && event.plannedQuantity > 0;
   const signedTotal = isPurchase ? -event.total : event.total;
   const sign = signPrefix(signedTotal);
   const tone = isPaid ? 'secondary' : 'primary';
   const planned = isOperation
-    ? event.date > today && 'заплановано'
+    ? event.planned && 'заплановано'
     : event.plannedQuantity > 0 &&
       (event.plannedQuantity === event.quantity
         ? 'заплановано'
@@ -65,6 +68,7 @@ export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
     isPaid && 'отримано',
     isUpcoming && formatDaysLeft(daysBetween(today, event.date)),
     planned,
+    awaiting && 'чекає підтвердження',
   ]
     .filter(Boolean)
     .join(' · ');

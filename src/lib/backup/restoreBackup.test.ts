@@ -25,6 +25,7 @@ const plan: InvestmentPlan = { id: 'restored', name: 'З копії', isActive: 
 const purchase = (id: string, planId: string): PlanOperation => ({
   type: 'purchase',
   ovdp: null,
+  planned: false,
   id,
   planId,
   isin: 'UA4000227045',

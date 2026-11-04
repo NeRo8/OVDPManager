@@ -1,13 +1,14 @@
-import { useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 
 import { EmptyState } from '@/components/layout/EmptyState';
 import { useWallet } from '@/hooks/useWallet.hook';
 
 import { SaleForm } from './SaleForm';
+import { saleScreenTitle } from './saleScreenTitle';
 
 export default function SaleScreen() {
   const { isin, operationId } = useLocalSearchParams<{ isin: string; operationId?: string }>();
-  const { byIsin, operations } = useWallet();
+  const { byIsin, operations, today } = useWallet();
   const bond = byIsin.get(isin);
   if (
     !bond ||
@@ -26,5 +27,10 @@ export default function SaleScreen() {
       />
     );
   }
-  return <SaleForm key={`${isin}:${operationId ?? 'new'}`} bond={bond} operationId={operationId} />;
+  return (
+    <>
+      <Stack.Screen options={{ title: saleScreenTitle(operations, operationId, today) }} />
+      <SaleForm key={`${isin}:${operationId ?? 'new'}`} bond={bond} operationId={operationId} />
+    </>
+  );
 }

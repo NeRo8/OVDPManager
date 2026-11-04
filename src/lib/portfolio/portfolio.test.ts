@@ -35,6 +35,7 @@ it('identifies same-day top-ups consistently regardless of storage order', () =>
   const purchase = {
     type: 'purchase' as const,
     ovdp: null,
+    planned: false,
     isin: maturingToday.isin,
     date: '2025-01-01',
     quantity: 1,
@@ -114,6 +115,7 @@ describe('positionPayments', () => {
   const purchase = (id: string, date: string, quantity: number) => ({
     type: 'purchase' as const,
     ovdp: null,
+    planned: false,
     id,
     isin: bond.isin,
     date,
@@ -125,7 +127,10 @@ describe('positionPayments', () => {
   it('counts of each payment the bonds of operations still planned', () => {
     // Two bonds bought, three more planned for June.
     const payments = positionPayments(
-      [purchase('made', '2025-01-10', 2), purchase('planned', '2026-06-01', 3)],
+      [
+        purchase('made', '2025-01-10', 2),
+        { ...purchase('planned', '2026-06-01', 3), planned: true },
+      ],
       bond,
       '2026-03-01',
     );

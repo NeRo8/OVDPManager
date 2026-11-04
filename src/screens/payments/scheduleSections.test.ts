@@ -23,6 +23,7 @@ it('groups events by month and totals only payments', () => {
     quantity: 1,
     total: 1000,
     isTopUp: false,
+    planned: false,
   };
   const sections = groupScheduleEventsByMonth([
     payment,

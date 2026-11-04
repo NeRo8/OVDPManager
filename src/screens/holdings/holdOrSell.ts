@@ -157,7 +157,8 @@ function saleHints(
  */
 export function holdOrSell(input: Input): HoldOrSell | null {
   const { position, bond, today, keyRate, salePrice } = input;
-  const held = position.operations.filter((purchase) => purchase.date <= today);
+  // Only what took place: a planned operation is not held, even once its date has come.
+  const held = position.operations.filter((operation) => !operation.planned);
   if (held.length === 0 || quantityOn(held, today) === 0 || !canBuyOn(bond, today)) return null;
   const {
     payments,

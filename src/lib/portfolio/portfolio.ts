@@ -56,6 +56,11 @@ export type Operation = {
   quantity: number;
   /** The bond's currency, taken when the purchase is added */
   currency: Currency;
+  /**
+   * Planned until the user says it took place: it counts as made only once confirmed, even after
+   * its date has come.
+   */
+  planned: boolean;
 };
 
 /** A purchase in one investment plan; the wallet shows those of the active plan. */
@@ -75,7 +80,7 @@ export type PositionPayment = BondPayment & {
   currency: Currency;
   /** Bonds held on the payment date */
   quantity: number;
-  /** Of `quantity`, the bonds of operations still planned (dated after today) */
+  /** Of `quantity`, the bonds of purchases not yet confirmed (`Operation.planned`) */
   plannedQuantity: number;
   /** Per-bond amount × quantity */
   total: number;
@@ -95,6 +100,8 @@ export type OperationEvent = {
   total: number;
   /** Bought more of an ISIN already held */
   isTopUp: boolean;
+  /** Not yet confirmed (`Operation.planned`) */
+  planned: boolean;
 };
 
 /** What the schedule lists: payments received and operations made. */
@@ -143,12 +150,33 @@ export function groupPositions(operations: Operation[]): Position[] {
   }));
 }
 
-/** A purchase dated after today. It counts as made once its date arrives, with no confirmation. */
-export function isPlannedPurchase(
-  purchase: Pick<Operation, 'date'> & Partial<Pick<Operation, 'type'>>,
+/**
+ * What an operation saved with this date starts as: planned while the date is still ahead, a fact
+ * once it has come. Saving the form with a date that has come confirms the operation.
+ */
+export function plannedByDate(date: string, today: string): boolean {
+  return date > today;
+}
+
+/**
+ * What of a payment has been received: its date has passed, and only for the bonds of confirmed
+ * purchases, as a purchase still planned has not paid for any.
+ */
+export function receivedAmount(payment: PositionPayment): number {
+  return payment.isPaid ? payment.amount * (payment.quantity - payment.plannedQuantity) : 0;
+}
+
+/** Received in full: paid, and for no bonds still planned. */
+export function isReceived(payment: PositionPayment): boolean {
+  return payment.isPaid && payment.plannedQuantity === 0;
+}
+
+/** A planned operation whose date has come: it waits for the user to say whether it took place. */
+export function awaitsConfirmation(
+  operation: Pick<Operation, 'date' | 'planned'>,
   today: string,
 ): boolean {
-  return purchase.type !== 'sale' && purchase.date > today;
+  return operation.planned && operation.date <= today;
 }
 
 /**
@@ -212,7 +240,7 @@ export function positionPayments(
         currency: bond.currency,
         quantity,
         plannedQuantity: entitled
-          .filter((lot) => isPlannedPurchase(lot.purchase, today))
+          .filter((lot) => lot.purchase.planned)
           .reduce((total, lot) => total + lot.remaining, 0),
         total: round2(payment.amount * quantity),
         isPaid: payment.date < today,
@@ -239,6 +267,7 @@ export function operationEvents(
         isTopUp:
           purchase.type === 'purchase' &&
           position.operations.slice(0, index).some((operation) => operation.type === 'purchase'),
+        planned: purchase.planned,
       })),
     )
     .sort((a, b) => a.date.localeCompare(b.date));

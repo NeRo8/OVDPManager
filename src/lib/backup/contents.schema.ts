@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { migratePurchases } from '@/lib/portfolio/migrateOperations';
+import { migratePurchases, withPlannedFlags } from '@/lib/portfolio/migrateOperations';
 import { operationHistoryError, refreshOperationBonds } from '@/lib/portfolio/operations';
 import { CURRENCIES } from '@/lib/portfolio/portfolio';
 import { todayISO } from '@/utils/date';
@@ -52,6 +52,8 @@ const operation = z
     type: z.enum(['purchase', 'sale']),
     date: z.iso.date(),
     ovdp: bond.nullable(),
+    // Files written before confirmation existed have none; `validateContents` fills it in.
+    planned: z.boolean().optional(),
   })
   .refine(
     (value) =>
@@ -75,13 +77,18 @@ export const legacyContentsSchema = z
     ...framing,
     holdings: z.array(z.object({ ...common, purchaseDate: z.iso.date() })),
   })
-  .transform(({ holdings, ...rest }) => ({ ...rest, operations: migratePurchases(holdings, []) }));
+  .transform(({ holdings, ...rest }) => ({
+    ...rest,
+    operations: migratePurchases(holdings, [], todayISO()),
+  }));
 
 export const contentsSchema = z.object({ ...framing, operations: z.array(operation) });
 
 /** Validate cross-record invariants before any store is replaced. */
 export function validateContents(contents: z.output<typeof contentsSchema>) {
-  const { operations, plans, activePlanId } = contents;
+  const { plans, activePlanId } = contents;
+  const today = todayISO();
+  const operations = withPlannedFlags(contents.operations, today);
   if (!plans.length) throw new Error('У копії немає жодного плану');
   const planIds = new Set(plans.map((plan) => plan.id));
   if (activePlanId && !planIds.has(activePlanId)) throw new Error('Активного плану немає в копії');
@@ -100,5 +107,5 @@ export function validateContents(contents: z.output<typeof contentsSchema>) {
   });
   const error = operationHistoryError(operations);
   if (error) throw new Error(error);
-  return refreshOperationBonds(operations, [], todayISO());
+  return refreshOperationBonds(operations, [], today);
 }

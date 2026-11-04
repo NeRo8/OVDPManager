@@ -29,6 +29,7 @@ function purchase(isin: string, currency: Operation['currency'], date: string): 
   return {
     type: 'purchase',
     ovdp: null,
+    planned: false,
     id: String(nextId),
     isin,
     currency,

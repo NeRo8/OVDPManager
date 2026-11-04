@@ -2,7 +2,7 @@ import type { OperationEvent } from '@/lib/portfolio/portfolio';
 
 import { yearSummary } from './yearSummary';
 
-function purchase(date: string): OperationEvent {
+function purchase(date: string, planned = false): OperationEvent {
   return {
     type: 'purchase',
     date,
@@ -12,6 +12,7 @@ function purchase(date: string): OperationEvent {
     id: date,
     total: 100,
     isTopUp: false,
+    planned,
   };
 }
 
@@ -24,7 +25,7 @@ describe('yearSummary', () => {
 
   it('separates made and planned operations by month', () => {
     const summary = yearSummary(
-      [purchase('2026-02-01'), purchase('2026-09-01')],
+      [purchase('2026-02-01'), purchase('2026-09-01', true)],
       'UAH',
       '2026-03-01',
     );

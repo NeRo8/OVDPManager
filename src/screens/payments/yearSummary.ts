@@ -1,7 +1,9 @@
 import {
   type Currency,
+  type OperationEvent,
   type PositionPayment,
   type ScheduleEvent,
+  receivedAmount,
   sumTotals,
 } from '@/lib/portfolio/portfolio';
 import { MONTHS } from '@/utils/format';
@@ -15,7 +17,7 @@ export type YearSummary = {
   monthlyRedemptions: number[];
   monthlySales: number[];
   saleTotal: number;
-  /** Purchases made, and the planned ones (dated after today) apart */
+  /** Purchases made, and the planned ones (not yet confirmed) apart */
   monthlyPurchases: number[];
   monthlyPlannedPurchases: number[];
   couponTotal: number;
@@ -46,12 +48,14 @@ export function yearSummary(
   const payments = inCurrency.filter(
     (event): event is PositionPayment => event.type === 'coupon' || event.type === 'redemption',
   );
-  const sales = inCurrency.filter((event) => event.type === 'sale');
+  const sales = inCurrency.filter((event): event is OperationEvent => event.type === 'sale');
   const saleTotal = sumTotals(sales);
   const coupons = payments.filter((payment) => payment.type === 'coupon');
   const redemptions = payments.filter((payment) => payment.type === 'redemption');
-  const operations = inCurrency.filter((event) => event.type === 'purchase');
-  const plannedPurchases = operations.filter((event) => event.date > today);
+  const operations = inCurrency.filter(
+    (event): event is OperationEvent => event.type === 'purchase',
+  );
+  const plannedPurchases = operations.filter((event) => event.planned);
   const monthly = (events: ScheduleEvent[]) =>
     MONTHS.map((_, month) => sumTotals(events.filter((event) => monthOf(event) === month)));
 
@@ -65,14 +69,14 @@ export function yearSummary(
     saleTotal,
     monthlyCoupons: monthly(coupons),
     monthlyRedemptions: monthly(redemptions),
-    monthlyPurchases: monthly(operations.filter((event) => event.date <= today)),
+    monthlyPurchases: monthly(operations.filter((event) => !event.planned)),
     monthlyPlannedPurchases: monthly(plannedPurchases),
     couponTotal,
     redemptionTotal,
     totalPayments: round2(couponTotal + redemptionTotal + saleTotal),
     received: round2(
-      sumTotals(payments.filter((payment) => payment.isPaid)) +
-        sumTotals(sales.filter((sale) => sale.date <= today)),
+      payments.reduce((sum, payment) => sum + receivedAmount(payment), 0) +
+        sumTotals(sales.filter((sale) => !sale.planned)),
     ),
     invested,
     planned: sumTotals(plannedPurchases),

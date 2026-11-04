@@ -15,7 +15,7 @@ export type UpcomingPurchases = {
   currency: Currency;
   /** The last day they cover: the end of next month */
   through: string;
-  /** Planned operations by date */
+  /** Planned purchases by date, those whose date has come first */
   operations: OperationEvent[];
   amount: number;
   /** The plan's coupons and redemptions still to come until `through`, today's included */
@@ -41,18 +41,23 @@ function shortfall(payments: PositionPayment[], operations: OperationEvent[]): n
   return round2(-lowest);
 }
 
-/** The active plan's planned operations until the end of next month, per currency that has any. */
+/**
+ * The active plan's planned purchases until the end of next month, the ones still waiting for a
+ * confirmation included, per currency that has any.
+ */
 export function upcomingPurchases(wallet: Wallet): UpcomingPurchases[] {
   const { today } = wallet;
   const through = monthRange(today, 1).to;
-  // A purchase dated today counts as made; a payment dated today is still to come.
-  const plannedUntilThrough = (event: { date: string }) =>
-    event.date > today && event.date <= through;
 
   return CURRENCIES.flatMap((currency): UpcomingPurchases[] => {
+    // Planned purchases until `through`, those whose date has come without a confirmation first
+    // among them: they wait for the user to say whether they took place.
     const operations = wallet.operationEvents.filter(
       (event) =>
-        event.type === 'purchase' && event.currency === currency && plannedUntilThrough(event),
+        event.type === 'purchase' &&
+        event.currency === currency &&
+        event.planned &&
+        event.date <= through,
     );
     if (!operations.length) return [];
     const payments = wallet.payments.filter(

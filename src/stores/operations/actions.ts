@@ -24,10 +24,13 @@ export function removeOperation(id: string): void {
   updateOperations((current) => current.filter((purchase) => purchase.id !== id));
 }
 
-/** Puts in a purchase's real date, quantity and amount: «Підтвердити купівлю» / «Змінити купівлю». */
+/**
+ * Puts in an operation's real date, quantity and amount, and whether it is still planned: confirming
+ * it («Підтвердити купівлю» / «Підтвердити продаж») or correcting it («Змінити …»).
+ */
 export function updateOperation(
   id: string,
-  changes: Pick<PlanOperation, 'date' | 'quantity' | 'amount'>,
+  changes: Pick<PlanOperation, 'date' | 'quantity' | 'amount' | 'planned'>,
 ): void {
   updateOperations((current) =>
     current.map((purchase) => (purchase.id === id ? { ...purchase, ...changes } : purchase)),

@@ -1,4 +1,4 @@
-import { type ScheduleEvent, compareScheduleEvents } from '@/lib/portfolio/portfolio';
+import { type ScheduleEvent, compareScheduleEvents, isReceived } from '@/lib/portfolio/portfolio';
 import { type Wallet, type WalletScopeOptions, isinsIn } from '@/lib/portfolio/wallet';
 import type { PaymentFilters } from '@/stores/operations';
 
@@ -30,9 +30,12 @@ export function countActiveFilters(filters: PaymentFilters, options: WalletScope
   ].filter(Boolean).length;
 }
 
-/** A payment counts as past once received, a purchase once its date has come. */
-function isPastEvent(event: ScheduleEvent, today: string): boolean {
-  return 'id' in event ? event.date <= today : event.isPaid;
+/**
+ * A payment counts as past once received in full, an operation once confirmed: one still planned
+ * is upcoming even after its date, until the user says whether it took place.
+ */
+function isPastEvent(event: ScheduleEvent): boolean {
+  return 'id' in event ? !event.planned : isReceived(event);
 }
 
 export type FilteredSchedule = {
@@ -58,7 +61,7 @@ export function filterSchedule(wallet: Wallet, filters: PaymentFilters): Filtere
       (event) =>
         (isins.length === 0 || isins.includes(event.isin)) &&
         (types.length === 0 || types.includes(event.type)) &&
-        (time === 'all' || isPastEvent(event, wallet.today) === (time === 'past')),
+        (time === 'all' || isPastEvent(event) === (time === 'past')),
     )
     .sort(compareScheduleEvents);
   return { events, totalCount: inCurrency.length };

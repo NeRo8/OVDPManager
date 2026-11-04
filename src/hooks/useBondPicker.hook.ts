@@ -27,7 +27,7 @@ export function useBondPicker() {
       .filter((position) => position.quantity > 0)
       .map((position) => [
         position.isin,
-        { quantity: position.quantity, planned: plannedPart(position, today).quantity },
+        { quantity: position.quantity, planned: plannedPart(position).quantity },
       ]),
   );
 

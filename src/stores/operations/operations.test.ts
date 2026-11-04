@@ -20,6 +20,7 @@ import { initialState, useOperationsStore } from './store';
 const purchaseOf = (planId: string, isin: string): Omit<PlanOperation, 'id'> => ({
   type: 'purchase',
   ovdp: null,
+  planned: false,
   planId,
   isin,
   date: '2026-01-15',
@@ -43,7 +44,7 @@ describe('operations', () => {
   it('changes only the date, quantity and amount of the purchase named', () => {
     const changed = addOperation(purchaseOf('a', 'UA1'));
     const other = addOperation(purchaseOf('a', 'UA1'));
-    updateOperation(changed.id, { date: '2026-02-01', quantity: 3, amount: 2970 });
+    updateOperation(changed.id, { date: '2026-02-01', quantity: 3, amount: 2970, planned: false });
     expect(getOperations()).toEqual([
       { ...changed, date: '2026-02-01', quantity: 3, amount: 2970 },
       other,
@@ -88,7 +89,7 @@ it('does not change stored history when editing or deleting a purchase would inv
   const before = getOperations();
   expect(() => removeOperation(bought.id)).toThrow('перевищує');
   expect(() =>
-    updateOperation(bought.id, { date: '2026-03-01', quantity: 10, amount: 10000 }),
+    updateOperation(bought.id, { date: '2026-03-01', quantity: 10, amount: 10000, planned: false }),
   ).toThrow('перевищує');
   expect(getOperations()).toEqual(before);
 });

@@ -15,6 +15,7 @@ const operation = {
   planId: 'p',
   type: 'purchase',
   ovdp: bond,
+  planned: false,
   isin: 'UA1',
   currency: 'UAH',
   date: '2025-02-01',
@@ -47,8 +48,29 @@ it('rejects a valid-looking sale that exceeds the holding', () => {
   expect(() => validateContents(parsed)).toThrow('перевищує');
 });
 
+it('gives operations from a file written before confirmation a planned flag by their date', () => {
+  const { planned: _planned, ...unflagged } = operation;
+  const ahead = { ...unflagged, id: 'ahead', date: '2099-01-01', ovdp: null };
+  const [made, planned] = validateContents(
+    contentsSchema.parse({ ...contents, operations: [unflagged, ahead] }),
+  );
+  expect(made.planned).toBe(false);
+  expect(planned.planned).toBe(true);
+  // A flag in the file is kept, but nothing dated ahead can have taken place.
+  const kept = validateContents(
+    contentsSchema.parse({
+      ...contents,
+      operations: [
+        { ...operation, planned: true },
+        { ...ahead, planned: false },
+      ],
+    }),
+  );
+  expect(kept.map((item) => item.planned)).toEqual([true, true]);
+});
+
 it('reads the actual v6 purchaseDate format without requiring a live catalog', () => {
-  const { type: _type, ovdp: _ovdp, date, ...purchase } = operation;
+  const { type: _type, ovdp: _ovdp, date, planned: _planned, ...purchase } = operation;
   const legacy = legacyContentsSchema.parse({
     plans: contents.plans,
     holdings: [{ ...purchase, purchaseDate: date }],

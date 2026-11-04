@@ -18,13 +18,20 @@ import { useSaleForm } from './useSaleForm.hook';
 
 type Props = { bond: Bond; operationId?: string };
 
+/**
+ * Records a sale, or changes one. A sale dated ahead is planned; once its date has come it asks
+ * whether it took place: saving confirms it, «Продаж не відбувся» removes it.
+ */
 export function SaleForm({ bond, operationId }: Props) {
-  const { control, isValid, submit, price, available, assessment } = useSaleForm(bond, operationId);
+  const { control, isValid, submit, price, available, assessment, awaiting, cancel, isPlanned } =
+    useSaleForm(bond, operationId);
+  const save = () => void submit();
+  const saveTitle = awaiting && !isPlanned ? 'Продаж відбувся' : 'Зберегти продаж';
   return (
     <FormScrollView>
       <Section
         title="Продаж"
-        footer="Вкажіть повну суму, отриману після комісій. Попередні купівлі й виплати залишаться в історії. Купон у день продажу належить продавцю."
+        footer="Вкажіть повну суму, отриману після комісій. Попередні купівлі й виплати залишаться в історії. Купон у день продажу належить продавцю. Продаж з майбутньою датою — запланований, доки ви його не підтвердите."
       >
         <InfoRow label="ISIN" value={bond.isin} />
         <InfoRow label="Доступно на дату" value={`${available} шт`} />
@@ -82,7 +89,8 @@ export function SaleForm({ bond, operationId }: Props) {
         />
       )}
       {assessment && <SaleComparisonSection bond={bond} assessment={assessment} />}
-      <Button title="Зберегти продаж" disabled={!isValid} onPress={() => void submit()} />
+      <Button title={saveTitle} disabled={!isValid} onPress={save} />
+      {awaiting && <Button title="Продаж не відбувся" variant="secondary" onPress={cancel} />}
     </FormScrollView>
   );
 }

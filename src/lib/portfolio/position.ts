@@ -8,18 +8,18 @@ import {
   type Currency,
   type Position,
   type PositionPayment,
-  isPlannedPurchase,
   isRedeemed,
   nextPayment,
   positionCurrency,
   positionPayments,
+  receivedAmount,
   sumTotals,
 } from './portfolio';
 import { annualYield } from './yield';
 
 /**
- * Where a Position stands: every purchase still ahead, in circulation, redeemed (its maturity date
- * behind today), or unknown without the NBU data.
+ * Where a Position stands: every operation still planned (not confirmed), in circulation, redeemed
+ * (its maturity date behind today), sold off in full, or unknown without the NBU data.
  */
 export type PositionState = 'planned' | 'inCirculation' | 'redeemed' | 'sold' | 'unknown';
 
@@ -87,7 +87,7 @@ export type WalletPosition = {
   annualYieldBasis: number;
   /** Purchases left out of `annualYield`, as no yield `annualYield` can find fits their price */
   purchasesWithoutYield: number;
-  /** Its operations still planned (dated after today), together; zero when all are made */
+  /** Its purchases not yet confirmed, together; zero when all are made */
   planned: { quantity: number; amount: number };
 };
 
@@ -110,7 +110,6 @@ function positionResults(
   position: Position,
   bond: Bond,
   payments: PositionPayment[],
-  today: string,
 ): PositionResults {
   const coupons = sumTotals(payments.filter((payment) => payment.type === 'coupon'));
   const redemption = sumTotals(payments.filter((payment) => payment.type === 'redemption'));
@@ -119,19 +118,19 @@ function positionResults(
   const saleProceeds = round2(sales.reduce((sum, sale) => sum + sale.amount, 0));
   const totalPayments = round2(coupons + redemption + saleProceeds);
   const complete = position.quantity === 0 || hasRedemption(bond);
+  // A payment's date passing pays only the bonds of confirmed purchases, and a sale counts once
+  // confirmed: what is still planned is expected, whatever its date.
+  const received = round2(
+    payments.reduce((sum, payment) => sum + receivedAmount(payment), 0) +
+      sales.filter((sale) => !sale.planned).reduce((sum, sale) => sum + sale.amount, 0),
+  );
   return {
     invested,
     coupons,
     redemption,
     saleProceeds,
-    received: round2(
-      sumTotals(payments.filter((payment) => payment.isPaid)) +
-        sales.filter((sale) => sale.date <= today).reduce((sum, sale) => sum + sale.amount, 0),
-    ),
-    expected: round2(
-      sumTotals(payments.filter((payment) => !payment.isPaid)) +
-        sales.filter((sale) => sale.date > today).reduce((sum, sale) => sum + sale.amount, 0),
-    ),
+    received,
+    expected: round2(totalPayments - received),
     totalPayments,
     complete,
     ...netIncomeOf({ invested, totalPayments }, complete),
@@ -191,7 +190,7 @@ function positionYield(position: Position, bond: Bond): PositionYield {
 function positionState(position: Position, bond: Bond | undefined, today: string): PositionState {
   if (!bond) return 'unknown';
   if (position.quantity === 0) return 'sold';
-  if (position.operations.every((purchase) => isPlannedPurchase(purchase, today))) return 'planned';
+  if (position.operations.every((operation) => operation.planned)) return 'planned';
   return isRedeemed(bond, today) ? 'redeemed' : 'inCirculation';
 }
 
@@ -209,15 +208,17 @@ export function walletPosition(
     payments,
     nextPayment: nextPayment(payments),
     state: positionState(position, bond, today),
-    results: bond && positionResults(position, bond, payments, today),
+    results: bond && positionResults(position, bond, payments),
     ...(bond ? positionYield(position, bond) : NO_YIELD),
-    planned: plannedPart(position, today),
+    planned: plannedPart(position),
   };
 }
 
-/** A Position's operations still planned (dated after today), together. */
-export function plannedPart(position: Position, today: string): WalletPosition['planned'] {
-  const planned = position.operations.filter((purchase) => isPlannedPurchase(purchase, today));
+/** A Position's purchases not yet confirmed, together. */
+export function plannedPart(position: Position): WalletPosition['planned'] {
+  const planned = position.operations.filter(
+    (operation) => operation.type === 'purchase' && operation.planned,
+  );
   return {
     quantity: planned.reduce((sum, purchase) => sum + purchase.quantity, 0),
     amount: round2(planned.reduce((sum, purchase) => sum + purchase.amount, 0)),

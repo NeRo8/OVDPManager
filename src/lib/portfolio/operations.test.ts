@@ -1,4 +1,4 @@
-import { migratePurchases } from './migrateOperations';
+import { migratePurchases, withPlannedFlags } from './migrateOperations';
 import { mergeBond, operationHistoryError, refreshOperationBonds } from './operations';
 import type { Bond, PlanOperation } from './portfolio';
 import { buildWallet } from './wallet';
@@ -22,6 +22,7 @@ const purchase: PlanOperation = {
   planId: 'a',
   type: 'purchase',
   ovdp: bond,
+  planned: false,
   isin: bond.isin,
   currency: 'UAH',
   date: '2025-02-01',
@@ -103,10 +104,28 @@ it('rejects overselling on any date, after deleting or moving a purchase, and ac
 });
 
 it('migrates legacy purchases from the cache and preserves missing bonds explicitly', () => {
-  const { type: _type, ovdp: _ovdp, date, ...legacy } = purchase;
+  const { type: _type, ovdp: _ovdp, date, planned: _planned, ...legacy } = purchase;
   const old = { ...legacy, purchaseDate: date };
-  expect(migratePurchases([old], [bond])).toEqual([purchase]);
-  expect(migratePurchases([old], [])[0]).toMatchObject({ type: 'purchase', ovdp: null, date });
+  expect(migratePurchases([old], [bond], '2026-01-01')).toEqual([purchase]);
+  expect(migratePurchases([old], [], '2026-01-01')[0]).toMatchObject({
+    type: 'purchase',
+    ovdp: null,
+    date,
+  });
+  // A purchase still ahead when migrated stays planned.
+  expect(migratePurchases([old], [bond], '2025-01-01')[0].planned).toBe(true);
+});
+
+it('gives operations saved before confirmation existed a planned flag by their date', () => {
+  const { planned: _planned, ...unflagged } = purchase;
+  const ahead = { ...unflagged, id: 'ahead', date: '2026-06-01' };
+  expect(withPlannedFlags([unflagged, ahead], '2026-01-01').map((item) => item.planned)).toEqual([
+    false,
+    true,
+  ]);
+  // One dated ahead cannot have taken place, whatever it says; a confirmed one stays confirmed.
+  expect(withPlannedFlags([{ ...ahead, planned: false }], '2026-01-01')[0].planned).toBe(true);
+  expect(withPlannedFlags([{ ...unflagged, planned: true }], '2026-01-01')[0].planned).toBe(true);
 });
 
 it('allocates partial sales to the earliest purchases for annual yield', () => {

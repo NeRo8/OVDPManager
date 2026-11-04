@@ -32,6 +32,7 @@ const operations: PlanOperation[] = [
   {
     type: 'purchase',
     ovdp: null,
+    planned: false,
     id: 'a',
     planId: 'plan-1',
     isin: 'UA4000227045',
@@ -43,6 +44,8 @@ const operations: PlanOperation[] = [
   {
     type: 'purchase',
     ovdp: null,
+    // Dated ahead, so planned: a file cannot hold it as made.
+    planned: true,
     id: 'b',
     planId: 'plan-2',
     isin: 'UA4000234412',

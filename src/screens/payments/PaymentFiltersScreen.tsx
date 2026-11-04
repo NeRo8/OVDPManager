@@ -81,7 +81,7 @@ export default function PaymentFiltersScreen() {
 
       <SegmentedSection
         title="Час"
-        footer="Майбутні — виплати, яких ще не отримано, і заплановані купівлі; минулі — отримані виплати, зроблені купівлі та продажі."
+        footer="Майбутні — виплати, яких ще не отримано, і заплановані купівлі та продажі; минулі — отримані виплати, зроблені купівлі та продажі."
         options={TIME_OPTIONS}
         value={filters.time}
         onChange={changeTime}

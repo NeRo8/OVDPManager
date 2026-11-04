@@ -29,7 +29,7 @@ export default function AddBondDetailsScreen() {
   const owned = positions.find(({ position }) => position.isin === isin);
   const ownedQuantity = owned?.position.quantity ?? 0;
   const plannedQuantity = owned?.planned.quantity ?? 0;
-  const isTopUp = hasMadePurchase(owned?.position.operations ?? [], today);
+  const isTopUp = hasMadePurchase(owned?.position.operations ?? []);
   const addPurchase = () => router.push({ pathname: '/add/[isin]/purchase', params: { isin } });
   const header = <Stack.Screen options={{ title: isin }} />;
 

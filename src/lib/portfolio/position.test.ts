@@ -27,6 +27,7 @@ function purchase(fields: Partial<Operation> & Pick<Operation, 'date' | 'amount'
   return {
     type: 'purchase',
     ovdp: null,
+    planned: false,
     id: String(nextId),
     isin: bond.isin,
     quantity: 1,
@@ -65,16 +66,34 @@ describe('walletPosition', () => {
     expect(positionOf(bought, '2027-01-02').state).toBe('redeemed');
   });
 
-  it('tells what of the Position is still only planned', () => {
-    const mixed = [...bought, purchase({ date: '2026-05-01', amount: 990, quantity: 1 })];
+  it('tells what of the Position is still only planned, until it is confirmed', () => {
+    const planned = purchase({ date: '2026-05-01', amount: 990, quantity: 1, planned: true });
+    const mixed = [...bought, planned];
     expect(positionOf(mixed, '2026-03-15').planned).toEqual({ quantity: 1, amount: 990 });
-    expect(positionOf(mixed, '2026-05-01').planned).toEqual({ quantity: 0, amount: 0 });
+    // Its date coming changes nothing: only a confirmation does.
+    expect(positionOf(mixed, '2026-05-01').planned).toEqual({ quantity: 1, amount: 990 });
+    const confirmed = [...bought, { ...planned, planned: false }];
+    expect(positionOf(confirmed, '2026-05-01').planned).toEqual({ quantity: 0, amount: 0 });
   });
 
-  it('is planned while every purchase is still ahead', () => {
-    const planned = [purchase({ date: '2026-05-01', amount: 990 })];
+  it('is planned while every purchase is still planned, its date passed or not', () => {
+    const planned = [purchase({ date: '2026-05-01', amount: 990, planned: true })];
     expect(positionOf(planned, '2026-03-15').state).toBe('planned');
-    expect(positionOf(planned, '2026-05-01').state).toBe('inCirculation');
+    expect(positionOf(planned, '2026-08-01').state).toBe('planned');
+    expect(positionOf([{ ...planned[0], planned: false }], '2026-08-01').state).toBe(
+      'inCirculation',
+    );
+  });
+
+  it('receives nothing for a planned purchase whose date has come, until it is confirmed', () => {
+    // Planned for 02.01.2026 and not confirmed: its share of the 01.07.2026 coupon is not received.
+    const planned = purchase({ date: '2026-01-02', amount: 1000, planned: true });
+    const waiting = positionOf([...bought, planned], '2026-08-01').results;
+    const confirmed = positionOf([...bought, { ...planned, planned: false }], '2026-08-01').results;
+    // The two bonds bought before get their three coupons either way: 3 × 2 × 50.
+    expect(waiting?.received).toBe(300);
+    expect(confirmed?.received).toBe(350);
+    expect(waiting?.totalPayments).toBe(confirmed?.totalPayments);
   });
 
   it('knows nothing but its cost without the NBU data', () => {

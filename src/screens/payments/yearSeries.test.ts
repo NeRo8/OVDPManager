@@ -13,6 +13,7 @@ it('shows planned operations separately and respects selected event types', () =
         quantity: 1,
         total: 1000,
         isTopUp: false,
+        planned: true,
       },
     ],
     'UAH',

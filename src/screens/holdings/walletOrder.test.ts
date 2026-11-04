@@ -27,6 +27,7 @@ const bonds = [
 const purchaseOf = (isin: string, date = '2024-02-01'): Operation => ({
   type: 'purchase',
   ovdp: null,
+  planned: false,
   id: isin,
   isin,
   date,

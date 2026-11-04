@@ -24,10 +24,14 @@ const hryvnia = bondOf('UA4000000001', 'UAH');
 const dollar = bondOf('UA4000000002', 'USD');
 const byIsin = new Map([hryvnia, dollar].map((bond) => [bond.isin, bond]));
 
+const today = '2026-03-15';
+
+/** Planned while ahead of `today`, made (confirmed) before it. */
 function purchase(bond: Bond, date: string): Operation {
   return {
     type: 'purchase',
     ovdp: null,
+    planned: date > today,
     id: date + bond.isin,
     isin: bond.isin,
     currency: bond.currency,
@@ -44,7 +48,7 @@ const wallet = buildWallet(
     purchase(hryvnia, '2026-05-01'),
   ],
   byIsin,
-  '2026-03-15',
+  today,
 );
 const fresh: PaymentFilters = { types: [], time: 'all', currency: null, isins: [] };
 
@@ -94,6 +98,15 @@ describe('filterSchedule', () => {
     const coupons = filterSchedule(wallet, { ...fresh, currency: 'UAH', types: ['coupon'] });
     expect(coupons.events.map(({ type }) => type)).toEqual(['coupon']);
     expect(coupons.totalCount).toBe(4);
+  });
+
+  it('keeps an operation upcoming until it is confirmed, even once its date has come', () => {
+    const overdue = { ...purchase(hryvnia, '2026-03-01'), planned: true };
+    const withOverdue = buildWallet([...wallet.operations, overdue], byIsin, today);
+    const upcoming = filterSchedule(withOverdue, { ...fresh, currency: 'UAH', time: 'upcoming' });
+    expect(upcoming.events.map(({ date }) => date)).toContain('2026-03-01');
+    const past = filterSchedule(withOverdue, { ...fresh, currency: 'UAH', time: 'past' });
+    expect(past.events.map(({ date }) => date)).not.toContain('2026-03-01');
   });
 
   it('counts the events of the currency shown before the other filters, no other currency’s', () => {

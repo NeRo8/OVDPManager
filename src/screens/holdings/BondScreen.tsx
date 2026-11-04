@@ -14,12 +14,7 @@ import { SectionCell } from '@/components/layout/SectionCell';
 import { BondTerms } from '@/components/portfolio/BondTerms';
 import { ScheduleEventRow } from '@/components/portfolio/ScheduleEventRow';
 import { Typography } from '@/components/typography/Typography';
-import {
-  type PositionPayment,
-  type Operation,
-  canBuyOn,
-  isPlannedPurchase,
-} from '@/lib/portfolio/portfolio';
+import { type PositionPayment, type Operation, canBuyOn } from '@/lib/portfolio/portfolio';
 
 import { HintsSection } from './HintsSection';
 import { PositionSummary } from './PositionSummary';
@@ -83,7 +78,7 @@ export default function BondScreen() {
     { label: `Операції (${position.operations.length})`, value: 'operations' },
   ];
   const rows: BondRow[] = tab === 'operations' ? position.operations : payments;
-  const onlyPlanned = position.operations.every((purchase) => isPlannedPurchase(purchase, today));
+  const onlyPlanned = position.operations.every((operation) => operation.planned);
 
   const topUp = () =>
     router.push({ pathname: '/add/[isin]/purchase', params: { isin: position.isin } });

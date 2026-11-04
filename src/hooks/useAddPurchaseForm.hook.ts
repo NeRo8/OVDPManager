@@ -12,7 +12,8 @@ import { purchasePreview } from '@/lib/add-purchase/purchasePreview';
 import {
   type Bond,
   type Operation,
-  isPlannedPurchase,
+  awaitsConfirmation,
+  plannedByDate,
   pricePerBond,
 } from '@/lib/portfolio/portfolio';
 import { useToday, showToast } from '@/stores/appSettings';
@@ -21,6 +22,7 @@ import { addOperationToActivePlan } from '@/stores/plans';
 import { amountInputText } from '@/utils/format';
 
 import { useBonds } from './useBonds.hook';
+import { useCancelPlanned } from './useCancelPlanned.hook';
 import { useKeyRate } from './useKeyRate.hook';
 
 /**
@@ -64,7 +66,10 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void, purchase?: O
   const quantity = schema.shape.quantity.safeParse(values.quantity);
   const price =
     amount.success && quantity.success ? pricePerBond(amount.data, quantity.data) : null;
-  const isPlanned = isPlannedPurchase({ date }, today);
+  const isPlanned = plannedByDate(date, today);
+  // A planned purchase whose date has come: the form asks whether it took place.
+  const awaiting = purchase ? awaitsConfirmation(purchase, today) : false;
+  const cancel = useCancelPlanned(purchase, onSaved);
   const preview = parsed.success
     ? purchasePreview({
         bond,
@@ -81,9 +86,15 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void, purchase?: O
       if (saving.current) return;
       saving.current = true;
       try {
+        // Saved with a date that has come, the purchase took place: that is its confirmation.
+        const planned = plannedByDate(date, today);
         if (purchase) {
-          updateOperation(purchase.id, { date, quantity, amount });
-          showToast({ tone: 'success', title: 'Купівлю змінено', message: bond.isin });
+          updateOperation(purchase.id, { date, quantity, amount, planned });
+          showToast({
+            tone: 'success',
+            title: purchase.planned && !planned ? 'Купівлю підтверджено' : 'Купівлю змінено',
+            message: bond.isin,
+          });
           onSaved();
           return;
         }
@@ -95,6 +106,7 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void, purchase?: O
           amount,
           quantity,
           currency: bond.currency,
+          planned,
         });
         if (!saved) {
           saving.current = false;
@@ -124,6 +136,8 @@ export function useAddPurchaseForm(bond: Bond, onSaved: () => void, purchase?: O
     date,
     pricePerBond: price,
     isPlanned,
+    awaiting,
+    cancel,
     preview,
   };
 }

@@ -2,6 +2,7 @@ import {
   type Bond,
   type PositionPayment,
   groupPositions,
+  plannedByDate,
   pricePerBond,
 } from '@/lib/portfolio/portfolio';
 import { walletPosition } from '@/lib/portfolio/position';
@@ -53,6 +54,7 @@ export function purchasePreview({
     id: 'draft',
     isin: bond.isin,
     currency: bond.currency,
+    planned: plannedByDate(values.date, today),
   };
   const position = groupPositions([draft])[0];
   const { results, payments, nextPayment, annualYield } = walletPosition(position, bond, today);

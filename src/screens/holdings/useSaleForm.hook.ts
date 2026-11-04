@@ -3,9 +3,10 @@ import { useRef } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useFormState, useWatch } from 'react-hook-form';
 
+import { useCancelPlanned } from '@/hooks/useCancelPlanned.hook';
 import { useWallet } from '@/hooks/useWallet.hook';
 import { quantityOn } from '@/lib/portfolio/operations';
-import type { Bond } from '@/lib/portfolio/portfolio';
+import { type Bond, awaitsConfirmation, plannedByDate } from '@/lib/portfolio/portfolio';
 import { showToast } from '@/stores/appSettings';
 import { getOperations, updateOperation } from '@/stores/operations';
 import { addOperationToActivePlan } from '@/stores/plans';
@@ -14,6 +15,12 @@ import { goBackOrHome } from '@/utils/navigation';
 
 import { type SaleFormInput, type SaleFormValues, saleFormSchema } from './saleForm.schema';
 import { useHoldOrSell } from './useHoldOrSell.hook';
+
+/** The toast after saving: a new sale, a planned one, one confirmed or one corrected. */
+function savedTitle(wasPlanned: boolean | undefined, planned: boolean): string {
+  if (wasPlanned === undefined) return planned ? 'Продаж заплановано' : 'Продаж збережено';
+  return wasPlanned && !planned ? 'Продаж підтверджено' : 'Продаж змінено';
+}
 
 export function useSaleForm(bond: Bond, operationId?: string) {
   const { operations, plan, today } = useWallet();
@@ -40,12 +47,18 @@ export function useSaleForm(bond: Bond, operationId?: string) {
     operations.filter((operation) => operation.isin === bond.isin && operation.id !== existing?.id),
     values.date ?? today,
   );
+  // A planned sale whose date has come: the form asks whether it took place.
+  const awaiting = existing ? awaitsConfirmation(existing, today) : false;
+  const cancel = useCancelPlanned(existing, goBackOrHome);
+  const isPlanned = plannedByDate(values.date ?? today, today);
   const submit = () =>
     form.handleSubmit((values) => {
       if (saving.current) return;
       saving.current = true;
       try {
-        if (existing) updateOperation(existing.id, values);
+        // Saved with a date that has come, the sale took place: that is its confirmation.
+        const planned = plannedByDate(values.date, today);
+        if (existing) updateOperation(existing.id, { ...values, planned });
         else if (
           !addOperationToActivePlan({
             ...values,
@@ -53,12 +66,13 @@ export function useSaleForm(bond: Bond, operationId?: string) {
             ovdp: bond,
             isin: bond.isin,
             currency: bond.currency,
+            planned,
           })
         )
           throw new Error('Немає активного плану');
         showToast({
           tone: 'success',
-          title: existing ? 'Продаж змінено' : 'Продаж збережено',
+          title: savedTitle(existing?.planned, planned),
           message: bond.isin,
         });
         goBackOrHome();
@@ -72,6 +86,9 @@ export function useSaleForm(bond: Bond, operationId?: string) {
       }
     })();
   return {
+    awaiting,
+    cancel,
+    isPlanned,
     control: form.control,
     isValid,
     submit,
