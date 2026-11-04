@@ -65,8 +65,8 @@ export default function PaymentsScreen() {
               }
             : {
                 icon: 'calendar-outline',
-                title: 'Виплат і купівель немає',
-                message: `${period} за планом немає ні виплат купонів і погашень, ні купівель. Оберіть ${other}.`,
+                title: 'Виплат і операцій немає',
+                message: `${period} за планом немає ні виплат купонів і погашень, ні купівель чи продажів. Оберіть ${other}.`,
               }
         }
         ListFooterComponent={<NbuSourceNote />}

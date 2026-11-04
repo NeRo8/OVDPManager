@@ -60,7 +60,7 @@ export function MonthBreakdown({
           <View style={styles.monthRows}>
             {monthRows.length === 0 && (
               <Typography variant="footnote" tone="secondary">
-                Виплат і купівель немає
+                Виплат і операцій немає
               </Typography>
             )}
             {monthPayments.map((s) => (
@@ -73,7 +73,7 @@ export function MonthBreakdown({
             ))}
             {monthPayments.length > 1 && (
               <TotalRow
-                label="Усього виплат"
+                label="Усього надходжень"
                 value={<Money value={monthPaymentTotal} currency={currency} />}
               />
             )}

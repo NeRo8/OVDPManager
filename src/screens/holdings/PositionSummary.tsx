@@ -71,7 +71,7 @@ export function PositionSummary({ item, hasTopUps }: Props) {
       {results?.returnPercent != null && (
         <InfoRow
           label="Дохідність за весь строк"
-          hint="Чистий дохід у відсотках від вкладеного, без перерахунку на рік, податків і комісій"
+          hint="Чистий дохід у відсотках від вкладеного за весь строк, без перерахунку на рік; комісії враховані в сумах операцій"
           value={<Percent value={results.returnPercent} />}
         />
       )}

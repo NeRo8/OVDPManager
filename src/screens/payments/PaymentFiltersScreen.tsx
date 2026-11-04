@@ -81,13 +81,13 @@ export default function PaymentFiltersScreen() {
 
       <SegmentedSection
         title="Час"
-        footer="Майбутні — виплати, яких ще не отримано, і заплановані купівлі; минулі — отримані виплати та зроблені купівлі."
+        footer="Майбутні — виплати, яких ще не отримано, і заплановані купівлі; минулі — отримані виплати, зроблені купівлі та продажі."
         options={TIME_OPTIONS}
         value={filters.time}
         onChange={changeTime}
       />
 
-      <Section title="ОВДП" footer="Позначте ОВДП, виплати й купівлі яких показувати.">
+      <Section title="ОВДП" footer="Позначте ОВДП, виплати й операції яких показувати.">
         <CheckRow title="Усі ОВДП" checked={filters.isins.length === 0} onPress={showAllBonds} />
         {isinsIn(options, filters.currency).map((isin) => {
           const bond = wallet.byIsin.get(isin);

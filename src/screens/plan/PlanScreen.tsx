@@ -107,7 +107,7 @@ export default function PlanScreen() {
               title="Надходження"
               footer={
                 total.incompleteCount > 0
-                  ? `НБУ ще не опублікував погашення ${total.incompleteCount} ОВДП, тож у погашенні й усього виплат їх немає.`
+                  ? `НБУ ще не опублікував погашення ${total.incompleteCount} ОВДП, тож у погашенні й усього надходжень їх немає.`
                   : undefined
               }
             >
