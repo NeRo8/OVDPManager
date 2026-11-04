@@ -49,21 +49,24 @@ export const light = {
   fab: '#E53D00',
   fabIcon: '#FCFFF7',
   fabText: '#000000',
-  // Chart series: teal, blue, vermilion and plum for planned purchases; checked with the dataviz
-  // palette validator against `card` (lightness, chroma, CVD and normal-vision separation, all
-  // pairs). Two teals did not separate.
+  // Chart series: teal, blue, vermilion, plum for planned purchases and copper for sales; checked
+  // with the dataviz palette validator against `card` (lightness, chroma, CVD and normal-vision
+  // separation, all pairs). Two teals did not separate, nor did amber or olive from vermilion.
   seriesCoupon: '#21A0A0',
   seriesRedemption: '#4A5FD0',
   seriesPurchase: '#E53D00',
   seriesPlannedPurchase: '#9E3F7A',
+  seriesSale: '#803800',
   // The same hues stepped to 4.5:1 on `card`, for amounts written in the series color.
   seriesCouponText: '#046865',
   seriesRedemptionText: '#4A5FD0',
   seriesPurchaseText: '#C23300',
+  seriesSaleText: '#803800',
   // The badges of the schedule's rows, with `accentText` on top (5.4:1 and more).
   seriesCouponBadge: '#046865',
   seriesRedemptionBadge: '#4A5FD0',
   seriesPurchaseBadge: '#C23300',
+  seriesSaleBadge: '#803800',
   /**
    * Each currency's badge, with `accentText` on top (5.1:1 and more): hryvnia berry, dollar green,
    * euro indigo. Checked with the dataviz palette validator on `card` and `background`; the
@@ -114,12 +117,15 @@ export const dark: AppTheme = {
   seriesRedemption: '#5C6CE6',
   seriesPurchase: '#EE5A24',
   seriesPlannedPurchase: '#A3478A',
+  seriesSale: '#985000',
   seriesCouponText: '#3CC9C3',
   seriesRedemptionText: '#8C98F5',
   seriesPurchaseText: '#FF6A33',
+  seriesSaleText: '#D08040',
   seriesCouponBadge: '#00827D',
   seriesRedemptionBadge: '#5768E5',
   seriesPurchaseBadge: '#D04410',
+  seriesSaleBadge: '#A65A0C',
   // Steps under the light `accentText` (4.6:1) that still stand out on `card` and black (3.9:1),
   // checked with the dataviz palette validator; berry–green is 7.0 for deutan readers.
   currencyUah: '#BD4892',

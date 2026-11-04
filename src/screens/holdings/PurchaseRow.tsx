@@ -43,8 +43,8 @@ export function PurchaseRow({ purchase, bond, today, onEdit, onDelete }: Props) 
       onPress={bond ? edit : undefined}
       accessibilityRole={bond ? 'button' : undefined}
       accessibilityLabel={bond ? `Змінити операцію від ${formatDate(purchase.date)}` : undefined}
-      // Badged as the payments' rows below it, in the operations' color.
-      leading={<Avatar label={currencySign(currency)} color={SERIES_COLORS.purchase.badge} />}
+      // Badged as the payments' rows, in the color of its operation's series.
+      leading={<Avatar label={currencySign(currency)} color={SERIES_COLORS[purchase.type].badge} />}
       title={
         <Typography variant="callout" tabular>
           {kind} · {formatDate(purchase.date)} · {purchase.quantity} шт

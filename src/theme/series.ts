@@ -11,7 +11,7 @@ export const SERIES_COLORS = {
     text: 'seriesRedemptionText',
     badge: 'seriesRedemptionBadge',
   },
-  sale: { mark: 'seriesRedemption', text: 'seriesRedemptionText', badge: 'seriesRedemptionBadge' },
+  sale: { mark: 'seriesSale', text: 'seriesSaleText', badge: 'seriesSaleBadge' },
   purchase: { mark: 'seriesPurchase', text: 'seriesPurchaseText', badge: 'seriesPurchaseBadge' },
   // Planned operations differ from made ones only on charts; their rows read as operations.
   plannedPurchase: {

@@ -16,6 +16,7 @@ import { currencySign, signPrefix } from '@/utils/format';
 const KINDS = {
   coupon: 'Купон',
   redemption: 'Погашення',
+  sale: 'Продаж',
 } as const;
 
 const purchaseKind = (isTopUp: boolean) => (isTopUp ? 'Докупівля' : 'Купівля');
@@ -36,7 +37,7 @@ type Props = {
 };
 
 /**
- * A payment, or a purchase (money paid) when the event is one. A payment still ahead says how
+ * A payment, a purchase (money paid) or a sale (money received). A payment still ahead says how
  * many days are left until it; a planned purchase, and a payment for bonds still only planned,
  * say so.
  */
@@ -56,9 +57,9 @@ export function ScheduleEventRow({ event, showIsin, showQuantity }: Props) {
       (event.plannedQuantity === event.quantity
         ? 'заплановано'
         : `${event.plannedQuantity} з ${event.quantity} шт заплановано`);
-  const purchaseKindLabel = isPurchase ? purchaseKind(event.isTopUp) : undefined;
+  const kindLabel = event.type === 'purchase' ? purchaseKind(event.isTopUp) : KINDS[event.type];
   const kind = [
-    isOperation ? purchaseKindLabel : KINDS[event.type],
+    kindLabel,
     // A no-break space keeps "10 шт" on one line.
     (showQuantity || isOperation) && `${event.quantity} шт`,
     isPaid && 'отримано',
