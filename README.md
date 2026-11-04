@@ -1,6 +1,6 @@
 # ОВДП Портфель
 
-An Expo app for iOS that tracks Ukrainian government bonds (ОВДП): the bonds you hold or plan to buy, their coupon and redemption payments, the return on each purchase, and when selling a bond beats holding it. Bond data and the key rate come from the National Bank of Ukraine's open API. Purchases belong to investment plans, and everything can be saved to an encrypted backup, in a file or in the cloud.
+An Expo app for iOS that tracks Ukrainian government bonds (ОВДП): the bonds you hold or plan to buy, the purchases and sales you make, their coupon and redemption payments, the return on each purchase, and when selling a bond beats holding it. Bond data and the key rate come from the National Bank of Ukraine's open API. Purchases belong to investment plans, and everything can be saved to an encrypted backup, in a file or in the cloud.
 
 The UI is in Ukrainian. [`GLOSSARY.md`](GLOSSARY.md) explains every term it uses, and [`spec/`](spec/) describes each screen and calculation as numbered rules.
 
@@ -8,8 +8,8 @@ The UI is in Ukrainian. [`GLOSSARY.md`](GLOSSARY.md) explains every term it uses
 
 The app has four tabs:
 
-- **Виплати** shows payments one year at a time: the year's totals, a monthly chart and the events of the month you pick. Filters cover currency, event type (coupons, redemptions, purchases), time (all, upcoming, past) and bonds.
-- **Гаманець** is the wallet of the active plan. A bond's card shows its terms, results, payments and purchases, and says whether to keep the bond or sell it. The sale screen gives the prices at which selling pays off. The «+» button opens the bond picker (filters by currency and term, search by ISIN, date or rate), then the bond's details and the purchase form. The form rates each purchase against the key rate and new bonds.
+- **Виплати** shows payments one year at a time: the year's totals, a monthly chart and the events of the month you pick. Filters cover currency, event type (coupons, redemptions, purchases, sales), time (all, upcoming, past) and bonds.
+- **Гаманець** is the wallet of the active plan. A bond's card shows its terms, results, payments, purchases and sales, and says whether to keep the bond or sell it. The sale screen records a sale (date, quantity, amount received) and, for a full sale today, gives the prices at which selling pays off; sold bonds stay in the history. The «+» button opens the bond picker (filters by currency and term, search by ISIN, date or rate), then the bond's details and the purchase form. The form rates each purchase against the key rate and new bonds.
 - **План** shows the purchases planned for the next weeks, the money they need and the plan's totals. «Мої плани» switches, creates, renames, copies and deletes plans.
 - **Налаштування** creates and restores backups, connects the Google account for the cloud copy, picks the theme and replays the intro.
 
@@ -73,14 +73,14 @@ The backup encryption uses standard algorithms, so App Store Connect needs a doc
 | `src/screens/`    | Screen bodies by area, with the parts and logic only that area uses.                            |
 | `src/components/` | The UI kit, and the portfolio blocks several screens share (`portfolio/`).                      |
 | `src/hooks/`      | The wallet, NBU queries, the purchase form, the bond picker, backups, pull-to-refresh.          |
-| `src/stores/`     | Zustand stores, a folder each; all but the toast are persisted in MMKV.                         |
+| `src/stores/`     | Zustand stores, a folder each, persisted in MMKV (except today's date and the toast).           |
 | `src/api/`        | The NBU client and requests, the TanStack Query client, backup files and Firebase.              |
 | `src/lib/`        | Domain calculations and the backup codec.                                                       |
 | `src/utils/`      | Generic helpers: dates, formatting, numbers, storage.                                           |
 | `src/theme/`      | The Unistyles theme and design tokens.                                                          |
 | `assets/`         | The app icon, splash artwork and fonts.                                                         |
 
-This is the default Expo layout plus `stores/`, `api/` and `lib/`. Modules are imported by file with the `@/` alias (`@/components/layout/Section`); only store folders have an `index.ts`. Tests are Jest (`jest-expo`) files named `<module>.test.ts`, next to the module they cover; they test calculations, stores and requests, not screens. [`CLAUDE.md`](CLAUDE.md) describes the data flow, storage and styling rules.
+This is the default Expo layout plus `stores/`, `api/` and `lib/`. Modules are imported by file with the `@/` alias (`@/components/layout/Section`); only store folders have an `index.ts`. Tests are Jest (`jest-expo`) files named `<module>.test.ts`, next to the module they cover (a store's test is named after its folder, such as `plans.test.ts`); they test calculations, stores and requests, not screens. [`CLAUDE.md`](CLAUDE.md) describes the data flow, storage and styling rules.
 
 ## Code quality
 
