@@ -18,12 +18,14 @@ const STORAGE_KEY = 'holdings-v1';
 export const initialState: OperationsState = {
   operations: [],
   filters: { types: [], time: 'all', currency: null, isins: [] },
+  walletFilters: { kind: 'all', currency: 'all' },
 };
 
-/** Purchases of every plan, each with its `planId`, and the payments schedule's filters. */
+/** Operations of every plan and the wallet and payments filters over them. */
 export const useOperationsStore = create<OperationsState>()(
   persist(() => initialState, {
     name: STORAGE_KEY,
+    // Persist merges older state over initialState, supplying walletFilters when it is absent.
     // 0 kept `purchases`; 1 had operations without `planned`, which confirmation added in 2.
     version: 2,
     migrate: (persisted, version) => {

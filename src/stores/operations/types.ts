@@ -4,6 +4,11 @@ export type ScheduleEventType = ScheduleEvent['type'];
 /** Events still ahead (payments not yet received, planned operations), those behind, or both. */
 export type ScheduleTimeFilter = 'all' | 'upcoming' | 'past';
 
+export type WalletFilters = {
+  kind: BondKind | 'unknown' | 'all';
+  currency: Currency | 'all';
+};
+
 /**
  * The payments schedule's filters over the wallet's events; one set for the app, not per plan.
  * Every change applies at once and is remembered.
@@ -26,4 +31,5 @@ export type OperationsState = {
   /** Purchases of every plan */
   operations: PlanOperation[];
   filters: PaymentFilters;
+  walletFilters: WalletFilters;
 };

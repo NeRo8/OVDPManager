@@ -32,6 +32,8 @@ Follow the data validation boundaries in `AGENTS.md`: validate forms and decrypt
 
 NBU `cptype` distinguishes ОВДП (`DCP`) from ОЗДП (`OZDP`); the bond's kind and currency are separate. Older cached bonds and backup snapshots have no kind and must remain unknown until NBU supplies it. Keep the optional kind in backup validation and compare market rates only for the same known kind and currency.
 
+The wallet's kind and currency filters live beside the operations they narrow, as `walletFilters` in `stores/operations/`. They are independent of the payment filters, persist between launches, and are controlled by the wallet header's filters modal.
+
 ## Architecture
 
 The default Expo layout, plus `stores/`, `api/` and `lib/` for what its template has no folder for:

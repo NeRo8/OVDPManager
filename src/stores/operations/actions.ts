@@ -5,7 +5,7 @@ import { todayISO } from '@/utils/date';
 import { createId } from '@/utils/id';
 
 import { initialState, useOperationsStore } from './store';
-import type { PaymentFilters, ScheduleEventType } from './types';
+import type { PaymentFilters, ScheduleEventType, WalletFilters } from './types';
 
 function updateOperations(update: (current: PlanOperation[]) => PlanOperation[]): void {
   const operations = update(useOperationsStore.getState().operations);
@@ -105,4 +105,14 @@ export function togglePaymentFilterIsin(isin: string): void {
 
 export function resetPaymentFilters(): void {
   useOperationsStore.setState({ filters: initialState.filters });
+}
+
+export function updateWalletFilters(patch: Partial<WalletFilters>): void {
+  useOperationsStore.setState(({ walletFilters }) => ({
+    walletFilters: { ...walletFilters, ...patch },
+  }));
+}
+
+export function resetWalletFilters(): void {
+  useOperationsStore.setState({ walletFilters: initialState.walletFilters });
 }

@@ -1,7 +1,7 @@
 import type { PlanOperation } from '@/lib/portfolio/portfolio';
 
 import { useOperationsStore } from './store';
-import type { PaymentFilters } from './types';
+import type { PaymentFilters, WalletFilters } from './types';
 
 /** Purchases of every plan. */
 export function useOperations(): PlanOperation[] {
@@ -15,4 +15,8 @@ export function getOperations(): PlanOperation[] {
 
 export function usePaymentFilters(): PaymentFilters {
   return useOperationsStore((state) => state.filters);
+}
+
+export function useWalletFilters(): WalletFilters {
+  return useOperationsStore((state) => state.walletFilters);
 }

@@ -110,6 +110,10 @@ export default function RootLayout() {
                   options={{ title: 'Фільтри виплат', ...filtersModal('/') }}
                 />
                 <NativeStack.Screen
+                  name="wallet-filters"
+                  options={{ title: 'Фільтри гаманця', ...filtersModal('/holdings') }}
+                />
+                <NativeStack.Screen
                   name="bond-filters"
                   options={{ title: 'Фільтри облігацій', ...filtersModal('/add') }}
                 />
