@@ -12,7 +12,7 @@ The app has four tabs:
 
 - **Виплати** shows payments one year at a time: the year's totals, a monthly chart and the events of the month you pick. Filters cover currency, event type (coupons, redemptions, purchases, sales), time (all, upcoming, past) and bonds.
 - **Гаманець** is the wallet of the active plan. A bond's card shows its terms, results, payments, purchases and sales, and says whether to keep the bond or sell it. The sale screen records a sale (date, quantity, amount received) and, for a full sale today, gives the prices at which selling pays off; sold bonds stay in the history. The «+» button opens the bond picker (filters by currency and term, search by ISIN, date or rate), then the bond's details and the purchase form. The form rates each purchase against the key rate and new bonds.
-- **План** shows the purchases planned for the next weeks, the money they need and the plan's totals. «Мої плани» switches, creates, renames, copies and deletes plans.
+- **План** shows the purchases planned for the next weeks, the money they need and the plan's totals. A coupon goal estimates future purchases and creates a copy of the plan. «Мої плани» switches, creates, renames, copies and deletes plans.
 - **Налаштування** creates and restores backups, connects the Google account for the cloud copy, picks the theme and replays the intro.
 
 On first launch the app shows an intro, then asks to name the first plan or restore a backup.

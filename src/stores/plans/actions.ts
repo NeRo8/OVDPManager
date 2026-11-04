@@ -1,4 +1,10 @@
-import { type InvestmentPlan, PLAN_NAME_MAX_LENGTH, uniquePlanName } from '@/lib/portfolio/plan';
+import { operationHistoryError } from '@/lib/portfolio/operations';
+import {
+  type CouponGoal,
+  type InvestmentPlan,
+  PLAN_NAME_MAX_LENGTH,
+  uniquePlanName,
+} from '@/lib/portfolio/plan';
 import type { PlanOperation } from '@/lib/portfolio/portfolio';
 import { getCachedBonds } from '@/stores/bonds/selectors';
 import {
@@ -8,6 +14,7 @@ import {
   copyPlanOperations,
   removePlanOperations,
   replaceOperations,
+  getOperations,
 } from '@/stores/operations';
 import { createId } from '@/utils/id';
 
@@ -47,7 +54,12 @@ export function duplicateInvestmentPlan(id: string): string | undefined {
     plan.name.slice(0, PLAN_NAME_MAX_LENGTH - COPY_SUFFIX.length).trimEnd() + COPY_SUFFIX,
     usePlansStore.getState().plans,
   );
-  copyPlanOperations(id, createInvestmentPlan(name));
+  const copyId = createInvestmentPlan(name);
+  copyPlanOperations(id, copyId);
+  if (plan.goal)
+    updatePlans((plans) =>
+      plans.map((item) => (item.id === copyId ? { ...item, goal: plan.goal } : item)),
+    );
   return name;
 }
 
@@ -78,6 +90,68 @@ export function restorePortfolio(operations: PlanOperation[], plans: InvestmentP
 /** A new plan becomes active, ready for its first operations. */
 export function createActivePlan(name: string): void {
   setActivePlan(createInvestmentPlan(name));
+}
+
+/** Create a copy with the new goal's purchases, replacing only unconfirmed generated purchases. */
+export function createCouponGoalPlan(
+  goal: CouponGoal,
+  purchases: Omit<PlanOperation, 'id' | 'planId'>[],
+): string | undefined {
+  const source = getActivePlan();
+  if (!source) return undefined;
+  if (
+    purchases.some(
+      (purchase) =>
+        !Number.isSafeInteger(purchase.quantity) ||
+        purchase.quantity <= 0 ||
+        !Number.isFinite(purchase.amount) ||
+        purchase.amount <= 0 ||
+        purchase.amount > Number.MAX_SAFE_INTEGER,
+    )
+  )
+    throw new Error('Розраховані суми або кількість завеликі. Зменшіть ціль.');
+  const id = createId();
+  const baseName = source.goal
+    ? source.name.replace(/ · ціль \d{4}(?: \(\d+\))?$/, '')
+    : source.name;
+  const name = uniquePlanName(`${baseName} · ціль ${goal.year}`, usePlansStore.getState().plans);
+  const current = getOperations();
+  const copied = current
+    .filter(
+      (operation) =>
+        operation.planId === source.id && !(operation.goalGenerated && operation.planned),
+    )
+    .map((operation) => ({ ...operation, id: createId(), planId: id }));
+  const generated = purchases.map((purchase) => ({ ...purchase, id: createId(), planId: id }));
+  const operations = [...current, ...copied, ...generated];
+  const error = operationHistoryError(operations);
+  if (error) throw new Error(error);
+  replaceOperations(operations);
+  updatePlans((plans) => [
+    ...plans.map((plan) => ({ ...plan, isActive: false })),
+    { id, name, isActive: true, goal },
+  ]);
+  return name;
+}
+
+/** Remove the goal while keeping its purchases as ordinary plan operations. */
+export function removeCouponGoalFromActivePlan(): void {
+  const plan = getActivePlan();
+  if (!plan?.goal) return;
+  replaceOperations(
+    getOperations().map((operation) =>
+      operation.planId === plan.id && operation.goalGenerated
+        ? { ...operation, goalGenerated: false }
+        : operation,
+    ),
+  );
+  updatePlans((plans) =>
+    plans.map((item) => {
+      if (item.id !== plan.id) return item;
+      const { goal: _goal, ...rest } = item;
+      return rest;
+    }),
+  );
 }
 
 /**

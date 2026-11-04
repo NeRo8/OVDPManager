@@ -7,7 +7,7 @@ import { type BackupEncryption, decryptBackup, encryptBackup } from './backupCip
 import { contentsSchema, legacyContentsSchema, validateContents } from './contents.schema';
 
 const FORMAT = 'ovdp-manager-backup';
-const VERSION = 7;
+const VERSION = 8;
 
 /** The file: readable framing around the encrypted plans and operations. */
 export type Backup = {
@@ -77,7 +77,7 @@ export async function parseBackup(text: string, key: string): Promise<BackupData
   const backup = parseJson<Backup>(text);
   if (!backup || typeof backup !== 'object' || backup.format !== FORMAT)
     throw new Error('Це не резервна копія ОВДП Портфеля');
-  if (backup.version !== VERSION && backup.version !== 6) {
+  if (backup.version !== VERSION && backup.version !== 7 && backup.version !== 6) {
     throw new Error(
       'Ця версія копії не підтримується: створіть нову копію в актуальній версії застосунку',
     );

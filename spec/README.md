@@ -20,6 +20,7 @@
 | [screens/sale.md](screens/sale.md)                             | Екран продажу, ціни продажу, підтвердження продажу                                                                      | `SALE-`                 |
 | [screens/payments.md](screens/payments.md)                     | Вкладка «Виплати» і її фільтри                                                                                          | `PAY-`, `PFLT-`         |
 | [screens/plan.md](screens/plan.md)                             | Вкладка «План», найближчі купівлі, «Мої плани»                                                                          | `PLAN-`, `UPC-`         |
+| [coupon-goal.md](coupon-goal.md)                               | Ціль за купонами, прогноз купівель та фінансування                                                                      | `GOAL-`                 |
 | [gaps.md](gaps.md)                                             | Усі знайдені прогалини й питання в одному списку, за важливістю                                                         | `GAP-`                  |
 
 ## Як читати файл

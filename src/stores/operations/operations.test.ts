@@ -51,6 +51,21 @@ describe('operations', () => {
     ]);
   });
 
+  it('keeps an edited goal purchase as a manual operation on the next calculation', () => {
+    const generated = addOperation({
+      ...purchaseOf('a', 'UA1'),
+      planned: true,
+      goalGenerated: true,
+    });
+    updateOperation(generated.id, {
+      date: generated.date,
+      quantity: 2,
+      amount: 2000,
+      planned: true,
+    });
+    expect(getOperations()[0]).toMatchObject({ quantity: 2, planned: true, goalGenerated: false });
+  });
+
   it('removes one purchase, every purchase of a bond in a plan, or a whole plan’s', () => {
     const removed = addOperation(purchaseOf('a', 'UA1'));
     addOperation(purchaseOf('a', 'UA1'));

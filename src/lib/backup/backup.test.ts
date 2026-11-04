@@ -82,6 +82,41 @@ describe('serializeBackup and parseBackup', () => {
     });
   });
 
+  it('round-trips a coupon goal and the purchases generated for it', async () => {
+    const goal = {
+      currency: 'UAH' as const,
+      year: 2028,
+      incomeYears: 2,
+      purchaseYears: 1,
+      monthly: 5000,
+      reinvest: true,
+      kind: 'ovdp' as const,
+    };
+    const goalPlans = [{ ...plans[0], goal }];
+    const goalOperations = [{ ...operations[0], goalGenerated: true }];
+    const saved = await serializeBackup({ plans: goalPlans, operations: goalOperations }, KEY);
+    await expect(parseBackup(saved, KEY)).resolves.toEqual({
+      plans: goalPlans,
+      operations: goalOperations,
+    });
+  });
+
+  it('continues to read version 7 backups', async () => {
+    const contents = {
+      operations,
+      plans: plans.map(({ isActive: _isActive, ...plan }) => plan),
+      activePlanId: plans[0].id,
+    };
+    const encrypted = await encryptBackup(JSON.stringify(contents), KEY, 'ovdp-manager-backup:7');
+    const fileV7 = JSON.stringify({
+      format: 'ovdp-manager-backup',
+      version: 7,
+      exportedAt: new Date().toISOString(),
+      ...encrypted,
+    });
+    await expect(parseBackup(fileV7, KEY)).resolves.toEqual({ operations, plans });
+  });
+
   it('rejects an active plan absent from the backup', async () => {
     // The app never writes such a file; it is made here as one changed by hand would be.
     const contents = {
@@ -103,7 +138,7 @@ describe('serializeBackup and parseBackup', () => {
     const backup = JSON.parse(file) as Backup;
     expect(backup).toMatchObject({
       format: 'ovdp-manager-backup',
-      version: 7,
+      version: 8,
       encryption: {
         kdf: 'argon2id',
         memory: 19 * 1024,

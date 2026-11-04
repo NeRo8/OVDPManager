@@ -55,6 +55,7 @@ const operation = z
     ovdp: bond.nullable(),
     // Files written before confirmation existed have none; `validateContents` fills it in.
     planned: z.boolean().optional(),
+    goalGenerated: z.boolean().optional(),
   })
   .refine(
     (value) =>
@@ -67,11 +68,30 @@ const operation = z
   )
   .refine((value) => value.type !== 'sale' || value.ovdp !== null, {
     error: 'Продаж без даних ОВДП',
+  })
+  .refine((value) => !value.goalGenerated || value.type === 'purchase', {
+    error: 'Ціль може створювати лише купівлі',
   });
 const framing = {
   activePlanId: id.optional(),
   theme: z.enum(['system', 'light', 'dark']).optional(),
-  plans: z.array(z.object({ id, name: id })),
+  plans: z.array(
+    z.object({
+      id,
+      name: id,
+      goal: z
+        .object({
+          kind: z.enum(['all', ...BOND_KINDS]).optional(),
+          currency,
+          year: z.number().int().min(2000).max(9999),
+          incomeYears: z.number().int().min(1).max(5),
+          purchaseYears: z.number().int().min(1).max(3),
+          monthly: money.positive(),
+          reinvest: z.boolean(),
+        })
+        .optional(),
+    }),
+  ),
 };
 export const legacyContentsSchema = z
   .object({

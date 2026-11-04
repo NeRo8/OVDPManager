@@ -94,6 +94,10 @@ export default function RootLayout() {
                   })}
                 />
                 <NativeStack.Screen name="plan/list" options={{ title: 'Мої плани' }} />
+                <NativeStack.Screen
+                  name="plan/goal"
+                  options={{ title: 'Ціль: купони на місяць' }}
+                />
                 <NativeStack.Screen name="intro" options={{ headerShown: false }} />
                 {/* A plan's actions; a swipe down or a tap outside closes the sheet. */}
                 <NativeStack.Screen

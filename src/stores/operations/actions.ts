@@ -33,7 +33,11 @@ export function updateOperation(
   changes: Pick<PlanOperation, 'date' | 'quantity' | 'amount' | 'planned'>,
 ): void {
   updateOperations((current) =>
-    current.map((purchase) => (purchase.id === id ? { ...purchase, ...changes } : purchase)),
+    current.map((purchase) =>
+      purchase.id === id
+        ? { ...purchase, ...changes, ...(purchase.goalGenerated ? { goalGenerated: false } : {}) }
+        : purchase,
+    ),
   );
 }
 

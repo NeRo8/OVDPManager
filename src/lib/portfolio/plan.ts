@@ -1,3 +1,16 @@
+import type { BondKind, Currency } from './portfolio';
+
+/** A target for coupon income in every month of the selected years. */
+export type CouponGoal = {
+  kind?: BondKind | 'all';
+  currency: Currency;
+  year: number;
+  incomeYears: number;
+  purchaseYears: number;
+  monthly: number;
+  reinvest: boolean;
+};
+
 /** The suggested name of the first plan. */
 export const DEFAULT_PLAN_NAME = 'Мій план';
 export const PLAN_NAME_MAX_LENGTH = 80;
@@ -26,4 +39,5 @@ export type InvestmentPlan = {
   name: string;
   /** Whether this plan's wallet is currently shown. */
   isActive: boolean;
+  goal?: CouponGoal;
 };

@@ -18,7 +18,7 @@
 
 ### Формат копії
 
-**BKP-01.** Нові копії мають `version: 7`. JSON-обгортка містить `format`, `version`, `exportedAt`, `encryption`, `data`. Шифрування збережено.
+**BKP-01.** Нові копії мають `version: 8`: вони зберігають ціль плану та ознаку створених нею купівель. JSON-обгортка містить `format`, `version`, `exportedAt`, `encryption`, `data`. Шифрування збережено.
 
 **BKP-02.** Зашифровано `{ operations: PlanOperation[], plans: { id, name }[], activePlanId?, theme? }`. Кожна операція містить повний `ovdp` із графіком і ознаку `planned` (DOM-72). Каталог НБУ, фільтри й онбординг не входять у копію.
 
@@ -60,7 +60,7 @@
 
 Оболонка перевіряється перед розшифруванням; `null` та чужий формат відхиляються. `contents.schema.ts`, `parseBackup`.
 
-**BKP-29.** Читання підтримує v6 (`holdings` із `purchaseDate`) та v7 (`operations` із `date`, `type`, `ovdp`). Купівлі v6 після тієї самої перевірки планів, теми й полів стають операціями `type: 'purchase'` з `date` = `purchaseDate`, `ovdp: null` і `planned` за датою на сьогодні (`migratePurchases` без каталогу, з `todayISO()`), далі проходять ті самі перевірки BKP-08 п. 7–11. Лише після успіху замінюються сховища. Відсутні знімки заповнюються під час відновлення з кешу каталогу НБУ, якщо він їх містить; знімків із копії кеш не перезаписує (`restorePortfolio` → `recoverOperationBonds`, BKP-20). `contents.schema.ts`, `legacyContentsSchema`; `src/stores/plans/actions.ts`, `restorePortfolio`.
+**BKP-29.** Читання підтримує v6 (`holdings` із `purchaseDate`), v7 та v8 (`operations` із `date`, `type`, `ovdp`). Купівлі v6 мігрують до операцій зі знімком `null`; старі копії без цілі та її ознак лишаються допустимими. Вміст копії перевіряється до заміни даних; відсутні знімки відновлюються з кешу каталогу НБУ, якщо він їх містить. `contents.schema.ts`, `restorePortfolio`.
 
 ### Створення копії
 

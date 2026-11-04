@@ -15,7 +15,9 @@ export type BondKind = (typeof BOND_KINDS)[number];
 
 /** Old snapshots may not contain the NBU classification. */
 export function bondKindLabel(kind: BondKind | undefined): string {
-  return kind === 'ovdp' ? 'ОВДП' : kind === 'ozdp' ? 'ОЗДП' : 'Вид невідомий';
+  if (kind === 'ovdp') return 'ОВДП';
+  if (kind === 'ozdp') return 'ОЗДП';
+  return 'Вид невідомий';
 }
 
 export const CURRENCY_NAMES: Record<Currency, string> = {
@@ -54,6 +56,8 @@ export type Bond = {
 
 /** A purchase or sale with the terms needed to retain its history without NBU. */
 export type Operation = {
+  /** A planned purchase created by the coupon goal. */
+  goalGenerated?: boolean;
   type: 'purchase' | 'sale';
   /** Null only for legacy purchases whose bond data could not be recovered. */
   ovdp: Bond | null;
