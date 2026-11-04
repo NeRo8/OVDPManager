@@ -1,3 +1,4 @@
+import { SCHEDULE_EVENT_TYPES } from '@/lib/payment-filters/scheduleEventTypes';
 import type { PlanOperation } from '@/lib/portfolio/portfolio';
 import {
   addOperation,
@@ -103,9 +104,7 @@ describe('payment filters', () => {
     togglePaymentFilterType('coupon');
     expect(paymentFilters().types).toEqual([]);
 
-    togglePaymentFilterType('coupon');
-    togglePaymentFilterType('redemption');
-    togglePaymentFilterType('purchase');
+    SCHEDULE_EVENT_TYPES.forEach(togglePaymentFilterType);
     expect(paymentFilters().types).toEqual([]);
   });
 

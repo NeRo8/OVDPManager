@@ -191,7 +191,7 @@ describe('resultsByCurrency', () => {
       published: { invested: 1000, totalPayments: 1200 },
     });
     expect(netIncomeBasis(total)).toBe(
-      `Виплати ${formatMoney(1200, 'UAH')} мінус вкладено ${formatMoney(1000, 'UAH')}, лише ОВДП з опублікованим погашенням`,
+      `Виплати ${formatMoney(1200, 'UAH')} мінус вкладено ${formatMoney(1000, 'UAH')}, лише повністю продані ОВДП або ОВДП з опублікованим погашенням`,
     );
     expect(netIncomeBasis(resultsByCurrency([uah])[0])).toBeUndefined();
     expect(resultsByCurrency([incomplete])[0].netIncome).toBeNull();
