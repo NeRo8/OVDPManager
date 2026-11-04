@@ -30,6 +30,43 @@ it('retains a bond kind in backups and accepts older snapshots without it', () =
   expect(contentsSchema.parse(contents).operations[0].ovdp?.kind).toBeUndefined();
 });
 
+it('rejects malformed coupon goals and sales marked as generated purchases', () => {
+  const goal = {
+    currency: 'UAH',
+    kind: 'ovdp',
+    year: 2028,
+    incomeYears: 2,
+    purchaseYears: 1,
+    monthly: 1000,
+    reinvest: true,
+  };
+  expect(
+    contentsSchema.safeParse({ ...contents, plans: [{ ...contents.plans[0], goal }] }).success,
+  ).toBe(true);
+  for (const invalid of [
+    { monthly: 0 },
+    { currency: 'GBP' },
+    { kind: 'unknown' },
+    { year: 2028.5 },
+    { incomeYears: 6 },
+    { purchaseYears: 4 },
+    { reinvest: 'yes' },
+  ]) {
+    expect(
+      contentsSchema.safeParse({
+        ...contents,
+        plans: [{ ...contents.plans[0], goal: { ...goal, ...invalid } }],
+      }).success,
+    ).toBe(false);
+  }
+  expect(
+    contentsSchema.safeParse({
+      ...contents,
+      operations: [{ ...operation, type: 'sale', goalGenerated: true }],
+    }).success,
+  ).toBe(false);
+});
+
 it('validates nested schedules and the operation identity before restoring', () => {
   expect(contentsSchema.safeParse(contents).success).toBe(true);
   for (const ovdp of [
