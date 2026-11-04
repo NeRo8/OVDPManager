@@ -1,24 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
-import { Pressable, View, type LayoutChangeEvent } from 'react-native';
+import { Pressable, View } from 'react-native';
 
-import Animated, {
-  Easing,
-  ReduceMotion,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { ThemedGlassView } from '@/components/glass/ThemedGlassView';
 import { Typography } from '@/components/typography/Typography';
 import { space } from '@/theme/tokens';
-import { hasLiquidGlass } from '@/utils/glass';
-
-/** The track's inset around the thumb; segments share the rest of its width equally. */
-const TRACK_PADDING = space.xs;
-// The thumb moves across the control, so it eases in and out rather than out only.
-const EASE_IN_OUT = Easing.bezier(0.77, 0, 0.175, 1);
 
 type Option<T extends string | number> = { label: string; value: T };
 
@@ -28,63 +13,27 @@ export type SegmentedSelectProps<T extends string | number> = {
   onChange: (value: T) => void;
 };
 
-/**
- * One choice out of a few, marked by a thumb that slides to the selected segment. With Liquid
- * Glass the track is a glass capsule and the thumb accent-tinted glass; elsewhere the thumb is
- * a solid accent.
- */
+/** One choice out of a few, with a solid and legible selected segment on every platform. */
 export function SegmentedSelect<T extends string | number>({
   options,
   value,
   onChange,
 }: SegmentedSelectProps<T>) {
-  const [trackWidth, setTrackWidth] = useState(0);
-  const selectedIndex = options.findIndex((option) => option.value === value);
-  const segmentWidth = trackWidth > 0 ? (trackWidth - TRACK_PADDING * 2) / options.length : 0;
-  const thumbX = useSharedValue(0);
-  const isThumbPlaced = useRef(false);
-
-  useEffect(() => {
-    if (!segmentWidth || selectedIndex < 0) return;
-    const target = selectedIndex * segmentWidth;
-    // The first placement jumps, so the thumb does not slide in from the left on mount.
-    if (!isThumbPlaced.current) {
-      thumbX.set(target);
-      isThumbPlaced.current = true;
-      return;
-    }
-    thumbX.set(
-      withTiming(target, { duration: 250, easing: EASE_IN_OUT, reduceMotion: ReduceMotion.System }),
-    );
-  }, [selectedIndex, segmentWidth, thumbX]);
-
-  const thumbMotion = useAnimatedStyle(() => ({ transform: [{ translateX: thumbX.get() }] }));
-  const measureTrack = (event: LayoutChangeEvent) => setTrackWidth(event.nativeEvent.layout.width);
-
   return (
-    <View style={styles.track} onLayout={measureTrack} accessibilityRole="radiogroup">
-      {hasLiquidGlass && <ThemedGlassView style={styles.trackGlass} />}
-      {segmentWidth > 0 && selectedIndex >= 0 && (
-        // The glass moves with its parent: a transform, never an opacity, keeps it drawn right.
-        <Animated.View style={[styles.thumb(segmentWidth), thumbMotion]}>
-          {hasLiquidGlass && (
-            <ThemedGlassView
-              uniProps={(theme) => ({ tintColor: theme.accentFill })}
-              style={styles.thumbGlass}
-            />
-          )}
-        </Animated.View>
-      )}
+    <View style={styles.track} accessibilityRole="radiogroup">
       {options.map((option) => {
         const selected = option.value === value;
-        const select = () => onChange(option.value);
         return (
           <Pressable
             key={option.value}
-            onPress={select}
+            onPress={() => onChange(option.value)}
             accessibilityRole="radio"
             accessibilityState={{ selected }}
-            style={({ pressed }) => [styles.option, pressed && !selected && styles.pressed]}
+            style={({ pressed }) => [
+              styles.option,
+              selected && styles.selected,
+              pressed && !selected && styles.pressed,
+            ]}
           >
             <Typography
               variant="footnote"
@@ -102,35 +51,22 @@ export function SegmentedSelect<T extends string | number>({
   );
 }
 
-// Glass is a capsule like the system's controls; the solid thumb keeps the card's rounder corners.
-const THUMB_RADIUS = hasLiquidGlass ? 'full' : 'sm';
-
 const styles = StyleSheet.create((theme) => ({
   track: {
     flexDirection: 'row',
-    padding: TRACK_PADDING,
-  },
-  trackGlass: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: theme.radius.full,
-  },
-  // Out of the flow, so moving it re-lays-out nothing.
-  thumb: (width: number) => ({
-    position: 'absolute',
-    top: TRACK_PADDING,
-    bottom: TRACK_PADDING,
-    left: TRACK_PADDING,
-    width,
-    borderRadius: theme.radius[THUMB_RADIUS],
+    padding: space.xs,
+    backgroundColor: theme.muted,
+    borderRadius: theme.radius.sm,
     borderCurve: 'continuous',
-    ...(!hasLiquidGlass && { backgroundColor: theme.accentFill, boxShadow: theme.shadowCard }),
-  }),
-  thumbGlass: { flex: 1, borderRadius: theme.radius.full },
+  },
   option: {
     flex: 1,
     minHeight: 36,
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: theme.radius.sm,
+    borderCurve: 'continuous',
   },
+  selected: { backgroundColor: theme.accentFill },
   pressed: { opacity: 0.6 },
 }));
