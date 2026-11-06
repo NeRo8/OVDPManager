@@ -17,12 +17,18 @@ export type ReportCapitalChart = {
   series: { label: string; color: SeriesColor; values: number[] }[];
 };
 
+export type ReportAllocationChart = {
+  currency: string;
+  slices: { label: string; value: number }[];
+};
+
 export type ReportSection = {
   title: string;
   rows: ReportRow[];
   footer?: string;
   table?: ReportTable;
   capitalChart?: ReportCapitalChart;
+  allocationChart?: ReportAllocationChart;
   chart?: {
     title?: string;
     currency: string;
