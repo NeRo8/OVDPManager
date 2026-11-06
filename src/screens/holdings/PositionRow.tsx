@@ -31,7 +31,13 @@ export function PositionRow({ item, onPress }: Props) {
   const { position, bond, currency, state, planned } = item;
 
   const subtitle = bond ? (
-    `${bondKindLabel(bond.kind)} · ${currency} · ${formatPercent(bond.rate)} · ${stateLabel(state, bond.maturityDate)}`
+    [
+      bond.kind === 'ovdp' ? null : bondKindLabel(bond.kind),
+      formatPercent(bond.rate),
+      stateLabel(state, bond.maturityDate),
+    ]
+      .filter(Boolean)
+      .join(' · ')
   ) : (
     <Typography variant="caption1" tone="warning">
       Немає збережених даних облігації
