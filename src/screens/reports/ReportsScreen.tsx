@@ -29,11 +29,6 @@ export default function ReportsScreen() {
     <ScreenScrollView>
       <Section title="Рух грошей">
         <LinkRow
-          title="Звіт за рік"
-          subtitle="Купівлі, продажі, виплати й дохід за рік"
-          onPress={() => openReport('year')}
-        />
-        <LinkRow
           title="Валютний еквівалент"
           subtitle="Гривневі операції та виплати в іноземній валюті"
           onPress={() => openReport('fx')}

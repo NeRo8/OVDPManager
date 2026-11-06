@@ -1,5 +1,7 @@
 import type { SeriesColor } from '@/theme/series';
 
+import type { FlowPeriod } from './flowChartData';
+
 export type ReportRow = { label: string; value: string };
 
 export type ReportTable = {
@@ -29,6 +31,7 @@ export type ReportSection = {
   table?: ReportTable;
   capitalChart?: ReportCapitalChart;
   allocationChart?: ReportAllocationChart;
+  flowChart?: { currency: string; periods: FlowPeriod[]; showPlanned: boolean };
   chart?: {
     title?: string;
     currency: string;

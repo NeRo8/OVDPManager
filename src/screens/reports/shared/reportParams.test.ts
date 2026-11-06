@@ -25,9 +25,9 @@ describe('reportParams', () => {
     const parsed = parseReportParams(
       { from: '2025-02-30', to: '2025-01-01', status: 'unknown', year: 'abc' },
       today,
-      'year',
+      'period',
     );
-    expect(parsed).toMatchObject({ from: '2026-01-01', to: today, year: '2026', status: 'all' });
+    expect(parsed).toMatchObject({ from: '2026-01-01', to: today, year: null, status: 'all' });
   });
 
   it('only includes the individual bond selection for a bond report', () => {
@@ -61,12 +61,5 @@ describe('reportParams', () => {
       targetCurrency: 'EUR',
       year: '2025',
     });
-  });
-
-  it('passes the selected year through the report route', () => {
-    const selection = { ...parseReportParams({}, today, 'year'), year: '2028' };
-    const params = serializeReportParams(selection, 'year');
-    expect(params.year).toBe('2028');
-    expect(parseReportParams(params, today, 'year').year).toBe('2028');
   });
 });

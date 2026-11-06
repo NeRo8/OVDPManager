@@ -8,9 +8,9 @@ import { StaleBondsNotice } from '@/components/portfolio/StaleBondsNotice';
 import { Typography } from '@/components/typography/Typography';
 import { useBonds } from '@/hooks/useBonds.hook';
 import { useWallet } from '@/hooks/useWallet.hook';
-import { FlowChart } from '@/screens/reports/shared/FlowChart';
 import { FlowTable } from '@/screens/reports/shared/FlowTable';
 import { flowTables } from '@/screens/reports/shared/flowTables';
+import { HorizontalFlowChart } from '@/screens/reports/shared/HorizontalFlowChart';
 import { monthsInSpan } from '@/screens/reports/shared/periodDates';
 import { ReportHeaderActions } from '@/screens/reports/shared/ReportHeaderActions';
 import { reportScopeLabel, scopedWallet } from '@/screens/reports/shared/reportScope';
@@ -25,9 +25,8 @@ import { cashFlowCharts } from './cashFlowCharts';
 import { cashFlowHighlights } from './cashFlowHighlights';
 import { cashFlowReport, type CashFlow } from './cashFlowReport';
 
-type Props = { mode: 'year' | 'period' | 'year-over-year' };
+type Props = { mode: 'period' | 'year-over-year' };
 const TITLES = {
-  year: 'Звіт за рік',
   period: 'Звіт за період',
   'year-over-year': 'Звіт від року до року',
 };
@@ -68,8 +67,7 @@ export default function CashFlowReportScreen({ mode }: Props) {
   const filters = useReportParams(mode);
   const scope = { currency: filters.currency, isins: filters.isins };
   const selectedWallet = scopedWallet(wallet, scope);
-  const year = filters.year ?? wallet.today.slice(0, 4);
-  const from = mode === 'year' ? `${year}-01-01` : filters.from;
+  const from = filters.from;
   const to = filters.to;
   const bounds = [...selectedWallet.operationEvents, ...selectedWallet.payments]
     .map((event) => event.date)
@@ -77,9 +75,13 @@ export default function CashFlowReportScreen({ mode }: Props) {
   const firstYear = Number((bounds[0] ?? wallet.today).slice(0, 4));
   const lastYear = Number((bounds.at(-1) ?? wallet.today).slice(0, 4));
   const chartFrom = mode === 'year-over-year' ? `${firstYear}-01-01` : from;
-  const selectedTo = mode === 'year' ? `${year}-12-31` : to;
-  const chartTo = mode === 'year-over-year' ? `${lastYear}-12-31` : selectedTo;
-  const charts = cashFlowCharts(selectedWallet, chartFrom, chartTo);
+  const chartTo = mode === 'year-over-year' ? `${lastYear}-12-31` : to;
+  const charts = cashFlowCharts(
+    selectedWallet,
+    chartFrom,
+    chartTo,
+    mode === 'year-over-year' ? 'year' : 'auto',
+  );
   const totals =
     mode === 'year-over-year' ? cashFlowReport(selectedWallet, chartFrom, chartTo) : [];
   const annualFlows =
@@ -149,20 +151,16 @@ export default function CashFlowReportScreen({ mode }: Props) {
             }),
           ),
         ]
-      : cashFlowReport(
-          selectedWallet,
-          mode === 'year' ? `${year}-01-01` : from,
-          mode === 'year' ? `${year}-12-31` : to,
-        ).map((flow) => flowSection(flow, `Підсумок · ${flow.currency}`, chartFrom, chartTo));
+      : cashFlowReport(selectedWallet, from, to).map((flow) =>
+          flowSection(flow, `Підсумок · ${flow.currency}`, chartFrom, chartTo),
+        );
   const sections =
     mode === 'year-over-year'
       ? summaries
       : [
           ...summaries,
           ...cashFlowHighlights(selectedWallet, chartFrom, chartTo),
-          ...charts.flatMap(({ currency, periods }) =>
-            flowTables(currency, periods, mode === 'year'),
-          ),
+          ...charts.flatMap(({ currency, periods }) => flowTables(currency, periods)),
           ...selectedWallet.positions.flatMap((item): ReportSection[] => {
             const onlyBond = scopedWallet(selectedWallet, {
               currency: item.currency,
@@ -176,13 +174,19 @@ export default function CashFlowReportScreen({ mode }: Props) {
   const title = TITLES[mode];
   let status = `${formatDate(from)} – ${formatDate(to)}`;
   if (mode === 'year-over-year') status = 'Усі роки';
-  if (mode === 'year') status = year;
   const stale = !!error && (!!bonds || wallet.operations.some((operation) => !!operation.ovdp));
   const { sharing, share } = useReportShare({
     planName: wallet.plan?.name,
     today: wallet.today,
     context: `${status} · ${reportScopeLabel(scope)}`,
-    sections,
+    sections: [
+      ...charts.map(({ currency, periods }) => ({
+        title: `Рух грошей · ${currency}`,
+        rows: [],
+        flowChart: { currency, periods, showPlanned: true },
+      })),
+      ...sections.map((section) => ({ ...section, chart: undefined })),
+    ],
     stale,
     title,
   });
@@ -208,13 +212,7 @@ export default function CashFlowReportScreen({ mode }: Props) {
           {status} · {reportScopeLabel(scope)}
         </Typography>
         {charts.map(({ currency, periods }) => (
-          <FlowChart
-            key={currency}
-            currency={currency}
-            periods={periods}
-            showPlanned
-            minimumColumnWidth={52}
-          />
+          <HorizontalFlowChart key={currency} currency={currency} periods={periods} />
         ))}
         {!sections.length && (
           <EmptyState

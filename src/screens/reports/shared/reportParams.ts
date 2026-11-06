@@ -5,17 +5,8 @@ import type { PortfolioStatus } from '@/screens/reports/portfolio/portfolioRepor
 import type { RedemptionTime } from '@/screens/reports/redemptions/redemptionsReport';
 
 export type ReportName =
-  | 'year'
-  | 'fx'
-  | 'period'
-  | 'year-over-year'
-  | 'redemptions'
-  | 'portfolio'
-  | 'structure'
-  | 'yield'
-  | 'bond';
+  'fx' | 'period' | 'year-over-year' | 'redemptions' | 'portfolio' | 'structure' | 'yield' | 'bond';
 export const REPORT_ROUTES: Record<ReportName, `/reports/${ReportName}`> = {
-  year: '/reports/year',
   fx: '/reports/fx',
   period: '/reports/period',
   'year-over-year': '/reports/year-over-year',
@@ -26,7 +17,6 @@ export const REPORT_ROUTES: Record<ReportName, `/reports/${ReportName}`> = {
   bond: '/reports/bond',
 };
 export const REPORT_TITLES: Record<ReportName, string> = {
-  year: 'Звіт за рік',
   fx: 'Валютний еквівалент',
   period: 'Звіт за період',
   'year-over-year': 'Звіт від року до року',
@@ -75,12 +65,11 @@ export function parseReportParams(
     dateSchema.safeParse(from).success &&
     dateSchema.safeParse(to).success &&
     from <= to;
-  const defaultYear = name === 'year' ? today.slice(0, 4) : null;
   const defaultStatus = name === 'yield' ? 'inCirculation' : 'all';
   return {
     currency: CURRENCIES.find((item) => item === currency) ?? null,
     isins: (first(params.isins) ?? '').split(',').filter(Boolean),
-    year: year && /^\d{4}$/.test(year) && Number(year) >= 1 ? year : defaultYear,
+    year: year && /^\d{4}$/.test(year) && Number(year) >= 1 ? year : null,
     from: validDates && from ? from : `${today.slice(0, 4)}-01-01`,
     to: validDates && to ? to : today,
     time: time === 'past' || time === 'all' ? time : 'upcoming',
@@ -109,7 +98,6 @@ export function serializeReportParams(
       targetCurrency: selection.targetCurrency,
       ...(selection.year ? { year: selection.year } : {}),
     };
-  if (name === 'year') return { ...scope, year: selection.year ?? '' };
   if (name === 'period') return { ...scope, from: selection.from, to: selection.to };
   if (name === 'redemptions') return { ...scope, time: selection.time };
   if (name === 'portfolio' || name === 'yield') return { ...scope, status: selection.status };

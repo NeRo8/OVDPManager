@@ -15,15 +15,20 @@ export type CashFlowChart = {
   }[];
 };
 
-/** Monthly bars for a short span; years for longer periods, to keep labels readable. */
-export function cashFlowCharts(wallet: Wallet, from: string, to: string): CashFlowChart[] {
+/** Monthly bars for a short span, or years when requested or the period is longer. */
+export function cashFlowCharts(
+  wallet: Wallet,
+  from: string,
+  to: string,
+  grouping: 'auto' | 'year' = 'auto',
+): CashFlowChart[] {
   const months =
     (Number(to.slice(0, 4)) - Number(from.slice(0, 4))) * 12 +
     Number(to.slice(5, 7)) -
     Number(from.slice(5, 7)) +
     1;
   const periods: { from: string; to: string; label: string }[] = [];
-  if (months <= 18) {
+  if (grouping === 'auto' && months <= 18) {
     for (let month = `${from.slice(0, 7)}-01`; month <= to; month = addMonthsISO(month, 1)) {
       const end = monthRange(month).to;
       periods.push({

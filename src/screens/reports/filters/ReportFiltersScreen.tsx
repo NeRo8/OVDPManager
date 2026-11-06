@@ -4,7 +4,7 @@ import { View } from 'react-native';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { Button } from '@/components/button/Button';
+import { HeaderButton } from '@/components/button/HeaderButton';
 import { DateField } from '@/components/form/DateField';
 import { FieldRow } from '@/components/form/FieldRow';
 import { SegmentedSelect } from '@/components/form/SegmentedSelect';
@@ -12,7 +12,6 @@ import { CheckRow } from '@/components/layout/CheckRow';
 import { EmptyState } from '@/components/layout/EmptyState';
 import { ScreenScrollView } from '@/components/layout/ScreenScrollView';
 import { Section } from '@/components/layout/Section';
-import { YearNav } from '@/components/YearNav';
 import { useWallet } from '@/hooks/useWallet.hook';
 import { buildWallet } from '@/lib/portfolio/wallet';
 import { PERIOD_OPTIONS, periodDates } from '@/screens/reports/shared/periodDates';
@@ -106,25 +105,20 @@ export default function ReportFiltersScreen({ report }: Props) {
 
   return (
     <>
-      <Stack.Screen options={{ title: `Фільтри · ${REPORT_TITLES[report]}` }} />
+      <Stack.Screen
+        options={{
+          title: `Фільтри · ${REPORT_TITLES[report]}`,
+          headerRight: () => (
+            <HeaderButton
+              icon="checkmark"
+              accessibilityLabel="Застосувати фільтри"
+              disabled={report === 'bond' && !selectedBondExists}
+              onPress={show}
+            />
+          ),
+        }}
+      />
       <ScreenScrollView>
-        {report === 'year' && (
-          <Section title="Рік">
-            <View style={styles.picker}>
-              <YearNav
-                year={Number(selection.year ?? wallet.today.slice(0, 4))}
-                min={1}
-                max={9999}
-                onChange={(value) =>
-                  setSelection((previous) => ({
-                    ...previous,
-                    year: String(value).padStart(4, '0'),
-                  }))
-                }
-              />
-            </View>
-          </Section>
-        )}
         {report === 'period' && (
           <>
             <Section title="Період">
@@ -263,11 +257,6 @@ export default function ReportFiltersScreen({ report }: Props) {
             onChange={(value) => setSelection((previous) => ({ ...previous, ...value }))}
           />
         )}
-        <Button
-          title="Застосувати"
-          disabled={report === 'bond' && !selectedBondExists}
-          onPress={show}
-        />
       </ScreenScrollView>
     </>
   );

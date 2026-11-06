@@ -6,6 +6,7 @@ import { formatMoney, formatPercent } from '@/utils/format';
 import { round2 } from '@/utils/number';
 
 import { allocationSegments } from './allocationSegments';
+import { flowChartPdf } from './flowChartPdf';
 
 function escapeHtml(value: string): string {
   return value.replace(
@@ -131,7 +132,7 @@ export function reportHtml(
     .map(
       (section) => `
     <section><h2>${escapeHtml(section.title)}</h2>
-    ${section.rows.length ? `<table>${section.rows.map((row) => `<tr><td>${escapeHtml(row.label)}</td><td>${escapeHtml(row.value)}</td></tr>`).join('')}</table>` : ''}${tableHtml(section)}${allocationChartHtml(section)}${chartHtml(section)}${capitalChartHtml(section)}${lineChartHtml(section)}
+    ${section.rows.length ? `<table>${section.rows.map((row) => `<tr><td>${escapeHtml(row.label)}</td><td>${escapeHtml(row.value)}</td></tr>`).join('')}</table>` : ''}${tableHtml(section)}${allocationChartHtml(section)}${chartHtml(section)}${section.flowChart ? flowChartPdf(section.flowChart, escapeHtml) : ''}${capitalChartHtml(section)}${lineChartHtml(section)}
     ${section.footer ? `<p>${escapeHtml(section.footer)}</p>` : ''}</section>`,
     )
     .join('');
@@ -143,6 +144,11 @@ export function reportHtml(
     td { padding: 5pt 0; border-bottom: 1px solid #ddd; } td:last-child { text-align: right; }
     .period-table { margin: 10pt 0; } .period-table th, .period-table td { text-align: right; padding: 5pt 3pt; }
     .period-table th:first-child, .period-table td:first-child { text-align: left; }
+    .flow-chart { margin: 10pt 0; table-layout: fixed; } .flow-chart th:first-child, .flow-chart td:first-child { width: 70pt; text-align: left; }
+    .flow-chart td { padding: 4pt 0; border: 0; } .flow-axis { position: relative; height: 14pt; font-size: 8pt; font-weight: normal; }
+    .flow-axis span { position: absolute; top: 0; } .flow-axis span:first-child { left: 0; } .flow-axis span:nth-child(2) { transform: translateX(-50%); } .flow-axis span:last-child { right: 0; }
+    .flow-plot { display: flex; height: 14pt; } .flow-side { display: flex; height: 100%; } .flow-negative { flex-direction: row-reverse; border-right: 1px solid #888; }
+    .flow-side span { height: 100%; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
     .allocation-chart { display: flex; align-items: center; gap: 16pt; } .allocation-chart table { flex: 1; }
     .chart { margin: 10pt 0; } .bar-row { display: flex; gap: 8pt; align-items: center; margin: 4pt 0; font-size: 9pt; }
     .bar-row > span:first-child { width: 100pt; } .bar-row > span:last-child { width: 90pt; text-align: right; }

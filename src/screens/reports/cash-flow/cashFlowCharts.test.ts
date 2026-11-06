@@ -28,6 +28,16 @@ const purchase: Operation = {
 };
 
 describe('cashFlowCharts', () => {
+  it('groups a single year into one annual total when comparing years', () => {
+    const planned = { ...purchase, id: 'planned', date: '2026-03-01', amount: 950, planned: true };
+    const wallet = buildWallet([purchase, planned], new Map(), '2026-01-15');
+    const [chart] = cashFlowCharts(wallet, '2026-01-01', '2026-12-31', 'year');
+
+    expect(chart.periods).toEqual([
+      { label: '2026', purchases: 900, planned: 950, coupons: 100, redemptions: 0, sales: 0 },
+    ]);
+  });
+
   it('keeps every month of the selected year, including months without events', () => {
     const planned = { ...purchase, id: 'planned', date: '2026-03-01', amount: 950, planned: true };
     const outside = { ...purchase, id: 'outside', date: '2025-02-01', amount: 700 };

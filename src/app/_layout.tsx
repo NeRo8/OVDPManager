@@ -98,7 +98,6 @@ export default function RootLayout() {
                   name="reports/filters/[report]"
                   options={{ title: 'Фільтри звіту' }}
                 />
-                <NativeStack.Screen name="reports/year" options={{ title: 'Звіт за рік' }} />
                 <NativeStack.Screen name="reports/period" options={{ title: 'Звіт за період' }} />
                 <NativeStack.Screen
                   name="reports/year-over-year"
