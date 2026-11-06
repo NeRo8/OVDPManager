@@ -21,9 +21,11 @@ export type InfoRowProps = {
   signedValue?: number;
   /** While set, a skeleton bar stands in for the value; screen readers read this instead. */
   loadingLabel?: string;
+  /** Give the value room by wrapping the label first. */
+  prioritizeValue?: boolean;
 };
 
-function renderValue({ value, signedValue, loadingLabel }: InfoRowProps) {
+function renderValue({ value, signedValue, loadingLabel, prioritizeValue }: InfoRowProps) {
   if (loadingLabel) {
     return (
       <SkeletonGroup label={loadingLabel}>
@@ -37,7 +39,7 @@ function renderValue({ value, signedValue, loadingLabel }: InfoRowProps) {
         value={signedValue}
         variant="subhead"
         weight="medium"
-        style={styles.value}
+        style={[styles.value, prioritizeValue && styles.priorityValue]}
         selectable
       >
         {value}
@@ -45,18 +47,23 @@ function renderValue({ value, signedValue, loadingLabel }: InfoRowProps) {
     );
   }
   return (
-    <Typography variant="subhead" weight="medium" style={styles.value} selectable>
+    <Typography
+      variant="subhead"
+      weight="medium"
+      style={[styles.value, prioritizeValue && styles.priorityValue]}
+      selectable
+    >
       {value}
     </Typography>
   );
 }
 
 export function InfoRow(props: InfoRowProps) {
-  const { label, hint } = props;
+  const { label, hint, prioritizeValue } = props;
   return (
     <View style={styles.container}>
       <View style={styles.row}>
-        <Typography variant="subhead" tone="secondary">
+        <Typography variant="subhead" tone="secondary" style={prioritizeValue && styles.label}>
           {label}
         </Typography>
         {renderValue(props)}
@@ -85,4 +92,6 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.space.md,
   },
   value: { flexShrink: 1, textAlign: 'right' },
+  label: { flexShrink: 1 },
+  priorityValue: { flexShrink: 0, maxWidth: '60%' },
 }));

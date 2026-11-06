@@ -36,6 +36,8 @@ Coupon goals live on investment plans; `lib/coupon-goal/` estimates purchases an
 
 The wallet's kind and currency filters live beside the operations they narrow, as `walletFilters` in `stores/operations/`. They are independent of the payment filters, persist between launches, and are controlled by the wallet header's filters modal.
 
+The reports tab lists nine reports. Choosing one opens the report with default parameters; its header opens the filter screen, and applying it returns the selection as route parameters, without a filter store. In `screens/reports/`, `cash-flow/`, `fx/`, `portfolio/`, `position/` and `redemptions/` hold the related screens and calculations; `filters/` holds filter UI, and `shared/` holds the common report parameters, scope, charts and PDF. Cash-flow income allocates purchase cost to redemptions and FIFO sales. The currency report converts confirmed UAH events at the historical NBU rate, with remaining cost at the selected report-date rate; it is not a market valuation.
+
 ## Architecture
 
 The default Expo layout, plus `stores/`, `api/` and `lib/` for what its template has no folder for:

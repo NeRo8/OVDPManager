@@ -95,6 +95,31 @@ export default function RootLayout() {
                 />
                 <NativeStack.Screen name="plan/list" options={{ title: 'Мої плани' }} />
                 <NativeStack.Screen
+                  name="reports/filters/[report]"
+                  options={{ title: 'Фільтри звіту' }}
+                />
+                <NativeStack.Screen name="reports/year" options={{ title: 'Звіт за рік' }} />
+                <NativeStack.Screen name="reports/period" options={{ title: 'Звіт за період' }} />
+                <NativeStack.Screen
+                  name="reports/year-over-year"
+                  options={{ title: 'Звіт від року до року' }}
+                />
+                <NativeStack.Screen
+                  name="reports/structure"
+                  options={{ title: 'Структура портфеля' }}
+                />
+                <NativeStack.Screen name="reports/yield" options={{ title: 'Річна дохідність' }} />
+                <NativeStack.Screen name="reports/bond" options={{ title: 'Звіт по облігації' }} />
+                <NativeStack.Screen name="reports/fx" options={{ title: 'Валютний еквівалент' }} />
+                <NativeStack.Screen
+                  name="reports/portfolio"
+                  options={{ title: 'Звіт по портфелю' }}
+                />
+                <NativeStack.Screen
+                  name="reports/redemptions"
+                  options={{ title: 'Графік погашень' }}
+                />
+                <NativeStack.Screen
                   name="plan/goal"
                   options={{ title: 'Ціль: купони на місяць' }}
                 />

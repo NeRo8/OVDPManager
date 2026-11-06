@@ -40,6 +40,13 @@ export default function TabLayout() {
         />
         <NativeTabs.Trigger.Label>План</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="(reports)">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'doc.text', selected: 'doc.text.fill' }}
+          md="summarize"
+        />
+        <NativeTabs.Trigger.Label>Звіти</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="(settings)">
         <NativeTabs.Trigger.Icon
           sf={{ default: 'gearshape', selected: 'gearshape.fill' }}
