@@ -18,6 +18,32 @@ describe('reportHtml', () => {
 });
 
 describe('reportPdf', () => {
+  it('prints a ring chart and readable amounts and shares for its slices', () => {
+    const html = reportHtml(
+      'План',
+      '2026-01-01',
+      'UAH',
+      [
+        {
+          title: 'Розподіл за облігаціями',
+          rows: [],
+          allocationChart: {
+            currency: 'UAH',
+            slices: [
+              { label: '<UA1>', value: 750 },
+              { label: 'UA2', value: 250 },
+            ],
+          },
+        },
+      ],
+      false,
+    );
+    expect(html).toContain('<svg viewBox="0 0 180 180"');
+    expect(html).toContain('&lt;UA1&gt;');
+    expect(html).toContain('75%');
+    expect(html).toContain('25%');
+  });
+
   it('includes a line chart with escaped labels', () => {
     const html = reportHtml(
       'План',

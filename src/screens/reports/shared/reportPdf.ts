@@ -1,6 +1,11 @@
+import { chartPalette } from '@/components/chart/chartTheme';
 import type { ReportSection } from '@/screens/reports/shared/reportSection';
+import { light } from '@/theme/palette';
 import { formatDate } from '@/utils/date';
 import { formatMoney, formatPercent } from '@/utils/format';
+import { round2 } from '@/utils/number';
+
+import { allocationSegments } from './allocationSegments';
 
 function escapeHtml(value: string): string {
   return value.replace(
@@ -90,6 +95,26 @@ export function reportHtml(
     );
     return `${line}<table>${rows.join('')}</table>`;
   };
+  const allocationChartHtml = (section: ReportSection) => {
+    const chart = section.allocationChart;
+    if (!chart) return '';
+    const palette = chartPalette(light);
+    const total = chart.slices.reduce((sum, item) => sum + item.value, 0);
+    const segments = allocationSegments(chart);
+    const paths = segments
+      .map(
+        (item) =>
+          `<path d="${item.path}" fill="none" stroke="${palette.marks[item.color]}" stroke-width="24"/>`,
+      )
+      .join('');
+    const rows = segments
+      .map(
+        (item) =>
+          `<tr><td><span style="color:${palette.marks[item.color]}">■</span> ${escapeHtml(item.label)}</td><td>${escapeHtml(formatMoney(item.value, chart.currency))} · ${escapeHtml(formatPercent(round2((item.value / total) * 100)))}</td></tr>`,
+      )
+      .join('');
+    return `<div class="allocation-chart"><svg viewBox="0 0 180 180" width="150" height="150" role="img">${paths}</svg><table>${rows}</table></div>`;
+  };
   const tableHtml = (section: ReportSection) => {
     const table = section.table;
     if (!table) return '';
@@ -106,7 +131,7 @@ export function reportHtml(
     .map(
       (section) => `
     <section><h2>${escapeHtml(section.title)}</h2>
-    ${section.rows.length ? `<table>${section.rows.map((row) => `<tr><td>${escapeHtml(row.label)}</td><td>${escapeHtml(row.value)}</td></tr>`).join('')}</table>` : ''}${tableHtml(section)}${chartHtml(section)}${capitalChartHtml(section)}${lineChartHtml(section)}
+    ${section.rows.length ? `<table>${section.rows.map((row) => `<tr><td>${escapeHtml(row.label)}</td><td>${escapeHtml(row.value)}</td></tr>`).join('')}</table>` : ''}${tableHtml(section)}${allocationChartHtml(section)}${chartHtml(section)}${capitalChartHtml(section)}${lineChartHtml(section)}
     ${section.footer ? `<p>${escapeHtml(section.footer)}</p>` : ''}</section>`,
     )
     .join('');
@@ -118,6 +143,7 @@ export function reportHtml(
     td { padding: 5pt 0; border-bottom: 1px solid #ddd; } td:last-child { text-align: right; }
     .period-table { margin: 10pt 0; } .period-table th, .period-table td { text-align: right; padding: 5pt 3pt; }
     .period-table th:first-child, .period-table td:first-child { text-align: left; }
+    .allocation-chart { display: flex; align-items: center; gap: 16pt; } .allocation-chart table { flex: 1; }
     .chart { margin: 10pt 0; } .bar-row { display: flex; gap: 8pt; align-items: center; margin: 4pt 0; font-size: 9pt; }
     .bar-row > span:first-child { width: 100pt; } .bar-row > span:last-child { width: 90pt; text-align: right; }
     .track { flex: 1; background: #eee; height: 8pt; } .bar { background: #526f91; height: 8pt; }

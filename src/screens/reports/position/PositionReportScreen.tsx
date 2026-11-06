@@ -25,6 +25,7 @@ import { keyRateOn, useCachedKeyRateYears } from '@/stores/keyRate/selectors';
 
 import { BondFlowChart } from './BondFlowChart';
 import { positionReportSections, type PositionReportMode } from './positionReportRows';
+import { StructureAllocationChart } from './StructureAllocationChart';
 import { YieldChart } from './YieldChart';
 
 type Props = { mode: PositionReportMode };
@@ -118,29 +119,6 @@ export default function PositionReportScreen({ mode }: Props) {
               Не вдалося завантажити частину облікових ставок НБУ.
             </Typography>
           )}
-        {mode === 'structure' &&
-          sections.flatMap((section) =>
-            section.chart
-              ? [
-                  <Card key={section.title} title={`Розподіл вкладень · ${section.chart.currency}`}>
-                    <ColumnChart
-                      currency={section.chart.currency}
-                      columns={section.chart.bars.map((bar) => ({
-                        label: bar.label.slice(-4),
-                        name: bar.label,
-                      }))}
-                      series={[
-                        {
-                          label: 'Вкладено',
-                          color: 'purchase',
-                          values: section.chart.bars.map((bar) => bar.value),
-                        },
-                      ]}
-                    />
-                  </Card>,
-                ]
-              : [],
-          )}
         {!sections.length && (
           <EmptyState
             layout="inline"
@@ -154,9 +132,37 @@ export default function PositionReportScreen({ mode }: Props) {
             {section.capitalChart && (
               <BondFlowChart chart={section.capitalChart} footer={section.footer} />
             )}
+            {section.allocationChart && (
+              <StructureAllocationChart
+                title={section.title}
+                chart={section.allocationChart}
+                footer={section.footer}
+              />
+            )}
+            {mode === 'structure' && section.chart && (
+              <Card title={section.title}>
+                <ColumnChart
+                  currency={section.chart.currency}
+                  columns={section.chart.bars.map((bar, index) => ({
+                    label: ['0–6м', '6–12м', '1–2р', '2–3р', '>3р'][index],
+                    name: bar.label,
+                  }))}
+                  series={[
+                    {
+                      label: 'Собівартість залишку',
+                      color: 'purchase',
+                      values: section.chart.bars.map((bar) => bar.value),
+                    },
+                  ]}
+                />
+              </Card>
+            )}
             {section.table && <FlowTable title={section.title} table={section.table} />}
-            {!section.capitalChart && !section.table && (
-              <Section title={section.title} footer={section.footer}>
+            {!section.capitalChart && !section.allocationChart && !section.table && (
+              <Section
+                title={mode === 'structure' && section.chart ? undefined : section.title}
+                footer={section.footer}
+              >
                 {section.rows.map((row) => (
                   <InfoRow key={row.label} label={row.label} value={row.value} prioritizeValue />
                 ))}

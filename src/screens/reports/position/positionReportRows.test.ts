@@ -43,13 +43,23 @@ describe('positionReportRows', () => {
     const wallet = buildWallet([purchase, sale], new Map(), '2026-02-01');
     expect(positionReportSections(wallet, 'structure', null, null, 'all')).toEqual([]);
     const made = positionReportSections(wallet, 'structure', null, null, 'made');
-    expect(
-      made[0].rows.find((row) => row.label === 'Вартість утримуваних облігацій')?.value,
-    ).toContain('900,00');
+    expect(made[0].rows.find((row) => row.label === 'Собівартість залишку')?.value).toContain(
+      '900,00',
+    );
   });
 });
 
 describe('portfolio structure', () => {
+  it('counts a redemption due today only in the planned scenario', () => {
+    const wallet = buildWallet([purchase], new Map(), '2026-01-01');
+    const total = (scenario: 'all' | 'made') =>
+      positionReportSections(wallet, 'structure', null, null, scenario)[0].rows.find(
+        (row) => row.label === 'Собівартість залишку',
+      )?.value;
+    expect(total('made')).toBe(formatMoney(1800, 'UAH'));
+    expect(total('all')).toBe(formatMoney(900, 'UAH'));
+  });
+
   it('allocates remaining costs and shares across maturity ranges and bonds', () => {
     const laterBond: Bond = {
       ...bond,
@@ -66,14 +76,68 @@ describe('portfolio structure', () => {
       amount: 1000,
     };
     const wallet = buildWallet([purchase, laterPurchase], new Map(), '2026-02-01');
-    const rows = positionReportSections(wallet, 'structure', null, null, 'made')[0].rows;
-    const value = (label: string) => rows.find((row) => row.label === label)?.value;
+    const sections = positionReportSections(wallet, 'structure', null, null, 'made');
+    const value = (title: string, label: string) =>
+      sections.find((section) => section.title === title)?.rows.find((row) => row.label === label)
+        ?.value;
 
-    expect(value('Вартість утримуваних облігацій')).toBe(formatMoney(1900, 'UAH'));
-    expect(value('До 1 року')).toBe(formatMoney(900, 'UAH'));
-    expect(value('Понад 3 роки')).toBe(formatMoney(1000, 'UAH'));
-    expect(value('Частка · UA1')).toBe(formatPercent(47.37));
-    expect(value('Частка · UA2')).toBe(formatPercent(52.63));
+    expect(value('Підсумок · UAH', 'Собівартість залишку')).toBe(formatMoney(1900, 'UAH'));
+    expect(value('За строками погашення · UAH', '6–12 місяців')).toBe(formatMoney(900, 'UAH'));
+    expect(value('За строками погашення · UAH', 'Понад 3 роки')).toBe(formatMoney(1000, 'UAH'));
+    expect(value('UA1 · UAH', 'Частка у валюті')).toBe(formatPercent(47.37));
+    expect(value('UA2 · UAH', 'Частка у валюті')).toBe(formatPercent(52.63));
+    expect(value('UA1 · UAH', 'Кількість')).toBe('2');
+    expect(value('UA1 · UAH', 'Ставка купону')).toBe(formatPercent(10));
+    expect(value('UA1 · UAH', 'Дата погашення')).toBe('01.01.2027');
+    expect(sections.find((section) => section.allocationChart)?.allocationChart?.slices).toEqual([
+      { label: 'UA2', value: 1000 },
+      { label: 'UA1', value: 900 },
+    ]);
+  });
+
+  it('keeps the full portfolio in detail while combining small slices into other', () => {
+    const operations = Array.from({ length: 6 }, (_, index): Operation => {
+      const isin = `UA${index + 1}`;
+      return { ...purchase, id: isin, isin, amount: 1000, quantity: 1, ovdp: { ...bond, isin } };
+    });
+    const wallet = buildWallet(operations, new Map(), '2025-02-01');
+    const sections = positionReportSections(wallet, 'structure', null, null, 'made');
+    const slices = sections.find((section) => section.allocationChart)?.allocationChart?.slices;
+    expect(slices).toHaveLength(5);
+    expect(slices?.at(-1)).toEqual({ label: 'Інші', value: 2000 });
+    expect(sections.filter((section) => /^UA\d · UAH$/.test(section.title))).toHaveLength(6);
+  });
+
+  it('shows missing bond data without assigning it a guessed cost or share', () => {
+    const unknown: Operation = { ...purchase, id: 'unknown', isin: 'UA2', ovdp: null };
+    const wallet = buildWallet([purchase, unknown], new Map(), '2025-02-01');
+    const sections = positionReportSections(wallet, 'structure', null, null, 'made');
+    const unknownSection = sections.find((section) => section.title === 'UA2 · UAH');
+    expect(unknownSection?.rows).toContainEqual({ label: 'Кількість', value: '2' });
+    expect(unknownSection?.rows).toContainEqual({ label: 'Собівартість залишку', value: '—' });
+    expect(sections[0].rows).toContainEqual({ label: 'Випусків без розрахунку', value: '1' });
+    expect(sections.find((section) => section.allocationChart)?.allocationChart?.slices).toEqual([
+      { label: 'UA1', value: 1800 },
+    ]);
+  });
+
+  it('does not assign a cost to a confirmed sale that depends on an unconfirmed purchase', () => {
+    const pending = { ...purchase, planned: true };
+    const confirmedSale: Operation = {
+      ...purchase,
+      id: 'sale',
+      type: 'sale',
+      date: '2025-02-01',
+      quantity: 1,
+      amount: 1000,
+    };
+    const wallet = buildWallet([pending, confirmedSale], new Map(), '2025-03-01');
+    const made = positionReportSections(wallet, 'structure', null, null, 'made');
+    expect(made[0].rows).toContainEqual({ label: 'Собівартість залишку', value: '—' });
+    expect(made.find((section) => section.title === 'UA1 · UAH')?.footer).toContain(
+      'Продаж залежить від непідтвердженої купівлі',
+    );
+    expect(made.some((section) => section.allocationChart)).toBe(false);
   });
 });
 
