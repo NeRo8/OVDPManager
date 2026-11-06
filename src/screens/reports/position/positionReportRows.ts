@@ -1,6 +1,5 @@
 import { purchaseLots } from '@/lib/portfolio/operations';
-import { CURRENCIES, type Operation, receivedAmount } from '@/lib/portfolio/portfolio';
-import { resultsByCurrency } from '@/lib/portfolio/position';
+import { CURRENCIES, receivedAmount } from '@/lib/portfolio/portfolio';
 import type { Wallet } from '@/lib/portfolio/wallet';
 import { cashFlowReport } from '@/screens/reports/cash-flow/cashFlowReport';
 import type { ReportSection } from '@/screens/reports/shared/reportSection';
@@ -8,23 +7,9 @@ import { addDaysISO, addMonthsISO, daysBetween, formatDate } from '@/utils/date'
 import { formatMoney, formatPercent } from '@/utils/format';
 import { round2 } from '@/utils/number';
 
-export type PositionReportMode = 'structure' | 'yield' | 'bond';
+import { purchaseKeyRate, yieldReportSections } from './yieldReportSections';
 
-function purchaseKeyRate(
-  operations: Operation[],
-  rateOn: (date: string) => number | null,
-): number | null {
-  const purchases = operations.filter((operation) => operation.type === 'purchase');
-  const rates = purchases.map((purchase) => rateOn(purchase.date));
-  if (!purchases.length || rates.some((rate) => rate === null)) return null;
-  const total = purchases.reduce((sum, purchase) => sum + purchase.amount, 0);
-  return total
-    ? round2(
-        purchases.reduce((sum, purchase, index) => sum + purchase.amount * (rates[index] ?? 0), 0) /
-          total,
-      )
-    : null;
-}
+export type PositionReportMode = 'structure' | 'yield' | 'bond';
 
 export function positionReportSections(
   wallet: Wallet,
@@ -127,70 +112,7 @@ export function positionReportSections(
     const positions = wallet.positions.filter((item) => item.currency === currency);
     if (!positions.length) return [];
     const money = (amount: number) => formatMoney(amount, currency);
-    if (mode === 'yield') {
-      const total = resultsByCurrency(positions)[0];
-      const ranked = positions
-        .filter((item) => item.annualYield !== null)
-        .sort((a, b) => (b.annualYield ?? 0) - (a.annualYield ?? 0));
-      const shown =
-        ranked.length <= 5 ? ranked : [...ranked.slice(0, 4), ranked[ranked.length - 1]];
-      const knownRates = positions.filter((item) => item.bond && item.position.investedAmount > 0);
-      const rateWeight = knownRates.reduce((sum, item) => sum + item.position.investedAmount, 0);
-      const averageCoupon = rateWeight
-        ? round2(
-            knownRates.reduce(
-              (sum, item) => sum + (item.bond?.rate ?? 0) * item.position.investedAmount,
-              0,
-            ) / rateWeight,
-          )
-        : null;
-      return [
-        {
-          title: `Річна дохідність · ${currency}`,
-          chart: {
-            title: 'Дохідність облігацій',
-            currency,
-            percent: true,
-            bars: shown.map((item) => ({
-              label: item.position.isin,
-              value: item.annualYield ?? 0,
-            })),
-          },
-          rows: [
-            {
-              label: 'Середня дохідність',
-              value: total.annualYield === null ? '—' : formatPercent(total.annualYield),
-            },
-            {
-              label: 'Середня ставка купону',
-              value: averageCoupon === null ? '—' : formatPercent(averageCoupon),
-            },
-            ...(currency === 'UAH'
-              ? [
-                  {
-                    label: 'Облікова ставка НБУ',
-                    value: keyRate === null ? '—' : formatPercent(keyRate),
-                  },
-                ]
-              : []),
-            ...positions.map((item) => ({
-              label: item.position.isin,
-              value: item.annualYield === null ? '—' : formatPercent(item.annualYield),
-            })),
-            ...(currency === 'UAH'
-              ? positions.map((item) => {
-                  const rate = purchaseKeyRate(item.position.operations, rateOn);
-                  return {
-                    label: `${item.position.isin} · ставка НБУ на дату купівлі`,
-                    value: rate === null ? '—' : formatPercent(rate),
-                  };
-                })
-              : []),
-          ],
-          footer: `Без розрахованої дохідності: ${total.withoutYieldCount}. Середнє зважене за сумою купівель.`,
-        },
-      ];
-    }
+    if (mode === 'yield') return yieldReportSections(currency, positions, keyRate, rateOn);
     const active = positions.filter((item) => item.bond && item.bond.maturityDate >= wallet.today);
     const values = active
       .map((item) => {

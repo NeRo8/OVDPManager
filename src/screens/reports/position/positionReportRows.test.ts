@@ -82,12 +82,57 @@ describe('yield and bond reports', () => {
     const second: Operation = { ...purchase, id: 'second', date: '2025-03-01', amount: 900 };
     const wallet = buildWallet([purchase, second], new Map(), '2025-06-01');
     const rateOn = (date: string) => (date === '2025-01-01' ? 12 : 18);
-    const [section] = positionReportSections(wallet, 'yield', null, 15, 'all', rateOn);
+    const [section, bondSection] = positionReportSections(wallet, 'yield', null, 15, 'all', rateOn);
     const value = (label: string) => section.rows.find((row) => row.label === label)?.value;
 
     expect(value('Середня ставка купону')).toBe(formatPercent(10));
-    expect(value('Облікова ставка НБУ')).toBe(formatPercent(15));
-    expect(value('UA1 · ставка НБУ на дату купівлі')).toBe(formatPercent(14));
+    expect(value('Облікова ставка НБУ зараз')).toBe(formatPercent(15));
+    expect(bondSection.title).toBe('UA1 · UAH');
+    expect(bondSection.rows.find((row) => row.label === 'Ставка НБУ на дати купівлі')?.value).toBe(
+      formatPercent(14),
+    );
+  });
+
+  it('groups each bond with its currency summary and keeps missing values visible', () => {
+    const usdBond: Bond = { ...bond, isin: 'UA2', currency: 'USD', rate: 5 };
+    const usdPurchase: Operation = {
+      ...purchase,
+      id: 'usd',
+      isin: usdBond.isin,
+      currency: 'USD',
+      ovdp: usdBond,
+    };
+    const unknown: Operation = { ...purchase, id: 'unknown', isin: 'UA3', ovdp: null };
+    const wallet = buildWallet([purchase, usdPurchase, unknown], new Map(), '2025-06-01');
+    const sections = positionReportSections(wallet, 'yield', null, null);
+    expect(sections.map((section) => section.title)).toEqual([
+      'Підсумок · UAH',
+      'UA1 · UAH',
+      'UA3 · UAH',
+      'Підсумок · USD',
+      'UA2 · USD',
+    ]);
+    expect(sections[2].rows).toEqual([
+      { label: 'Річна дохідність', value: '—' },
+      { label: 'Ставка купону', value: '—' },
+      { label: 'Ставка НБУ на дати купівлі', value: '—' },
+    ]);
+    expect(sections[4].rows.some((row) => row.label.includes('НБУ'))).toBe(false);
+  });
+
+  it('keeps every bond in the report when the chart shows only five', () => {
+    const operations = Array.from({ length: 6 }, (_, index): Operation => {
+      const isin = `UA${index + 1}`;
+      return { ...purchase, id: isin, isin, ovdp: { ...bond, isin } };
+    });
+    const wallet = buildWallet(operations, new Map(), '2025-06-01');
+    const sections = positionReportSections(wallet, 'yield', null, 15, 'all', () => 15);
+    expect(sections).toHaveLength(7);
+    expect(sections[0].chart?.bars).toHaveLength(5);
+    expect(sections[0].footer).toContain('чотири найвищі та найнижча');
+    expect(sections.slice(1).map((section) => section.title)).toEqual(
+      operations.map((operation) => `${operation.isin} · UAH`),
+    );
   });
 
   it('shows missing historical rates as unknown and does not show NBU rates for foreign currency', () => {

@@ -1,3 +1,5 @@
+import { Fragment } from 'react';
+
 import { useQueries } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 
@@ -137,10 +139,6 @@ export default function PositionReportScreen({ mode }: Props) {
                 ]
               : [],
           )}
-        {mode === 'yield' &&
-          sections.flatMap((section) =>
-            section.chart ? [<YieldChart key={section.title} chart={section.chart} />] : [],
-          )}
         {!sections.length && (
           <EmptyState
             layout="inline"
@@ -150,11 +148,14 @@ export default function PositionReportScreen({ mode }: Props) {
           />
         )}
         {sections.map((section) => (
-          <Section key={section.title} title={section.title} footer={section.footer}>
-            {section.rows.map((row) => (
-              <InfoRow key={row.label} label={row.label} value={row.value} prioritizeValue />
-            ))}
-          </Section>
+          <Fragment key={section.title}>
+            <Section title={section.title} footer={section.footer}>
+              {section.rows.map((row) => (
+                <InfoRow key={row.label} label={row.label} value={row.value} prioritizeValue />
+              ))}
+            </Section>
+            {mode === 'yield' && section.chart && <YieldChart chart={section.chart} />}
+          </Fragment>
         ))}
       </ScreenScrollView>
     </>
