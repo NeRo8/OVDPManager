@@ -26,31 +26,33 @@ function bondOf(isin: string, maturityDate: string): Bond {
 const maturingToday = bondOf('UA4000000001', '2026-03-15');
 const today = '2026-03-15';
 
-it('does not divide by a zero quantity when displaying a price', () => {
-  expect(pricePerBond(1000, 0)).toBeNull();
-  expect(pricePerBond(1000, 2)).toBe(500);
-});
+describe('portfolio', () => {
+  it('does not divide by a zero quantity when displaying a price', () => {
+    expect(pricePerBond(1000, 0)).toBeNull();
+    expect(pricePerBond(1000, 2)).toBe(500);
+  });
 
-it('identifies same-day top-ups consistently regardless of storage order', () => {
-  const purchase = {
-    type: 'purchase' as const,
-    ovdp: null,
-    planned: false,
-    isin: maturingToday.isin,
-    date: '2025-01-01',
-    quantity: 1,
-    amount: 1000,
-    currency: 'UAH' as const,
-  };
-  const first = { ...purchase, id: 'a' };
-  const second = { ...purchase, id: 'b' };
-  const events = (items: (typeof first)[]) =>
-    operationEvents(items, new Map()).map(({ id, isTopUp }) => [id, isTopUp]);
-  expect(events([first, second])).toEqual([
-    ['a', false],
-    ['b', true],
-  ]);
-  expect(events([second, first])).toEqual(events([first, second]));
+  it('identifies same-day top-ups consistently regardless of storage order', () => {
+    const purchase = {
+      type: 'purchase' as const,
+      ovdp: null,
+      planned: false,
+      isin: maturingToday.isin,
+      date: '2025-01-01',
+      quantity: 1,
+      amount: 1000,
+      currency: 'UAH' as const,
+    };
+    const first = { ...purchase, id: 'a' };
+    const second = { ...purchase, id: 'b' };
+    const events = (items: (typeof first)[]) =>
+      operationEvents(items, new Map()).map(({ id, isTopUp }) => [id, isTopUp]);
+    expect(events([first, second])).toEqual([
+      ['a', false],
+      ['b', true],
+    ]);
+    expect(events([second, first])).toEqual(events([first, second]));
+  });
 });
 
 describe('the maturity date', () => {

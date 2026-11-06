@@ -92,21 +92,28 @@ describe('operations', () => {
   });
 });
 
-it('does not change stored history when editing or deleting a purchase would invalidate a sale', () => {
-  const bought = addOperation({ ...purchaseOf('a', 'UA1'), quantity: 10, amount: 10000 });
-  addOperation({
-    ...purchaseOf('a', 'UA1'),
-    type: 'sale',
-    date: '2026-02-01',
-    quantity: 4,
-    amount: 4100,
+describe('operations', () => {
+  it('does not change stored history when editing or deleting a purchase would invalidate a sale', () => {
+    const bought = addOperation({ ...purchaseOf('a', 'UA1'), quantity: 10, amount: 10000 });
+    addOperation({
+      ...purchaseOf('a', 'UA1'),
+      type: 'sale',
+      date: '2026-02-01',
+      quantity: 4,
+      amount: 4100,
+    });
+    const before = getOperations();
+    expect(() => removeOperation(bought.id)).toThrow('перевищує');
+    expect(() =>
+      updateOperation(bought.id, {
+        date: '2026-03-01',
+        quantity: 10,
+        amount: 10000,
+        planned: false,
+      }),
+    ).toThrow('перевищує');
+    expect(getOperations()).toEqual(before);
   });
-  const before = getOperations();
-  expect(() => removeOperation(bought.id)).toThrow('перевищує');
-  expect(() =>
-    updateOperation(bought.id, { date: '2026-03-01', quantity: 10, amount: 10000, planned: false }),
-  ).toThrow('перевищує');
-  expect(getOperations()).toEqual(before);
 });
 
 describe('payment filters', () => {

@@ -252,44 +252,46 @@ describe('serializeBackup and parseBackup', () => {
   });
 });
 
-it('restores encrypted v6 purchases with their original dates', async () => {
-  const holdings = operations.map(({ type: _type, ovdp: _ovdp, date, ...purchase }) => ({
-    ...purchase,
-    purchaseDate: date,
-  }));
-  const encrypted = await encryptBackup(
-    JSON.stringify({
-      holdings,
-      plans: plans.map(({ isActive: _active, ...plan }) => plan),
-      activePlanId: plans[0].id,
-    }),
-    KEY,
-    'ovdp-manager-backup:6',
-  );
-  const file = JSON.stringify({ format: 'ovdp-manager-backup', version: 6, ...encrypted });
-  await expect(parseBackup(file, KEY)).resolves.toEqual({ operations, plans });
-});
+describe('backup', () => {
+  it('restores encrypted v6 purchases with their original dates', async () => {
+    const holdings = operations.map(({ type: _type, ovdp: _ovdp, date, ...purchase }) => ({
+      ...purchase,
+      purchaseDate: date,
+    }));
+    const encrypted = await encryptBackup(
+      JSON.stringify({
+        holdings,
+        plans: plans.map(({ isActive: _active, ...plan }) => plan),
+        activePlanId: plans[0].id,
+      }),
+      KEY,
+      'ovdp-manager-backup:6',
+    );
+    const file = JSON.stringify({ format: 'ovdp-manager-backup', version: 6, ...encrypted });
+    await expect(parseBackup(file, KEY)).resolves.toEqual({ operations, plans });
+  });
 
-it('round-trips a purchase and a sale with their complete bond schedule', async () => {
-  const ovdp = {
-    isin: operations[0].isin,
-    nominal: 1000,
-    rate: 10,
-    currency: 'UAH' as const,
-    issueDate: '2025-01-01',
-    maturityDate: '2027-01-01',
-    description: '',
-    payments: [{ date: '2027-01-01', type: 'redemption' as const, amount: 1000 }],
-  };
-  const purchase = { ...operations[0], ovdp };
-  const sale: PlanOperation = {
-    ...purchase,
-    id: 'sale',
-    type: 'sale',
-    date: '2026-01-01',
-    quantity: 4,
-    amount: 4100,
-  };
-  const data = { operations: [purchase, sale], plans };
-  await expect(parseBackup(await serializeBackup(data, KEY), KEY)).resolves.toEqual(data);
+  it('round-trips a purchase and a sale with their complete bond schedule', async () => {
+    const ovdp = {
+      isin: operations[0].isin,
+      nominal: 1000,
+      rate: 10,
+      currency: 'UAH' as const,
+      issueDate: '2025-01-01',
+      maturityDate: '2027-01-01',
+      description: '',
+      payments: [{ date: '2027-01-01', type: 'redemption' as const, amount: 1000 }],
+    };
+    const purchase = { ...operations[0], ovdp };
+    const sale: PlanOperation = {
+      ...purchase,
+      id: 'sale',
+      type: 'sale',
+      date: '2026-01-01',
+      quantity: 4,
+      amount: 4100,
+    };
+    const data = { operations: [purchase, sale], plans };
+    await expect(parseBackup(await serializeBackup(data, KEY), KEY)).resolves.toEqual(data);
+  });
 });

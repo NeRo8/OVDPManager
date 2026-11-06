@@ -190,19 +190,21 @@ describe('assessPurchase', () => {
   });
 });
 
-it('explains unavailable comparisons and today’s rates for a future purchase', () => {
-  const result = assess({
-    date: '2027-01-01',
-    today: '2026-10-29',
-    keyRate: null,
-    bonds: [],
+describe('purchaseHints', () => {
+  it('explains unavailable comparisons and today’s rates for a future purchase', () => {
+    const result = assess({
+      date: '2027-01-01',
+      today: '2026-10-29',
+      keyRate: null,
+      bonds: [],
+    });
+    expect(result.hints.map((hint) => hint.text)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('Облікова ставка НБУ недоступна'),
+        expect.stringContaining('сьогоднішні ставки'),
+      ]),
+    );
   });
-  expect(result.hints.map((hint) => hint.text)).toEqual(
-    expect.arrayContaining([
-      expect.stringContaining('Облікова ставка НБУ недоступна'),
-      expect.stringContaining('сьогоднішні ставки'),
-    ]),
-  );
 });
 
 describe('annualYieldText', () => {
