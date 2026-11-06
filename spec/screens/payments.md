@@ -155,13 +155,14 @@
 
 ## Покриття тестами
 
-- `src/lib/payment-filters/filterSchedule.test.ts`: PFLT-02 (перша валюта для `null` і відсутньої; ОВДП лише показаної валюти — «keeps only the bonds of the currency shown…»), PFLT-03 (`countActiveFilters`: 0 і 4), PFLT-10 (`isinsIn` для USD), PAY-02/PAY-03 (порядок за датою, `totalCount`), PFLT-06 (майбутні = купівля попереду й погашення; непідтверджена купівля, дата якої настала, лишається серед майбутніх), відбір за типом, PFLT-11 (`totalCount` лише показаної валюти), відбір ОВДП без даних НБУ. Попри назву тесту «payments before operations on the same day», у його даних немає двох подій одного дня, тож порядок «виплата перед операцією того самого дня» (PAY-03) не перевірено.
+- `src/lib/payment-filters/filterSchedule.test.ts`: PFLT-02 (перша валюта для `null` і відсутньої; ОВДП лише показаної валюти — «keeps only the bonds of the currency shown…»), PFLT-03 (`countActiveFilters`: 0 і 4), PFLT-10 (`isinsIn` для USD), PAY-02/PAY-03 (порядок за датою, `totalCount`), PFLT-06 (майбутні = купівля попереду й погашення; непідтверджена купівля, дата якої настала, лишається серед майбутніх), відбір за типом, PFLT-11 (`totalCount` лише показаної валюти), відбір ОВДП без даних НБУ.
 - `src/lib/portfolio/portfolio.test.ts`: `plannedQuantity` виплат (DOM-59), з якого PAY-13 пише «заплановано»; сам рядок не тестується.
 - `src/stores/operations/operations.test.ts`: PFLT-04 (останній знятий тип чи позначені всі `SCHEDULE_EVENT_TYPES` — знову «Усі події»), PFLT-05 (`togglePaymentFilterIsin`), скидання, фільтри не змінюються разом з операціями й при `replaceOperations` (PFLT-01).
 - `src/screens/payments/yearSummary.test.ts`: PAY-11 (`defaultMonth`: найближча подія або остання минула), PAY-07 частково (`invested`, `planned`, `purchaseCount`, зроблені й заплановані купівлі по місяцях, за ознакою `planned`).
 - `src/screens/payments/yearSeries.test.ts`: PAY-08 частково (рік лише із запланованими купівлями дає одну серію `plannedPurchase`; відбір серій за типом).
 - `src/screens/payments/scheduleSections.test.ts`: PAY-12 частково (групування за місяцями, сума секції лише з виплат, порожня для місяця лише з купівлями).
-- **Без тестів:** PAY-01, PAY-03 (той самий день), PAY-04…PAY-06 і вибір місяця (хук `useYearSchedule`), PAY-07 (`totalPayments`, `received`, `averageMonthlyPurchase`, суми купонів і погашень), PAY-09, PAY-10, PAY-13…PAY-17, PAY-19 (жоден тест екрана виплат не має події продажу: ні підсумків, ні серії, ні суми секції, ні відбору; запланованого продажу теж), PFLT-07…PFLT-09, PFLT-12 (екран фільтрів).
+- Продажі перевіряються в підсумках року, серіях графіка, сумі секції та фільтрах часу, зокрема непідтверджений продаж. Окремий тест перевіряє порядок купона перед операціями в той самий день.
+- **Без тестів:** PAY-01, PAY-04…PAY-06 і вибір місяця (хук `useYearSchedule`), PAY-07 (`averageMonthlyPurchase`, суми купонів і погашень), PAY-09, PAY-10, PAY-13…PAY-17, PFLT-07…PFLT-09, PFLT-12 (екран фільтрів).
 
 ## Прогалини й питання
 

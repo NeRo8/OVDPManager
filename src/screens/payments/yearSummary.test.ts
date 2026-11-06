@@ -34,3 +34,28 @@ describe('yearSummary', () => {
     expect(summary.monthlyPlannedPurchases[8]).toBe(100);
   });
 });
+
+describe('sales in yearly totals', () => {
+  it('includes planned sales in inflows but only confirmed sales in received amounts', () => {
+    const confirmed = {
+      ...purchase('2026-02-01'),
+      id: 'sale-1',
+      type: 'sale' as const,
+      total: 900,
+    };
+    const planned = {
+      ...purchase('2026-03-01', true),
+      id: 'sale-2',
+      type: 'sale' as const,
+      total: 700,
+    };
+    const summary = yearSummary([confirmed, planned], 'UAH', '2026-04-01');
+    expect(summary).toMatchObject({
+      saleTotal: 1600,
+      totalPayments: 1600,
+      received: 900,
+      invested: 0,
+    });
+    expect(summary.monthlySales.slice(1, 3)).toEqual([900, 700]);
+  });
+});

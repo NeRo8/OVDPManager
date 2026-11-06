@@ -1,5 +1,6 @@
 import { samePlanName, uniquePlanName } from '@/lib/portfolio/plan';
-import type { PlanOperation } from '@/lib/portfolio/portfolio';
+import type { Bond, PlanOperation } from '@/lib/portfolio/portfolio';
+import { useBondsStore } from '@/stores/bonds/store';
 import { addOperation, getOperations } from '@/stores/operations';
 import {
   getActivePlan,
@@ -37,116 +38,145 @@ const purchaseIn = (planId: string, isin = 'UA1'): PlanOperation => ({
 
 beforeEach(() => restorePortfolio([], []));
 
-it('recalculates a goal from confirmed and manual operations without duplicating planned goal purchases', () => {
-  const goal = {
-    currency: 'UAH' as const,
-    year: 2028,
-    incomeYears: 1,
-    purchaseYears: 1,
-    monthly: 1000,
-    reinvest: false,
-  };
-  createActivePlan('План');
-  const originalId = getActivePlan()!.id;
-  addOperationToActivePlan({ ...purchase, currency: 'UAH' });
-  addOperationToActivePlan({ ...purchase, currency: 'UAH', planned: true, goalGenerated: true });
-  const generated = { ...purchase, currency: 'UAH' as const, planned: true, goalGenerated: true };
-  createCouponGoalPlan(goal, [generated]);
-  expect(getOperations().filter((operation) => operation.planId === originalId)).toHaveLength(2);
-  expect(getActiveOperations()).toHaveLength(2);
-  expect(getActiveOperations().filter((operation) => operation.goalGenerated)).toHaveLength(1);
-  expect(getActivePlan()?.goal).toEqual(goal);
-  createCouponGoalPlan(goal, [generated]);
-  expect(getActiveOperations()).toHaveLength(2);
-  expect(getActivePlan()?.name).not.toContain('ціль 2028 · ціль');
-  removeCouponGoalFromActivePlan();
-  expect(getActivePlan()?.goal).toBeUndefined();
-  expect(getActiveOperations()).toHaveLength(2);
-  expect(getActiveOperations().every((operation) => !operation.goalGenerated)).toBe(true);
+describe('restoring bond snapshots', () => {
+  it('restores a missing bond snapshot from the saved catalog without overwriting a saved snapshot', () => {
+    const cached: Bond = {
+      isin: 'UA1',
+      currency: 'UAH',
+      nominal: 1000,
+      rate: 10,
+      issueDate: '2024-01-01',
+      maturityDate: '2028-01-01',
+      description: '',
+      payments: [],
+    };
+    const saved = { ...cached, isin: 'UA2', rate: 12 };
+    const previous = useBondsStore.getState().bonds;
+    try {
+      useBondsStore.setState({ bonds: [cached, { ...saved, rate: 14 }] });
+      restorePortfolio(
+        [purchaseIn('plan', 'UA1'), { ...purchaseIn('plan', 'UA2'), ovdp: saved }],
+        [],
+      );
+      expect(getOperations().map(({ ovdp }) => ovdp)).toEqual([cached, saved]);
+    } finally {
+      useBondsStore.setState({ bonds: previous });
+    }
+  });
 });
 
-it('does not change data when recalculation would leave a planned sale without enough bonds', () => {
-  const goal = {
-    currency: 'UAH' as const,
-    year: 2028,
-    incomeYears: 1,
-    purchaseYears: 1,
-    monthly: 1000,
-    reinvest: false,
-  };
-  const terms = {
-    isin: 'UA1',
-    nominal: 1000,
-    rate: 10,
-    currency: 'UAH' as const,
-    issueDate: '2026-01-01',
-    maturityDate: '2029-01-01',
-    description: '',
-    payments: [],
-  };
-  createActivePlan('План');
-  addOperationToActivePlan({
-    ...purchase,
-    ovdp: terms,
-    currency: 'UAH',
-    date: '2027-01-01',
-    planned: true,
-    goalGenerated: true,
+describe('plans', () => {
+  it('recalculates a goal from confirmed and manual operations without duplicating planned goal purchases', () => {
+    const goal = {
+      currency: 'UAH' as const,
+      year: 2028,
+      incomeYears: 1,
+      purchaseYears: 1,
+      monthly: 1000,
+      reinvest: false,
+    };
+    createActivePlan('План');
+    const originalId = getActivePlan()!.id;
+    addOperationToActivePlan({ ...purchase, currency: 'UAH' });
+    addOperationToActivePlan({ ...purchase, currency: 'UAH', planned: true, goalGenerated: true });
+    const generated = { ...purchase, currency: 'UAH' as const, planned: true, goalGenerated: true };
+    createCouponGoalPlan(goal, [generated]);
+    expect(getOperations().filter((operation) => operation.planId === originalId)).toHaveLength(2);
+    expect(getActiveOperations()).toHaveLength(2);
+    expect(getActiveOperations().filter((operation) => operation.goalGenerated)).toHaveLength(1);
+    expect(getActivePlan()?.goal).toEqual(goal);
+    createCouponGoalPlan(goal, [generated]);
+    expect(getActiveOperations()).toHaveLength(2);
+    expect(getActivePlan()?.name).not.toContain('ціль 2028 · ціль');
+    removeCouponGoalFromActivePlan();
+    expect(getActivePlan()?.goal).toBeUndefined();
+    expect(getActiveOperations()).toHaveLength(2);
+    expect(getActiveOperations().every((operation) => !operation.goalGenerated)).toBe(true);
   });
-  addOperationToActivePlan({
-    ...purchase,
-    ovdp: terms,
-    currency: 'UAH',
-    type: 'sale',
-    date: '2027-02-01',
-    planned: true,
-  });
-  const plansBefore = getInvestmentPlans();
-  const operationsBefore = getOperations();
-  expect(() => createCouponGoalPlan(goal, [])).toThrow('перевищує');
-  expect(getInvestmentPlans()).toEqual(plansBefore);
-  expect(getOperations()).toEqual(operationsBefore);
-});
 
-it('keeps confirmed and manually edited goal purchases when recalculating', () => {
-  const goal = {
-    currency: 'UAH' as const,
-    year: 2028,
-    incomeYears: 1,
-    purchaseYears: 1,
-    monthly: 1000,
-    reinvest: false,
-  };
-  createActivePlan('План');
-  addOperationToActivePlan({
-    ...purchase,
-    currency: 'UAH',
-    amount: 1100,
-    planned: false,
-    goalGenerated: true,
+  it('does not change data when recalculation would leave a planned sale without enough bonds', () => {
+    const goal = {
+      currency: 'UAH' as const,
+      year: 2028,
+      incomeYears: 1,
+      purchaseYears: 1,
+      monthly: 1000,
+      reinvest: false,
+    };
+    const terms = {
+      isin: 'UA1',
+      nominal: 1000,
+      rate: 10,
+      currency: 'UAH' as const,
+      issueDate: '2026-01-01',
+      maturityDate: '2029-01-01',
+      description: '',
+      payments: [],
+    };
+    createActivePlan('План');
+    addOperationToActivePlan({
+      ...purchase,
+      ovdp: terms,
+      currency: 'UAH',
+      date: '2027-01-01',
+      planned: true,
+      goalGenerated: true,
+    });
+    addOperationToActivePlan({
+      ...purchase,
+      ovdp: terms,
+      currency: 'UAH',
+      type: 'sale',
+      date: '2027-02-01',
+      planned: true,
+    });
+    const plansBefore = getInvestmentPlans();
+    const operationsBefore = getOperations();
+    expect(() => createCouponGoalPlan(goal, [])).toThrow('перевищує');
+    expect(getInvestmentPlans()).toEqual(plansBefore);
+    expect(getOperations()).toEqual(operationsBefore);
   });
-  addOperationToActivePlan({
-    ...purchase,
-    currency: 'UAH',
-    amount: 1200,
-    planned: true,
-    goalGenerated: false,
+
+  it('keeps confirmed and manually edited goal purchases when recalculating', () => {
+    const goal = {
+      currency: 'UAH' as const,
+      year: 2028,
+      incomeYears: 1,
+      purchaseYears: 1,
+      monthly: 1000,
+      reinvest: false,
+    };
+    createActivePlan('План');
+    addOperationToActivePlan({
+      ...purchase,
+      currency: 'UAH',
+      amount: 1100,
+      planned: false,
+      goalGenerated: true,
+    });
+    addOperationToActivePlan({
+      ...purchase,
+      currency: 'UAH',
+      amount: 1200,
+      planned: true,
+      goalGenerated: false,
+    });
+    addOperationToActivePlan({
+      ...purchase,
+      currency: 'UAH',
+      amount: 1300,
+      planned: true,
+      goalGenerated: true,
+    });
+    createCouponGoalPlan(goal, [
+      { ...purchase, currency: 'UAH', amount: 1400, planned: true, goalGenerated: true },
+    ]);
+    expect(
+      getActiveOperations()
+        .map((operation) => operation.amount)
+        .sort(),
+    ).toEqual([1100, 1200, 1400]);
   });
-  addOperationToActivePlan({
-    ...purchase,
-    currency: 'UAH',
-    amount: 1300,
-    planned: true,
-    goalGenerated: true,
-  });
-  createCouponGoalPlan(goal, [
-    { ...purchase, currency: 'UAH', amount: 1400, planned: true, goalGenerated: true },
-  ]);
-  expect(
-    getActiveOperations()
-      .map((operation) => operation.amount)
-      .sort(),
-  ).toEqual([1100, 1200, 1400]);
 });
 
 describe('the active plan', () => {

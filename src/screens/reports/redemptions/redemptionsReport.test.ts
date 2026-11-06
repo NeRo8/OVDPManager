@@ -65,4 +65,32 @@ describe('redemptionsReport', () => {
     expect(redemptionsReport(wallet, 'past')).toEqual([]);
     expect(redemptionsReport(wallet, 'upcoming')[0]).toMatchObject({ total: 1000, expected: 1000 });
   });
+
+  it('groups partial redemptions by year and quarter, including a year without payments', () => {
+    const partial: Bond = {
+      ...bond,
+      maturityDate: '2027-02-01',
+      payments: [
+        { date: '2025-03-01', type: 'redemption', amount: 250 },
+        { date: '2025-12-01', type: 'redemption', amount: 250 },
+        { date: '2027-02-01', type: 'redemption', amount: 500 },
+      ],
+    };
+    const wallet = buildWallet([{ ...purchase, ovdp: partial }], new Map(), '2025-01-15');
+    const [report] = redemptionsReport(wallet, 'all');
+
+    expect(report.total).toBe(2000);
+    expect(report.years).toEqual([
+      {
+        year: 2025,
+        total: 1000,
+        quarters: [
+          { quarter: 1, total: 500 },
+          { quarter: 4, total: 500 },
+        ],
+      },
+      { year: 2026, total: 0, quarters: [] },
+      { year: 2027, total: 1000, quarters: [{ quarter: 1, total: 1000 }] },
+    ]);
+  });
 });

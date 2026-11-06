@@ -146,3 +146,50 @@ describe('filterSchedule', () => {
     ]);
   });
 });
+
+describe('sale filtering and event order', () => {
+  it('filters confirmed and overdue planned sales by time and event type', () => {
+    const bought = { ...purchase(hryvnia, '2025-01-10'), quantity: 2 };
+    const confirmed: Operation = {
+      ...purchase(hryvnia, '2026-02-01'),
+      id: 'sale-made',
+      type: 'sale',
+      amount: 1100,
+    };
+    const planned: Operation = {
+      ...purchase(hryvnia, '2026-03-01'),
+      id: 'sale-planned',
+      type: 'sale',
+      planned: true,
+    };
+    const selected = buildWallet([bought, confirmed, planned], byIsin, today);
+    const filters: PaymentFilters = { ...fresh, currency: 'UAH', types: ['sale'] };
+    expect(
+      filterSchedule(selected, { ...filters, time: 'past' }).events.map((event) => event.date),
+    ).toEqual(['2026-02-01']);
+    expect(
+      filterSchedule(selected, { ...filters, time: 'upcoming' }).events.map((event) => event.date),
+    ).toEqual(['2026-03-01']);
+  });
+
+  it('orders a coupon before a purchase and sale on the same day', () => {
+    const bought = { ...purchase(hryvnia, '2025-01-10'), quantity: 2 };
+    const sameDayPurchase = purchase(hryvnia, '2025-07-01');
+    const sameDaySale: Operation = {
+      ...purchase(hryvnia, '2025-07-01'),
+      id: 'same-day-sale',
+      type: 'sale',
+    };
+    const selected = buildWallet([bought, sameDayPurchase, sameDaySale], byIsin, today);
+    const sameDay = filterSchedule(selected, { ...fresh, currency: 'UAH' }).events.filter(
+      (event) => event.date === '2025-07-01',
+    );
+    expect(sameDay[0].type).toBe('coupon');
+    expect(
+      sameDay
+        .slice(1)
+        .map((event) => event.type)
+        .sort(),
+    ).toEqual(['purchase', 'sale']);
+  });
+});

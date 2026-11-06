@@ -195,7 +195,9 @@
 - `src/lib/backup/errorMessage.test.ts` — BKP-30: тексти для `auth/user-mismatch`, `auth/network-request-failed`, `firestore/unavailable`, загальний текст для інших кодів Firebase, власний текст інших помилок.
 - `src/stores/appSettings/appSettings.test.ts` — ONB-03: `completeOnboarding()` позначає вступ пройденим і зберігає тему.
 
-Без тестів: BKP-07, BKP-10 … BKP-19 (екрани, файл, хмара), заповнення знімків з кешу під час відновлення (BKP-20, BKP-29), BKP-22 … BKP-28 (акаунт Google, Firestore, мережа), SET-01 … SET-07, ONB-01, ONB-02, ONB-04 … ONB-06.
+Додаткові тести перевіряють відновлення відсутнього знімка з кешу та збереження наявного знімка, а також перевірки email і розміру, запис, відсутній документ і помилку видалення хмарної копії з підставним Firestore.
+
+Без повного покриття: BKP-07, BKP-10 … BKP-19 (екрани й файл), BKP-22 … BKP-28 (акаунт Google і реальна взаємодія з Firestore та мережею), SET-01 … SET-07, ONB-01, ONB-02, ONB-04 … ONB-06.
 
 ## Прогалини й питання
 

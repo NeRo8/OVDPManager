@@ -25,52 +25,102 @@ const purchase: Operation = {
   planned: false,
 };
 
-it('converts only confirmed operations and the received portion of payments', () => {
-  const planned = { ...purchase, id: 'planned', quantity: 2, amount: 2000, planned: true };
-  const wallet = buildWallet([purchase, planned], new Map(), '2025-08-01');
-  const events = fxEvents(wallet);
-  expect(events.map(({ type, amount }) => [type, amount])).toEqual([
-    ['purchase', 1000],
-    ['coupon', 100],
-  ]);
-  expect(
-    convertFxEvents(events, { '2025-01-01': 40, '2025-07-01': 50 }).map(
-      ({ equivalent }) => equivalent,
-    ),
-  ).toEqual([25, 2]);
+describe('fxReport', () => {
+  it('converts only confirmed operations and the received portion of payments', () => {
+    const planned = { ...purchase, id: 'planned', quantity: 2, amount: 2000, planned: true };
+    const wallet = buildWallet([purchase, planned], new Map(), '2025-08-01');
+    const events = fxEvents(wallet);
+    expect(events.map(({ type, amount }) => [type, amount])).toEqual([
+      ['purchase', 1000],
+      ['coupon', 100],
+    ]);
+    expect(
+      convertFxEvents(events, { '2025-01-01': 40, '2025-07-01': 50 }).map(
+        ({ equivalent }) => equivalent,
+      ),
+    ).toEqual([25, 2]);
+  });
+
+  it('values only confirmed remaining lots after partial redemption', () => {
+    const partialBond: Bond = {
+      ...bond,
+      payments: [{ type: 'redemption', date: '2025-07-01', amount: 500 }],
+    };
+    const buy = { ...purchase, ovdp: partialBond, quantity: 2, amount: 1800 };
+    const sale: Operation = {
+      ...buy,
+      id: 'sale',
+      type: 'sale',
+      date: '2025-08-01',
+      quantity: 1,
+      amount: 500,
+    };
+    const wallet = buildWallet([buy, sale], new Map(), '2025-09-01');
+    expect(fxRemainingCost(wallet, '2025-09-01')).toBe(450);
+  });
+
+  it('uses historical exchange rates for each month-end valuation', () => {
+    const wallet = buildWallet([purchase], new Map(), '2025-03-15');
+    const rates = { '2025-01-01': 40, '2025-01-31': 40, '2025-02-28': 50, '2025-03-15': 50 };
+    const points = fxTrend(
+      wallet,
+      convertFxEvents(fxEvents(wallet), rates),
+      rates,
+      '2025-03-15',
+      'year',
+    );
+    expect(points.map(({ invested, value }) => [invested, value])).toEqual([
+      [25, 25],
+      [25, 20],
+      [25, 20],
+    ]);
+  });
 });
 
-it('values only confirmed remaining lots after partial redemption', () => {
-  const partialBond: Bond = {
-    ...bond,
-    payments: [{ type: 'redemption', date: '2025-07-01', amount: 500 }],
-  };
-  const buy = { ...purchase, ovdp: partialBond, quantity: 2, amount: 1800 };
-  const sale: Operation = {
-    ...buy,
-    id: 'sale',
-    type: 'sale',
-    date: '2025-08-01',
-    quantity: 1,
-    amount: 500,
-  };
-  const wallet = buildWallet([buy, sale], new Map(), '2025-09-01');
-  expect(fxRemainingCost(wallet, '2025-09-01')).toBe(450);
-});
+describe('currency report edge cases', () => {
+  it('does not estimate remaining cost when the bond data is missing', () => {
+    const unknown = { ...purchase, ovdp: null };
+    const wallet = buildWallet([unknown], new Map(), '2025-03-15');
+    expect(fxRemainingCost(wallet, '2025-03-15')).toBeNull();
+    const rates = { '2025-01-01': 40, '2025-01-31': 40, '2025-02-28': 40, '2025-03-15': 40 };
+    const points = fxTrend(
+      wallet,
+      convertFxEvents(fxEvents(wallet), rates),
+      rates,
+      '2025-03-15',
+      'year',
+    );
+    expect(points.every((point) => point.value === null)).toBe(true);
+  });
 
-it('uses historical exchange rates for each month-end valuation', () => {
-  const wallet = buildWallet([purchase], new Map(), '2025-03-15');
-  const rates = { '2025-01-01': 40, '2025-01-31': 40, '2025-02-28': 50, '2025-03-15': 50 };
-  const points = fxTrend(
-    wallet,
-    convertFxEvents(fxEvents(wallet), rates),
-    rates,
-    '2025-03-15',
-    'year',
-  );
-  expect(points.map(({ invested, value }) => [invested, value])).toEqual([
-    [25, 25],
-    [25, 20],
-    [25, 20],
-  ]);
+  it('leaves a month-end value unknown when its exchange rate is missing', () => {
+    const wallet = buildWallet([purchase], new Map(), '2025-02-28');
+    const rates = { '2025-01-01': 40, '2025-01-31': 40 };
+    const points = fxTrend(
+      wallet,
+      convertFxEvents(fxEvents(wallet), rates),
+      rates,
+      '2025-02-28',
+      'year',
+    );
+    expect(points.map(({ value }) => value)).toEqual([25, null]);
+  });
+
+  it('recognizes a confirmed sale on its own date and excludes a planned sale', () => {
+    const sale: Operation = {
+      ...purchase,
+      id: 'sold',
+      type: 'sale',
+      date: '2025-02-01',
+      amount: 1100,
+    };
+    const planned: Operation = { ...sale, id: 'planned-sale', date: '2025-03-01', planned: true };
+    const buy = { ...purchase, quantity: 2, amount: 2000 };
+    const wallet = buildWallet([buy, sale, planned], new Map(), '2025-04-01');
+    expect(fxEvents(wallet).map(({ type, date }) => [type, date])).toEqual([
+      ['purchase', '2025-01-01'],
+      ['sale', '2025-02-01'],
+    ]);
+    expect(fxRemainingCost(wallet, '2025-02-01')).toBe(1000);
+  });
 });
