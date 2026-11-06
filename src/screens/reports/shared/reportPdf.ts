@@ -38,16 +38,27 @@ export function reportHtml(
     const min = Math.min(0, ...values);
     const max = Math.max(0, ...values);
     const span = max - min || 1;
-    const colors = ['#526f91', '#6d9252'];
+    const colors = ['#526f91', '#8b5793', '#20704e', '#be7429', '#a14444'];
     const lines = chart.series
       .map((item, seriesIndex) => {
-        const points = item.values
-          .map(
-            (value, index) =>
-              `${chart.labels.length === 1 ? 300 : (index * 580) / (chart.labels.length - 1) + 10},${140 - ((value - min) / span) * 120}`,
-          )
-          .join(' ');
-        return `<polyline fill="none" stroke="${colors[seriesIndex % colors.length]}" stroke-width="2" points="${points}"/>`;
+        const xOf = (index: number) =>
+          chart.labels.length === 1
+            ? 300
+            : (chart.positions?.[index] ?? index / (chart.labels.length - 1)) * 580 + 10;
+        const yOf = (value: number) => 140 - ((value - min) / span) * 120;
+        const points = item.values.map((value, index) => `${xOf(index)},${yOf(value)}`).join(' ');
+        const color = colors[seriesIndex % colors.length];
+        if (chart.labels.length === 1)
+          return `<circle cx="300" cy="${yOf(item.values[0])}" r="3" fill="${color}"/>`;
+        if (chart.step) {
+          const path = item.values
+            .map((value, index) =>
+              index === 0 ? `M ${xOf(index)} ${yOf(value)}` : `H ${xOf(index)} V ${yOf(value)}`,
+            )
+            .join(' ');
+          return `<path fill="none" stroke="${color}" stroke-width="2" d="${path}"/>`;
+        }
+        return `<polyline fill="none" stroke="${color}" stroke-width="2" points="${points}"/>`;
       })
       .join('');
     const legend = chart.series
@@ -57,6 +68,27 @@ export function reportHtml(
       )
       .join(' · ');
     return `<div class="chart"><svg viewBox="0 0 600 150" width="100%" height="150" role="img">${lines}</svg><p>${escapeHtml(chart.labels[0])} — ${escapeHtml(chart.labels.at(-1) ?? '')} · ${legend}</p></div>`;
+  };
+  const capitalChartHtml = (section: ReportSection) => {
+    const chart = section.capitalChart;
+    if (!chart) return '';
+    const line = lineChartHtml({
+      title: section.title,
+      rows: [],
+      lineChart: {
+        labels: chart.dates.map(formatDate),
+        positions: chart.positions,
+        series: chart.series,
+        step: true,
+      },
+    });
+    const rows = chart.dates.flatMap((date, index) =>
+      chart.series.map(
+        (item) =>
+          `<tr><td>${escapeHtml(`${formatDate(date)} · ${item.label}`)}</td><td>${escapeHtml(formatMoney(item.values[index], chart.currency))}</td></tr>`,
+      ),
+    );
+    return `${line}<table>${rows.join('')}</table>`;
   };
   const tableHtml = (section: ReportSection) => {
     const table = section.table;
@@ -74,7 +106,7 @@ export function reportHtml(
     .map(
       (section) => `
     <section><h2>${escapeHtml(section.title)}</h2>
-    ${section.rows.length ? `<table>${section.rows.map((row) => `<tr><td>${escapeHtml(row.label)}</td><td>${escapeHtml(row.value)}</td></tr>`).join('')}</table>` : ''}${tableHtml(section)}${chartHtml(section)}${lineChartHtml(section)}
+    ${section.rows.length ? `<table>${section.rows.map((row) => `<tr><td>${escapeHtml(row.label)}</td><td>${escapeHtml(row.value)}</td></tr>`).join('')}</table>` : ''}${tableHtml(section)}${chartHtml(section)}${capitalChartHtml(section)}${lineChartHtml(section)}
     ${section.footer ? `<p>${escapeHtml(section.footer)}</p>` : ''}</section>`,
     )
     .join('');

@@ -43,6 +43,8 @@ type Props = {
   min: number;
   max: number;
   sparseLabels?: boolean;
+  positions?: number[];
+  step?: boolean;
   accessibilityLabel: string;
 };
 
@@ -57,6 +59,8 @@ function LineChartView({
   min,
   max,
   sparseLabels = false,
+  positions,
+  step = false,
   accessibilityLabel,
   palette,
 }: ThemedProps) {
@@ -67,14 +71,33 @@ function LineChartView({
   const count = labels.length;
   const grid = chartGrid(min, max);
   const range = grid.max - grid.min;
-  const xOf = (index: number) => ((index + 0.5) / count) * plotWidth;
+  const xOf = (index: number) =>
+    positions
+      ? 6 + positions[index] * Math.max(0, plotWidth - 12)
+      : ((index + 0.5) / count) * plotWidth;
   const yOf = (value: number) =>
     PLOT_INSET + ((grid.max - value) / range) * (PLOT_HEIGHT - PLOT_INSET * 2);
-  const cursorX = useDerivedValue(() => ((cursor.get() + 0.5) / count) * plotWidth);
+  const cursorX = useDerivedValue(() => {
+    const index = cursor.get();
+    if (index < 0) return -1;
+    if (!positions) return ((index + 0.5) / count) * plotWidth;
+    const lower = Math.floor(index);
+    const upper = Math.min(lower + 1, count - 1);
+    const fraction = index - lower;
+    const position = positions[lower] + (positions[upper] - positions[lower]) * fraction;
+    return 6 + position * Math.max(0, plotWidth - 12);
+  });
   const tap = useTapGesture({
     enabled: count > 0 && plotWidth > 0,
     onActivate: (event) => {
-      const index = Math.max(0, Math.min(count - 1, Math.floor((event.x / plotWidth) * count)));
+      let index = Math.max(0, Math.min(count - 1, Math.floor((event.x / plotWidth) * count)));
+      if (positions) {
+        const fraction = (event.x - 6) / Math.max(1, plotWidth - 12);
+        index = 0;
+        for (let i = 1; i < count; i++) {
+          if (Math.abs(positions[i] - fraction) < Math.abs(positions[index] - fraction)) index = i;
+        }
+      }
       cursor.set(withTiming(index, { duration: reduceMotion ? 0 : 180 }));
       scheduleOnRN(setSelectedIndex, index);
     },
@@ -144,9 +167,12 @@ function LineChartView({
                   ))}
                   {series.map(({ color, values, strokeWidth = 2, dotSize = 5, dotIndices }) => {
                     const path = values
-                      .map(
-                        (value, index) => `${index === 0 ? 'M' : 'L'} ${xOf(index)} ${yOf(value)}`,
-                      )
+                      .map((value, index) => {
+                        if (index === 0) return `M ${xOf(index)} ${yOf(value)}`;
+                        return step
+                          ? `H ${xOf(index)} V ${yOf(value)}`
+                          : `L ${xOf(index)} ${yOf(value)}`;
+                      })
                       .join(' ');
                     const shownDots = dotIndices ?? values.map((_, index) => index);
                     return (

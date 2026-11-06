@@ -1,6 +1,6 @@
 import type { Bond, Operation } from '@/lib/portfolio/portfolio';
 import { buildWallet } from '@/lib/portfolio/wallet';
-import { formatMoney, formatPercent } from '@/utils/format';
+import { formatAmount, formatMoney, formatPercent } from '@/utils/format';
 
 import { positionReportSections } from './positionReportRows';
 
@@ -150,5 +150,63 @@ describe('yield and bond reports', () => {
     const usdWallet = buildWallet([usdPurchase], new Map(), '2025-06-01');
     const [usdSection] = positionReportSections(usdWallet, 'yield', null, 15);
     expect(usdSection.rows.some((row) => row.label.includes('НБУ'))).toBe(false);
+  });
+});
+
+describe('bond cash flow report', () => {
+  it('graphs the selected bond and preserves annual totals and event details', () => {
+    const planned: Operation = {
+      ...purchase,
+      id: 'planned',
+      date: '2025-03-01',
+      quantity: 1,
+      amount: 900,
+      planned: true,
+    };
+    const sale: Operation = {
+      ...purchase,
+      id: 'sale',
+      type: 'sale',
+      date: '2025-05-01',
+      quantity: 1,
+      amount: 1100,
+      planned: true,
+    };
+    const otherBond: Bond = { ...bond, isin: 'UA2' };
+    const other: Operation = { ...purchase, id: 'other', isin: 'UA2', ovdp: otherBond };
+    const wallet = buildWallet([purchase, planned, sale, other], new Map(), '2025-02-01');
+    const sections = positionReportSections(wallet, 'bond', bond.isin, null);
+    const chart = sections.find((section) => section.capitalChart)?.capitalChart;
+    expect(chart?.dates).toEqual([
+      '2025-01-01',
+      '2025-02-01',
+      '2025-03-01',
+      '2025-05-01',
+      '2026-01-01',
+      '2027-01-01',
+    ]);
+    expect(chart?.series.find((line) => line.label === 'Залишок вкладень · план')?.values).toEqual([
+      1800, 1800, 2700, 1800, 900, 0,
+    ]);
+    const operations = sections.find((section) => section.table?.columns[0] === 'Купівлі')?.table;
+    expect(operations?.rows.find((row) => row.label === '2025')?.values).toEqual([
+      formatAmount(2700),
+      formatAmount(1100),
+    ]);
+    expect(
+      sections.find((section) => section.title === 'Дохід за роками · UAH')?.rows,
+    ).toContainEqual({
+      label: '2025',
+      value: formatMoney(200, 'UAH'),
+    });
+    expect(sections.some((section) => section.title.startsWith('Продаж · 01.05.2025'))).toBe(true);
+    expect(sections.some((section) => section.title.startsWith('Погашення · 01.01.2026'))).toBe(
+      true,
+    );
+  });
+
+  it('returns no report for an unavailable bond', () => {
+    const wallet = buildWallet([purchase], new Map(), '2025-02-01');
+    expect(positionReportSections(wallet, 'bond', 'missing', null)).toEqual([]);
   });
 });

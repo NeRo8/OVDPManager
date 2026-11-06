@@ -2,11 +2,13 @@ import { purchaseLots } from '@/lib/portfolio/operations';
 import { CURRENCIES, receivedAmount } from '@/lib/portfolio/portfolio';
 import type { Wallet } from '@/lib/portfolio/wallet';
 import { cashFlowReport } from '@/screens/reports/cash-flow/cashFlowReport';
+import { flowTables } from '@/screens/reports/shared/flowTables';
 import type { ReportSection } from '@/screens/reports/shared/reportSection';
 import { addDaysISO, addMonthsISO, daysBetween, formatDate } from '@/utils/date';
 import { formatMoney, formatPercent } from '@/utils/format';
 import { round2 } from '@/utils/number';
 
+import { bondCapitalChart } from './bondCapital';
 import { purchaseKeyRate, yieldReportSections } from './yieldReportSections';
 
 export type PositionReportMode = 'structure' | 'yield' | 'bond';
@@ -70,19 +72,44 @@ export function positionReportSections(
       operationEvents: wallet.operationEvents.filter((event) => event.isin === isin),
       payments: wallet.payments.filter((event) => event.isin === isin),
     };
-    for (const year of years) {
+    const capitalChart = bondCapitalChart(item, wallet.today);
+    if (capitalChart)
+      sections.push({
+        title: `Вкладення та надходження · ${currency}`,
+        rows: [],
+        capitalChart,
+        footer: `Залишок вкладень — собівартість, а не ринкова вартість. Надходження включають купони, продажі та погашення. Факт після сьогодні не змінюється. План включає майбутні виплати й непідтверджені операції, зокрема прострочені.${capitalChart.actualAvailable ? '' : ' Фактичний залишок недоступний: підтверджений продаж залежить від непідтвердженої купівлі.'}`,
+      });
+    else if (!bond)
+      sections.push({
+        title: 'Вкладення та надходження',
+        rows: [{ label: 'Графік', value: 'Немає даних облігації' }],
+      });
+    const yearlyFlows = years.flatMap((year) => {
       const flow = cashFlowReport(alone, `${year}-01-01`, `${year}-12-31`)[0];
-      if (flow)
-        sections.push({
-          title: year,
-          rows: [
-            { label: 'Купівлі', value: money(flow.purchases) },
-            { label: 'Купони', value: money(flow.coupons) },
-            { label: 'Погашення', value: money(flow.redemptions) },
-            { label: 'Продажі', value: money(flow.sales) },
-            { label: 'Дохід', value: flow.income === null ? '—' : money(flow.income) },
-          ],
-        });
+      return flow ? [{ year, flow }] : [];
+    });
+    if (yearlyFlows.length) {
+      sections.push(
+        ...flowTables(
+          currency,
+          yearlyFlows.map(({ year, flow }) => ({
+            label: year,
+            purchases: flow.purchases - flow.plannedPurchases,
+            planned: flow.plannedPurchases,
+            coupons: flow.coupons,
+            redemptions: flow.redemptions,
+            sales: flow.sales,
+          })),
+        ).map((section) => ({ ...section, chart: undefined })),
+        {
+          title: `Дохід за роками · ${currency}`,
+          rows: yearlyFlows.map(({ year, flow }) => ({
+            label: year,
+            value: flow.income === null ? '—' : money(flow.income),
+          })),
+        },
+      );
     }
     position.operations.forEach((operation, index) => {
       sections.push({

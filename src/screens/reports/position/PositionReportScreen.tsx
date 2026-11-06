@@ -16,12 +16,14 @@ import { useBonds } from '@/hooks/useBonds.hook';
 import { useKeyRate } from '@/hooks/useKeyRate.hook';
 import { useWallet } from '@/hooks/useWallet.hook';
 import { passesStatus, type PortfolioStatus } from '@/screens/reports/portfolio/portfolioReport';
+import { FlowTable } from '@/screens/reports/shared/FlowTable';
 import { ReportHeaderActions } from '@/screens/reports/shared/ReportHeaderActions';
 import { reportScopeLabel, scopedWallet } from '@/screens/reports/shared/reportScope';
 import { useReportParams } from '@/screens/reports/shared/useReportParams.hook';
 import { useReportShare } from '@/screens/reports/shared/useReportShare.hook';
 import { keyRateOn, useCachedKeyRateYears } from '@/stores/keyRate/selectors';
 
+import { BondFlowChart } from './BondFlowChart';
 import { positionReportSections, type PositionReportMode } from './positionReportRows';
 import { YieldChart } from './YieldChart';
 
@@ -149,11 +151,17 @@ export default function PositionReportScreen({ mode }: Props) {
         )}
         {sections.map((section) => (
           <Fragment key={section.title}>
-            <Section title={section.title} footer={section.footer}>
-              {section.rows.map((row) => (
-                <InfoRow key={row.label} label={row.label} value={row.value} prioritizeValue />
-              ))}
-            </Section>
+            {section.capitalChart && (
+              <BondFlowChart chart={section.capitalChart} footer={section.footer} />
+            )}
+            {section.table && <FlowTable title={section.title} table={section.table} />}
+            {!section.capitalChart && !section.table && (
+              <Section title={section.title} footer={section.footer}>
+                {section.rows.map((row) => (
+                  <InfoRow key={row.label} label={row.label} value={row.value} prioritizeValue />
+                ))}
+              </Section>
+            )}
             {mode === 'yield' && section.chart && <YieldChart chart={section.chart} />}
           </Fragment>
         ))}
