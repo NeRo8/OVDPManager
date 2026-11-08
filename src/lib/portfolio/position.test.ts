@@ -85,6 +85,18 @@ describe('walletPosition', () => {
     );
   });
 
+  it('counts only unsold planned bonds in the planned quantity', () => {
+    const planned = purchase({ date: '2026-01-02', amount: 10000, quantity: 10, planned: true });
+    const sale = purchase({
+      date: '2026-02-01',
+      amount: 8000,
+      quantity: 8,
+      type: 'sale',
+      planned: true,
+    });
+    expect(positionOf([planned, sale], '2026-03-01').planned.quantity).toBe(2);
+  });
+
   it('receives nothing for a planned purchase whose date has come, until it is confirmed', () => {
     // Planned for 02.01.2026 and not confirmed: its share of the 01.07.2026 coupon is not received.
     const planned = purchase({ date: '2026-01-02', amount: 1000, planned: true });
@@ -213,6 +225,9 @@ describe('resultsByCurrency', () => {
       `Виплати ${formatMoney(1200, 'UAH')} мінус вкладено ${formatMoney(1000, 'UAH')}, лише повністю продані ОВДП або ОВДП з опублікованим погашенням`,
     );
     expect(netIncomeBasis(resultsByCurrency([uah])[0])).toBeUndefined();
+    expect(netIncomeBasis(resultsByCurrency([uah, unknown])[0])).toContain(
+      formatMoney(1000, 'UAH'),
+    );
     expect(resultsByCurrency([incomplete])[0].netIncome).toBeNull();
   });
 

@@ -1,4 +1,10 @@
-import { deleteDoc, doc, getDoc, getFirestore, setDoc } from '@react-native-firebase/firestore';
+import {
+  deleteDoc,
+  doc,
+  getDoc,
+  getFirestore,
+  runTransaction,
+} from '@react-native-firebase/firestore';
 
 import type { GoogleAccount } from './googleAccount';
 
@@ -22,7 +28,11 @@ export async function fetchCloudBackup(uid: string): Promise<CloudBackup | null>
 }
 
 /** Writes the backup over the account's previous one. */
-export async function saveCloudBackup(account: GoogleAccount, json: string): Promise<CloudBackup> {
+export async function saveCloudBackup(
+  account: GoogleAccount,
+  json: string,
+  previous: CloudBackup | null,
+): Promise<CloudBackup> {
   if (!account.email) throw new Error('У цьому акаунті немає адреси email.');
   // The serialized envelope is ASCII: its encrypted contents are base64.
   if (json.length >= 900_000) {
@@ -33,7 +43,15 @@ export async function saveCloudBackup(account: GoogleAccount, json: string): Pro
     exportedAt: new Date().toISOString(),
     backup: json,
   };
-  await setDoc(backupDoc(account.uid), cloudBackup);
+  const reference = backupDoc(account.uid);
+  await runTransaction(getFirestore(), async (transaction) => {
+    const snapshot = await transaction.get(reference);
+    const current = snapshot.exists() ? (snapshot.data() as CloudBackup) : null;
+    if (current?.backup !== previous?.backup || current?.exportedAt !== previous?.exportedAt) {
+      throw new Error('Копію в хмарі змінено на іншому пристрої. Спробуйте зберегти ще раз.');
+    }
+    transaction.set(reference, cloudBackup);
+  });
   return cloudBackup;
 }
 

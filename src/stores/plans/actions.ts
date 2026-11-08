@@ -16,13 +16,27 @@ import {
   replaceOperations,
   getOperations,
 } from '@/stores/operations';
+import { useOperationsStore } from '@/stores/operations/store';
 import { createId } from '@/utils/id';
+import { portfolioUpdate } from '@/utils/storage';
 
 import { getActivePlan } from './selectors';
 import { usePlansStore } from './store';
 
 function updatePlans(update: (current: InvestmentPlan[]) => InvestmentPlan[]): void {
   usePlansStore.setState((state) => ({ plans: update(state.plans) }));
+}
+
+function updatePortfolio(update: () => void): void {
+  const operations = useOperationsStore.getState();
+  const plans = usePlansStore.getState();
+  try {
+    portfolioUpdate(update);
+  } catch (error) {
+    useOperationsStore.setState(operations, true);
+    usePlansStore.setState(plans, true);
+    throw error;
+  }
 }
 
 /** `name` comes from the plan-name form, already trimmed and checked. */
@@ -54,19 +68,23 @@ export function duplicateInvestmentPlan(id: string): string | undefined {
     plan.name.slice(0, PLAN_NAME_MAX_LENGTH - COPY_SUFFIX.length).trimEnd() + COPY_SUFFIX,
     usePlansStore.getState().plans,
   );
-  const copyId = createInvestmentPlan(name);
-  copyPlanOperations(id, copyId);
-  if (plan.goal)
-    updatePlans((plans) =>
-      plans.map((item) => (item.id === copyId ? { ...item, goal: plan.goal } : item)),
-    );
+  updatePortfolio(() => {
+    const copyId = createInvestmentPlan(name);
+    copyPlanOperations(id, copyId);
+    if (plan.goal)
+      updatePlans((plans) =>
+        plans.map((item) => (item.id === copyId ? { ...item, goal: plan.goal } : item)),
+      );
+  });
   return name;
 }
 
 /** Removes the plan with all its operations. */
 export function removeInvestmentPlan(id: string): void {
-  removePlanOperations(id);
-  updatePlans((plans) => selectActivePlan(plans.filter((plan) => plan.id !== id)));
+  updatePortfolio(() => {
+    removePlanOperations(id);
+    updatePlans((plans) => selectActivePlan(plans.filter((plan) => plan.id !== id)));
+  });
 }
 
 /** Select one plan, falling back to the existing selection or the first plan. */
@@ -82,9 +100,11 @@ export function setActivePlan(id: string): void {
 
 /** Restores from a backup: its plans and their operations replace everything. */
 export function restorePortfolio(operations: PlanOperation[], plans: InvestmentPlan[]): void {
-  replaceOperations(operations);
-  recoverOperationBonds(getCachedBonds().bonds ?? []);
-  usePlansStore.setState({ plans: selectActivePlan(plans) });
+  updatePortfolio(() => {
+    replaceOperations(operations);
+    recoverOperationBonds(getCachedBonds().bonds ?? []);
+    usePlansStore.setState({ plans: selectActivePlan(plans) });
+  });
 }
 
 /** A new plan becomes active, ready for its first operations. */
@@ -126,11 +146,13 @@ export function createCouponGoalPlan(
   const operations = [...current, ...copied, ...generated];
   const error = operationHistoryError(operations);
   if (error) throw new Error(error);
-  replaceOperations(operations);
-  updatePlans((plans) => [
-    ...plans.map((plan) => ({ ...plan, isActive: false })),
-    { id, name, isActive: true, goal },
-  ]);
+  updatePortfolio(() => {
+    replaceOperations(operations);
+    updatePlans((plans) => [
+      ...plans.map((plan) => ({ ...plan, isActive: false })),
+      { id, name, isActive: true, goal },
+    ]);
+  });
   return name;
 }
 
@@ -138,20 +160,22 @@ export function createCouponGoalPlan(
 export function removeCouponGoalFromActivePlan(): void {
   const plan = getActivePlan();
   if (!plan?.goal) return;
-  replaceOperations(
-    getOperations().map((operation) =>
-      operation.planId === plan.id && operation.goalGenerated
-        ? { ...operation, goalGenerated: false }
-        : operation,
-    ),
-  );
-  updatePlans((plans) =>
-    plans.map((item) => {
-      if (item.id !== plan.id) return item;
-      const { goal: _goal, ...rest } = item;
-      return rest;
-    }),
-  );
+  updatePortfolio(() => {
+    replaceOperations(
+      getOperations().map((operation) =>
+        operation.planId === plan.id && operation.goalGenerated
+          ? { ...operation, goalGenerated: false }
+          : operation,
+      ),
+    );
+    updatePlans((plans) =>
+      plans.map((item) => {
+        if (item.id !== plan.id) return item;
+        const { goal: _goal, ...rest } = item;
+        return rest;
+      }),
+    );
+  });
 }
 
 /**

@@ -7,6 +7,7 @@ import {
   nextPayment,
   positionPayments,
   pricePerBond,
+  receivedAmount,
   operationEvents,
 } from './portfolio';
 
@@ -150,5 +151,26 @@ describe('positionPayments', () => {
     expect(nextPayment(payments)?.date).toBe('2026-09-01');
     expect(nextPayment(payments.filter((payment) => payment.isPaid))).toBeUndefined();
     expect(nextPayment([])).toBeUndefined();
+  });
+
+  it('keeps past coupons until a planned sale is confirmed', () => {
+    const bought = purchase('bought', '2025-01-10', 2);
+    const sale = { ...purchase('sale', '2026-06-01', 2), type: 'sale' as const, planned: true };
+    expect(positionPayments([bought, sale], bond, '2026-10-01').map((p) => p.date)).toContain(
+      '2026-09-01',
+    );
+    expect(
+      positionPayments([bought, { ...sale, planned: false }], bond, '2026-10-01').map(
+        (p) => p.date,
+      ),
+    ).not.toContain('2026-09-01');
+  });
+
+  it('allocates received coupons using confirmed purchases and sales', () => {
+    const planned = { ...purchase('planned', '2025-01-10', 1), planned: true };
+    const bought = purchase('bought', '2025-02-10', 1);
+    const sale = { ...purchase('sale', '2025-03-10', 1), type: 'sale' as const };
+    const [payment] = positionPayments([planned, bought, sale], bond, '2025-10-01');
+    expect(receivedAmount(payment)).toBe(0);
   });
 });

@@ -99,7 +99,7 @@ export function useBackupExport(onExported: () => void) {
         ));
       if (!replace) return;
       const json = await serializeBackup(currentBackup(), key);
-      const saved = await saveCloudBackup(signedIn, json);
+      const saved = await saveCloudBackup(signedIn, json, previous);
       queryClient.setQueryData(cloudBackupQueryKey(signedIn.uid), saved);
       showToast({
         tone: 'success',

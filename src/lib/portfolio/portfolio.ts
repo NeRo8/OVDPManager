@@ -243,18 +243,31 @@ export function positionPayments(
   today: string,
 ): PositionPayment[] {
   return bond.payments.flatMap((payment) => {
-    const entitled = purchaseLots(operations.filter((operation) => operation.date < payment.date));
+    const entitled = purchaseLots(
+      operations.filter(
+        (operation) =>
+          operation.date < payment.date &&
+          !(payment.date < today && operation.type === 'sale' && operation.planned),
+      ),
+    );
     const quantity = entitled.reduce((total, lot) => total + lot.remaining, 0);
     if (quantity === 0) return [];
+    const plannedQuantity = entitled
+      .filter((lot) => lot.purchase.planned)
+      .reduce((total, lot) => total + lot.remaining, 0);
+    const receivedQuantity =
+      payment.date < today
+        ? purchaseLots(
+            operations.filter((operation) => operation.date < payment.date && !operation.planned),
+          ).reduce((total, lot) => total + lot.remaining, 0)
+        : quantity - plannedQuantity;
     return [
       {
         ...payment,
         isin: bond.isin,
         currency: bond.currency,
         quantity,
-        plannedQuantity: entitled
-          .filter((lot) => lot.purchase.planned)
-          .reduce((total, lot) => total + lot.remaining, 0),
+        plannedQuantity: payment.date < today ? quantity - receivedQuantity : plannedQuantity,
         total: round2(payment.amount * quantity),
         isPaid: payment.date < today,
       },

@@ -194,8 +194,8 @@ export default function PlanScreen() {
                 <Section
                   title="Результат"
                   footer={
-                    total.incompleteCount > 0
-                      ? `Облігації без опублікованого погашення (${total.incompleteCount}) у чистий дохід і дохідність за весь строк не враховано.`
+                    total.incompleteCount > 0 || total.withoutDataCount > 0
+                      ? `Облігації без даних або опублікованого погашення (${total.incompleteCount + total.withoutDataCount}) у чистий дохід і дохідність за весь строк не враховано.`
                       : undefined
                   }
                 >
@@ -208,7 +208,7 @@ export default function PlanScreen() {
                   <InfoRow
                     label="Дохідність за весь строк"
                     hint={
-                      total.incompleteCount > 0
+                      total.incompleteCount > 0 || total.withoutDataCount > 0
                         ? `Чистий дохід поділено на вкладення лише в облігації з опублікованим погашенням: ${formatMoney(total.published.invested, total.currency)}.`
                         : 'Чистий дохід у відсотках від вкладень за весь строк, без перерахунку на рік; комісії враховані в сумах операцій'
                     }

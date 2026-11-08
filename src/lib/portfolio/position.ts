@@ -216,12 +216,10 @@ export function walletPosition(
 
 /** A Position's purchases not yet confirmed, together. */
 export function plannedPart(position: Position): WalletPosition['planned'] {
-  const planned = position.operations.filter(
-    (operation) => operation.type === 'purchase' && operation.planned,
-  );
+  const planned = purchaseLots(position.operations).filter((lot) => lot.purchase.planned);
   return {
-    quantity: planned.reduce((sum, purchase) => sum + purchase.quantity, 0),
-    amount: round2(planned.reduce((sum, purchase) => sum + purchase.amount, 0)),
+    quantity: planned.reduce((sum, lot) => sum + lot.remaining, 0),
+    amount: round2(planned.reduce((sum, lot) => sum + lot.purchase.amount, 0)),
   };
 }
 
@@ -284,8 +282,13 @@ export function resultsByCurrency(positions: WalletPosition[]): CurrencyResults[
  * мінус вкладено 10 500,00 ₴, лише ОВДП з опублікованим погашенням». Nothing when none is left
  * out, as the sums shown above it then add up.
  */
-export function netIncomeBasis({ currency, incompleteCount, published }: CurrencyResults) {
-  if (incompleteCount === 0) return undefined;
+export function netIncomeBasis({
+  currency,
+  incompleteCount,
+  withoutDataCount,
+  published,
+}: CurrencyResults) {
+  if (incompleteCount === 0 && withoutDataCount === 0) return undefined;
   const money = (value: number) => formatMoney(value, currency);
   return `Виплати ${money(published.totalPayments)} мінус вкладено ${money(published.invested)}, лише повністю продані ОВДП або ОВДП з опублікованим погашенням`;
 }
