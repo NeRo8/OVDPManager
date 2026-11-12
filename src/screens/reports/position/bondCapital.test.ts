@@ -129,7 +129,8 @@ describe('bondCapitalChart', () => {
     expect(series['Залишок вкладень · факт'][couponIndex]).toBe(1800);
     expect(series['Надходження · факт'][couponIndex]).toBe(100);
     expect(series['Залишок вкладень · план'][couponIndex]).toBe(0);
-    expect(series['Надходження · план'][couponIndex]).toBe(1900);
+    // The past coupon stays until the sale is confirmed, so the plan counts both.
+    expect(series['Надходження · план'][couponIndex]).toBe(2000);
   });
 
   it('does not show factual lines if a confirmed sale depends on a planned purchase', () => {

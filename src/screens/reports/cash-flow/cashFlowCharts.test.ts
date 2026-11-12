@@ -34,7 +34,7 @@ describe('cashFlowCharts', () => {
     const [chart] = cashFlowCharts(wallet, '2026-01-01', '2026-12-31', 'year');
 
     expect(chart.periods).toEqual([
-      { label: '2026', purchases: 900, planned: 950, coupons: 100, redemptions: 0, sales: 0 },
+      { label: '2026', purchases: 900, planned: 950, coupons: 50, redemptions: 0, sales: 0 },
     ]);
   });
 

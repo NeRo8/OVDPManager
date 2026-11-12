@@ -27,9 +27,11 @@ describe('cloudBackup', () => {
   it('stores the encrypted file under the account and preserves its contents', async () => {
     jest.spyOn(Date.prototype, 'toISOString').mockReturnValue('2026-01-01T00:00:00.000Z');
     const set = jest.fn();
-    jest.mocked(runTransaction).mockImplementation(async (_firestore, action) =>
-      action({ get: async () => ({ exists: () => false }), set } as never),
-    );
+    jest
+      .mocked(runTransaction)
+      .mockImplementation(async (_firestore, action) =>
+        action({ get: async () => ({ exists: () => false }), set } as never),
+      );
     const backup = await saveCloudBackup(
       { uid: 'u1', email: 'a@example.com' },
       '{"encrypted":true}',
@@ -56,11 +58,11 @@ describe('cloudBackup', () => {
       } as never),
     );
     await expect(
-      saveCloudBackup(
-        { uid: 'u1', email: 'a@example.com' },
-        'mine',
-        { email: 'a@example.com', backup: 'old', exportedAt: 'old' },
-      ),
+      saveCloudBackup({ uid: 'u1', email: 'a@example.com' }, 'mine', {
+        email: 'a@example.com',
+        backup: 'old',
+        exportedAt: 'old',
+      }),
     ).rejects.toThrow('змінено на іншому пристрої');
     expect(set).not.toHaveBeenCalled();
   });
